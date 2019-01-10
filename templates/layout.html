@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>{% block head %}
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>{% block title %}{% endblock %}</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+        <script src="{{ url_for('static', filename='socketio.js') }}"></script>
+    {% endblock %}
+    </head>
+    <body>
+        <div id="flex_layout">
+            <header>
+                {{ title }}
+            </header>
+            <main>
+                {% block content %}
+                Hello World!
+                {% endblock %}
+            </main>
+            <footer>
+                {% block footer %}
+                &copy; this page was created in 2019 by <a href="http://chrani.net/">ecv</a>
+                {% endblock %}
+            </footer>
+        </div>
+    </body>
+</html>
+
