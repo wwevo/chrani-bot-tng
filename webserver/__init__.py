@@ -7,7 +7,7 @@ root_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_dir)
 """ standard imports """
 import re
-
+from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, render_template, Markup
 from flask_login import UserMixin, LoginManager, login_required, login_user, current_user, logout_user
 from flask_socketio import SocketIO
@@ -26,18 +26,35 @@ class Webserver(Thread):
 
     def __init__(self, options=dict):
         self.default_options = {
-            "host": "127.0.0.1",
+            "host": self.get_ip(),
             "port": 5000,
-            "SocketIO_asynch_mode": None,
             "Flask_secret_key": "thisissecret",
+            "SocketIO_asynch_mode": None,
+            "SocketIO_use_reloader": False,
             "SocketIO_debug": False
         }
 
+        self.options = self.default_options
         if isinstance(options, dict):
-            self.options = options
-        else:
-            self.option = self.default_options
+            print("Webserver: provided options have been set")
+            self.options.update(options)
+
         Thread.__init__(self)
+
+    def get_ip(self):
+        s = socket(AF_INET, SOCK_DGRAM)
+        try:
+            # doesn't even have to be reachable
+            s.connect(('10.255.255.255', 1))
+            ip = s.getsockname()[0]
+            print("Webserver: discovered IP: {}".format(ip))
+        except Exception as error:
+            ip = '127.0.0.1'
+            print(type(error))
+            print("Webserver: could not find IP, using {} instead!".format(ip))
+        finally:
+            s.close()
+        return ip
 
     def run(self):
         app = Flask(
@@ -50,13 +67,16 @@ class Webserver(Thread):
         login_manager = LoginManager()
         login_manager.init_app(app)
 
-        socketio = SocketIO(app, async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode")))
+        socketio = SocketIO(
+            app,
+            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
+        )
 
+        """ management stuff """
         @login_manager.user_loader
         def user_loader(steamid):
             """ This is where the authentication will happen, see if that user in in your allowed players database or
              whatever """
-            print(steamid)
             return User(steamid)
 
         @app.route('/login')
@@ -67,18 +87,21 @@ class Webserver(Thread):
                 'openid.identity': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.claimed_id': "http://specs.openid.net/auth/2.0/identifier_select",
                 'openid.mode': 'checkid_setup',
-                'openid.return_to': "http://{}:{}/authenticate".format(self.options.get("host", self.default_options.get("host")), self.options.get("port", self.default_options.get("port"))),
-                'openid.realm': "http://{}:{}".format(self.options.get("host", self.default_options.get("host")), self.options.get("port", self.default_options.get("port")))
+                'openid.return_to': "http://{host}:{port}/authenticate".format(
+                    host=self.options.get("host", self.default_options.get("host")),
+                    port=self.options.get("port", self.default_options.get("port"))
+                ),
+                'openid.realm': "http://{host}:{port}".format(
+                    host=self.options.get("host",self.default_options.get("host")),
+                    port=self.options.get("port", self.default_options.get("port"))
+                )
             }
             query_string = urlencode(u)
-            auth_url = "{}?{}".format(steam_openid_url, query_string)
+            auth_url = "{url}?{query_string}".format(
+                url=steam_openid_url,
+                query_string=query_string
+            )
             return redirect(auth_url)
-
-        @app.route('/logout')
-        @login_required
-        def logout():
-            logout_user()
-            return redirect("/")
 
         @app.route('/authenticate', methods=['GET'])
         def setup():
@@ -116,10 +139,22 @@ class Webserver(Thread):
 
             return redirect("/")
 
+        @app.route('/logout')
+        @login_required
+        def logout():
+            logout_user()
+            return redirect("/")
+
+        """ actual pages """
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
         def unauthorized_handler():
-            return redirect("/")
+            output = '<div class="widget forced">'
+            output += '<p>You are not allowed to view that page :(</p>'
+            output += '<p><a href="/">home</a></p>'
+            output += "</div>"
+            markup = Markup(output)
+            return render_template('index.html', content=markup), 401
 
         @app.errorhandler(404)
         def page_not_found(error):
@@ -138,7 +173,8 @@ class Webserver(Thread):
             output = '<div class="widget forced">'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
             output += '<p>' \
-                      'please <a href="/login">log in with your steam account</a> to get access to the protected stuff' \
+                      'please <a href="/login">log in with your steam account</a> ' \
+                      'to get access to the protected stuff' \
                       '</p>'
             output += '</div>'
 
@@ -151,20 +187,24 @@ class Webserver(Thread):
             output = '<div class="widget forced">'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong> (protected)</p>'
             output += '<p>' \
-                      'Since there is nothing to do here, you might just as well <a href="/logout">log out</a> again.' \
+                      'Since there is nothing to do here, ' \
+                      'you might just as well <a href="/logout">log out</a> again.' \
                       '</p>'
             output += '</div>'
 
             markup = Markup(output)
             return render_template('index.html', content=markup)
 
-        @socketio.on('dummy', namespace='/chrani-bot-ng')
+        """ websocket handling """
+        @socketio.on('dummy', namespace='/dummy')
+        @login_required
         def dummy(message):
-            print("socket answered!")
+            pass
 
         socketio.run(
             app,
             host=self.options.get("host", self.default_options.get("host")),
             port=self.options.get("port", self.default_options.get("port")),
-            debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug"))
+            debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
+            use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
         )
