@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block title %}{% if title %}{{ title }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block head %}{{ super() }}{% endblock %}
+{% block header %}{% if header %}{{ header }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block content %}{% if content %}{{ content }}{% else %}{{ super() }}{% endif %}{% endblock %}
+{% block footer %}{% if footer %}{{ footer }}{% else %}{{ super() }}{% endif %}{% endblock %}
