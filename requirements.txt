@@ -2,4 +2,4 @@ flask
 flask_login
 flask_socketio
 requests
-eventlet
+gevent

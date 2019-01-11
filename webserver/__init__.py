@@ -1,6 +1,9 @@
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
+
+# import eventlet
+# eventlet.monkey_patch()
 
 import os
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -167,7 +170,6 @@ class Webserver(Thread):
         @login_required
         def logout():
             del self.connected_clients[current_user.id]
-            leave_room(current_user.id)
             logout_user()
             return redirect("/")
 
