@@ -5,9 +5,11 @@ monkey.patch_all()
 # import eventlet
 # eventlet.monkey_patch()
 
-import os
-root_dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(root_dir)
+from modules import loaded_modules_list
+
+from os import path, chdir
+root_dir = path.dirname(path.abspath(__file__))
+chdir(root_dir)
 
 """ standard imports """
 import re
@@ -48,10 +50,15 @@ class Webserver(Thread):
         if isinstance(options, dict):
             print("Webserver: provided options have been set")
             self.options.update(options)
+        else:
+            print("Webserver: no options provided, default values are used")
 
         self.connected_clients = {}
         Thread.start(self)
         return self
+
+    def get_identifier(self):
+        return "module_webserver"
 
     def get_ip(self):
         s = socket(AF_INET, SOCK_DGRAM)
@@ -71,8 +78,8 @@ class Webserver(Thread):
     def run(self):
         app = Flask(
             __name__,
-            template_folder=os.path.join(root_dir, 'templates'),
-            static_folder=os.path.join(root_dir, 'static')
+            template_folder=path.join(root_dir, 'templates'),
+            static_folder=path.join(root_dir, 'static')
         )
         app.config["SECRET_KEY"] = self.options.get("Flask_secret_key", self.default_options.get("Flask_secret_key"))
 
@@ -229,30 +236,24 @@ class Webserver(Thread):
         def connect_handler():
             if current_user.is_authenticated:
                 self.connected_clients[current_user.id].sid = request.sid
-                message = '{0} has joined with sid {1}'.format(current_user.id, request.sid)
-                print(message)
                 emit(
-                    'connected', {
-                        'message': message
-                    },
+                    'connected',
                     room=request.sid,
                     broadcast=False
                 )
             else:
                 return False  # not allowed here
 
-        @socketio.on('my event', namespace='/chrani-bot-ng')
+        @socketio.on('ding', namespace='/chrani-bot-ng')
         @authenticated_only
-        def handle_my_custom_event(json):
+        def handle_my_custom_event():
+            print("got 'ding' from {}".format(current_user.id))
             if current_user.is_authenticated:
-                message = '{0} is online with sid {1}: {2}'.format(current_user.id, current_user.sid, json)
-                print(message)
                 emit(
-                    'my response', {
-                        'message': message
-                    },
+                    'dong',
                     room=current_user.sid
                 )
+                print("sent 'dong' to {}".format(current_user.id))
             else:
                 return False  # not allowed here
 
@@ -263,3 +264,6 @@ class Webserver(Thread):
             debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
             use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
         )
+
+
+loaded_modules_list.append(Webserver())
