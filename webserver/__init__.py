@@ -1,30 +1,35 @@
-""" some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early """
-from gevent import monkey
-monkey.patch_all()
+""" some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
+import eventlet
+eventlet.monkey_patch()
 
 import os
 root_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(root_dir)
+
 """ standard imports """
 import re
+import functools
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, render_template, Markup
 from flask_login import UserMixin, LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, disconnect, leave_room
 from requests import post
 from urllib.parse import urlencode
 from threading import Thread
 
 
 class User(UserMixin, object):
+    id = str
+
     def __init__(self, steamid=None):
         self.id = steamid
 
 
 class Webserver(Thread):
     options = dict
+    connected_clients = dict
 
-    def __init__(self, options=dict):
+    def __init__(self):
         self.default_options = {
             "host": self.get_ip(),
             "port": 5000,
@@ -33,13 +38,17 @@ class Webserver(Thread):
             "SocketIO_use_reloader": False,
             "SocketIO_debug": False
         }
+        Thread.__init__(self)
 
+    def start(self, options=dict):
         self.options = self.default_options
         if isinstance(options, dict):
             print("Webserver: provided options have been set")
             self.options.update(options)
 
-        Thread.__init__(self)
+        self.connected_clients = {}
+        Thread.start(self)
+        return self
 
     def get_ip(self):
         s = socket(AF_INET, SOCK_DGRAM)
@@ -73,11 +82,26 @@ class Webserver(Thread):
         )
 
         """ management stuff """
+        def authenticated_only(f):
+            @functools.wraps(f)
+            def wrapped(*args, **kwargs):
+                if not current_user.is_authenticated:
+                    disconnect()
+                else:
+                    return f(*args, **kwargs)
+
+            return wrapped
+
         @login_manager.user_loader
         def user_loader(steamid):
-            """ This is where the authentication will happen, see if that user in in your allowed players database or
-             whatever """
-            return User(steamid)
+            user = self.connected_clients.get(steamid, False)
+            if not user:
+                """ This is where the authentication will happen, see if that user in in your allowed players database or
+                 whatever """
+                user = User(steamid)
+                self.connected_clients[steamid] = user
+
+            return user
 
         @app.route('/login')
         def login():
@@ -132,9 +156,9 @@ class Webserver(Thread):
                 p = re.search(r"/(?P<steamid>([0-9]{17}))", str(request.args["openid.claimed_id"]))
                 if p:
                     steamid = p.group("steamid")
-                    player_object = User(steamid)
+                    user = User(steamid)
+                    login_user(user, remember=True)
 
-                    login_user(player_object, remember=True)
                     return redirect("/protected")
 
             return redirect("/")
@@ -142,6 +166,8 @@ class Webserver(Thread):
         @app.route('/logout')
         @login_required
         def logout():
+            del self.connected_clients[current_user.id]
+            leave_room(current_user.id)
             logout_user()
             return redirect("/")
 
@@ -196,10 +222,37 @@ class Webserver(Thread):
             return render_template('index.html', content=markup)
 
         """ websocket handling """
-        @socketio.on('dummy', namespace='/dummy')
+        @socketio.on('connect', namespace='/chrani-bot-ng')
         @login_required
-        def dummy(message):
-            pass
+        def connect_handler():
+            if current_user.is_authenticated:
+                self.connected_clients[current_user.id].sid = request.sid
+                message = '{0} has joined with sid {1}'.format(current_user.id, request.sid)
+                print(message)
+                emit(
+                    'connected', {
+                        'message': message
+                    },
+                    room=request.sid,
+                    broadcast=False
+                )
+            else:
+                return False  # not allowed here
+
+        @socketio.on('my event', namespace='/chrani-bot-ng')
+        @authenticated_only
+        def handle_my_custom_event(json):
+            if current_user.is_authenticated:
+                message = '{0} is online with sid {1}: {2}'.format(current_user.id, current_user.sid, json)
+                print(message)
+                emit(
+                    'my response', {
+                        'message': message
+                    },
+                    room=current_user.sid
+                )
+            else:
+                return False  # not allowed here
 
         socketio.run(
             app,
