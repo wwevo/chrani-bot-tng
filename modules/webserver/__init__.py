@@ -161,7 +161,7 @@ class Webserver(Thread):
                     steamid = p.group("steamid")
                     user = User(steamid)
                     login_user(user, remember=True)
-
+                    print("user {} connected...".format(user.id))
                     return redirect("/protected")
 
             return redirect("/")
