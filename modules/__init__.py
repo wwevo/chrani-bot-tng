@@ -21,4 +21,4 @@ for module in modules_list:
 
 def load_modules():
     for loaded_module in loaded_modules_list:
-        loaded_module.start(module_options_dict.get(loaded_module.get_identifier(), dict))
+        loaded_module.start(module_options_dict.get(loaded_module.get_module_identifier(), dict))

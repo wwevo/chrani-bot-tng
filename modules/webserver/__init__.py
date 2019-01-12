@@ -2,32 +2,23 @@
 from gevent import monkey
 monkey.patch_all()
 
-# import eventlet
-# eventlet.monkey_patch()
-
-from modules import loaded_modules_list
-
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
+from modules import loaded_modules_list
+from .user import User
+
 import re
 import functools
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, render_template, Markup
-from flask_login import UserMixin, LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit, disconnect, leave_room
+from flask_login import LoginManager, login_required, login_user, current_user, logout_user
+from flask_socketio import SocketIO, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
 from threading import Thread
-
-
-class User(UserMixin, object):
-    id = str
-
-    def __init__(self, steamid=None):
-        self.id = steamid
 
 
 class Webserver(Thread):
@@ -45,22 +36,12 @@ class Webserver(Thread):
         }
         Thread.__init__(self)
 
-    def start(self, options=dict):
-        self.options = self.default_options
-        if isinstance(options, dict):
-            print("Webserver: provided options have been set")
-            self.options.update(options)
-        else:
-            print("Webserver: no options provided, default values are used")
-
-        self.connected_clients = {}
-        Thread.start(self)
-        return self
-
-    def get_identifier(self):
+    @staticmethod
+    def get_module_identifier():
         return "module_webserver"
 
-    def get_ip(self):
+    @staticmethod
+    def get_ip():
         s = socket(AF_INET, SOCK_DGRAM)
         try:
             # doesn't even have to be reachable
@@ -74,6 +55,18 @@ class Webserver(Thread):
         finally:
             s.close()
         return ip
+
+    def start(self, options=dict):
+        self.options = self.default_options
+        if isinstance(options, dict):
+            print("Webserver: provided options have been set")
+            self.options.update(options)
+        else:
+            print("Webserver: no options provided, default values are used")
+
+        self.connected_clients = {}
+        Thread.start(self)
+        return self
 
     def run(self):
         app = Flask(
@@ -91,7 +84,7 @@ class Webserver(Thread):
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
         )
 
-        """ management stuff """
+        # region Management function and routes without any user-display or interaction
         def authenticated_only(f):
             @functools.wraps(f)
             def wrapped(*args, **kwargs):
@@ -179,7 +172,9 @@ class Webserver(Thread):
             del self.connected_clients[current_user.id]
             logout_user()
             return redirect("/")
+        # endregion
 
+        # region Actual routes the user gets to see and use
         """ actual pages """
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
@@ -194,7 +189,7 @@ class Webserver(Thread):
         @app.errorhandler(404)
         def page_not_found(error):
             output = '<div class="widget forced">'
-            output += '<p>Page not found :(</p>'
+            output += '<p>{}</p>'.format(error)
             output += '<p><a href="/">home</a></p>'
             output += "</div>"
             markup = Markup(output)
@@ -229,12 +224,13 @@ class Webserver(Thread):
 
             markup = Markup(output)
             return render_template('index.html', content=markup)
+        # endregion
 
-        """ websocket handling """
+        # region Websocket handling
         @socketio.on('connect', namespace='/chrani-bot-ng')
-        @login_required
+        @authenticated_only
         def connect_handler():
-            if current_user.is_authenticated:
+            if current_user.is_authenticated and hasattr(request, 'sid'):
                 self.connected_clients[current_user.id].sid = request.sid
                 emit(
                     'connected',
@@ -256,6 +252,7 @@ class Webserver(Thread):
                 print("sent 'dong' to {}".format(current_user.id))
             else:
                 return False  # not allowed here
+        # endregion
 
         socketio.run(
             app,
