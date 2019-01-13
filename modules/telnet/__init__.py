@@ -192,7 +192,6 @@ class Telnet(Thread):
                 try:
                     self.setup_telnet()
                 except (OSError, Exception) as error:
-                    print(type(error))
                     print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                     print("Telnet: check if the server is running, it's connectivity and options!")
                     sleep(10)
