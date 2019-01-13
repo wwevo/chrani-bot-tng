@@ -1,17 +1,12 @@
+from importlib import import_module
 from os import path, chdir, walk
+import json
 root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
-from importlib import import_module
 
-module_options_dict = {
-    "module_webserver": {
-        "Flask_secret_key": "thisissecret",
-        "SocketIO_debug": True,
-        "SocketIO_use_reloader": False,
-        "SocketIO_asynch_mode": "gevent"
-    }
-}
+with open('module_options.json') as open_file:
+    module_options_dict = json.load(open_file)
 
 loaded_modules_list = []
 modules_list = next(walk('.'))[1]

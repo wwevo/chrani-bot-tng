@@ -18,11 +18,12 @@ from flask_login import LoginManager, login_required, login_user, current_user, 
 from flask_socketio import SocketIO, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
-from threading import Thread
+from threading import Thread, Event
 
 
 class Webserver(Thread):
     options = dict
+    stopped = object
     connected_clients = dict
 
     def __init__(self):
@@ -65,6 +66,11 @@ class Webserver(Thread):
             print("Webserver: no options provided, default values are used")
 
         self.connected_clients = {}
+
+        self.name = 'webserver'
+        self.setDaemon(daemonic=True)
+
+        self.stopped = Event()
         Thread.start(self)
         return self
 
