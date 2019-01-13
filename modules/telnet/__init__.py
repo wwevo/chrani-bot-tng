@@ -1,6 +1,6 @@
 import re
 from modules import loaded_modules_list
-from time import time
+from time import time, sleep
 from threading import Thread, Event
 from collections import deque
 import telnetlib
@@ -60,8 +60,6 @@ class Telnet(Thread):
         else:
             print("Telnet: no options provided, default values are used".format(self.name.upper()))
 
-        self.run_observer_interval = 0.5
-
         self.recent_telnet_response = None
         self.recent_telnet_response_has_valid_start = False
         self.recent_telnet_response_has_valid_end = False
@@ -69,14 +67,8 @@ class Telnet(Thread):
         self.valid_telnet_lines = deque()
         self.telnet_buffer = ""
 
+        self.run_observer_interval = 0.5
         self.last_execution_time = 0.0
-
-        try:
-            connection = telnetlib.Telnet(self.options.get("host"), self.options.get("port"), timeout=3)
-            self.tn = self.authenticate(connection, self.options.get("password"))
-        except Exception as error:
-            print('trying to establish telnet connection failed: {}'.format(error))
-            raise IOError
 
         return self
 
@@ -84,6 +76,14 @@ class Telnet(Thread):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
+
+    def setup_telnet(self):
+        try:
+            connection = telnetlib.Telnet(self.options.get("host"), self.options.get("port"), timeout=3)
+            self.tn = self.authenticate(connection, self.options.get("password"))
+        except Exception as error:
+            print('trying to establish telnet connection failed: {}'.format(error))
+            raise IOError
 
     def authenticate(self, connection, password):
         try:
@@ -184,7 +184,19 @@ class Telnet(Thread):
 
             try:
                 telnet_response = self.tn.read_very_eager().decode("utf-8")
-            except:
+            except (AttributeError, EOFError) as error:
+                if type(error) == EOFError:
+                    print("Telnet: the server has gone dark, possibly a restart. Trying again in 10 seconds!")
+                    sleep(10)
+
+                try:
+                    self.setup_telnet()
+                except (OSError, Exception) as error:
+                    print(type(error))
+                    print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
+                    print("Telnet: check if the server is running, it's connectivity and options!")
+                    sleep(10)
+
                 telnet_response = ""
 
             if len(telnet_response) > 0:
