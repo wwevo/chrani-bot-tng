@@ -18,14 +18,15 @@ for module in available_modules_list:
 started_modules_list = []
 def batch_start_modules(modules_list):
     """ this should load all modules in an order they can work with
-    Make absolutely SURE there's no circular dependencies, because I won't :)"""
+    Make absolutely SURE there's no circular dependencies, because I won't :) """
     for module in modules_list:
         try:
             if isinstance(module.required_modules, list):  # has dependencies, load those first!
                 batch_start_modules(module.required_modules)
         except AttributeError:  # has no dependencies, load right away
             if module.get_module_identifier() not in loaded_modules_list:
-                module.start(module_options_dict.get(module.get_module_identifier(), dict))
+                module.setup(module_options_dict.get(module.get_module_identifier(), dict))
+                module.start()
                 started_modules_list.append(module.get_module_identifier())
 
 

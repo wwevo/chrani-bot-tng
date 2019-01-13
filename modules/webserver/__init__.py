@@ -23,6 +23,7 @@ from threading import Thread, Event
 
 class Webserver(Thread):
     options = dict
+    name = str
     stopped = object
     connected_clients = dict
 
@@ -35,6 +36,7 @@ class Webserver(Thread):
             "SocketIO_use_reloader": False,
             "SocketIO_debug": False
         }
+        self.stopped = Event()
         Thread.__init__(self)
 
     @staticmethod
@@ -56,7 +58,7 @@ class Webserver(Thread):
             s.close()
         return host
 
-    def start(self, options=dict):
+    def setup(self, options=dict):
         self.options = self.default_options
         self.options["host"] = self.get_ip()
 
@@ -67,11 +69,12 @@ class Webserver(Thread):
             print("Webserver: no options provided, default values are used")
 
         self.connected_clients = {}
-
         self.name = 'webserver'
-        self.setDaemon(daemonic=True)
 
-        self.stopped = Event()
+        return self
+
+    def start(self):
+        self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
 

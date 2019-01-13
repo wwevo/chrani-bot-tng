@@ -21,7 +21,8 @@ class Dom(Thread):
     def get_module_identifier():
         return "module_dom"
 
-    def start(self, options=dict):
+    def setup(self, options=dict):
+        self.name = 'dom'
         self.options = self.default_options
         if isinstance(options, dict):
             print("Dom: provided options have been set")
@@ -30,10 +31,10 @@ class Dom(Thread):
             print("Dom: no options provided, default values are used")
 
         self.run_observer_interval = 10
+        return self
 
-        self.name = 'dom'
+    def start(self):
         self.setDaemon(daemonic=True)
-
         Thread.start(self)
         return self
 

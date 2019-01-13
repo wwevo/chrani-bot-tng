@@ -8,6 +8,7 @@ import telnetlib
 
 class Telnet(Thread):
     options = dict
+    name = str
 
     tn = object
     stopped = object
@@ -50,7 +51,8 @@ class Telnet(Thread):
     def get_module_identifier():
         return "module_telnet"
 
-    def start(self, options=dict):
+    def setup(self, options=dict):
+        self.name = 'telnet'
         self.options = self.default_options
         if isinstance(options, dict):
             print("Telnet: provided options have been set".format(self.name.upper()))
@@ -69,20 +71,17 @@ class Telnet(Thread):
 
         self.last_execution_time = 0.0
 
-        self.name = 'telnet'
-        self.setDaemon(daemonic=True)
-
         try:
             connection = telnetlib.Telnet(self.options.get("host"), self.options.get("port"), timeout=3)
-        except Exception as e:
-            print('trying to establish telnet connection failed: {}'.format(e))
+            self.tn = self.authenticate(connection, self.options.get("password"))
+        except Exception as error:
+            print('trying to establish telnet connection failed: {}'.format(error))
             raise IOError
 
-        try:
-            self.tn = self.authenticate(connection, self.options.get("password"))
-        except IOError:
-            raise
+        return self
 
+    def start(self):
+        self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
 
@@ -192,7 +191,6 @@ class Telnet(Thread):
                 self.telnet_buffer += telnet_response
                 self.telnet_buffer = self.telnet_buffer[-4096:]
 
-                processing_done = False
                 """ telnet returned data. let's get some information about it"""
                 response_count = 1
                 telnet_response_components = self.get_lines(telnet_response)

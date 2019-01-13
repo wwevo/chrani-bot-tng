@@ -1,8 +1,8 @@
-import modules
+from modules import start_modules
 from time import sleep
 
 
-modules.start_modules()
+start_modules()
 
 while True:
-    sleep(5)
+    sleep(1)
