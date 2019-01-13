@@ -28,7 +28,7 @@ class Webserver(Thread):
 
     def __init__(self):
         self.default_options = {
-            "host": self.get_ip(),
+            "host": "127.0.0.1",
             "port": 5000,
             "Flask_secret_key": "thisissecret",
             "SocketIO_asynch_mode": None,
@@ -41,24 +41,25 @@ class Webserver(Thread):
     def get_module_identifier():
         return "module_webserver"
 
-    @staticmethod
-    def get_ip():
+    def get_ip(self):
         s = socket(AF_INET, SOCK_DGRAM)
         try:
             # doesn't even have to be reachable
             s.connect(('10.255.255.255', 1))
-            ip = s.getsockname()[0]
-            print("Webserver: discovered IP: {}".format(ip))
+            host = s.getsockname()[0]
+            print("Webserver: discovered IP: {}".format(host))
         except Exception as error:
-            ip = '127.0.0.1'
+            host = self.default_options.get("host")
             print(type(error))
-            print("Webserver: could not find IP, using {} instead!".format(ip))
+            print("Webserver: could not find IP, using {} instead!".format(host))
         finally:
             s.close()
-        return ip
+        return host
 
     def start(self, options=dict):
         self.options = self.default_options
+        self.options["host"] = self.get_ip()
+
         if isinstance(options, dict):
             print("Webserver: provided options have been set")
             self.options.update(options)

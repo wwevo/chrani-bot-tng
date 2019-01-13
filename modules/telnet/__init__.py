@@ -39,6 +39,10 @@ class Telnet(Thread):
             }
         }
 
+        self.required_modules = [
+            "module_dom"
+        ]
+
         self.stopped = Event()
         Thread.__init__(self)
 
@@ -49,10 +53,10 @@ class Telnet(Thread):
     def start(self, options=dict):
         self.options = self.default_options
         if isinstance(options, dict):
-            print("Telnet: provided options have been set")
+            print("Telnet: provided options have been set".format(self.name.upper()))
             self.options.update(options)
         else:
-            print("Telnet: no options provided, default values are used")
+            print("Telnet: no options provided, default values are used".format(self.name.upper()))
 
         self.run_observer_interval = 0.5
 
@@ -186,52 +190,49 @@ class Telnet(Thread):
 
             if len(telnet_response) > 0:
                 self.telnet_buffer += telnet_response
-                self.telnet_buffer = self.telnet_buffer[-4000:]
+                self.telnet_buffer = self.telnet_buffer[-4096:]
 
                 processing_done = False
                 """ telnet returned data. let's get some information about it"""
                 response_count = 1
                 telnet_response_components = self.get_lines(telnet_response)
                 for component in telnet_response_components:
-                    if self.is_a_valid_line(component):
+                    if self.is_a_valid_line(component):  # added complete line
                         valid_telnet_line = component.rstrip("\r\n")
                         self.valid_telnet_lines.append(valid_telnet_line)
                         print(valid_telnet_line)
                     else:
-                        if response_count == 1:
-                            # not a complete line, but the first in the list: might be the rest of last run
+                        if response_count == 1:  # not a complete line, might be the remainder of last run
                             if self.recent_telnet_response is not None:
                                 combined_line = "{}{}".format(self.recent_telnet_response, component)
-                                if self.is_a_valid_line(combined_line):
+                                if self.is_a_valid_line(combined_line):  # "added complete combined line"
                                     valid_telnet_line = combined_line.rstrip("\r\n")
                                     self.valid_telnet_lines.append(valid_telnet_line)
                                     print(valid_telnet_line)
-                                else:
+                                else:  # "combined line, it doesnt make sense though"
                                     pass
 
                                 self.recent_telnet_response = None
                             else:
                                 if len(telnet_response_components) == 1:
-                                    if self.has_valid_start(component):
+                                    if self.has_valid_start(component):  # "found incomplete line, storing for next run"
                                         self.recent_telnet_response = component
-                                    else:
+                                    else:  # "what happened?"
                                         pass
 
                         elif response_count == len(telnet_response_components):
-                            # not a complete line, but the last in the list: might be the beginning of next run
-                            if self.has_valid_start(component):
+                            if self.has_valid_start(component):  # not a complete line, might be the start of next run
                                 self.recent_telnet_response = component
-                            else:
-                                print("****************** {}".format(component))
+                            else:  # "does not seem to be usable"
                                 pass
 
-                        else:
-                            # not a complete line right in the middle. We don't need this!!
+                        else:  # "found incomplete line smack in the middle"
                             pass
 
                     response_count += 1
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
+
 
 loaded_modules_list.append(Telnet())

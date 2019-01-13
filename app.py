@@ -2,7 +2,7 @@ import modules
 from time import sleep
 
 
-modules.load_modules()
+modules.start_modules()
 
 while True:
     sleep(5)
