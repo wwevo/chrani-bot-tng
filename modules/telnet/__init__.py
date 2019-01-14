@@ -1,5 +1,5 @@
 import re
-from modules import loaded_modules_list
+from modules import loaded_modules_list, started_modules_dict
 from time import time, sleep
 from threading import Thread, Event
 from collections import deque
@@ -12,6 +12,8 @@ class Telnet(Thread):
 
     tn = object
     stopped = object
+
+    dom = object
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -28,6 +30,7 @@ class Telnet(Thread):
             "host": "127.0.0.1",
             "port": 8081,
             "password": "thisissecret",
+            "max_queue_length": 100,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
@@ -64,7 +67,7 @@ class Telnet(Thread):
         self.recent_telnet_response_has_valid_start = False
         self.recent_telnet_response_has_valid_end = False
 
-        self.valid_telnet_lines = deque()
+        self.valid_telnet_lines = deque(maxlen=self.default_options["max_queue_length"])
         self.telnet_buffer = ""
 
         self.run_observer_interval = 0.5
@@ -74,6 +77,7 @@ class Telnet(Thread):
 
     def start(self):
         self.setDaemon(daemonic=True)
+        self.dom = started_modules_dict["module_dom"]
         Thread.start(self)
         return self
 
@@ -199,8 +203,17 @@ class Telnet(Thread):
                 telnet_response = ""
 
             if len(telnet_response) > 0:
-                self.telnet_buffer += telnet_response
+                self.telnet_buffer += telnet_response.lstrip()
                 self.telnet_buffer = self.telnet_buffer[-4096:]
+
+                # module_dom needs to be in the required modules list!!
+                # let's expose the telnet_buffer to the general module population via our DOM!
+                self.dom.upsert({
+                    self.get_module_identifier(): {
+                        "telnet_lines": self.valid_telnet_lines,
+                        "telnet_buffer": self.telnet_buffer
+                    }
+                })
 
                 """ telnet returned data. let's get some information about it"""
                 response_count = 1

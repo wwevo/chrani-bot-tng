@@ -1,12 +1,15 @@
 from modules import loaded_modules_list
 from time import time
 from threading import Thread, Event
+from collections import Mapping
 
 
 class Dom(Thread):
     options = dict
 
     stopped = object
+
+    data = dict
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -23,6 +26,8 @@ class Dom(Thread):
 
     def setup(self, options=dict):
         self.name = 'dom'
+        self.data = {}
+
         self.options = self.default_options
         if isinstance(options, dict):
             print("Dom: provided options have been set")
@@ -30,13 +35,29 @@ class Dom(Thread):
         else:
             print("Dom: no options provided, default values are used")
 
-        self.run_observer_interval = 10
+        self.run_observer_interval = 2
         return self
 
     def start(self):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
+
+    def upsert(self, updated_values_dict, dict_to_update=None):
+        if dict_to_update is None:
+            dict_to_update = self.data
+
+        for k, v in updated_values_dict.items():
+            d_v = dict_to_update.get(k)
+            if isinstance(v, Mapping) and isinstance(d_v, Mapping):
+                self.upsert(v, d_v)
+            else:
+                dict_to_update[k] = v  # or d[k] = v if you know what you're doing
+
+        return dict_to_update
+
+    def get(self, dict_root):
+        pass
 
     def run(self):
         next_cycle = 0
