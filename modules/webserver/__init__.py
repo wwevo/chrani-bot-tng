@@ -26,6 +26,8 @@ class Webserver(Thread):
     name = str
     stopped = object
 
+    websocket = object
+
     connected_clients = dict
 
     broadcast_queue = dict
@@ -96,6 +98,8 @@ class Webserver(Thread):
             app,
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
         )
+
+        self.websocket = socketio
 
         # region Management function and routes without any user-display or interaction
         def authenticated_only(f):
@@ -243,7 +247,7 @@ class Webserver(Thread):
         @socketio.on('connect', namespace='/chrani-bot-ng')
         @authenticated_only
         def connect_handler():
-            if current_user.is_authenticated and hasattr(request, 'sid'):
+            if hasattr(request, 'sid'):
                 self.connected_clients[current_user.id].sid = request.sid
                 emit(
                     'connected',
@@ -255,16 +259,13 @@ class Webserver(Thread):
 
         @socketio.on('ding', namespace='/chrani-bot-ng')
         @authenticated_only
-        def handle_my_custom_event():
+        def ding_dong():
             print("got 'ding' from {}".format(current_user.id))
-            if current_user.is_authenticated:
-                emit(
-                    'dong',
-                    room=current_user.sid
-                )
-                print("sent 'dong' to {}".format(current_user.id))
-            else:
-                return False  # not allowed here
+            emit(
+                'dong',
+                room=current_user.sid
+            )
+            print("sent 'dong' to {}".format(current_user.id))
         # endregion
 
         socketio.run(
