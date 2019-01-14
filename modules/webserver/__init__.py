@@ -96,12 +96,16 @@ class Webserver(Thread):
 
             if isinstance(clients, KeysView):
                 for steamid in clients:
-                    self.websocket.emit(
-                        'widget',
-                        "{} for player {}".format(widget, steamid),
-                        room=self.connected_clients[steamid].sid,
-                        namespace='/chrani-bot-ng'
-                    )
+                    try:
+                        self.websocket.emit(
+                            'widget',
+                            "{} for player {}".format(widget, steamid),
+                            room=self.connected_clients[steamid].sid,
+                            namespace='/chrani-bot-ng'
+                        )
+                    except AttributeError as error:
+                        # connected client hasn't got their SID yet
+                        pass
 
     def run(self):
         app = Flask(
