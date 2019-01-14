@@ -56,14 +56,10 @@ class Dom(Thread):
 
         return dict_to_update
 
-    def get(self, dict_root):
-        pass
-
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time()
-
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 

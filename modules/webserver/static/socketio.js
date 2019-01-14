@@ -19,5 +19,11 @@ $(document).ready(function() {
             },
             5000);
     });
+
+    socket.on('widget', function(data) {
+        console.log(data);
+    });
+
+
 });
 

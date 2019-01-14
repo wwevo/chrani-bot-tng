@@ -15,17 +15,18 @@ import functools
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, render_template, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit, disconnect, send
 from requests import post
 from urllib.parse import urlencode
 from threading import Thread, Event
-
+from collections import KeysView
 
 class Webserver(Thread):
     options = dict
     name = str
     stopped = object
 
+    app = object
     websocket = object
 
     connected_clients = dict
@@ -83,6 +84,25 @@ class Webserver(Thread):
         Thread.start(self)
         return self
 
+    def send_data_to_client(self, widget, clients=None):
+        with self.app.app_context():
+            if clients is None:
+                self.websocket.emit(
+                    'widget',
+                    "{} for all players".format(widget),
+                    broadcast=True,
+                    namespace='/chrani-bot-ng'
+                )
+
+            if isinstance(clients, KeysView):
+                for steamid in clients:
+                    self.websocket.emit(
+                        'widget',
+                        "{} for player {}".format(widget, steamid),
+                        room=self.connected_clients[steamid].sid,
+                        namespace='/chrani-bot-ng'
+                    )
+
     def run(self):
         app = Flask(
             __name__,
@@ -99,6 +119,7 @@ class Webserver(Thread):
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
         )
 
+        self.app = app
         self.websocket = socketio
 
         # region Management function and routes without any user-display or interaction

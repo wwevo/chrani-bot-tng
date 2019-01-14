@@ -257,6 +257,9 @@ class Telnet(Thread):
 
                     response_count += 1
 
+            if len(self.webserver.connected_clients) >= 1:
+                self.webserver.send_data_to_client("telnet", self.webserver.connected_clients.keys())
+
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 
