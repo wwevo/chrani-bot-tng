@@ -1,12 +1,13 @@
 from importlib import import_module
 from os import path, chdir, walk
 import json
+from collections import deque
 root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 
-loaded_modules_list = []  # this will be populated by the imports done next:
-modules_to_start_dict = {}
+loaded_modules_dict = {}  # this will be populated by the imports done next:
+modules_to_start_list = deque()
 started_modules_dict = {}
 
 available_modules_list = next(walk('.'))[1]
@@ -21,25 +22,29 @@ def batch_setup_modules(modules_list):
     Make absolutely SURE there's no circular dependencies, because I won't :) """
     for module_to_setup in modules_list:
         try:
-            if isinstance(module_to_setup.required_modules, list):  # has dependencies, load those first!
-                batch_setup_modules(module_to_setup.required_modules)
+            if isinstance(loaded_modules_dict[module_to_setup].required_modules, list):  # has dependencies, load those first!
+                batch_setup_modules(loaded_modules_dict[module_to_setup].required_modules)
+                raise AttributeError
         except AttributeError:  # raised by isinstance = has no dependencies, load right away
-            if module_to_setup.get_module_identifier() not in loaded_modules_list:
+            if loaded_modules_dict[module_to_setup] not in modules_to_start_list:
                 try:
-                    with open(path.join(root_dir, module_to_setup.get_module_identifier()) + "_options.json") as open_file:
+                    with open(path.join(root_dir, module_to_setup + "_options.json")) as open_file:
                         module_options_dict = json.load(open_file)
                 except FileNotFoundError as error:
                     module_options_dict = dict
 
-                module_to_setup.setup(module_options_dict)
-                modules_to_start_dict[module_to_setup.get_module_identifier()] = module_to_setup
+                loaded_modules_dict[module_to_setup].setup(module_options_dict)
+                modules_to_start_list.append(loaded_modules_dict[module_to_setup])
 
 
 def setup_modules():
-    batch_setup_modules(loaded_modules_list)
+    loaded_modules_indentifier_list = []
+    for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
+        loaded_modules_indentifier_list.append(loaded_module.get_module_identifier())
+    batch_setup_modules(loaded_modules_indentifier_list)
 
 
 def start_modules():
-    for module_identifier, module_to_start in modules_to_start_dict.items():
+    for module_to_start in modules_to_start_list:
         module_to_start.start()
-        started_modules_dict[module_identifier] = module_to_start
+        started_modules_dict[module_to_start.get_module_identifier()] = module_to_start

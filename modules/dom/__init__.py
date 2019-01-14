@@ -1,4 +1,4 @@
-from modules import loaded_modules_list
+from modules import loaded_modules_dict
 from time import time
 from threading import Thread, Event
 from collections import Mapping
@@ -68,4 +68,4 @@ class Dom(Thread):
             next_cycle = self.run_observer_interval - self.last_execution_time
 
 
-loaded_modules_list.append(Dom())
+loaded_modules_dict[Dom().get_module_identifier()] = Dom()

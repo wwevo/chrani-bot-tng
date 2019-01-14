@@ -7,7 +7,7 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
-from modules import loaded_modules_list
+from modules import loaded_modules_dict
 from .user import User
 
 import re
@@ -25,7 +25,10 @@ class Webserver(Thread):
     options = dict
     name = str
     stopped = object
+
     connected_clients = dict
+
+    broadcast_queue = dict
 
     def __init__(self):
         self.default_options = {
@@ -273,4 +276,4 @@ class Webserver(Thread):
         )
 
 
-loaded_modules_list.append(Webserver())
+loaded_modules_dict[Webserver().get_module_identifier()] = Webserver()

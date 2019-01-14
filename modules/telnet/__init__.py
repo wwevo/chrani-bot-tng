@@ -1,5 +1,5 @@
 import re
-from modules import loaded_modules_list, started_modules_dict
+from modules import loaded_modules_dict, started_modules_dict
 from time import time, sleep
 from threading import Thread, Event
 from collections import deque
@@ -14,6 +14,7 @@ class Telnet(Thread):
     stopped = object
 
     dom = object
+    webserver = object
 
     run_observer_interval = int  # loop this every run_observers_interval seconds
     last_execution_time = float
@@ -44,7 +45,8 @@ class Telnet(Thread):
         }
 
         self.required_modules = [
-            "module_dom"
+            "module_dom",
+            "module_webserver"
         ]
 
         self.stopped = Event()
@@ -78,6 +80,8 @@ class Telnet(Thread):
     def start(self):
         self.setDaemon(daemonic=True)
         self.dom = started_modules_dict["module_dom"]
+        self.webserver = started_modules_dict["module_webserver"]
+
         Thread.start(self)
         return self
 
@@ -257,4 +261,4 @@ class Telnet(Thread):
             next_cycle = self.run_observer_interval - self.last_execution_time
 
 
-loaded_modules_list.append(Telnet())
+loaded_modules_dict[Telnet().get_module_identifier()] = Telnet()
