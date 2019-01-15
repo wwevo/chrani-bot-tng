@@ -265,7 +265,7 @@ class Webserver(Thread):
             output = '<div>'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong> (protected)</p>'
             output += '<p>' \
-                      'enjoy the telnet-log!!<br />, ' \
+                      'enjoy the telnet-log<br />' \
                       'if you enjoy the logging, you might just as well <a href="/logout">log out</a> again.' \
                       '</p>'
             output += '</div>'
