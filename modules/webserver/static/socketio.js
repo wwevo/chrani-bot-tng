@@ -1,4 +1,19 @@
 $(document).ready(function() {
+    // https://stackoverflow.com/a/46308265
+    $.fn.upsert = function(selector, htmlString) {
+        // upsert - find or create new element
+        // find based on css selector     https://api.jquery.com/category/selectors/
+        // create based on jQuery()       http://api.jquery.com/jquery/#jQuery2
+        let $el = $(this).find(selector);
+        if ($el.length === 0) {
+            // didn't exist, create and add to caller
+            $el = $(htmlString);
+            $(this).append($el);
+        }
+
+        return $el;
+    };
+
     //connect to the socket server.
     let socket = io.connect(
         'http://' + document.domain + ':' + location.port + '/chrani-bot-ng'
@@ -17,11 +32,12 @@ $(document).ready(function() {
                 socket.emit('ding');
                 console.log("sent 'ding' to server");
             },
-            5000);
+            15000);
     });
 
     socket.on('widget', function(data) {
-        console.log(data);
+        let $el = $("body > main").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] +'"></div>');
+        $el.prepend('<p>' + data["data"] + '</p>');
     });
 
 

@@ -223,6 +223,7 @@ class Telnet(Thread):
                 response_count = 1
                 telnet_response_components = self.get_lines(telnet_response)
                 for component in telnet_response_components:
+                    valid_telnet_line = None
                     if self.is_a_valid_line(component):  # added complete line
                         valid_telnet_line = component.rstrip("\r\n")
                         self.valid_telnet_lines.append(valid_telnet_line)
@@ -255,10 +256,14 @@ class Telnet(Thread):
                         else:  # "found incomplete line smack in the middle"
                             pass
 
-                    response_count += 1
+                    if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
+                        self.webserver.send_data_to_client(
+                            valid_telnet_line,
+                            clients=self.webserver.connected_clients.keys(),
+                            target_element="widget_telnet_log"
+                        )
 
-            if len(self.webserver.connected_clients) >= 1:
-                self.webserver.send_data_to_client("telnet", self.webserver.connected_clients.keys())
+                    response_count += 1
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

@@ -12,21 +12,19 @@
     {% endblock %}
     </head>
     <body>
-        <div id="flex_layout">
-            <header>
-                {{ title }}
-            </header>
-            <main>
-                {% block content %}
-                Hello World!
-                {% endblock %}
-            </main>
-            <footer>
-                {% block footer %}
-                &copy; this page was created in 2019 by <a href="http://chrani.net/">ecv</a>
-                {% endblock %}
-            </footer>
-        </div>
+        <header>
+            {{ title }}
+        </header>
+        <main>
+            {% block content %}
+            Hello World!
+            {% endblock %}
+        </main>
+        <footer>
+            {% block footer %}
+            &copy; this page was created in 2019 by <a href="http://chrani.net/">ecv</a>
+            {% endblock %}
+        </footer>
     </body>
 </html>
 

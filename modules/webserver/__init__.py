@@ -84,12 +84,15 @@ class Webserver(Thread):
         Thread.start(self)
         return self
 
-    def send_data_to_client(self, widget, clients=None):
+    def send_data_to_client(self, data, target_element=None, clients=None):
         with self.app.app_context():
             if clients is None:
                 self.websocket.emit(
                     'widget',
-                    "{} for all players".format(widget),
+                    {
+                        "data": data,
+                        "target_element": target_element,
+                    },
                     broadcast=True,
                     namespace='/chrani-bot-ng'
                 )
@@ -99,7 +102,10 @@ class Webserver(Thread):
                     try:
                         self.websocket.emit(
                             'widget',
-                            "{} for player {}".format(widget, steamid),
+                            {
+                                "data": data,
+                                "target_element": target_element,
+                            },
                             room=self.connected_clients[steamid].sid,
                             namespace='/chrani-bot-ng'
                         )
@@ -221,7 +227,7 @@ class Webserver(Thread):
         @app.route('/unauthorized')
         @login_manager.unauthorized_handler
         def unauthorized_handler():
-            output = '<div class="widget forced">'
+            output = '<div>'
             output += '<p>You are not allowed to view that page :(</p>'
             output += '<p><a href="/">home</a></p>'
             output += "</div>"
@@ -230,7 +236,7 @@ class Webserver(Thread):
 
         @app.errorhandler(404)
         def page_not_found(error):
-            output = '<div class="widget forced">'
+            output = '<div>'
             output += '<p>{}</p>'.format(error)
             output += '<p><a href="/">home</a></p>'
             output += "</div>"
@@ -242,7 +248,7 @@ class Webserver(Thread):
             if current_user.is_authenticated is True:
                 return redirect("/protected")
 
-            output = '<div class="widget forced">'
+            output = '<div>'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
             output += '<p>' \
                       'please <a href="/login">log in with your steam account</a> ' \
@@ -256,11 +262,11 @@ class Webserver(Thread):
         @app.route('/protected')
         @login_required
         def protected():
-            output = '<div class="widget forced">'
+            output = '<div>'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong> (protected)</p>'
             output += '<p>' \
-                      'Since there is nothing to do here, ' \
-                      'you might just as well <a href="/logout">log out</a> again.' \
+                      'enjoy the telnet-log!!<br />, ' \
+                      'if you enjoy the logging, you might just as well <a href="/logout">log out</a> again.' \
                       '</p>'
             output += '</div>'
 
