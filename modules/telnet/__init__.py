@@ -13,10 +13,7 @@ class Telnet(Thread):
     tn = object
     stopped = object
 
-    dom = object
-    webserver = object
-
-    run_observer_interval = int  # loop this every run_observers_interval seconds
+    run_observer_interval = int
     last_execution_time = float
 
     recent_telnet_response = str
@@ -78,10 +75,10 @@ class Telnet(Thread):
         return self
 
     def start(self):
-        self.setDaemon(daemonic=True)
-        self.dom = started_modules_dict["module_dom"]
-        self.webserver = started_modules_dict["module_webserver"]
+        setattr(self, "dom", started_modules_dict["module_dom"])
+        setattr(self, "webserver", started_modules_dict["module_webserver"])
 
+        self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
 

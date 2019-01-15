@@ -21,6 +21,7 @@ from urllib.parse import urlencode
 from threading import Thread, Event
 from collections import KeysView
 
+
 class Webserver(Thread):
     options = dict
     name = str

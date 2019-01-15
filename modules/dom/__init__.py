@@ -11,7 +11,7 @@ class Dom(Thread):
 
     data = dict
 
-    run_observer_interval = int  # loop this every run_observers_interval seconds
+    run_observer_interval = int
     last_execution_time = float
 
     def __init__(self):
