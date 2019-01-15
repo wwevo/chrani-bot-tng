@@ -1,17 +1,13 @@
 import re
-from modules import loaded_modules_dict, started_modules_dict
+from modules.module import Module
+from modules import loaded_modules_dict
 from time import time, sleep
-from threading import Thread, Event
 from collections import deque
 import telnetlib
 
 
-class Telnet(Thread):
-    options = dict
-    name = str
-
+class Telnet(Module):
     tn = object
-    stopped = object
 
     run_observer_interval = int
     last_execution_time = float
@@ -24,7 +20,8 @@ class Telnet(Thread):
     valid_telnet_lines = deque
 
     def __init__(self):
-        self.default_options = {
+        setattr(self, "default_options", {
+            "module_name": "telnet",
             "host": "127.0.0.1",
             "port": 8081,
             "password": "thisissecret",
@@ -39,28 +36,21 @@ class Telnet(Thread):
                     r"\sby\sTelnet\sfrom\s(.*)\:(\d.*)\s*$"
                 ]
             }
-        }
+        })
 
-        self.required_modules = [
+        setattr(self, "required_modules", [
             "module_dom",
             "module_webserver"
-        ]
+        ])
 
-        self.stopped = Event()
-        Thread.__init__(self)
+        Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
         return "module_telnet"
 
     def setup(self, options=dict):
-        self.name = 'telnet'
-        self.options = self.default_options
-        if isinstance(options, dict):
-            print("Telnet: provided options have been set".format(self.name.upper()))
-            self.options.update(options)
-        else:
-            print("Telnet: no options provided, default values are used".format(self.name.upper()))
+        Module.setup(self, options)
 
         self.recent_telnet_response = None
         self.recent_telnet_response_has_valid_start = False
@@ -75,13 +65,10 @@ class Telnet(Thread):
         return self
 
     def start(self):
-        setattr(self, "dom", started_modules_dict["module_dom"])
-        setattr(self, "webserver", started_modules_dict["module_webserver"])
-
-        self.setDaemon(daemonic=True)
-        Thread.start(self)
+        Module.start(self)
         return self
 
+    # region Handling telnet initialization and authentication
     def setup_telnet(self):
         try:
             connection = telnetlib.Telnet(self.options.get("host"), self.options.get("port"), timeout=3)
@@ -130,7 +117,9 @@ class Telnet(Thread):
 
         print("telnet connection established on {}:{} ".format(self.options.get("host"), self.options.get("port")))
         return connection
+    # endregion
 
+    # region handling and preparing telnet-lines
     def is_a_valid_line(self, telnet_line):
         telnet_response_is_a_valid_line = False
         if self.has_valid_start(telnet_line) and self.has_valid_end(telnet_line):
@@ -181,6 +170,7 @@ class Telnet(Thread):
             return telnet_lines
         else:
             return False
+    # endregion
 
     def run(self):
         next_cycle = 0

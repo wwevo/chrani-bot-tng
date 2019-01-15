@@ -7,6 +7,7 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
+from modules.module import Module
 from modules import loaded_modules_dict
 from .user import User
 
@@ -18,33 +19,28 @@ from flask_login import LoginManager, login_required, login_user, current_user, 
 from flask_socketio import SocketIO, emit, disconnect, send
 from requests import post
 from urllib.parse import urlencode
-from threading import Thread, Event
 from collections import KeysView
 
 
-class Webserver(Thread):
-    options = dict
-    name = str
-    stopped = object
-
+class Webserver(Module):
     app = object
     websocket = object
 
     connected_clients = dict
-
     broadcast_queue = dict
 
     def __init__(self):
-        self.default_options = {
+        setattr(self, "default_options", {
+            "module_name": 'webserver',
             "host": "127.0.0.1",
             "port": 5000,
             "Flask_secret_key": "thisissecret",
             "SocketIO_asynch_mode": None,
             "SocketIO_use_reloader": False,
             "SocketIO_debug": False
-        }
-        self.stopped = Event()
-        Thread.__init__(self)
+        })
+        setattr(self, "required_modules", [])
+        Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
@@ -66,23 +62,17 @@ class Webserver(Thread):
         return host
 
     def setup(self, options=dict):
-        self.options = self.default_options
-        self.options["host"] = self.get_ip()
+        Module.setup(self, options)
 
-        if isinstance(options, dict):
-            print("Webserver: provided options have been set")
-            self.options.update(options)
-        else:
-            print("Webserver: no options provided, default values are used")
+        if self.options.get("host") == self.default_options.get("host"):
+            self.options["host"] = self.get_ip()
 
         self.connected_clients = {}
-        self.name = 'webserver'
 
         return self
 
     def start(self):
-        self.setDaemon(daemonic=True)
-        Thread.start(self)
+        Module.start(self)
         return self
 
     def send_data_to_client(self, data, target_element=None, clients=None):

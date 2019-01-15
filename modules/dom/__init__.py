@@ -1,46 +1,33 @@
+from modules.module import Module
 from modules import loaded_modules_dict
 from time import time
-from threading import Thread, Event
 from collections import Mapping
 
 
-class Dom(Thread):
-    options = dict
-
-    stopped = object
-
+class Dom(Module):
     data = dict
-
     run_observer_interval = int
     last_execution_time = float
 
     def __init__(self):
-        self.default_options = {}
-
-        self.stopped = Event()
-        Thread.__init__(self)
+        setattr(self, "default_options", {
+            "module_name": "dom"
+        })
+        setattr(self, "required_modules", [])
+        Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
         return "module_dom"
 
     def setup(self, options=dict):
-        self.name = 'dom'
+        Module.setup(self, options)
         self.data = {}
-
-        self.options = self.default_options
-        if isinstance(options, dict):
-            print("Dom: provided options have been set")
-            self.options.update(options)
-        else:
-            print("Dom: no options provided, default values are used")
-
         self.run_observer_interval = 2
         return self
 
     def start(self):
-        self.setDaemon(daemonic=True)
-        Thread.start(self)
+        Module.start(self)
         return self
 
     def upsert(self, updated_values_dict, dict_to_update=None):
