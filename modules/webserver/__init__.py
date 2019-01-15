@@ -29,6 +29,7 @@ class Webserver(Module):
     connected_clients = dict
     broadcast_queue = dict
 
+    # region Standard module stuff
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": 'webserver',
@@ -46,6 +47,21 @@ class Webserver(Module):
     def get_module_identifier():
         return "module_webserver"
 
+    def setup(self, options=dict):
+        Module.setup(self, options)
+
+        if self.options.get("host") == self.default_options.get("host"):
+            self.options["host"] = self.get_ip()
+
+        self.connected_clients = {}
+
+        return self
+
+    def start(self):
+        Module.start(self)
+        return self
+    # endregion
+
     def get_ip(self):
         s = socket(AF_INET, SOCK_DGRAM)
         try:
@@ -61,48 +77,36 @@ class Webserver(Module):
             s.close()
         return host
 
-    def setup(self, options=dict):
-        Module.setup(self, options)
-
-        if self.options.get("host") == self.default_options.get("host"):
-            self.options["host"] = self.get_ip()
-
-        self.connected_clients = {}
-
-        return self
-
-    def start(self):
-        Module.start(self)
-        return self
-
     def send_data_to_client(self, data, target_element=None, clients=None):
         with self.app.app_context():
+            data_ready_for_emitting = False
             if clients is None:
+                emit_options = {
+                    "broadcast": True,
+                    "namespace": '/chrani-bot-ng'
+                }
+                data_ready_for_emitting = True
+            elif isinstance(clients, KeysView):
+                for steamid in clients:
+                    try:
+                        emit_options = {
+                            "room": self.connected_clients[steamid].sid,
+                            "namespace": '/chrani-bot-ng'
+                        }
+                        data_ready_for_emitting = True
+                    except AttributeError as error:
+                        # user has got no session id yet
+                        pass
+
+            if data_ready_for_emitting:
                 self.websocket.emit(
                     'widget',
                     {
                         "data": data,
                         "target_element": target_element,
                     },
-                    broadcast=True,
-                    namespace='/chrani-bot-ng'
+                    **emit_options
                 )
-
-            if isinstance(clients, KeysView):
-                for steamid in clients:
-                    try:
-                        self.websocket.emit(
-                            'widget',
-                            {
-                                "data": data,
-                                "target_element": target_element,
-                            },
-                            room=self.connected_clients[steamid].sid,
-                            namespace='/chrani-bot-ng'
-                        )
-                    except AttributeError as error:
-                        # connected client hasn't got their SID yet
-                        pass
 
     def run(self):
         app = Flask(

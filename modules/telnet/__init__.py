@@ -19,6 +19,7 @@ class Telnet(Module):
     telnet_buffer = str
     valid_telnet_lines = deque
 
+    # region Standard module stuff
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": "telnet",
@@ -67,6 +68,7 @@ class Telnet(Module):
     def start(self):
         Module.start(self)
         return self
+    # endregion
 
     # region Handling telnet initialization and authentication
     def setup_telnet(self):
