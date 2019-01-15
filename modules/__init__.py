@@ -38,10 +38,10 @@ def batch_setup_modules(modules_list):
 
 
 def setup_modules():
-    loaded_modules_indentifier_list = []
+    loaded_modules_identifier_list = []
     for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
-        loaded_modules_indentifier_list.append(loaded_module.get_module_identifier())
-    batch_setup_modules(loaded_modules_indentifier_list)
+        loaded_modules_identifier_list.append(loaded_module.get_module_identifier())
+    batch_setup_modules(loaded_modules_identifier_list)
 
 
 def start_modules():
