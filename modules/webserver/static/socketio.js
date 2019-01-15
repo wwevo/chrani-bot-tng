@@ -7,15 +7,15 @@ $(document).ready(function() {
     socket.on('connected', function() {
         console.log("connected...");
         socket.emit('ding');
-        console.log("sent 'ding'");
+        console.log("sent 'ding' to server");
     });
 
     socket.on('dong', function() {
-        console.log("got 'dong'");
+        console.log("got 'dong' from server");
         window.setTimeout(
             function () {
                 socket.emit('ding');
-                console.log("sent 'ding'");
+                console.log("sent 'ding' to server");
             },
             5000);
     });
