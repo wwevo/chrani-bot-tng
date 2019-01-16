@@ -6,13 +6,10 @@ from collections import Mapping
 
 class Dom(Module):
     data = dict
-    run_observer_interval = int
-    last_execution_time = float
 
-    # region Standard module stuff
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": "dom"
+            "module_name": self.get_module_identifier()[7:]
         })
         setattr(self, "required_modules", [])
         Module.__init__(self)
@@ -21,6 +18,7 @@ class Dom(Module):
     def get_module_identifier():
         return "module_dom"
 
+    # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
         self.data = {}

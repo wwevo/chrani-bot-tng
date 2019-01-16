@@ -29,10 +29,9 @@ class Webserver(Module):
     connected_clients = dict
     broadcast_queue = dict
 
-    # region Standard module stuff
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": 'webserver',
+            "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
             "port": 5000,
             "Flask_secret_key": "thisissecret",
@@ -47,6 +46,7 @@ class Webserver(Module):
     def get_module_identifier():
         return "module_webserver"
 
+    # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
 
@@ -68,11 +68,11 @@ class Webserver(Module):
             # doesn't even have to be reachable
             s.connect(('10.255.255.255', 1))
             host = s.getsockname()[0]
-            print("Webserver: discovered IP: {}".format(host))
+            print("{}: discovered IP: {}".format(self.options.get("module_name"), host))
         except Exception as error:
             host = self.default_options.get("host")
             print(type(error))
-            print("Webserver: could not find IP, using {} instead!".format(host))
+            print("{}: could not find IP, using {} instead!".format(self.options.get("module_name"), host))
         finally:
             s.close()
         return host

@@ -8,21 +8,12 @@ import telnetlib
 
 class Telnet(Module):
     tn = object
-
-    run_observer_interval = int
-    last_execution_time = float
-
-    recent_telnet_response = str
-    recent_telnet_response_has_valid_start = bool
-    recent_telnet_response_has_valid_end = bool
-
     telnet_buffer = str
     valid_telnet_lines = deque
 
-    # region Standard module stuff
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": "telnet",
+            "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
             "port": 8081,
             "password": "thisissecret",
@@ -50,6 +41,7 @@ class Telnet(Module):
     def get_module_identifier():
         return "module_telnet"
 
+    # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
 
@@ -182,12 +174,23 @@ class Telnet(Module):
             try:
                 telnet_response = self.tn.read_very_eager().decode("utf-8")
             except (AttributeError, EOFError) as error:
+                self.dom.upsert({
+                    self.get_module_identifier(): {
+                        "server_is_online": False
+                    }
+                })
                 if type(error) == EOFError:
                     print("Telnet: the server has gone dark, possibly a restart. Trying again in 10 seconds!")
                     sleep(10)
 
                 try:
                     self.setup_telnet()
+                    self.dom.upsert({
+                        self.get_module_identifier(): {
+                            "server_is_online": True
+                        }
+                    })
+
                 except (OSError, Exception) as error:
                     print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                     print("Telnet: check if the server is running, it's connectivity and options!")
