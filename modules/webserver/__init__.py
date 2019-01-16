@@ -7,6 +7,7 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
+from modules.common import dispatch_socket_event
 from modules.module import Module
 from modules import loaded_modules_dict
 from .user import User
@@ -265,10 +266,7 @@ class Webserver(Module):
         def protected():
             output = '<div>'
             output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong> (protected)</p>'
-            output += '<p>' \
-                      'enjoy the telnet-log<br />' \
-                      'if you enjoy the logging, you might just as well <a href="/logout">log out</a> again.' \
-                      '</p>'
+            output += '<p><a href="/logout">log out</a></p>'
             output += '</div>'
 
             markup = Markup(output)
@@ -300,6 +298,11 @@ class Webserver(Module):
                 room=current_user.sid
             )
             print("sent 'dong' to {}".format(current_user.id))
+
+        @self.websocket.on('widget_event', namespace='/chrani-bot-ng')
+        @authenticated_only
+        def widget_event(data):
+            dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
 
         self.websocket.run(

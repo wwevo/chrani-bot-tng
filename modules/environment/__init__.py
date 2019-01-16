@@ -23,7 +23,11 @@ class Environment(Module):
         return "module_environment"
 
     def on_socket_connect(self, steamid):
-        self.update_status()
+        self.update_status_widget()
+
+    def on_socket_event(self, event_data, dispatchers_steamid):
+        print("module '{}' received event {} from {}".format(self.options['module_name'], event_data, dispatchers_steamid))
+        pass
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -36,11 +40,12 @@ class Environment(Module):
         return self
     # endregion
 
-    def update_status(self):
-        template_frontend = self.templates.get_template('frontend.html')
+    def update_status_widget(self):
+        template_frontend = self.templates.get_template('server_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
-            server_is_online=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline")
+            server_is_online_text=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline"),
+            server_is_online=self.dom.data.get("module_telnet").get("server_is_online")
         )
 
         self.webserver.send_data_to_client(
@@ -60,7 +65,7 @@ class Environment(Module):
                 }
             })
 
-            self.update_status()
+            self.update_status_widget()
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

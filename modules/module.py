@@ -47,3 +47,6 @@ class Module(Thread):
 
     def on_socket_connect(self, sid):
         pass
+
+    def on_socket_event(self, event_data, dispatchers_steamid):
+        pass

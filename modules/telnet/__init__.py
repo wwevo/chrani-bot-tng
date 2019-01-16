@@ -43,7 +43,7 @@ class Telnet(Module):
         return "module_telnet"
 
     def on_socket_connect(self, steamid):
-        template_bunch_of_lines = self.templates.get_template('bunch_of_lines.html')
+        template_bunch_of_lines = self.templates.get_template('bunch_of_telnet_log_lines.html')
         if len(self.webserver.connected_clients) >= 1:
             data_to_emit = template_bunch_of_lines.render(
                 bunch_of_lines=self.get_a_bunch_of_lines(25)

@@ -1,0 +1,14 @@
+<!-- I want this to be a GLOBAL macro file, haven't found a way though. Each module has to have it's own copy of it for now :( //-->
+{% macro construct_toggle_link(bool, active_text, deactivate_event, inactive_text, activate_event) %}
+{% if bool == true %}
+{% if deactivate_event != None %}
+<span><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+{% else %}
+<span>{{ active_text }}</span>
+{% endif %}
+{% elif bool == false and inactive != None %}
+<span>{{ inactive_text }}</span>
+{% else %}
+<span>n/a</span>
+{% endif %}
+{% endmacro %}
