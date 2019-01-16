@@ -36,8 +36,14 @@ $(document).ready(function() {
     });
 
     socket.on('widget', function(data) {
-        let $el = $("body > main").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] +'"></div>');
-        $el.prepend('<p>' + data["data"] + '</p>');
+        let $el = $("body > main").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
+        if (data["method"] === "update") {
+            $el.html(data["data"]);
+        } else if (data["method"] === "append") {
+            $el.append('<p>' + data["data"] + '</p>');
+        } else if  (data["method"] === "prepend") {
+            $el.prepend('<p>' + data["data"] + '</p>');
+        }
     });
 
 

@@ -77,7 +77,7 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, data, target_element=None, clients=None):
+    def send_data_to_client(self, data={}, target_element=None, clients=None, method="update"):
         with self.app.app_context():
             data_ready_for_emitting = False
             if clients is None:
@@ -85,7 +85,15 @@ class Webserver(Module):
                     "broadcast": True,
                     "namespace": '/chrani-bot-ng'
                 }
-                data_ready_for_emitting = True
+                self.websocket.emit(
+                    'widget',
+                    {
+                        "method": method,
+                        "data": data,
+                        "target_element": target_element,
+                    },
+                    **emit_options
+                )
             elif isinstance(clients, KeysView):
                 for steamid in clients:
                     try:
@@ -93,20 +101,18 @@ class Webserver(Module):
                             "room": self.connected_clients[steamid].sid,
                             "namespace": '/chrani-bot-ng'
                         }
-                        data_ready_for_emitting = True
+                        self.websocket.emit(
+                            'widget',
+                            {
+                                "method": method,
+                                "data": data,
+                                "target_element": target_element,
+                            },
+                            **emit_options
+                        )
                     except AttributeError as error:
                         # user has got no session id yet
                         pass
-
-            if data_ready_for_emitting:
-                self.websocket.emit(
-                    'widget',
-                    {
-                        "data": data,
-                        "target_element": target_element,
-                    },
-                    **emit_options
-                )
 
     def run(self):
         app = Flask(

@@ -247,7 +247,8 @@ class Telnet(Module):
 
                     if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
                         self.webserver.send_data_to_client(
-                            valid_telnet_line,
+                            method="prepend",
+                            data=valid_telnet_line,
                             clients=self.webserver.connected_clients.keys(),
                             target_element="widget_telnet_log"
                         )

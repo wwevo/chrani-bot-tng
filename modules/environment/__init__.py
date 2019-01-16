@@ -38,6 +38,19 @@ class Environment(Module):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time()
+
+            self.dom.upsert({
+                self.get_module_identifier(): {
+                    "webserver_logged_in_users": len(self.webserver.connected_clients)
+                }
+            })
+
+            self.webserver.send_data_to_client(
+                data="{} users are currently using the webinterface!".format(self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users")),
+                clients=self.webserver.connected_clients.keys(),
+                target_element="widget_environment_data"
+            )
+
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 
