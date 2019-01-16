@@ -4,6 +4,7 @@ from time import time
 
 
 class Environment(Module):
+    templates = object
 
     def __init__(self):
         setattr(self, "default_options", {
@@ -34,6 +35,7 @@ class Environment(Module):
 
     def run(self):
         next_cycle = 0
+        template_frontend = self.templates.get_template('frontend.html')
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
@@ -43,16 +45,13 @@ class Environment(Module):
                 }
             })
 
-            data = "{} users are currently using the webinterface!".format(
-                self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users")
-            )
-
-            data += "the server is currently {}".format(
-                "online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline"
+            data_to_emit = template_frontend.render(
+                webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
+                server_is_online=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline")
             )
 
             self.webserver.send_data_to_client(
-                data=data,
+                data=data_to_emit,
                 clients=self.webserver.connected_clients.keys(),
                 target_element="widget_environment_data"
             )

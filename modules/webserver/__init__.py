@@ -14,9 +14,9 @@ from .user import User
 import re
 import functools
 from socket import socket, AF_INET, SOCK_DGRAM
-from flask import Flask, request, redirect, render_template, Markup
+from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit, disconnect, send
+from flask_socketio import SocketIO, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
 from collections import KeysView
@@ -25,6 +25,7 @@ from collections import KeysView
 class Webserver(Module):
     app = object
     websocket = object
+    login_manager = object
 
     connected_clients = dict
     broadcast_queue = dict
@@ -54,6 +55,21 @@ class Webserver(Module):
             self.options["host"] = self.get_ip()
 
         self.connected_clients = {}
+
+        app = Flask(__name__)
+        app.config["SECRET_KEY"] = self.options.get("Flask_secret_key", self.default_options.get("Flask_secret_key"))
+
+        login_manager = LoginManager()
+        login_manager.init_app(app)
+
+        socketio = SocketIO(
+            app,
+            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
+        )
+
+        self.app = app
+        self.websocket = socketio
+        self.login_manager = login_manager
 
         return self
 
@@ -115,23 +131,7 @@ class Webserver(Module):
                         pass
 
     def run(self):
-        app = Flask(
-            __name__,
-            template_folder=path.join(root_dir, 'templates'),
-            static_folder=path.join(root_dir, 'static')
-        )
-        app.config["SECRET_KEY"] = self.options.get("Flask_secret_key", self.default_options.get("Flask_secret_key"))
-
-        login_manager = LoginManager()
-        login_manager.init_app(app)
-
-        socketio = SocketIO(
-            app,
-            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
-        )
-
-        self.app = app
-        self.websocket = socketio
+        template_frontend = self.templates.get_template('index.html')
 
         # region Management function and routes without any user-display or interaction
         def authenticated_only(f):
@@ -144,7 +144,7 @@ class Webserver(Module):
 
             return wrapped
 
-        @login_manager.user_loader
+        @self.login_manager.user_loader
         def user_loader(steamid):
             user = self.connected_clients.get(steamid, False)
             if not user:
@@ -155,7 +155,7 @@ class Webserver(Module):
 
             return user
 
-        @app.route('/login')
+        @self.app.route('/login')
         def login():
             steam_openid_url = 'https://steamcommunity.com/openid/login'
             u = {
@@ -179,7 +179,7 @@ class Webserver(Module):
             )
             return redirect(auth_url)
 
-        @app.route('/authenticate', methods=['GET'])
+        @self.app.route('/authenticate', methods=['GET'])
         def setup():
             def validate(signed_params):
                 steam_login_url_base = "https://steamcommunity.com/openid/login"
@@ -215,7 +215,7 @@ class Webserver(Module):
 
             return redirect("/")
 
-        @app.route('/logout')
+        @self.app.route('/logout')
         @login_required
         def logout():
             del self.connected_clients[current_user.id]
@@ -225,26 +225,26 @@ class Webserver(Module):
 
         # region Actual routes the user gets to see and use
         """ actual pages """
-        @app.route('/unauthorized')
-        @login_manager.unauthorized_handler
+        @self.app.route('/unauthorized')
+        @self.login_manager.unauthorized_handler
         def unauthorized_handler():
             output = '<div>'
             output += '<p>You are not allowed to view that page :(</p>'
             output += '<p><a href="/">home</a></p>'
             output += "</div>"
             markup = Markup(output)
-            return render_template('index.html', content=markup), 401
+            return template_frontend.render(content=markup), 401
 
-        @app.errorhandler(404)
+        @self.app.errorhandler(404)
         def page_not_found(error):
             output = '<div>'
             output += '<p>{}</p>'.format(error)
             output += '<p><a href="/">home</a></p>'
             output += "</div>"
             markup = Markup(output)
-            return render_template('index.html', content=markup), 404
+            return template_frontend.render(content=markup), 404
 
-        @app.route('/')
+        @self.app.route('/')
         def index():
             if current_user.is_authenticated is True:
                 return redirect("/protected")
@@ -258,9 +258,9 @@ class Webserver(Module):
             output += '</div>'
 
             markup = Markup(output)
-            return render_template('index.html', content=markup)
+            return template_frontend.render(content=markup)
 
-        @app.route('/protected')
+        @self.app.route('/protected')
         @login_required
         def protected():
             output = '<div>'
@@ -272,11 +272,11 @@ class Webserver(Module):
             output += '</div>'
 
             markup = Markup(output)
-            return render_template('index.html', content=markup)
+            return template_frontend.render(content=markup)
         # endregion
 
         # region Websocket handling
-        @socketio.on('connect', namespace='/chrani-bot-ng')
+        @self.websocket.on('connect', namespace='/chrani-bot-ng')
         @authenticated_only
         def connect_handler():
             if hasattr(request, 'sid'):
@@ -289,7 +289,7 @@ class Webserver(Module):
             else:
                 return False  # not allowed here
 
-        @socketio.on('ding', namespace='/chrani-bot-ng')
+        @self.websocket.on('ding', namespace='/chrani-bot-ng')
         @authenticated_only
         def ding_dong():
             print("got 'ding' from {}".format(current_user.id))
@@ -300,8 +300,8 @@ class Webserver(Module):
             print("sent 'dong' to {}".format(current_user.id))
         # endregion
 
-        socketio.run(
-            app,
+        self.websocket.run(
+            self.app,
             host=self.options.get("host", self.default_options.get("host")),
             port=self.options.get("port", self.default_options.get("port")),
             debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
