@@ -22,6 +22,9 @@ class Environment(Module):
     def get_module_identifier():
         return "module_environment"
 
+    def on_socket_connect(self, steamid):
+        self.update_status()
+
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
@@ -33,9 +36,21 @@ class Environment(Module):
         return self
     # endregion
 
+    def update_status(self):
+        template_frontend = self.templates.get_template('frontend.html')
+        data_to_emit = template_frontend.render(
+            webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
+            server_is_online=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline")
+        )
+
+        self.webserver.send_data_to_client(
+            data=data_to_emit,
+            clients=self.webserver.connected_clients.keys(),
+            target_element="widget_environment_data"
+        )
+
     def run(self):
         next_cycle = 0
-        template_frontend = self.templates.get_template('frontend.html')
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
@@ -45,16 +60,7 @@ class Environment(Module):
                 }
             })
 
-            data_to_emit = template_frontend.render(
-                webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
-                server_is_online=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline")
-            )
-
-            self.webserver.send_data_to_client(
-                data=data_to_emit,
-                clients=self.webserver.connected_clients.keys(),
-                target_element="widget_environment_data"
-            )
+            self.update_status()
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

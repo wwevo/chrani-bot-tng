@@ -256,9 +256,13 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
+                        template_bunch_of_lines = self.templates.get_template('bunch_of_lines.html')
+                        data_to_emit = template_bunch_of_lines.render(
+                            bunch_of_lines=[valid_telnet_line]
+                        )
                         self.webserver.send_data_to_client(
                             method="prepend",
-                            data=valid_telnet_line,
+                            data=data_to_emit,
                             clients=self.webserver.connected_clients.keys(),
                             target_element="widget_telnet_log"
                         )

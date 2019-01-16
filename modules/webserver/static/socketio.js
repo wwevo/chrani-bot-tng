@@ -40,9 +40,9 @@ $(document).ready(function() {
         if (data["method"] === "update") {
             $el.html(data["data"]);
         } else if (data["method"] === "append") {
-            $el.append('<p>' + data["data"] + '</p>');
+            $el.append(data["data"]);
         } else if  (data["method"] === "prepend") {
-            $el.prepend('<p>' + data["data"] + '</p>');
+            $el.prepend(data["data"]);
         }
     });
 
