@@ -4,6 +4,7 @@ from modules import loaded_modules_dict
 from time import time, sleep
 from collections import deque
 import telnetlib
+from itertools import islice
 
 
 class Telnet(Module):
@@ -40,6 +41,19 @@ class Telnet(Module):
     @staticmethod
     def get_module_identifier():
         return "module_telnet"
+
+    def on_socket_connect(self, steamid):
+        template_bunch_of_lines = self.templates.get_template('bunch_of_lines.html')
+        if len(self.webserver.connected_clients) >= 1:
+            data_to_emit = template_bunch_of_lines.render(
+                bunch_of_lines=self.get_a_bunch_of_lines(25)
+            )
+            self.webserver.send_data_to_client(
+                method="update",
+                data=data_to_emit,
+                clients=[steamid],
+                target_element="widget_telnet_log"
+            )
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -150,20 +164,13 @@ class Telnet(Module):
         return telnet_lines_list
 
     def get_a_bunch_of_lines(self, this_many_lines):
-        telnet_lines = []
-        current_queue_length = 0
-        done = False
-        while (current_queue_length < this_many_lines) and not done:
-            try:
-                telnet_lines.append(self.valid_telnet_lines.popleft())
-                current_queue_length += 1
-            except IndexError:
-                done = True
-
-        if len(telnet_lines) >= 1:
-            return telnet_lines
+        start_the_slice = len(self.valid_telnet_lines) - this_many_lines
+        if this_many_lines > len(self.valid_telnet_lines):
+            return list(reversed(self.valid_telnet_lines))
+        if start_the_slice >= 1:
+            return list(reversed(list(islice(self.valid_telnet_lines, start_the_slice, len(self.valid_telnet_lines)))))
         else:
-            return False
+            return []
     # endregion
 
     def run(self):

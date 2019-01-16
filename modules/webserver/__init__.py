@@ -93,7 +93,7 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, data={}, target_element=None, clients=None, method="update"):
+    def send_data_to_client(self, data, target_element=None, clients=None, method="update"):
         with self.app.app_context():
             data_ready_for_emitting = False
             if clients is None:
@@ -110,7 +110,7 @@ class Webserver(Module):
                     },
                     **emit_options
                 )
-            elif isinstance(clients, KeysView):
+            elif isinstance(clients, KeysView) or isinstance(clients, list):
                 for steamid in clients:
                     try:
                         emit_options = {
@@ -286,6 +286,8 @@ class Webserver(Module):
                     room=request.sid,
                     broadcast=False
                 )
+                for module in loaded_modules_dict.values():
+                    module.on_socket_connect(current_user.id)
             else:
                 return False  # not allowed here
 

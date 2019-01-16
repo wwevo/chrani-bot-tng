@@ -44,3 +44,6 @@ class Module(Thread):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
+
+    def on_socket_connect(self, sid):
+        pass
