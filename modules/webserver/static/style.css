@@ -30,7 +30,6 @@ footer > div {
 }
 
 div.widget {
-    border: 1px solid black;
     overflow: auto;
 }
 
