@@ -26,8 +26,7 @@ class Environment(Module):
         self.update_status_widget()
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        print("module '{}' received event {} from {}".format(self.options['module_name'], event_data, dispatchers_steamid))
-        pass
+        Module.on_socket_event(self, event_data, dispatchers_steamid)
 
     # region Standard module stuff
     def setup(self, options=dict):

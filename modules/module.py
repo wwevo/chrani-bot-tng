@@ -49,4 +49,6 @@ class Module(Thread):
         pass
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        pass
+        print("module '{}' received event {} from {}".format(
+            self.options['module_name'], event_data, dispatchers_steamid
+        ))

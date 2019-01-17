@@ -7,17 +7,16 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
-from modules.common import dispatch_socket_event
+from modules.common import dispatch_socket_event, authenticated_only
 from modules.module import Module
 from modules import loaded_modules_dict
 from .user import User
 
 import re
-import functools
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, emit
 from requests import post
 from urllib.parse import urlencode
 from collections import KeysView
@@ -135,26 +134,16 @@ class Webserver(Module):
         template_frontend = self.templates.get_template('index.html')
 
         # region Management function and routes without any user-display or interaction
-        def authenticated_only(f):
-            @functools.wraps(f)
-            def wrapped(*args, **kwargs):
-                if not current_user.is_authenticated:
-                    disconnect()
-                else:
-                    return f(*args, **kwargs)
-
-            return wrapped
-
         @self.login_manager.user_loader
         def user_loader(steamid):
-            user = self.connected_clients.get(steamid, False)
-            if not user:
+            webserver_user = self.connected_clients.get(steamid, False)
+            if not webserver_user:
                 """ This is where the authentication will happen, see if that user in in your allowed players database or
                  whatever """
-                user = User(steamid)
-                self.connected_clients[steamid] = user
+                webserver_user = User(steamid)
+                self.connected_clients[steamid] = webserver_user
 
-            return user
+            return webserver_user
 
         @self.app.route('/login')
         def login():
@@ -209,9 +198,9 @@ class Webserver(Module):
                 p = re.search(r"/(?P<steamid>([0-9]{17}))", str(request.args["openid.claimed_id"]))
                 if p:
                     steamid = p.group("steamid")
-                    user = User(steamid)
-                    login_user(user, remember=True)
-                    print("user {} connected...".format(user.id))
+                    webserver_user = User(steamid)
+                    login_user(webserver_user, remember=True)
+                    print("user {} connected...".format(webserver_user.id))
                     return redirect("/protected")
 
             return redirect("/")
