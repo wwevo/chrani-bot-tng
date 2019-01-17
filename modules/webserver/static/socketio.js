@@ -36,7 +36,7 @@ $(document).ready(function() {
     });
 
     window.socket.on('widget', function(data) {
-        let $el = $("body > main").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
+        let $el = $("body > main > div").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
         if (data["method"] === "update") {
             $el.html(data["data"]);
         } else if (data["method"] === "append") {

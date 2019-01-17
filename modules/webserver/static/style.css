@@ -1,4 +1,44 @@
-.widget p {
-    font-size: 0.8em;
+header > div {
+    background-color: cadetblue;
+    line-height: 2em;
+}
+
+header > div h1 {
+    font-size: 1em;
+    margin: 0 0 0 1em; padding: 0;
+    float: left;
+}
+
+header > div aside {
+    float: right;
+    margin-right: 1em;
+}
+
+main > div {
+    background-color: blanchedalmond;
+}
+
+main > div > p {
+    margin: 0 0 0.5em 0; padding: 0;
+}
+
+footer > div {
+    text-align: right;
+    background-color: aliceblue;
+    line-height: 2em;
+    margin-right: 1em;
+}
+
+div.widget {
+    border: 1px solid black;
+    overflow: auto;
+}
+
+div.widget p.log_line {
     margin: 0; padding: 0;
+    font-size: 0.8em;
+}
+
+#widget_telnet_log {
+    max-height: 15em;
 }

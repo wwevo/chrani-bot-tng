@@ -95,7 +95,6 @@ class Webserver(Module):
 
     def send_data_to_client(self, data, target_element=None, clients=None, method="update"):
         with self.app.app_context():
-            data_ready_for_emitting = False
             if clients is None:
                 emit_options = {
                     "broadcast": True,
@@ -219,48 +218,44 @@ class Webserver(Module):
         @self.app.route('/unauthorized')
         @self.login_manager.unauthorized_handler
         def unauthorized_handler():
-            output = '<div>'
-            output += '<p>You are not allowed to view that page :(</p>'
+            output  = '<p>You are not allowed to view that page :(</p>'
             output += '<p><a href="/">home</a></p>'
-            output += "</div>"
             markup = Markup(output)
-            return template_frontend.render(content=markup), 401
+            return template_frontend.render(main=markup), 401
 
         @self.app.errorhandler(404)
         def page_not_found(error):
-            output = '<div>'
-            output += '<p>{}</p>'.format(error)
+            output  = '<p>{}</p>'.format(error)
             output += '<p><a href="/">home</a></p>'
-            output += "</div>"
             markup = Markup(output)
-            return template_frontend.render(content=markup), 404
+            return template_frontend.render(main=markup), 404
 
         @self.app.route('/')
         def index():
             if current_user.is_authenticated is True:
                 return redirect("/protected")
 
-            output = '<div>'
-            output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
-            output += '<p>' \
-                      'please <a href="/login">log in with your steam account</a> ' \
-                      'to get access to the protected stuff' \
-                      '</p>'
-            output += '</div>'
+            header_output  = '<h1>chrani-bot tng</h1> (public area)'
+            header_output += '<aside>'
+            header_output += '<a href="/login">log in</a>'
+            header_output += '</aside>'
+            main_output  = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
+            main_output += '<p>You can use your steam-account to log in!</p>'
 
-            markup = Markup(output)
-            return template_frontend.render(content=markup)
+            header_markup = Markup(header_output)
+            main_markup = Markup(main_output)
+            return template_frontend.render(main=main_markup, header=header_markup)
 
         @self.app.route('/protected')
         @login_required
         def protected():
-            output = '<div>'
-            output += '<p>Welcome to the <strong>chrani-bot: the next generation</strong> (protected)</p>'
-            output += '<p><a href="/logout">log out</a></p>'
-            output += '</div>'
+            header_output  = '<h1>chrani-bot tng</h1> (protected area)'
+            header_output += '<aside>'
+            header_output += '<a href="/logout">log out</a>'
+            header_output += '</aside>'
 
-            markup = Markup(output)
-            return template_frontend.render(content=markup)
+            header_markup = Markup(header_output)
+            return template_frontend.render(header=header_markup)
         # endregion
 
         # region Websocket handling

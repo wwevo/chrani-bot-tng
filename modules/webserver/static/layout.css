@@ -1,0 +1,39 @@
+header, footer, main {
+    position: absolute;
+    right: 0;
+    left: 0
+}
+
+header {
+    height: 2em;
+    top: 0;
+}
+
+footer {
+    height: 2em;
+    bottom: 0;
+}
+
+main {
+    top: 2em;
+    bottom: 2em;
+    overflow: hidden;
+}
+
+main > div {
+    height: calc(100vh - 4em);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.widget {
+    flex-grow: 1;
+    min-height: 2.66em;
+    line-height: 1.33em;
+}
+
+.widget ul, .widget li {
+    margin: 0; padding: 0;
+    list-style-type: none;
+}

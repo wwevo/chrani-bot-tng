@@ -13,17 +13,25 @@
     </head>
     <body>
         <header>
+            <div>
+            {% block header %}
             {{ title }}
+            {% endblock %}
+            </div>
         </header>
         <main>
-            {% block content %}
+            <div>
+            {% block main %}
             Hello World!
             {% endblock %}
+            </div>
         </main>
         <footer>
+            <div>
             {% block footer %}
-            &copy; this page was created in 2019 by <a href="http://chrani.net/">ecv</a>
+                &copy; this page was created in 2019 by <a href="http://chrani.net/">ecv</a> for the <a href="https://notjustfor.me/chrani-bot">chrani-bot</a> webinterface
             {% endblock %}
+            </div>
         </footer>
     </body>
 </html>
