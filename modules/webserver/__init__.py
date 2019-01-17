@@ -218,17 +218,20 @@ class Webserver(Module):
         @self.app.route('/unauthorized')
         @self.login_manager.unauthorized_handler
         def unauthorized_handler():
-            output  = '<p>You are not allowed to view that page :(</p>'
-            output += '<p><a href="/">home</a></p>'
-            markup = Markup(output)
-            return template_frontend.render(main=markup), 401
+            return redirect("/")
 
         @self.app.errorhandler(404)
         def page_not_found(error):
+            header_output  = '<h1>chrani-bot tng</h1> (public area)'
+            header_output += '<aside>'
+            header_output += '<a href="/login">log in</a>'
+            header_output += '</aside>'
             output  = '<p>{}</p>'.format(error)
             output += '<p><a href="/">home</a></p>'
+
+            header_markup = Markup(header_output)
             markup = Markup(output)
-            return template_frontend.render(main=markup), 404
+            return template_frontend.render(main=markup, header=header_markup), 404
 
         @self.app.route('/')
         def index():
