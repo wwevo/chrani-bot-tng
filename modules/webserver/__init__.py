@@ -209,6 +209,7 @@ class Webserver(Module):
         @login_required
         def logout():
             del self.connected_clients[current_user.id]
+            print("user {} disconnected...".format(current_user.id))
             logout_user()
             return redirect("/")
         # endregion
