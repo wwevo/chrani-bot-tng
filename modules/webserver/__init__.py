@@ -16,7 +16,7 @@ import re
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
 from collections import KeysView
@@ -207,8 +207,11 @@ class Webserver(Module):
         @self.app.route('/logout')
         @login_required
         def logout():
+            disconnect(sid=current_user.sid, namespace='/chrani-bot-ng')
             del self.connected_clients[current_user.id]
             print("user {} disconnected...".format(current_user.id))
+            for module in loaded_modules_dict.values():
+                module.on_socket_disconnect(current_user.id)
             logout_user()
             return redirect("/")
         # endregion

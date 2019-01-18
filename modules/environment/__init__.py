@@ -23,10 +23,31 @@ class Environment(Module):
         return "module_environment"
 
     def on_socket_connect(self, steamid):
+        Module.on_socket_connect(self, steamid)
+        self.dom.upsert({
+            self.get_module_identifier(): {
+                "webserver_logged_in_users": len(self.webserver.connected_clients)
+            }
+        })
+
+        self.update_status_widget()
+
+    def on_socket_disconnect(self, steamid):
+        Module.on_socket_disconnect(self, steamid)
+        self.dom.upsert({
+            self.get_module_identifier(): {
+                "webserver_logged_in_users": len(self.webserver.connected_clients)
+            }
+        })
+
         self.update_status_widget()
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         Module.on_socket_event(self, event_data, dispatchers_steamid)
+        self.update_status_widget()
+
+    def emit_event_status(self, event_data, recipient_steamids):
+        Module.emit_event_status(self, event_data, recipient_steamids)
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -57,15 +78,6 @@ class Environment(Module):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time()
-
-            self.dom.upsert({
-                self.get_module_identifier(): {
-                    "webserver_logged_in_users": len(self.webserver.connected_clients)
-                }
-            })
-
-            self.update_status_widget()
-
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 

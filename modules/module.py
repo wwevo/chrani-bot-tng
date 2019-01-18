@@ -46,9 +46,21 @@ class Module(Thread):
         return self
 
     def on_socket_connect(self, sid):
-        pass
+        print("'{}' connected to module {}".format(
+            sid, self.options['module_name']
+        ))
+
+    def on_socket_disconnect(self, sid):
+        print("'{}' disconnected from module {}".format(
+            sid, self.options['module_name']
+        ))
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         print("module '{}' received event {} from {}".format(
             self.options['module_name'], event_data, dispatchers_steamid
+        ))
+
+    def emit_event_status(self, event_data, recipient_steamids):
+        print("module '{}' sent status {} to {}".format(
+            self.options['module_name'], event_data, recipient_steamids
         ))
