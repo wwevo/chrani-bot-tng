@@ -26,7 +26,7 @@ class Environment(Module):
         Module.on_socket_connect(self, steamid)
         self.dom.upsert({
             self.get_module_identifier(): {
-                "webserver_logged_in_users": len(self.webserver.connected_clients)
+                "webserver_logged_in_users": self.webserver.connected_clients
             }
         })
 
@@ -36,7 +36,7 @@ class Environment(Module):
         Module.on_socket_disconnect(self, steamid)
         self.dom.upsert({
             self.get_module_identifier(): {
-                "webserver_logged_in_users": len(self.webserver.connected_clients)
+                "webserver_logged_in_users": self.webserver.connected_clients
             }
         })
 
