@@ -24,22 +24,10 @@ class Environment(Module):
 
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
-        self.dom.upsert({
-            self.get_module_identifier(): {
-                "webserver_logged_in_users": self.webserver.connected_clients
-            }
-        })
-
         self.update_status_widget()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
-        self.dom.upsert({
-            self.get_module_identifier(): {
-                "webserver_logged_in_users": self.webserver.connected_clients
-            }
-        })
-
         self.update_status_widget()
 
     def on_socket_event(self, event_data, dispatchers_steamid):
@@ -61,6 +49,12 @@ class Environment(Module):
     # endregion
 
     def update_status_widget(self):
+        self.dom.upsert({
+            self.get_module_identifier(): {
+                "webserver_logged_in_users": self.webserver.connected_clients
+            }
+        })
+
         template_frontend = self.templates.get_template('server_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),

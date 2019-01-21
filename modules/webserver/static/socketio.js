@@ -46,6 +46,9 @@ $(document).ready(function() {
         }
     });
 
+    window.socket.on('widget_status', function(data) {
+       console.log("server received event '" + data['data'][0] + "'");
+    });
 
 });
 

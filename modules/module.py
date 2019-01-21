@@ -59,8 +59,10 @@ class Module(Thread):
         print("module '{}' received event {} from {}".format(
             self.options['module_name'], event_data, dispatchers_steamid
         ))
+        self.emit_event_status(event_data, dispatchers_steamid)
 
-    def emit_event_status(self, event_data, recipient_steamids):
-        print("module '{}' sent status {} to {}".format(
-            self.options['module_name'], event_data, recipient_steamids
+    def emit_event_status(self, event_data, recipient_steamid):
+        print("module '{}' sent status for '{}' to {}".format(
+            self.options['module_name'], event_data[0], recipient_steamid
         ))
+        self.webserver.send_status_to_client(event_data, [recipient_steamid])

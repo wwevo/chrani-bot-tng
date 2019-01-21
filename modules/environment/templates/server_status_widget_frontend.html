@@ -3,4 +3,7 @@
 <ul>
     <li><strong>{{ logged_in_users_count }}</strong>{% if logged_in_users_count == 1 %} user is {% else %} users are {% endif %}currently using the webinterface!</li>
     <li>the server is currently <strong>{{ server_is_online_text }}</strong> ({{ construct_toggle_link(server_is_online, "shutdown", ['widget_event', ['environment', ['shutdown', '30s']]], None, None)}})</li>
+{% if webserver_logged_in_users %}
+    <li>({{ webserver_logged_in_users|join(', ') }})</li>
+{% endif %}
 </ul>

@@ -129,6 +129,38 @@ class Webserver(Module):
                         # user has got no session id yet
                         pass
 
+    def send_status_to_client(self, data, clients=None):
+        with self.app.app_context():
+            if clients is None:
+                emit_options = {
+                    "broadcast": True,
+                    "namespace": '/chrani-bot-ng'
+                }
+                self.websocket.emit(
+                    'widget_status',
+                    {
+                        "data": data,
+                    },
+                    **emit_options
+                )
+            elif isinstance(clients, KeysView) or isinstance(clients, list):
+                for steamid in clients:
+                    try:
+                        emit_options = {
+                            "room": self.connected_clients[steamid].sid,
+                            "namespace": '/chrani-bot-ng'
+                        }
+                        self.websocket.emit(
+                            'widget_status',
+                            {
+                                "data": data,
+                            },
+                            **emit_options
+                        )
+                    except AttributeError as error:
+                        # user has got no session id yet
+                        pass
+
     def run(self):
         template_frontend = self.templates.get_template('index.html')
 
