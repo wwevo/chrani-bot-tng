@@ -47,7 +47,7 @@ $(document).ready(function() {
     });
 
     window.socket.on('widget_status', function(data) {
-       console.log("server received event '" + data['data'][0] + "'");
+       console.log("received status '" + data['status'] + "' for event '" + data['data'][0] + "' from server");
     });
 
 });

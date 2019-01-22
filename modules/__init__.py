@@ -1,5 +1,5 @@
 from importlib import import_module
-from os import path, chdir, walk
+from os import path, chdir, walk, listdir
 import json
 from collections import deque
 root_dir = path.dirname(path.abspath(__file__))
@@ -11,6 +11,7 @@ modules_to_start_list = deque()
 started_modules_dict = {}
 
 available_modules_list = next(walk('.'))[1]
+
 for module in available_modules_list:
     """ at the bottom of each module, the loaded_modules_list will be updated
     modules may not do any stuff in their __init__, unless you know what you are doing """
@@ -48,3 +49,4 @@ def start_modules():
     for module_to_start in modules_to_start_list:
         module_to_start.start()
         started_modules_dict[module_to_start.get_module_identifier()] = module_to_start
+

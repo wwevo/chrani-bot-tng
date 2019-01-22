@@ -34,18 +34,10 @@ class Environment(Module):
         Module.on_socket_event(self, event_data, dispatchers_steamid)
         self.update_status_widget()
 
-    def emit_event_status(self, event_data, recipient_steamids):
-        Module.emit_event_status(self, event_data, recipient_steamids)
-
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
         self.run_observer_interval = 1
-        return self
-
-    def start(self):
-        Module.start(self)
-        return self
     # endregion
 
     def update_status_widget(self):
