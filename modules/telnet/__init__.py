@@ -51,7 +51,7 @@ class Telnet(Module):
             self.webserver.send_data_to_client(
                 method="update",
                 data_type="widget_content",
-                data=data_to_emit,
+                event_data=data_to_emit,
                 clients=[steamid],
                 target_element="widget_telnet_log"
             )
@@ -263,7 +263,7 @@ class Telnet(Module):
                         )
                         self.webserver.send_data_to_client(
                             method="prepend",
-                            data=data_to_emit,
+                            event_data=data_to_emit,
                             data_type="widget_content",
                             clients=self.webserver.connected_clients.keys(),
                             target_element="widget_telnet_log"

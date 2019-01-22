@@ -93,35 +93,39 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, data, data_type="widget_content", target_element=None, clients=None, method="update", status=""):
+    def send_data_to_client(self, event_data, data_type="widget_content", target_element=None, clients=None, method="update", status=""):
         with self.app.app_context():
             data_packages_to_send = []
-            if data_type in ["widget_content", "status_message"]:
+            widget_options = {
+                "method": method,
+                "status": status,
+                "event_data": event_data,
+                "data_type": data_type,
+                "target_element": target_element,
+            }
+            if clients is None:
                 emit_options = {
+                    "broadcast": True,
                     "namespace": '/chrani-bot-ng'
                 }
-                if clients is None:
-                    emit_options["broadcast"] = True,
-                    data_packages_to_send.append(emit_options)
-                elif isinstance(clients, KeysView) or isinstance(clients, list):
-                    for steamid in clients:
-                        try:
-                            emit_options["room"] = self.connected_clients[steamid].sid
-                            data_packages_to_send.append(emit_options)
-                        except AttributeError as error:
-                            # user has got no session id yet
-                            pass
+                data_packages_to_send.append([widget_options, emit_options])
+            elif isinstance(clients, KeysView) or isinstance(clients, list):
+                for steamid in clients:
+                    try:
+                        emit_options = {
+                            "room": self.connected_clients[steamid].sid,
+                            "namespace": '/chrani-bot-ng'
+                        }
+                        data_packages_to_send.append([widget_options, emit_options])
+                    except AttributeError as error:
+                        # user has got no session id yet
+                        pass
 
             for data_package in data_packages_to_send:
                 self.websocket.emit(
-                    'data', {
-                        "method": method,
-                        "target_element": target_element,
-                        "event_data": data,
-                        "data_type": data_type,
-                        "status": status
-                    },
-                    **data_package
+                    'data',
+                    data_package[0],
+                    **data_package[1]
                 )
 
     def run(self):
