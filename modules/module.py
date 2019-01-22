@@ -1,5 +1,6 @@
 import jinja2
-from os import path
+from os import path, listdir
+from importlib import import_module
 from threading import Thread, Event
 from modules import started_modules_dict
 
@@ -13,10 +14,13 @@ class Module(Thread):
     run_observer_interval = int
     last_execution_time = float
 
+    available_actions_dict = dict
+
     def __init__(self):
         if type(self) is Module:
             raise NotImplementedError("You may not instantiate this class on it's own")
 
+        self.available_actions_dict = {}
         self.stopped = Event()
         Thread.__init__(self)
 
@@ -30,6 +34,16 @@ class Module(Thread):
 
         modules_root_dir = path.dirname(path.abspath(__file__))
         modules_template_dir = path.join(modules_root_dir, self.options['module_name'], 'templates')
+
+        module_actions_root_dir = path.join(modules_root_dir, self.options['module_name'], "actions")
+        try:
+            for module_action in listdir(module_actions_root_dir):
+                if module_action == 'common.py' or module_action == '__init__.py' or module_action[-3:] != '.py':
+                    continue
+                import_module("modules." + self.options['module_name'] + ".actions." + module_action[:-3])
+        except FileNotFoundError as error:
+            # module does not have actions
+            pass
 
         file_loader = jinja2.FileSystemLoader(modules_template_dir)
         self.templates = jinja2.Environment(loader=file_loader)
@@ -45,6 +59,9 @@ class Module(Thread):
         Thread.start(self)
         return self
 
+    def register_action(self, identifier, action_dict):
+        self.available_actions_dict[identifier] = action_dict
+
     def on_socket_connect(self, sid):
         print("'{}' connected to module {}".format(
             sid, self.options['module_name']
@@ -56,13 +73,24 @@ class Module(Thread):
         ))
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        print("module '{}' received event {} from {}".format(
-            self.options['module_name'], event_data, dispatchers_steamid
+        action_identifier = event_data[0]
+        action_parameters = event_data[1]
+        print("module '{}' received event '{}' from {}".format(
+            self.options['module_name'], action_identifier, dispatchers_steamid
         ))
-        self.emit_event_status(event_data, dispatchers_steamid)
 
-    def emit_event_status(self, event_data, recipient_steamid):
-        print("module '{}' sent status for '{}' to {}".format(
-            self.options['module_name'], event_data[0], recipient_steamid
+        if action_identifier in self.available_actions_dict:
+            status = "found requested action '{}'".format(action_identifier)
+            action_thread = Thread(target=self.available_actions_dict[action_identifier]["main_function"](self, event_data, dispatchers_steamid, **action_parameters))
+            action_thread.start()
+        else:
+            status = "could not find requested action '{}'".format(action_identifier)
+
+        self.emit_event_status(event_data, dispatchers_steamid, status)
+
+    def emit_event_status(self, event_data, recipient_steamid, status):
+        action_identifier = event_data[0]
+        print("module '{}' sent status '{}' for '{}' to {}".format(
+            self.options['module_name'], status, action_identifier, recipient_steamid
         ))
-        self.webserver.send_status_to_client(event_data, [recipient_steamid])
+        self.webserver.send_status_to_client(event_data, [recipient_steamid], status)

@@ -129,7 +129,7 @@ class Webserver(Module):
                         # user has got no session id yet
                         pass
 
-    def send_status_to_client(self, data, clients=None):
+    def send_status_to_client(self, data, clients=None, status=""):
         with self.app.app_context():
             if clients is None:
                 emit_options = {
@@ -140,6 +140,7 @@ class Webserver(Module):
                     'widget_status',
                     {
                         "data": data,
+                        "status": status
                     },
                     **emit_options
                 )
@@ -154,6 +155,7 @@ class Webserver(Module):
                             'widget_status',
                             {
                                 "data": data,
+                                "status": status
                             },
                             **emit_options
                         )
