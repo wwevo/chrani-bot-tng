@@ -56,6 +56,7 @@ class Environment(Module):
 
         self.webserver.send_data_to_client(
             data=data_to_emit,
+            data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
             target_element="widget_environment_data"
         )

@@ -93,4 +93,9 @@ class Module(Thread):
         print("module '{}' sent status '{}' for '{}' to {}".format(
             self.options['module_name'], status, action_identifier, recipient_steamid
         ))
-        self.webserver.send_status_to_client(event_data, [recipient_steamid], status)
+        self.webserver.send_data_to_client(
+            event_data,
+            data_type="status_message",
+            clients=[recipient_steamid],
+            status=status
+        )

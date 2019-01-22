@@ -93,75 +93,36 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, data, target_element=None, clients=None, method="update"):
+    def send_data_to_client(self, data, data_type="widget_content", target_element=None, clients=None, method="update", status=""):
         with self.app.app_context():
-            if clients is None:
+            data_packages_to_send = []
+            if data_type in ["widget_content", "status_message"]:
                 emit_options = {
-                    "broadcast": True,
                     "namespace": '/chrani-bot-ng'
                 }
-                self.websocket.emit(
-                    'widget',
-                    {
-                        "method": method,
-                        "data": data,
-                        "target_element": target_element,
-                    },
-                    **emit_options
-                )
-            elif isinstance(clients, KeysView) or isinstance(clients, list):
-                for steamid in clients:
-                    try:
-                        emit_options = {
-                            "room": self.connected_clients[steamid].sid,
-                            "namespace": '/chrani-bot-ng'
-                        }
-                        self.websocket.emit(
-                            'widget',
-                            {
-                                "method": method,
-                                "data": data,
-                                "target_element": target_element,
-                            },
-                            **emit_options
-                        )
-                    except AttributeError as error:
-                        # user has got no session id yet
-                        pass
+                if clients is None:
+                    emit_options["broadcast"] = True,
+                    data_packages_to_send.append(emit_options)
+                elif isinstance(clients, KeysView) or isinstance(clients, list):
+                    for steamid in clients:
+                        try:
+                            emit_options["room"] = self.connected_clients[steamid].sid
+                            data_packages_to_send.append(emit_options)
+                        except AttributeError as error:
+                            # user has got no session id yet
+                            pass
 
-    def send_status_to_client(self, data, clients=None, status=""):
-        with self.app.app_context():
-            if clients is None:
-                emit_options = {
-                    "broadcast": True,
-                    "namespace": '/chrani-bot-ng'
-                }
+            for data_package in data_packages_to_send:
                 self.websocket.emit(
-                    'widget_status',
-                    {
-                        "data": data,
+                    'data', {
+                        "method": method,
+                        "target_element": target_element,
+                        "event_data": data,
+                        "data_type": data_type,
                         "status": status
                     },
-                    **emit_options
+                    **data_package
                 )
-            elif isinstance(clients, KeysView) or isinstance(clients, list):
-                for steamid in clients:
-                    try:
-                        emit_options = {
-                            "room": self.connected_clients[steamid].sid,
-                            "namespace": '/chrani-bot-ng'
-                        }
-                        self.websocket.emit(
-                            'widget_status',
-                            {
-                                "data": data,
-                                "status": status
-                            },
-                            **emit_options
-                        )
-                    except AttributeError as error:
-                        # user has got no session id yet
-                        pass
 
     def run(self):
         template_frontend = self.templates.get_template('index.html')

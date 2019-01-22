@@ -35,19 +35,19 @@ $(document).ready(function() {
             15000);
     });
 
-    window.socket.on('widget', function(data) {
-        let $el = $("body > main > div").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
-        if (data["method"] === "update") {
-            $el.html(data["data"]);
-        } else if (data["method"] === "append") {
-            $el.append(data["data"]);
-        } else if  (data["method"] === "prepend") {
-            $el.prepend(data["data"]);
+    window.socket.on('data', function(data) {
+        if (data["data_type"] == "widget_content") {
+            let $el = $("body > main > div").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
+            if (data["method"] === "update") {
+                $el.html(data["event_data"]);
+            } else if (data["method"] === "append") {
+                $el.append(data["event_data"]);
+            } else if  (data["method"] === "prepend") {
+                $el.prepend(data["event_data"]);
+            }
+        } else if (data["data_type"] == "status_message") {
+            console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
         }
-    });
-
-    window.socket.on('widget_status', function(data) {
-       console.log("received status '" + data['status'] + "' for event '" + data['data'][0] + "' from server");
     });
 
 });
