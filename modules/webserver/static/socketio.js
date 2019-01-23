@@ -47,6 +47,8 @@ $(document).ready(function() {
             }
         } else if (data["data_type"] == "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
+        } else if (data["data_type"] == "alert_message") {
+            alert(data['event_data']);
         }
     });
 

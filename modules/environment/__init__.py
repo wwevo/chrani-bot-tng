@@ -50,7 +50,6 @@ class Environment(Module):
         template_frontend = self.templates.get_template('server_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
-            server_is_online_text=("online" if self.dom.data.get("module_telnet").get("server_is_online") else "offline"),
             server_is_online=self.dom.data.get("module_telnet").get("server_is_online")
         )
 

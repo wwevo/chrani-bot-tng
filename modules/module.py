@@ -81,8 +81,11 @@ class Module(Thread):
 
         if action_identifier in self.available_actions_dict:
             status = "found requested action '{}'".format(action_identifier)
-            action_thread = Thread(target=self.available_actions_dict[action_identifier]["main_function"](self, event_data, dispatchers_steamid, **action_parameters))
-            action_thread.start()
+            Thread(
+                target=self.available_actions_dict[action_identifier]["main_function"],
+                args=(self, event_data, dispatchers_steamid),
+                kwargs=action_parameters
+            ).start()
         else:
             status = "could not find requested action '{}'".format(action_identifier)
 

@@ -9,10 +9,14 @@ from itertools import islice
 
 class Telnet(Module):
     tn = object
+
     telnet_buffer = str
     valid_telnet_lines = deque
 
+    telnet_command_queue = deque
+
     def __init__(self):
+        self.telnet_command_queue = deque()
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
@@ -174,6 +178,27 @@ class Telnet(Module):
             return []
     # endregion
 
+    def add_telnet_command_to_queue(self, command):
+        self.telnet_command_queue.appendleft(command)
+
+    def execute_telnet_command_queue(self):
+        telnet_command_list = []
+        done = False
+        while not done:
+            try:
+                telnet_command_list.append(self.telnet_command_queue.popleft())
+            except IndexError:
+                done = True
+
+        for telnet_command in telnet_command_list:
+            print("processed command '{}'".format(telnet_command))
+            command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
+
+            try:
+                self.tn.write(command.encode('ascii'))
+            except Exception as error:
+                print("error in telnet write: {}".format(error))
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
@@ -270,6 +295,8 @@ class Telnet(Module):
                         )
 
                     response_count += 1
+
+            self.execute_telnet_command_queue()
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
