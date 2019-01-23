@@ -8,7 +8,10 @@
             server_is_online,
             "shutdown", ['widget_event', ['environment', ['shutdown', {"timer": '30'}]]],
             "contact admin", ['widget_event', ['environment', ['shutdown', {"alert_admin": "True", "server_down": "True"}]]]
-    )}})</li>
+    )}}){%- if shutdown_in_seconds != none %} shutdown in {{ shutdown_in_seconds }} seconds ({{ construct_toggle_link(
+            server_is_online,
+            "cancel", ['widget_event', ['environment', ['shutdown', {"cancel": 1}]]]
+    )}}){%- endif -%}</li>
     <li>click for gettime test: ({{ construct_toggle_link(
             true,
             "gettime", ['widget_event', ['environment', ['gettime', {}]]]

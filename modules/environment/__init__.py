@@ -30,10 +30,6 @@ class Environment(Module):
         Module.on_socket_disconnect(self, steamid)
         self.update_status_widget()
 
-    def on_socket_event(self, event_data, dispatchers_steamid):
-        Module.on_socket_event(self, event_data, dispatchers_steamid)
-        #self.update_status_widget()
-
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
@@ -52,6 +48,7 @@ class Environment(Module):
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
             server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
             last_recorded_gametime=self.dom.data.get(self.get_module_identifier()).get("last_recorded_gametime"),
+            shutdown_in_seconds=self.dom.data.get(self.get_module_identifier()).get("shutdown_in_seconds", None)
         )
 
         self.webserver.send_data_to_client(

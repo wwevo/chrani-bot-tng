@@ -11,18 +11,57 @@ def main_function(module, event_data, dispatchers_steamid, **kwargs):
     timeout = 3  # [seconds]
     timeout_start = time()
 
-    module.telnet.add_telnet_command_to_queue("shutdown")
-    poll_is_finished = False
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        match = False
-        for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Disconnect.*$", module.telnet.telnet_buffer):
-            poll_is_finished = True
+    try:
+        cancel_shutdown = event_data[1]["cancel"]
+    except Exception as error:
+        cancel_shutdown = False
+        print(type(error))
 
-        if match:
-            callback_success(module, event_data, dispatchers_steamid, match, **kwargs)
-            return
+    if cancel_shutdown == 1:
+        module.dom.upsert({
+            module.get_module_identifier(): {
+                "cancel_shutdown": True
+            }
+        })
 
-        sleep(0.5)
+    shutdown_in_seconds = module.dom.data.get(module.get_module_identifier()).get("shutdown_in_seconds", None)
+    if shutdown_in_seconds is None:
+        shutdown_timeout_start = time()
+        shutdown_timeout = int(event_data[1]["timer"])
+        shutdown_canceled = False
+        while time() < shutdown_timeout_start + shutdown_timeout:
+            if module.dom.data.get(module.get_module_identifier()).get("cancel_shutdown", False):
+                shutdown_canceled = True
+                break
+
+            module.dom.upsert({
+                module.get_module_identifier(): {
+                    "shutdown_in_seconds": int(shutdown_timeout - (time() - shutdown_timeout_start))
+                }
+            })
+            module.update_status_widget()
+            sleep(1)
+
+        module.dom.upsert({
+            module.get_module_identifier(): {
+                "shutdown_in_seconds": None,
+                "cancel_shutdown": False
+            }
+        })
+        if not shutdown_canceled:
+            module.telnet.add_telnet_command_to_queue("shutdown")
+            poll_is_finished = False
+            while not poll_is_finished and (time() < timeout_start + timeout):
+                match = False
+                for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Disconnect.*$", module.telnet.telnet_buffer):
+                    poll_is_finished = True
+
+                if match:
+                    callback_success(module, event_data, dispatchers_steamid, match, **kwargs)
+                    return
+
+                sleep(0.5)
+        module.update_status_widget()
 
     callback_fail(module, event_data, dispatchers_steamid, **kwargs)
 
