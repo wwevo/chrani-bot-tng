@@ -5,4 +5,4 @@ setup_modules()
 start_modules()
 
 while True:
-    sleep(1)
+    sleep(0.1)

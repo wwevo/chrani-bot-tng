@@ -27,6 +27,15 @@ def main_function(module, event_data, dispatchers_steamid, **kwargs):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match, **kwargs):
+    module.dom.upsert({
+        module.get_module_identifier(): {
+            "last_recorded_gametime": {
+                "day": match.group(1),
+                "hour": match.group(2),
+                "minute": match.group(3)
+            }
+        }
+    })
     module.webserver.send_data_to_client(
         event_data=match.group(0),
         data_type="alert_message",
