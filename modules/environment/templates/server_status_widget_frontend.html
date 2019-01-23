@@ -12,7 +12,7 @@
     <li>click for gettime test: ({{ construct_toggle_link(
             true,
             "gettime", ['widget_event', ['environment', ['gettime', {}]]]
-    )}})</li>
+    )}}) Day: {{ last_recorded_gametime["day"] }} Hour: {{ last_recorded_gametime["hour"] }} Minute: {{ last_recorded_gametime["minute"] }}</li>
 {%- if webserver_logged_in_users -%}
     <li>({{ webserver_logged_in_users|join(', ') }})</li>
 {%- endif -%}

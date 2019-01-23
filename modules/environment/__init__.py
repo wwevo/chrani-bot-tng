@@ -32,7 +32,7 @@ class Environment(Module):
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         Module.on_socket_event(self, event_data, dispatchers_steamid)
-        self.update_status_widget()
+        #self.update_status_widget()
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -50,7 +50,8 @@ class Environment(Module):
         template_frontend = self.templates.get_template('server_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
-            server_is_online=self.dom.data.get("module_telnet").get("server_is_online")
+            server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
+            last_recorded_gametime=self.dom.data.get(self.get_module_identifier()).get("last_recorded_gametime"),
         )
 
         self.webserver.send_data_to_client(

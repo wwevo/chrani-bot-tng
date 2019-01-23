@@ -36,11 +36,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, **kwargs):
             }
         }
     })
-    module.webserver.send_data_to_client(
-        event_data=match.group(0),
-        data_type="alert_message",
-        clients=[dispatchers_steamid]
-    )
+    module.update_status_widget()
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
