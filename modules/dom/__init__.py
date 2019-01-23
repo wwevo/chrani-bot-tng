@@ -23,11 +23,6 @@ class Dom(Module):
         Module.setup(self, options)
         self.data = {}
         self.run_observer_interval = 2
-        return self
-
-    def start(self):
-        Module.start(self)
-        return self
     # endregion
 
     def upsert(self, updated_values_dict, dict_to_update=None):

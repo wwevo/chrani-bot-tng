@@ -64,21 +64,11 @@ class Telnet(Module):
     def setup(self, options=dict):
         Module.setup(self, options)
 
-        self.recent_telnet_response = None
-        self.recent_telnet_response_has_valid_start = False
-        self.recent_telnet_response_has_valid_end = False
-
         self.valid_telnet_lines = deque(maxlen=self.default_options["max_queue_length"])
         self.telnet_buffer = ""
 
         self.run_observer_interval = 0.5
         self.last_execution_time = 0.0
-
-        return self
-
-    def start(self):
-        Module.start(self)
-        return self
     # endregion
 
     # region Handling telnet initialization and authentication
@@ -201,35 +191,38 @@ class Telnet(Module):
 
     def run(self):
         next_cycle = 0
+
+        telnet_response = ""
+        last_connection_loss = None
+        recent_telnet_response = None
+
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            try:
-                telnet_response = self.tn.read_very_eager().decode("utf-8")
-            except (AttributeError, EOFError) as error:
-                self.dom.upsert({
-                    self.get_module_identifier(): {
-                        "server_is_online": False
-                    }
-                })
-                if type(error) == EOFError:
-                    print("Telnet: the server has gone dark, possibly a restart. Trying again in 10 seconds!")
-                    sleep(10)
-
+            if last_connection_loss is None or profile_start > last_connection_loss + 10:
                 try:
-                    self.setup_telnet()
+                    telnet_response = self.tn.read_very_eager().decode("utf-8")
+                except (AttributeError, EOFError) as error:
                     self.dom.upsert({
                         self.get_module_identifier(): {
-                            "server_is_online": True
+                            "server_is_online": False
                         }
                     })
 
-                except (OSError, Exception) as error:
-                    print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
-                    print("Telnet: check if the server is running, it's connectivity and options!")
-                    sleep(10)
+                    try:
+                        self.setup_telnet()
+                        self.dom.upsert({
+                            self.get_module_identifier(): {
+                                "server_is_online": True
+                            }
+                        })
 
-                telnet_response = ""
+                    except (OSError, Exception) as error:
+                        last_connection_loss = time()
+                        print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
+                        print("Telnet: check if the server is running, it's connectivity and options!")
+
+                    telnet_response = ""
 
             if len(telnet_response) > 0:
                 self.telnet_buffer += telnet_response.lstrip()
@@ -255,8 +248,8 @@ class Telnet(Module):
                         print(valid_telnet_line)
                     else:
                         if response_count == 1:  # not a complete line, might be the remainder of last run
-                            if self.recent_telnet_response is not None:
-                                combined_line = "{}{}".format(self.recent_telnet_response, component)
+                            if recent_telnet_response is not None:
+                                combined_line = "{}{}".format(recent_telnet_response, component)
                                 if self.is_a_valid_line(combined_line):  # "added complete combined line"
                                     valid_telnet_line = combined_line.rstrip("\r\n")
                                     self.valid_telnet_lines.append(valid_telnet_line)
@@ -264,17 +257,17 @@ class Telnet(Module):
                                 else:  # "combined line, it doesnt make sense though"
                                     pass
 
-                                self.recent_telnet_response = None
+                                recent_telnet_response = None
                             else:
                                 if len(telnet_response_components) == 1:
                                     if self.has_valid_start(component):  # "found incomplete line, storing for next run"
-                                        self.recent_telnet_response = component
+                                        recent_telnet_response = component
                                     else:  # "what happened?"
                                         pass
 
                         elif response_count == len(telnet_response_components):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
-                                self.recent_telnet_response = component
+                                recent_telnet_response = component
                             else:  # "does not seem to be usable"
                                 pass
 

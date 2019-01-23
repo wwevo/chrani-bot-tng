@@ -70,12 +70,6 @@ class Webserver(Module):
         self.app = app
         self.websocket = socketio
         self.login_manager = login_manager
-
-        return self
-
-    def start(self):
-        Module.start(self)
-        return self
     # endregion
 
     def get_ip(self):
