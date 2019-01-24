@@ -33,7 +33,7 @@ class Environment(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 1
+        self.run_observer_interval = 5
     # endregion
 
     def update_status_widget(self):
@@ -62,6 +62,9 @@ class Environment(Module):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time()
+
+            self.manually_trigger_event(["gettime", {}])
+
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
 

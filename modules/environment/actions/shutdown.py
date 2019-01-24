@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, event_data, dispatchers_steamid, **kwargs):
+def main_function(module, event_data, dispatchers_steamid):
     timeout = 3  # [seconds]
     timeout_start = time()
 
@@ -27,7 +27,12 @@ def main_function(module, event_data, dispatchers_steamid, **kwargs):
     shutdown_in_seconds = module.dom.data.get(module.get_module_identifier()).get("shutdown_in_seconds", None)
     if shutdown_in_seconds is None:
         shutdown_timeout_start = time()
-        shutdown_timeout = int(event_data[1]["timer"])
+        try:
+            shutdown_timeout = int(event_data[1]["timer"])
+        except Exception as error:
+            shutdown_timeout = 30
+            print(type(error))
+
         shutdown_canceled = False
         while time() < shutdown_timeout_start + shutdown_timeout:
             if module.dom.data.get(module.get_module_identifier()).get("cancel_shutdown", False):
@@ -52,25 +57,25 @@ def main_function(module, event_data, dispatchers_steamid, **kwargs):
             module.telnet.add_telnet_command_to_queue("shutdown")
             poll_is_finished = False
             while not poll_is_finished and (time() < timeout_start + timeout):
+                sleep(0.25)
                 match = False
                 for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Disconnect.*$", module.telnet.telnet_buffer):
                     poll_is_finished = True
 
                 if match:
-                    callback_success(module, event_data, dispatchers_steamid, match, **kwargs)
+                    callback_success(module, event_data, dispatchers_steamid, match)
                     return
 
-                sleep(0.5)
         module.update_status_widget()
 
-    callback_fail(module, event_data, dispatchers_steamid, **kwargs)
+    callback_fail(module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match, **kwargs):
+def callback_success(module, event_data, dispatchers_steamid, match):
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
-def callback_fail(module, event_data, dispatchers_steamid, **kwargs):
+def callback_fail(module, event_data, dispatchers_steamid):
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 
 

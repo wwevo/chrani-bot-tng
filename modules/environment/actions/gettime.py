@@ -7,26 +7,26 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, event_data, dispatchers_steamid, **kwargs):
+def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
 
     module.telnet.add_telnet_command_to_queue("gettime")
     poll_is_finished = False
     while not poll_is_finished and (time() < timeout_start + timeout):
+        sleep(0.25)
         match = False
         for match in re.finditer(r"Day\s(\d{1,5}),\s(\d{1,2}):(\d{1,2}).*", module.telnet.telnet_buffer):
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match, **kwargs)
+            callback_success(module, event_data, dispatchers_steamid, match)
             return
-        sleep(0.5)
 
-    callback_fail(module, event_data, dispatchers_steamid, **kwargs)
+    callback_fail(module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match, **kwargs):
+def callback_success(module, event_data, dispatchers_steamid, match):
     module.dom.upsert({
         module.get_module_identifier(): {
             "last_recorded_gametime": {
@@ -40,7 +40,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, **kwargs):
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
-def callback_fail(module, event_data, dispatchers_steamid, **kwargs):
+def callback_fail(module, event_data, dispatchers_steamid):
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 
 

@@ -4,7 +4,7 @@
 {%- set server_is_online = server_is_online -%}
 <ul>
     <li><strong>{{ logged_in_users_count }}</strong>{%- if logged_in_users_count == 1 %} user is {%- else %} users are {%- endif %} currently using the webinterface!</li>
-    <li>the server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}({{ construct_toggle_link(
+    <li>The server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}({{ construct_toggle_link(
             server_is_online,
             "shutdown", ['widget_event', ['environment', ['shutdown', {"timer": '30'}]]],
             "contact admin", ['widget_event', ['environment', ['shutdown', {"alert_admin": "True", "server_down": "True"}]]]
@@ -12,10 +12,7 @@
             server_is_online,
             "cancel", ['widget_event', ['environment', ['shutdown', {"cancel": 1}]]]
     )}}){%- endif -%}</li>
-    <li>click for gettime test: ({{ construct_toggle_link(
-            true,
-            "gettime", ['widget_event', ['environment', ['gettime', {}]]]
-    )}}) Day: {{ last_recorded_gametime["day"] }} Hour: {{ last_recorded_gametime["hour"] }} Minute: {{ last_recorded_gametime["minute"] }}</li>
+    <li>Gametime: Day {{ last_recorded_gametime["day"] }}, {{ last_recorded_gametime["hour"] }}:{{ last_recorded_gametime["minute"] }}</li>
 {%- if webserver_logged_in_users -%}
     <li>({{ webserver_logged_in_users|join(', ') }})</li>
 {%- endif -%}

@@ -74,7 +74,6 @@ class Module(Thread):
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         action_identifier = event_data[0]
-        action_parameters = event_data[1]
         print("module '{}' received event '{}' from {}".format(
             self.options['module_name'], action_identifier, dispatchers_steamid
         ))
@@ -83,13 +82,25 @@ class Module(Thread):
             status = "found requested action '{}'".format(action_identifier)
             Thread(
                 target=self.available_actions_dict[action_identifier]["main_function"],
-                args=(self, event_data, dispatchers_steamid),
-                kwargs=action_parameters
+                args=(self, event_data, dispatchers_steamid)
             ).start()
         else:
             status = "could not find requested action '{}'".format(action_identifier)
 
         self.emit_event_status(event_data, dispatchers_steamid, status)
+
+    def manually_trigger_event(self, event_data):
+        action_identifier = event_data[0]
+        if action_identifier in self.available_actions_dict:
+            status = "found requested action '{}'".format(action_identifier)
+            Thread(
+                target=self.available_actions_dict[action_identifier]["main_function"],
+                args=(self, event_data)
+            ).start()
+        else:
+            status = "could not find requested action '{}'".format(action_identifier)
+
+        print(status)
 
     def emit_event_status(self, event_data, recipient_steamid, status):
         action_identifier = event_data[0]
@@ -99,6 +110,6 @@ class Module(Thread):
         self.webserver.send_data_to_client(
             event_data,
             data_type="status_message",
-            clients=[recipient_steamid],
+            clients=None if recipient_steamid is None else [recipient_steamid],
             status=status
         )
