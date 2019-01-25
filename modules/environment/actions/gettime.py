@@ -27,6 +27,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
+    # TODO: check if data has changed since the last call and only update if required
     module.dom.upsert({
         module.get_module_identifier(): {
             "last_recorded_gametime": {
@@ -36,7 +37,7 @@ def callback_success(module, event_data, dispatchers_steamid, match):
             }
         }
     })
-    module.update_status_widget()
+    module.update_gametime_widget_frontend()
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 

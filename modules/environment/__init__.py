@@ -24,11 +24,13 @@ class Environment(Module):
 
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
-        self.update_status_widget()
+        self.update_webserver_status_widget_frontend()
+        self.update_gametime_widget_frontend()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
-        self.update_status_widget()
+        self.update_webserver_status_widget_frontend()
+        self.update_gametime_widget_frontend()
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -36,18 +38,30 @@ class Environment(Module):
         self.run_observer_interval = 5
     # endregion
 
-    def update_status_widget(self):
+    def update_gametime_widget_frontend(self):
+        template_frontend = self.templates.get_template('gametime_widget_frontend.html')
+        data_to_emit = template_frontend.render(
+            last_recorded_gametime=self.dom.data.get(self.get_module_identifier()).get("last_recorded_gametime"),
+        )
+
+        self.webserver.send_data_to_client(
+            event_data=data_to_emit,
+            data_type="widget_content",
+            clients=self.webserver.connected_clients.keys(),
+            target_element="gametime_widget"
+        )
+
+    def update_webserver_status_widget_frontend(self):
         self.dom.upsert({
             self.get_module_identifier(): {
                 "webserver_logged_in_users": self.webserver.connected_clients
             }
         })
 
-        template_frontend = self.templates.get_template('server_status_widget_frontend.html')
+        template_frontend = self.templates.get_template('webserver_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
             webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
             server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
-            last_recorded_gametime=self.dom.data.get(self.get_module_identifier()).get("last_recorded_gametime"),
             shutdown_in_seconds=self.dom.data.get(self.get_module_identifier()).get("shutdown_in_seconds", None)
         )
 
@@ -55,7 +69,7 @@ class Environment(Module):
             event_data=data_to_emit,
             data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
-            target_element="widget_environment_data"
+            target_element="webserver_status_widget"
         )
 
     def run(self):

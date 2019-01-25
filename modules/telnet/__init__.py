@@ -47,18 +47,14 @@ class Telnet(Module):
         return "module_telnet"
 
     def on_socket_connect(self, steamid):
-        template_bunch_of_lines = self.templates.get_template('bunch_of_telnet_log_lines.html')
-        if len(self.webserver.connected_clients) >= 1:
-            data_to_emit = template_bunch_of_lines.render(
-                bunch_of_lines=self.get_a_bunch_of_lines(25)
-            )
-            self.webserver.send_data_to_client(
-                method="update",
-                data_type="widget_content",
-                event_data=data_to_emit,
-                clients=[steamid],
-                target_element="widget_telnet_log"
-            )
+        Module.on_socket_connect(self, steamid)
+        self.update_gameserver_status_widget_frontend()
+        self.update_bunch_of_telnet_log_lines()
+
+    def on_socket_disconnect(self, steamid):
+        Module.on_socket_disconnect(self, steamid)
+        self.update_gameserver_status_widget_frontend()
+        self.update_bunch_of_telnet_log_lines()
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -189,6 +185,34 @@ class Telnet(Module):
             except Exception as error:
                 print("error in telnet write: {}".format(error))
 
+    def update_gameserver_status_widget_frontend(self):
+        template_frontend = self.templates.get_template('gameserver_status_widget_frontend.html')
+        data_to_emit = template_frontend.render(
+            server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
+            shutdown_in_seconds=self.dom.data.get(self.get_module_identifier()).get("shutdown_in_seconds", None)
+        )
+
+        self.webserver.send_data_to_client(
+            event_data=data_to_emit,
+            data_type="widget_content",
+            clients=self.webserver.connected_clients.keys(),
+            target_element="gameserver_status_widget"
+        )
+
+    def update_bunch_of_telnet_log_lines(self):
+        template_bunch_of_lines = self.templates.get_template('bunch_of_telnet_log_lines.html')
+        if len(self.webserver.connected_clients) >= 1:
+            data_to_emit = template_bunch_of_lines.render(
+                bunch_of_lines=self.get_a_bunch_of_lines(25)
+            )
+            self.webserver.send_data_to_client(
+                method="update",
+                data_type="widget_content",
+                event_data=data_to_emit,
+                clients=self.webserver.connected_clients.keys(),
+                target_element="bunch_of_telnet_log_lines_widget"
+            )
+
     def run(self):
         next_cycle = 0
 
@@ -200,6 +224,9 @@ class Telnet(Module):
             profile_start = time()
 
             if last_connection_loss is None or profile_start > last_connection_loss + 10:
+                # only execute if server has connection,
+                # or if n seconds have passed after last loss,
+                # to prevent connect hammering
                 try:
                     telnet_response = self.tn.read_very_eager().decode("utf-8")
                 except (AttributeError, EOFError) as error:
@@ -222,6 +249,7 @@ class Telnet(Module):
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
 
+                    self.update_gameserver_status_widget_frontend()
                     telnet_response = ""
 
             if len(telnet_response) > 0:
@@ -284,7 +312,7 @@ class Telnet(Module):
                             event_data=data_to_emit,
                             data_type="widget_content",
                             clients=self.webserver.connected_clients.keys(),
-                            target_element="widget_telnet_log"
+                            target_element="bunch_of_telnet_log_lines_widget"
                         )
 
                     response_count += 1

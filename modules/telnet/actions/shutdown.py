@@ -44,7 +44,7 @@ def main_function(module, event_data, dispatchers_steamid):
                     "shutdown_in_seconds": int(shutdown_timeout - (time() - shutdown_timeout_start))
                 }
             })
-            module.update_status_widget()
+            module.update_gameserver_status_widget_frontend()
             sleep(1)
 
         module.dom.upsert({
@@ -66,7 +66,7 @@ def main_function(module, event_data, dispatchers_steamid):
                     callback_success(module, event_data, dispatchers_steamid, match)
                     return
 
-        module.update_status_widget()
+        module.update_gameserver_status_widget_frontend()
 
     callback_fail(module, event_data, dispatchers_steamid)
 

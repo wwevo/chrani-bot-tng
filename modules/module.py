@@ -54,6 +54,7 @@ class Module(Thread):
     def start(self):
         for required_module in self.required_modules:
             setattr(self, required_module[7:], started_modules_dict[required_module])
+        setattr(self, self.name, self)  # add self to dnamic module list to unify calls from actions
 
         self.setDaemon(daemonic=True)
         Thread.start(self)
