@@ -32,6 +32,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 def callback_success(module, event_data, dispatchers_steamid, match):
     online_players_raw = match.group(4).lstrip()
+    m = None
     for m in re.finditer(r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n", online_players_raw):
         module.dom.upsert({
             module.get_module_identifier(): {
@@ -60,6 +61,8 @@ def callback_success(module, event_data, dispatchers_steamid, match):
                 }
             }
         })
+    if m is None:
+        module.dom.data[module.get_module_identifier()] = {}
 
     module.update_player_table_widget_frontend()
     module.emit_event_status(event_data, dispatchers_steamid, "success")
