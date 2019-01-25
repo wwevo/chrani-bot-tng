@@ -36,9 +36,9 @@ $(document).ready(function() {
     });
 
     window.socket.on('data', function(data) {
-        let target_element_type = data["target_element"]["type"];
-        let target_element_id = data["target_element"]["id"];
-        if (data["data_type"] == "widget_content") {
+        if (data["data_type"] === "widget_content") {
+            let target_element_type = data["target_element"]["type"];
+            let target_element_id = data["target_element"]["id"];
             let $el = $("body > main > div").upsert('#' + target_element_id, '<' + target_element_type + ' class="widget" id="' + target_element_id + '"></' + target_element_type + '>');
             if (data["method"] === "update") {
                 $el.html(data["event_data"]);
@@ -47,9 +47,9 @@ $(document).ready(function() {
             } else if  (data["method"] === "prepend") {
                 $el.prepend(data["event_data"]);
             }
-        } else if (data["data_type"] == "status_message") {
+        } else if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
-        } else if (data["data_type"] == "alert_message") {
+        } else if (data["data_type"] === "alert_message") {
             alert(data['event_data']);
         }
     });
