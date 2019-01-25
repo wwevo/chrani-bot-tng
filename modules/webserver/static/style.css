@@ -29,7 +29,7 @@ footer > div {
     margin-right: 1em;
 }
 
-.widget, .widget > li {
+.widget, .widget li {
     overflow: auto;
     margin: 0; padding: 0;
 }
