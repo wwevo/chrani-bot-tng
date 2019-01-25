@@ -13,6 +13,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
     cancel_shutdown = event_data[1].get("cancel", False)
     force_shutdown = event_data[1].get("force", False)
+    alert_admin = event_data[1].get("alert_admin", False)
 
     if cancel_shutdown == 1:
         module.dom.upsert({
@@ -28,8 +29,16 @@ def main_function(module, event_data, dispatchers_steamid):
             }
         })
 
+    if alert_admin == 1:
+        module.webserver.send_data_to_client(
+            event_data=event_data,
+            status="admin contacted! (well, not really)",
+            data_type="alert_message",
+            clients=[dispatchers_steamid],
+        )
+
     shutdown_in_seconds = module.dom.data.get(module.get_module_identifier()).get("shutdown_in_seconds", None)
-    if shutdown_in_seconds is None:
+    if shutdown_in_seconds is None and not alert_admin:  # should only be none if no shutdown task is running!
         shutdown_timeout_start = time()
         try:
             shutdown_timeout = int(event_data[1]["timer"])
@@ -61,13 +70,19 @@ def main_function(module, event_data, dispatchers_steamid):
                 "force_shutdown": False
             }
         })
+
         if not shutdown_canceled:
             module.telnet.add_telnet_command_to_queue("shutdown")
             poll_is_finished = False
+            regex = (
+                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
+                r"INF Disconnect.*"
+            )
+
             while not poll_is_finished and (time() < timeout_start + timeout):
                 sleep(0.25)
                 match = False
-                for match in re.finditer(r"^(?P<datetime>.+?) (?P<stardate>.+?) INF Disconnect.*$", module.telnet.telnet_buffer):
+                for match in re.finditer(regex, module.telnet.telnet_buffer):
                     poll_is_finished = True
 
                 if match:

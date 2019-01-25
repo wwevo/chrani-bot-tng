@@ -13,10 +13,14 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     module.telnet.add_telnet_command_to_queue("gettime")
     poll_is_finished = False
+    regex = (
+        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
+        r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*"
+    )
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
         match = False
-        for match in re.finditer(r"Day\s(\d{1,5}),\s(\d{1,2}):(\d{1,2}).*", module.telnet.telnet_buffer):
+        for match in re.finditer(regex, module.telnet.telnet_buffer):
             poll_is_finished = True
 
         if match:
@@ -27,18 +31,26 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
-    # TODO: check if data has changed since the last call and only update if required
-    module.dom.upsert({
-        module.get_module_identifier(): {
-            "last_recorded_gametime": {
-                "day": match.group(1),
-                "hour": match.group(2),
-                "minute": match.group(3)
+    if any([
+        match.group("day") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("day", 0),
+        match.group("hour") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("hour", 0),
+        match.group("minute") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("minute", 0)
+    ]):
+        module.dom.upsert({
+            module.get_module_identifier(): {
+                "last_recorded_gametime": {
+                    "day": match.group("day"),
+                    "hour": match.group("hour"),
+                    "minute": match.group("minute"),
+                    "stardate": match.group("stardate")
+                }
             }
-        }
-    })
-    module.update_gametime_widget_frontend()
-    module.emit_event_status(event_data, dispatchers_steamid, "success")
+        })
+        module.update_gametime_widget_frontend()
+        module.emit_event_status(event_data, dispatchers_steamid, "success")
+        return
+
+    print("date didn't change since last poll")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
