@@ -1,0 +1,14 @@
+{% for steamid, player in player_dict.items() %}
+      <tr>
+          <td>{{ player.steamid }}</td>
+          <td>{{ player.name }}</td>
+          <td>{{ player.health }}</td>
+          <td>{{ player.deaths }}</td>
+          <td>{{ player.zombies }}</td>
+          <td>{{ player.players }}</td>
+          <td>{{ player.score }}</td>
+          <td>{{ player.level }}</td>
+          <td>{{ player.ip }}</td>
+          <td>{{ player.ping }}</td>
+      </tr>
+{% endfor %}
