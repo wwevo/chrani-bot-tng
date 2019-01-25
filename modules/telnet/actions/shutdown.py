@@ -11,16 +11,20 @@ def main_function(module, event_data, dispatchers_steamid):
     timeout = 3  # [seconds]
     timeout_start = time()
 
-    try:
-        cancel_shutdown = event_data[1]["cancel"]
-    except Exception as error:
-        cancel_shutdown = False
-        print(type(error))
+    cancel_shutdown = event_data[1].get("cancel", False)
+    force_shutdown = event_data[1].get("force", False)
 
     if cancel_shutdown == 1:
         module.dom.upsert({
             module.get_module_identifier(): {
                 "cancel_shutdown": True
+            }
+        })
+
+    if force_shutdown == 1:
+        module.dom.upsert({
+            module.get_module_identifier(): {
+                "force_shutdown": True
             }
         })
 
@@ -39,6 +43,9 @@ def main_function(module, event_data, dispatchers_steamid):
                 shutdown_canceled = True
                 break
 
+            if module.dom.data.get(module.get_module_identifier()).get("force_shutdown", False):
+                break
+
             module.dom.upsert({
                 module.get_module_identifier(): {
                     "shutdown_in_seconds": int(shutdown_timeout - (time() - shutdown_timeout_start))
@@ -50,7 +57,8 @@ def main_function(module, event_data, dispatchers_steamid):
         module.dom.upsert({
             module.get_module_identifier(): {
                 "shutdown_in_seconds": None,
-                "cancel_shutdown": False
+                "cancel_shutdown": False,
+                "force_shutdown": False
             }
         })
         if not shutdown_canceled:
