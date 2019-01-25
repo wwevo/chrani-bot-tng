@@ -36,8 +36,10 @@ $(document).ready(function() {
     });
 
     window.socket.on('data', function(data) {
+        let target_element_type = data["target_element"]["type"];
+        let target_element_id = data["target_element"]["id"];
         if (data["data_type"] == "widget_content") {
-            let $el = $("body > main > div").upsert('#' + data["target_element"], '<div class="widget" id="' + data["target_element"] + '"></div>');
+            let $el = $("body > main > div").upsert('#' + target_element_id, '<' + target_element_type + ' class="widget" id="' + target_element_id + '"></' + target_element_type + '>');
             if (data["method"] === "update") {
                 $el.html(data["event_data"]);
             } else if (data["method"] === "append") {

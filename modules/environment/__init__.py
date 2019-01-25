@@ -48,7 +48,10 @@ class Environment(Module):
             event_data=data_to_emit,
             data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
-            target_element="gametime_widget"
+            target_element={
+                "id": "gametime_widget",
+                "type": "div"
+            }
         )
 
     def update_webserver_status_widget_frontend(self):
@@ -69,7 +72,10 @@ class Environment(Module):
             event_data=data_to_emit,
             data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
-            target_element="webserver_status_widget"
+            target_element={
+                "id": "webserver_status_widget",
+                "type": "div"
+            }
         )
 
     def run(self):

@@ -196,7 +196,10 @@ class Telnet(Module):
             event_data=data_to_emit,
             data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
-            target_element="gameserver_status_widget"
+            target_element={
+                "id": "gameserver_status_widget",
+                "type": "div"
+            }
         )
 
     def update_bunch_of_telnet_log_lines(self):
@@ -210,7 +213,10 @@ class Telnet(Module):
                 data_type="widget_content",
                 event_data=data_to_emit,
                 clients=self.webserver.connected_clients.keys(),
-                target_element="bunch_of_telnet_log_lines_widget"
+                target_element={
+                    "id": "bunch_of_telnet_log_lines_widget",
+                    "type": "ul"
+                }
             )
 
     def run(self):
@@ -309,10 +315,13 @@ class Telnet(Module):
                         )
                         self.webserver.send_data_to_client(
                             method="prepend",
-                            event_data=data_to_emit,
                             data_type="widget_content",
+                            event_data=data_to_emit,
                             clients=self.webserver.connected_clients.keys(),
-                            target_element="bunch_of_telnet_log_lines_widget"
+                            target_element={
+                                "id": "bunch_of_telnet_log_lines_widget",
+                                "type": "ul"
+                            }
                         )
 
                     response_count += 1

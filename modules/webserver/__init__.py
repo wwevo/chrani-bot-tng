@@ -97,7 +97,7 @@ class Webserver(Module):
                 "data_type": data_type,
                 "target_element": target_element,
             }
-            if clients is None:
+            if clients is "all":
                 emit_options = {
                     "broadcast": True,
                     "namespace": '/chrani-bot-ng'

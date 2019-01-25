@@ -88,7 +88,9 @@ class Module(Thread):
         else:
             status = "could not find requested action '{}'".format(action_identifier)
 
-        self.emit_event_status(event_data, dispatchers_steamid, status)
+        if dispatchers_steamid is not None:
+            # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
+            self.emit_event_status(event_data, dispatchers_steamid, status)
 
     def manually_trigger_event(self, event_data):
         action_identifier = event_data[0]
@@ -104,6 +106,10 @@ class Module(Thread):
         print(status)
 
     def emit_event_status(self, event_data, recipient_steamid, status):
+        # recipient_steamid can be None, all or [list_of_steamid's]
+        if recipient_steamid is None:
+            return
+
         action_identifier = event_data[0]
         print("module '{}' sent status '{}' for '{}' to {}".format(
             self.options['module_name'], status, action_identifier, recipient_steamid
@@ -111,6 +117,6 @@ class Module(Thread):
         self.webserver.send_data_to_client(
             event_data,
             data_type="status_message",
-            clients=None if recipient_steamid is None else [recipient_steamid],
+            clients=[recipient_steamid],
             status=status
         )
