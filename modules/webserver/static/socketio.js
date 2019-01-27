@@ -46,6 +46,10 @@ $(document).ready(function() {
                 $el.append(data["event_data"]);
             } else if (data["method"] === "prepend") {
                 $el.prepend(data["event_data"]);
+                let entries = $el.find('li');
+                if (entries.length >= 50) {
+                    entries.last().remove();
+                }
             }
         } else if (data["data_type"] === "widget_table_row") {
             let target_element_type = data["target_element"]["type"];

@@ -1,3 +1,7 @@
+html, body {
+    margin: 0; padding: 0;
+}
+
 header, footer, main {
     position: absolute;
     right: 0;
@@ -28,12 +32,40 @@ main > div {
 }
 
 .widget {
-    flex-grow: 1;
-    min-height: 2.66em;
+    display: block;
+    flex: 0 0 33%;
     line-height: 1.33em;
+    background-color: white;
+}
+
+.widget:nth-child(odd) {
+    background-color: lightyellow;
+}
+
+.widget:nth-child(3) {
+    flex-basis: 34%;
+    background-color: whitesmoke;
 }
 
 .widget ul, .widget li {
     margin: 0; padding: 0;
     list-style-type: none;
+}
+
+table.widget {
+    display: flex;
+    flex-direction: column;
+}
+
+table.widget tr {
+    display: flex;
+    min-height: 1.33em;
+}
+
+table.widget th {
+    text-align: center;
+}
+
+table.widget td, table.widget th {
+    flex: 1;
 }

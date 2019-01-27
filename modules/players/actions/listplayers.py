@@ -7,6 +7,13 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
+def reset_and_update_live_status(module, target_steamid, conditions):
+    if any(conditions):
+        module.dom.data[module.get_module_identifier()]["players"][target_steamid]["is_online"] = False
+        module.dom.data[module.get_module_identifier()]["players"][target_steamid]["in_limbo"] = False
+        module.update_player_table_widget_table_row(target_steamid)
+
+
 def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 1.5  # [seconds]
     timeout_start = time()
@@ -90,25 +97,23 @@ def callback_success(module, event_data, dispatchers_steamid, match):
         module.update_player_table_widget_table_row(m.group("steamid"))
 
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
-        if any([
-            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
-            player_dict.get("is_online", False) and steamid not in online_players_list
-        ]):
-            module.dom.data[module.get_module_identifier()]["players"][steamid]["is_online"] = False
-            module.dom.data[module.get_module_identifier()]["players"][steamid]["in_limbo"] = False
-            module.update_player_table_widget_table_row(steamid)
+        reset_and_update_live_status(
+            module,
+            steamid, [
+                not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+                player_dict.get("is_online", False) and steamid not in online_players_list
+            ])
 
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
-        if any([
-            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
-        ]):
-            module.dom.data[module.get_module_identifier()]["players"][steamid]["is_online"] = False
-            module.dom.data[module.get_module_identifier()]["players"][steamid]["in_limbo"] = False
-            module.update_player_table_widget_table_row(steamid)
+        reset_and_update_live_status(
+            module,
+            steamid, [
+                not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+            ])
 
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 

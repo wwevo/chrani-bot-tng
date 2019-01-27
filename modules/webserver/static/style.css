@@ -39,10 +39,6 @@ footer > div {
     font-size: 0.8em;
 }
 
-#widget_telnet_log {
-    max-height: 15em;
-}
-
 .in_limbo {
     background-color: darkorange;
 }
