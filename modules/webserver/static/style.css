@@ -46,3 +46,13 @@ footer > div {
 .is_online {
     background-color: limegreen;
 }
+
+#player_table_widget {
+    order: 2;
+    flex-basis: 40%;
+}
+
+#bunch_of_telnet_log_lines_widget {
+    order: 10;
+    flex-basis: 40%;
+}

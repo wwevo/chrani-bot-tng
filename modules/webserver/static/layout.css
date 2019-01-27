@@ -32,10 +32,11 @@ main > div {
 }
 
 .widget {
+    order: 1;
     display: block;
-    flex: 1 1 33%;
+    flex: 1;
     line-height: 1.33em;
-    min-height: calc(1.33em * 5);
+    min-height: calc(1.33em * 2);
     background-color: white;
 }
 
