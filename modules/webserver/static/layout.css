@@ -35,6 +35,7 @@ main > div {
     display: block;
     flex: 0 0 33%;
     line-height: 1.33em;
+    min-height: 2.66em;
     background-color: white;
 }
 

@@ -1,6 +1,7 @@
 from modules.module import Module
 from modules import loaded_modules_dict
-from time import time
+from time import time, strptime
+from calendar import timegm
 from collections import Mapping
 
 
@@ -25,14 +26,17 @@ class Dom(Module):
         self.run_observer_interval = 2
     # endregion
 
-    def upsert(self, updated_values_dict, dict_to_update=None):
+    def upsert(self, updated_values_dict, dict_to_update=None, telnet_datetime=None):
         if dict_to_update is None:
             dict_to_update = self.data
+
+        if telnet_datetime is not None:
+            updated_values_dict["last_updated"] = timegm(strptime(telnet_datetime, '%Y-%m-%dT%H:%M:%S'))
 
         for k, v in updated_values_dict.items():
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.upsert(v, d_v)
+                self.upsert(v, d_v, telnet_datetime)
             else:
                 dict_to_update[k] = v  # or d[k] = v if you know what you're doing
 

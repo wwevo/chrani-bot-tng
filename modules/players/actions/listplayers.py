@@ -29,16 +29,17 @@ def main_function(module, event_data, dispatchers_steamid=None):
         sleep(0.25)
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer):
+            telnet_datetime = match.group("datetime")
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match)
+            callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime)
             return
 
     callback_fail(module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match):
+def callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime):
     raw_playerdata = match.group("raw_playerdata").lstrip()
     regex = (
         r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "
@@ -60,43 +61,45 @@ def callback_success(module, event_data, dispatchers_steamid, match):
     for m in re.finditer(regex, raw_playerdata):
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {
-            m.group("steamid"): {
-                "id": m.group("id"),
-                "name": str(m.group("name")),
-                "pos": {
-                    "x": float(m.group("pos_x")),
-                    "y": float(m.group("pos_y")),
-                    "z": float(m.group("pos_z")),
-                },
-                "rot": {
-                    "x": float(m.group("rot_x")),
-                    "y": float(m.group("rot_y")),
-                    "z": float(m.group("rot_z")),
-                },
-                "remote": bool(m.group("remote")),
-                "health": int(m.group("health")),
-                "deaths": int(m.group("deaths")),
-                "zombies": int(m.group("zombies")),
-                "players": int(m.group("players")),
-                "score": m.group("score"),
-                "level": m.group("level"),
-                "steamid": m.group("steamid"),
-                "ip": str(m.group("ip")),
-                "ping": int(m.group("ping")),
-                "in_limbo": in_limbo,
-                "is_online": True,
-                "last_updated": match.group("datetime")
-            }
+            "id": m.group("id"),
+            "name": str(m.group("name")),
+            "pos": {
+                "x": float(m.group("pos_x")),
+                "y": float(m.group("pos_y")),
+                "z": float(m.group("pos_z")),
+            },
+            "rot": {
+                "x": float(m.group("rot_x")),
+                "y": float(m.group("rot_y")),
+                "z": float(m.group("rot_z")),
+            },
+            "remote": bool(m.group("remote")),
+            "health": int(m.group("health")),
+            "deaths": int(m.group("deaths")),
+            "zombies": int(m.group("zombies")),
+            "players": int(m.group("players")),
+            "score": m.group("score"),
+            "level": m.group("level"),
+            "steamid": m.group("steamid"),
+            "ip": str(m.group("ip")),
+            "ping": int(m.group("ping")),
+            "in_limbo": in_limbo,
+            "is_online": True,
         }
         online_players_list.append(m.group("steamid"))
         module.dom.upsert({
             module.get_module_identifier(): {
-                "players": player_dict
+                "players": {
+                    m.group("steamid"): player_dict
+                }
             }
-        })
+        }, telnet_datetime=telnet_datetime)
         module.update_player_table_widget_table_row(m.group("steamid"))
 
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
+        if steamid == 'last_updated':
+            continue
+
         reset_and_update_live_status(
             module,
             steamid, [
@@ -109,6 +112,9 @@ def callback_success(module, event_data, dispatchers_steamid, match):
 
 def callback_fail(module, event_data, dispatchers_steamid):
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
+        if steamid == 'last_updated':
+            continue
+
         reset_and_update_live_status(
             module,
             steamid, [

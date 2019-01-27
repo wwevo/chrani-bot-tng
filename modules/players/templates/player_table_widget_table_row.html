@@ -6,11 +6,11 @@
 {%- endif -%}
 <tr id="player_table_row_{{ player.steamid }}"{%- if class -%}{{ class }}{%- endif -%}>
     <td>{{ player.id }}</td>
-    <td>{{ player.steamid }}</td>
+    <td onclick="$(this).selectText();">{{ player.steamid }}</td>
     <td>{{ player.name }}</td>
     <td>{{ player.health }}</td>
-    <td>{{ player.pos }}</td>
-    <td>{{ player.rot }}</td>
+    <td onclick="$(this).selectText();">{{ player.pos.x }} {{ player.pos.y }} {{ player.pos.z }}</td>
+    <td>{{ player.rot.x }} {{ player.rot.y }} {{ player.rot.z }}</td>
     <td>{{ player.level }}</td>
     <td>{{ player.ip }}</td>
     <td>{{ player.ping }}</td>

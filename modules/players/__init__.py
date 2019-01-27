@@ -43,6 +43,9 @@ class Players(Module):
         all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
         table_rows = ""
         for steamid, player_dict in all_player_dicts.items():
+            if steamid == 'last_updated':
+                continue
+
             table_rows += template_table_rows.render(
                 player=player_dict
             )
