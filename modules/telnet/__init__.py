@@ -267,7 +267,6 @@ class Telnet(Module):
                 # let's expose the telnet_buffer to the general module population via our DOM!
                 self.dom.upsert({
                     self.get_module_identifier(): {
-                        "telnet_lines": self.valid_telnet_lines,
                         "telnet_buffer": self.telnet_buffer
                     }
                 })
