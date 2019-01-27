@@ -42,15 +42,14 @@ def callback_success(module, event_data, dispatchers_steamid, match):
                     "day": match.group("day"),
                     "hour": match.group("hour"),
                     "minute": match.group("minute"),
-                    "stardate": match.group("stardate")
+                    "last_updated": match.group("datetime")
                 }
             }
         })
         module.update_gametime_widget_frontend()
         module.emit_event_status(event_data, dispatchers_steamid, "success")
-        return
-
-    print("date didn't change since last poll")
+    else:
+        print("date didn't change since last poll")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

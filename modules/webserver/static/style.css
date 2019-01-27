@@ -42,3 +42,11 @@ footer > div {
 #widget_telnet_log {
     max-height: 15em;
 }
+
+.in_limbo {
+    background-color: darkorange;
+}
+
+.is_online {
+    background-color: limegreen;
+}

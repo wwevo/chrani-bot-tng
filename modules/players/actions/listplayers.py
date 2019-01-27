@@ -8,14 +8,15 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 3  # [seconds]
+    timeout = 1.5  # [seconds]
     timeout_start = time()
 
     module.telnet.add_telnet_command_to_queue("lp")
     poll_is_finished = False
     regex = (
         r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
-        r"Executing command \'lp\' by Telnet from (.*)([\s\S]+?)Total of (\d{1,2}) in the game"
+        r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
+        r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<playercount>\d{1,2})\sin\sthe\sgame"
     )
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
@@ -31,44 +32,84 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
-    online_players_raw = match.group(4).lstrip()
-    m = None
-    for m in re.finditer(r"\d{1,2}. id=(\d+), (.+), pos=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), rot=\((.?\d+.\d), (.?\d+.\d), (.?\d+.\d)\), remote=(\w+), health=(\d+), deaths=(\d+), zombies=(\d+), players=(\d+), score=(\d+), level=(\d+), steamid=(\d+), ip=(.*), ping=(\d+)\r\n", online_players_raw):
+    raw_playerdata = match.group("raw_playerdata").lstrip()
+    regex = (
+        r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "
+        r"pos=\((?P<pos_x>.?\d+.\d), (?P<pos_y>.?\d+.\d), (?P<pos_z>.?\d+.\d)\), "
+        r"rot=\((?P<rot_x>.?\d+.\d), (?P<rot_y>.?\d+.\d), (?P<rot_z>.?\d+.\d)\), "
+        r"remote=(?P<remote>\w+), "
+        r"health=(?P<health>\d+), "
+        r"deaths=(?P<deaths>\d+), "
+        r"zombies=(?P<zombies>\d+), "
+        r"players=(?P<players>\d+), "
+        r"score=(?P<score>\d+), "
+        r"level=(?P<level>\d+), "
+        r"steamid=(?P<steamid>\d+), "
+        r"ip=(?P<ip>.*), "
+        r"ping=(?P<ping>\d+)"
+        r"\r\n"
+    )
+    online_players_list = []
+    for m in re.finditer(regex, raw_playerdata):
+        in_limbo = True if int(m.group("health")) == 0 else False
+        player_dict = {
+            m.group("steamid"): {
+                "id": m.group("id"),
+                "name": str(m.group("name")),
+                "pos": {
+                    "x": float(m.group("pos_x")),
+                    "y": float(m.group("pos_y")),
+                    "z": float(m.group("pos_z")),
+                },
+                "rot": {
+                    "x": float(m.group("rot_x")),
+                    "y": float(m.group("rot_y")),
+                    "z": float(m.group("rot_z")),
+                },
+                "remote": bool(m.group("remote")),
+                "health": int(m.group("health")),
+                "deaths": int(m.group("deaths")),
+                "zombies": int(m.group("zombies")),
+                "players": int(m.group("players")),
+                "score": m.group("score"),
+                "level": m.group("level"),
+                "steamid": m.group("steamid"),
+                "ip": str(m.group("ip")),
+                "ping": int(m.group("ping")),
+                "in_limbo": in_limbo,
+                "is_online": True,
+                "last_updated": match.group("datetime")
+            }
+        }
+        online_players_list.append(m.group("steamid"))
         module.dom.upsert({
             module.get_module_identifier(): {
-                m.group(16): {
-                    "entityid": m.group(1),
-                    "name": str(m.group(2)),
-                    "position": {
-                        "pos_x": float(m.group(3)),
-                        "pos_y": float(m.group(4)),
-                        "pos_z": float(m.group(5)),
-                        "rot_x": float(m.group(6)),
-                        "rot_y": float(m.group(7)),
-                        "rot_z": float(m.group(8)),
-                        "stardate": match.group("stardate")
-                    },
-                    "remote": bool(m.group(9)),
-                    "health": int(m.group(10)),
-                    "deaths": int(m.group(11)),
-                    "zombies": int(m.group(12)),
-                    "players": int(m.group(13)),
-                    "score": m.group(14),
-                    "level": m.group(15),
-                    "steamid": m.group(16),
-                    "ip": str(m.group(17)),
-                    "ping": int(m.group(18)),
-                }
+                "players": player_dict
             }
         })
-    if m is None:
-        module.dom.data[module.get_module_identifier()] = {}
+        module.update_player_table_widget_table_row(m.group("steamid"))
 
-    module.update_player_table_widget_frontend()
+    for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
+        if any([
+            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+            player_dict.get("is_online", False) and steamid not in online_players_list
+        ]):
+            module.dom.data[module.get_module_identifier()]["players"][steamid]["is_online"] = False
+            module.dom.data[module.get_module_identifier()]["players"][steamid]["in_limbo"] = False
+            module.update_player_table_widget_table_row(steamid)
+
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
+    for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
+        if any([
+            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+        ]):
+            module.dom.data[module.get_module_identifier()]["players"][steamid]["is_online"] = False
+            module.dom.data[module.get_module_identifier()]["players"][steamid]["in_limbo"] = False
+            module.update_player_table_widget_table_row(steamid)
+
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 
 

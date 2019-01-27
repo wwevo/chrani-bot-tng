@@ -1,0 +1,22 @@
+{% if player.is_online == true -%}
+{%- set class=' class="is_online"' -%}
+{%- endif -%}
+{%- if player.in_limbo == true -%}
+{%- set class=' class="in_limbo"' -%}
+{%- endif -%}
+<tr id="player_table_row_{{ player.steamid }}"{%- if class -%}{{ class }}{%- endif -%}>
+    <td>{{ player.id }}</td>
+    <td>{{ player.steamid }}</td>
+    <td>{{ player.name }}</td>
+    <td>{{ player.health }}</td>
+    <td>{{ player.pos }}</td>
+    <td>{{ player.rot }}</td>
+    <td>{{ player.level }}</td>
+    <td>{{ player.ip }}</td>
+    <td>{{ player.ping }}</td>
+    <td>{{ player.deaths }}</td>
+    <td>{{ player.zombies }}</td>
+    <td>{{ player.players }}</td>
+    <td>{{ player.score }}</td>
+    <td>{{ player.last_updated }}</td>
+</tr>

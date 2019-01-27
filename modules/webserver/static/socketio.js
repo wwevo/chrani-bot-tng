@@ -44,8 +44,16 @@ $(document).ready(function() {
                 $el.html(data["event_data"]);
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
-            } else if  (data["method"] === "prepend") {
+            } else if (data["method"] === "prepend") {
                 $el.prepend(data["event_data"]);
+            }
+        } else if (data["data_type"] === "widget_table_row") {
+            let target_element_type = data["target_element"]["type"];
+            let target_element_id = data["target_element"]["id"];
+            let parent_element_id = data["target_element"]["parent_table"];
+            let $el = $('#' + parent_element_id + ' > tbody').upsert('#' + target_element_id, '<' + target_element_type + ' id="' + target_element_id + '"></' + target_element_type + '>');
+            if (data["method"] === "update") {
+                $el.replaceWith(data["event_data"]);
             }
         } else if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");

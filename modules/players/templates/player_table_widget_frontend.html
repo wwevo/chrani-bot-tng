@@ -1,14 +1,23 @@
-{% for steamid, player in player_dict.items() %}
-      <tr>
-          <td>{{ player.steamid }}</td>
-          <td>{{ player.name }}</td>
-          <td>{{ player.health }}</td>
-          <td>{{ player.deaths }}</td>
-          <td>{{ player.zombies }}</td>
-          <td>{{ player.players }}</td>
-          <td>{{ player.score }}</td>
-          <td>{{ player.level }}</td>
-          <td>{{ player.ip }}</td>
-          <td>{{ player.ping }}</td>
-      </tr>
-{% endfor %}
+<table id="player_table_widget">
+    <thead>
+        <tr>
+            <td>id</td>
+            <td>steamid</td>
+            <td>name</td>
+            <td>health</td>
+            <td>pos</td>
+            <td>rot</td>
+            <td>level</td>
+            <td>ip</td>
+            <td>ping</td>
+            <td>deaths</td>
+            <td>zombies</td>
+            <td>players</td>
+            <td>score</td>
+            <td>last update</td>
+        </tr>
+    </thead>
+    <tbody>
+        {{ table_rows }}
+    </tbody>
+</table>

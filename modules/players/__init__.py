@@ -38,17 +38,47 @@ class Players(Module):
 
     def update_player_table_widget_frontend(self):
         template_frontend = self.templates.get_template('player_table_widget_frontend.html')
+        template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
+
+        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
+        table_rows = ""
+        for steamid, player_dict in all_player_dicts.items():
+            table_rows += template_table_rows.render(
+                player=player_dict
+            )
+
         data_to_emit = template_frontend.render(
-            player_dict=self.dom.data.get(self.get_module_identifier(), {})
+            table_rows=table_rows
         )
 
         self.webserver.send_data_to_client(
             event_data=data_to_emit,
             data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
+            method="update",
             target_element={
                 "id": "player_table_widget",
                 "type": "table"
+            }
+        )
+
+    def update_player_table_widget_table_row(self, steamid):
+        template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
+
+        player_dict = self.dom.data.get(self.get_module_identifier(), {}).get("players", {}).get(steamid, {})
+        table_row = template_table_rows.render(
+            player=player_dict
+        )
+
+        self.webserver.send_data_to_client(
+            event_data=table_row,
+            data_type="widget_table_row",
+            clients=self.webserver.connected_clients.keys(),
+            method="update",
+            target_element={
+                "id": "player_table_row_{}".format(steamid),
+                "parent_table": "player_table_widget",
+                "type": "tr"
             }
         )
 

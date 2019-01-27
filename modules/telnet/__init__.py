@@ -235,12 +235,13 @@ class Telnet(Module):
                 # to prevent connect hammering
                 try:
                     telnet_response = self.tn.read_very_eager().decode("utf-8")
-                except (AttributeError, EOFError) as error:
+                except (AttributeError, EOFError, ConnectionAbortedError) as error:
                     self.dom.upsert({
                         self.get_module_identifier(): {
                             "server_is_online": False
                         }
                     })
+                    self.telnet_buffer = ""
 
                     try:
                         self.setup_telnet()
