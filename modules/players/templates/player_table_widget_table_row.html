@@ -5,9 +5,9 @@
 {%- set class=' class="in_limbo"' -%}
 {%- endif -%}
 <tr id="player_table_row_{{ player.steamid }}"{%- if class -%}{{ class }}{%- endif -%}>
+    <td>{{ player.name }}</td>
     <td>{{ player.id }}</td>
     <td onclick="$(this).selectText();">{{ player.steamid }}</td>
-    <td>{{ player.name }}</td>
     <td>{{ player.health }}</td>
     <td onclick="$(this).selectText();">{{ player.pos.x }} {{ player.pos.y }} {{ player.pos.z }}</td>
     <td>{{ player.rot.x }} {{ player.rot.y }} {{ player.rot.z }}</td>
