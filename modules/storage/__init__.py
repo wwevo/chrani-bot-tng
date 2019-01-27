@@ -24,7 +24,7 @@ class Storage(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 3
+        self.run_observer_interval = 15
     # endregion
 
     def run(self):
