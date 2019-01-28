@@ -30,13 +30,10 @@ class Dom(Module):
         if dict_to_update is None:
             dict_to_update = self.data
 
-        if telnet_datetime is not None:
-            updated_values_dict["last_updated"] = timegm(strptime(telnet_datetime, '%Y-%m-%dT%H:%M:%S'))
-
         for k, v in updated_values_dict.items():
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.upsert(v, d_v, telnet_datetime)
+                self.upsert(v, d_v)
             else:
                 dict_to_update[k] = v  # or d[k] = v if you know what you're doing
 

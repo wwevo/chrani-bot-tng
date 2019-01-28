@@ -1,10 +1,4 @@
-{% if player.is_online == true -%}
-{%- set class=' class="is_online"' -%}
-{%- endif -%}
-{%- if player.in_limbo == true -%}
-{%- set class=' class="in_limbo"' -%}
-{%- endif -%}
-<tr id="player_table_row_{{ player.steamid }}"{%- if class -%}{{ class }}{%- endif -%}>
+<tr id="player_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="player_table_row_{{ player.steamid }}_name">{{ player.name }}</td>
     <td id="player_table_row_{{ player.steamid }}_id">{{ player.id }}</td>
     <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>

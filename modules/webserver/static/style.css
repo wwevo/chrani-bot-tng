@@ -39,17 +39,25 @@ footer > div {
     font-size: 0.8em;
 }
 
-.in_limbo {
+.is_online {
+    background-color: limegreen;
+}
+
+.is_online.in_limbo {
     background-color: darkorange;
 }
 
-.is_online {
-    background-color: limegreen;
+.is_offline.in_limbo {
+    background-color: antiquewhite;
 }
 
 #player_table_widget {
     order: 2;
     flex-basis: 40%;
+}
+
+#player_table_widget caption {
+    text-align: right;
 }
 
 #telnet_log_widget {

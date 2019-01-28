@@ -43,11 +43,24 @@ class Players(Module):
         all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
         table_rows = ""
         for steamid, player_dict in all_player_dicts.items():
+            in_limbo = player_dict["in_limbo"]
+            is_online = player_dict["is_online"]
+
+            if in_limbo and is_online:
+                css_class = "is_online in_limbo"
+            elif not in_limbo and is_online:
+                css_class = "is_online"
+            elif in_limbo and not is_online:
+                css_class = "is_offline in_limbo"
+            else:
+                css_class = ""
+
             if steamid == 'last_updated':
                 continue
 
             table_rows += template_table_rows.render(
-                player=player_dict
+                player=player_dict,
+                css_class=css_class
             )
 
         data_to_emit = template_frontend.render(
@@ -61,16 +74,28 @@ class Players(Module):
             method="update",
             target_element={
                 "id": "player_table_widget",
-                "type": "table"
+                "type": "table",
             }
         )
 
-    def update_player_table_widget_table_row(self, steamid):
+    def update_player_table_widget_table_row(self, player_dict):
+        in_limbo = player_dict["in_limbo"]
+        is_online = player_dict["is_online"]
+
+        if in_limbo and is_online:
+            css_class = "is_online in_limbo"
+        if in_limbo and not is_online:
+            css_class = "is_offline in_limbo"
+        if not in_limbo and is_online:
+            css_class = "is_online"
+        if not in_limbo and not is_online:
+            css_class = "is_offline"
+
         template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
 
-        player_dict = self.dom.data.get(self.get_module_identifier(), {}).get("players", {}).get(steamid, {})
         table_row = template_table_rows.render(
-            player=player_dict
+            player=player_dict,
+            css_class=css_class
         )
 
         self.webserver.send_data_to_client(
@@ -79,14 +104,25 @@ class Players(Module):
             clients=self.webserver.connected_clients.keys(),
             method="update",
             target_element={
-                "id": "player_table_row_{}".format(steamid),
+                "id": "player_table_row_{}".format(player_dict["steamid"]),
                 "selector": "#player_table_widget > tbody",
-                "type": "tr"
+                "type": "tr",
+                "class": css_class
             }
         )
 
-    def update_player_table_widget_data(self, steamid):
-        player_dict = self.dom.data.get(self.get_module_identifier(), {}).get("players", {}).get(steamid, {})
+    def update_player_table_widget_data(self, player_dict):
+        in_limbo = player_dict["in_limbo"]
+        is_online = player_dict["is_online"]
+
+        if in_limbo and is_online:
+            css_class = "is_online in_limbo"
+        elif not in_limbo and is_online:
+            css_class = "is_online"
+        elif in_limbo and not is_online:
+            css_class = "is_offline in_limbo"
+        else:
+            css_class = ""
 
         self.webserver.send_data_to_client(
             event_data=player_dict,
@@ -94,7 +130,8 @@ class Players(Module):
             clients=self.webserver.connected_clients.keys(),
             method="update",
             target_element={
-                "id": "player_table_row_{}".format(steamid),
+                "id": "player_table_row_{}".format(player_dict["steamid"]),
+                "class": css_class
             }
         )
 
