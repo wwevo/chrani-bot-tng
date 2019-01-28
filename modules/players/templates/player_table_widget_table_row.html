@@ -20,7 +20,7 @@
         <span id="player_table_row_{{ player.steamid }}_rot_z">{{ player.rot.z }}</span>
     </td>
     <td id="player_table_row_{{ player.steamid }}_level">{{ player.level }}</td>
-    <td id="player_table_row_{{ player.steamid }}_ip">{{ player.ip }}</td>
+    <td onclick="$(this).selectText();" id="player_table_row_{{ player.steamid }}_ip">{{ player.ip }}</td>
     <td id="player_table_row_{{ player.steamid }}_ping">{{ player.ping }}</td>
     <td id="player_table_row_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
     <td id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>

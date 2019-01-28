@@ -9,6 +9,13 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def reset_and_update_live_status(module, target_steamid, conditions):
     if any(conditions):
+        online_players_list = module.dom.data.get("module_environment", {}).get("online_players_list", [])
+        online_players_list.append(target_steamid)
+        module.dom.upsert({
+            module.get_module_identifier(): {
+                "online_players_list": online_players_list
+            }
+        }, telnet_datetime=time())
         module.dom.data[module.get_module_identifier()]["players"][target_steamid]["is_online"] = False
         module.dom.data[module.get_module_identifier()]["players"][target_steamid]["in_limbo"] = False
         module.update_player_table_widget_table_row(target_steamid)
@@ -57,7 +64,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         r"ping=(?P<ping>\d+)"
         r"\r\n"
     )
-    online_players_list = []
+    online_players_list = module.dom.data.get("module_environment", {}).get("online_players_list", [])
     for m in re.finditer(regex, raw_playerdata):
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {
@@ -95,9 +102,15 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         }, telnet_datetime=telnet_datetime)
         if m.group("steamid") not in online_players_list:
             module.update_player_table_widget_table_row(m.group("steamid"))
+            online_players_list.append(m.group("steamid"))
+            module.dom.upsert({
+                "module_environment": {
+                    "online_players_list": online_players_list
+                }
+            }, telnet_datetime=telnet_datetime)
         else:
             module.update_player_table_widget_data(m.group("steamid"))
-        online_players_list.append(m.group("steamid"))
+
 
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
         if steamid == 'last_updated':

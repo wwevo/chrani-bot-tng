@@ -63,10 +63,16 @@ $(document).ready(function() {
             $.each(elements_to_update, function (key, value) {
                 if ($.type(value) === 'object') {
                     $.each(value, function (sub_key, sub_value) {
-                        $('#' + target_element_id + '_' + key + '_' + sub_key).html(sub_value);
+                        let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
+                        if (element_to_update.text() !== sub_value.toString()) {
+                            element_to_update.html(sub_value);
+                        }
                     });
                 } else {
-                    $('#' + target_element_id + '_' + key).html(value);
+                    let element_to_update = $('#' + target_element_id + '_' + key);
+                    if (element_to_update.text() !== value.toString()) {
+                        element_to_update.html(value);
+                    }
                 }
             });
         } else if (data["data_type"] === "widget_content") {
