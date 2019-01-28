@@ -13,6 +13,7 @@ from modules import loaded_modules_dict
 from .user import User
 
 import re
+from time import time
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
@@ -132,7 +133,7 @@ class Webserver(Module):
             if not webserver_user:
                 """ This is where the authentication will happen, see if that user in in your allowed players database or
                  whatever """
-                webserver_user = User(steamid)
+                webserver_user = User(steamid, time())
                 self.connected_clients[steamid] = webserver_user
 
             return webserver_user
@@ -276,6 +277,7 @@ class Webserver(Module):
         @self.websocket.on('ding', namespace='/chrani-bot-ng')
         @authenticated_only
         def ding_dong():
+            current_user.last_seen = time()
             print("got 'ding' from {}".format(current_user.id))
             emit(
                 'dong',

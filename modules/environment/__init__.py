@@ -55,11 +55,7 @@ class Environment(Module):
         )
 
     def update_webserver_status_widget_frontend(self):
-        self.dom.upsert({
-            self.get_module_identifier(): {
-                "webserver_logged_in_users": self.webserver.connected_clients
-            }
-        })
+        self.dom.data[self.get_module_identifier()]["webserver_logged_in_users"] = self.webserver.connected_clients
 
         template_frontend = self.templates.get_template('webserver_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
