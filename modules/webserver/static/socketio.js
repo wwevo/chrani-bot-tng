@@ -1,11 +1,9 @@
 $(document).ready(function() {
-    // https://stackoverflow.com/a/46308265
+    // https://stackoverflow.com/a/46308265,
+    // slightly modified for better readability
     $.fn.selectText = function(){
-        var doc = document
-            , element = this[0]
-            , range, selection
-        ;
-        if (doc.body.createTextRange) {
+        let element = this[0], range, selection;
+        if (document.body.createTextRange) {
             range = document.body.createTextRange();
             range.moveToElementText(element);
             range.select();
