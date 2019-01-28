@@ -85,6 +85,19 @@ class Players(Module):
             }
         )
 
+    def update_player_table_widget_data(self, steamid):
+        player_dict = self.dom.data.get(self.get_module_identifier(), {}).get("players", {}).get(steamid, {})
+
+        self.webserver.send_data_to_client(
+            event_data=player_dict,
+            data_type="element_content",
+            clients=self.webserver.connected_clients.keys(),
+            method="update",
+            target_element={
+                "id": "player_table_row_{}".format(steamid),
+            }
+        )
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):

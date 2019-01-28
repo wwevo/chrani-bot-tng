@@ -94,7 +94,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
                 }
             }
         }, telnet_datetime=telnet_datetime)
-        module.update_player_table_widget_table_row(m.group("steamid"))
+        module.update_player_table_widget_data(m.group("steamid"))
 
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
         if steamid == 'last_updated':

@@ -5,18 +5,26 @@
 {%- set class=' class="in_limbo"' -%}
 {%- endif -%}
 <tr id="player_table_row_{{ player.steamid }}"{%- if class -%}{{ class }}{%- endif -%}>
-    <td>{{ player.name }}</td>
-    <td>{{ player.id }}</td>
-    <td onclick="$(this).selectText();">{{ player.steamid }}</td>
-    <td>{{ player.health }}</td>
-    <td onclick="$(this).selectText();">{{ player.pos.x }} {{ player.pos.y }} {{ player.pos.z }}</td>
-    <td>{{ player.rot.x }} {{ player.rot.y }} {{ player.rot.z }}</td>
-    <td>{{ player.level }}</td>
-    <td>{{ player.ip }}</td>
-    <td>{{ player.ping }}</td>
-    <td>{{ player.deaths }}</td>
-    <td>{{ player.zombies }}</td>
-    <td>{{ player.players }}</td>
-    <td>{{ player.score }}</td>
-    <td>{{ player.last_updated }}</td>
+    <td id="player_table_row_{{ player.steamid }}_name">{{ player.name }}</td>
+    <td id="player_table_row_{{ player.steamid }}_id">{{ player.id }}</td>
+    <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+    <td id="player_table_row_{{ player.steamid }}_health">{{ player.health }}</td>
+    <td onclick="$(this).selectText();">
+        <span id="player_table_row_{{ player.steamid }}_pos_x">{{ player.pos.x }}</span>
+        <span id="player_table_row_{{ player.steamid }}_pos_y">{{ player.pos.y }}</span>
+        <span id="player_table_row_{{ player.steamid }}_pos_z">{{ player.pos.z }}</span>
+    </td>
+    <td>
+        <span id="player_table_row_{{ player.steamid }}_rot_x">{{ player.rot.x }}</span>
+        <span id="player_table_row_{{ player.steamid }}_rot_y">{{ player.rot.y }}</span>
+        <span id="player_table_row_{{ player.steamid }}_rot_z">{{ player.rot.z }}</span>
+    </td>
+    <td id="player_table_row_{{ player.steamid }}_level">{{ player.level }}</td>
+    <td id="player_table_row_{{ player.steamid }}_ip">{{ player.ip }}</td>
+    <td id="player_table_row_{{ player.steamid }}_ping">{{ player.ping }}</td>
+    <td id="player_table_row_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
+    <td id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
+    <td id="player_table_row_{{ player.steamid }}_players">{{ player.players }}</td>
+    <td id="player_table_row_{{ player.steamid }}_score">{{ player.score }}</td>
+    <td id="player_table_row_{{ player.steamid }}_last_updated">{{ player.last_updated }}</td>
 </tr>

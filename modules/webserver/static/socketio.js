@@ -54,12 +54,30 @@ $(document).ready(function() {
     });
 
     window.socket.on('data', function(data) {
-        if (data["data_type"] === "widget_content") {
+        if (data["data_type"] === "element_content") {
+            let target_element_id = data["target_element"]["id"];
+            if (target_element_id == null) {
+                return false;
+            }
+            let elements_to_update = data["event_data"];
+            $.each(elements_to_update, function (key, value) {
+                if ($.type(value) === 'object') {
+                    $.each(value, function (sub_key, sub_value) {
+                        $('#' + target_element_id + '_' + key + '_' + sub_key).html(sub_value);
+                    });
+                } else {
+                    $('#' + target_element_id + '_' + key).html(value);
+                }
+            });
+        } else if (data["data_type"] === "widget_content") {
+            let target_element_id = data["target_element"]["id"];
+            if (target_element_id == null) {
+                return false;
+            }
             let target_element_type = data["target_element"]["type"];
             if (target_element_type == null) {
                 target_element_type = "div";
             }
-            let target_element_id = data["target_element"]["id"];
             let selector = data["target_element"]["selector"];
             if (selector == null) {
                 selector = "body > main > div";
