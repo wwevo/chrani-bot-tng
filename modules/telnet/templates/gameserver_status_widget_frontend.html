@@ -1,6 +1,7 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {# set this to 'false' for debug purposes, to see the offline state, set it to 'server_is_online' for regular use #}
 {%- set server_is_online = server_is_online -%}
+<div id="gameserver_status_widget" class="widget">
 <span>The server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}({{ construct_toggle_link(
         server_is_online,
         "shutdown", ['widget_event', ['telnet', ['shutdown', {"timer": '30'}]]],
@@ -12,3 +13,4 @@
         server_is_online,
         "cancel", ['widget_event', ['telnet', ['shutdown', {"cancel": 1}]]]
 )}}){%- endif -%}</span>
+</div>

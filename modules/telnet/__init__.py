@@ -203,18 +203,26 @@ class Telnet(Module):
         )
 
     def update_bunch_of_telnet_log_lines(self):
-        template_bunch_of_lines = self.templates.get_template('bunch_of_telnet_log_lines.html')
+        telnet_log_frontend = self.templates.get_template('telnet_log_widget_frontend.html')
+        log_line = self.templates.get_template('telnet_log_widget_log_line.html')
+
         if len(self.webserver.connected_clients) >= 1:
-            data_to_emit = template_bunch_of_lines.render(
-                bunch_of_lines=self.get_a_bunch_of_lines(25)
+            log_lines = ""
+            for line in self.get_a_bunch_of_lines(25):
+                log_lines += log_line.render(
+                    log_line=line
+                )
+
+            data_to_emit = telnet_log_frontend.render(
+                log_lines=log_lines
             )
             self.webserver.send_data_to_client(
-                method="update",
-                data_type="widget_content",
                 event_data=data_to_emit,
+                data_type="widget_content",
                 clients=self.webserver.connected_clients.keys(),
+                method="update",
                 target_element={
-                    "id": "bunch_of_telnet_log_lines_widget",
+                    "id": "telnet_log_widget",
                     "type": "ul"
                 }
             )
@@ -309,9 +317,9 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
-                        template_bunch_of_lines = self.templates.get_template('bunch_of_telnet_log_lines.html')
-                        data_to_emit = template_bunch_of_lines.render(
-                            bunch_of_lines=[valid_telnet_line]
+                        telnet_log_line = self.templates.get_template('telnet_log_widget_log_line.html')
+                        data_to_emit = telnet_log_line.render(
+                            log_line=valid_telnet_line
                         )
                         self.webserver.send_data_to_client(
                             method="prepend",
@@ -319,7 +327,7 @@ class Telnet(Module):
                             event_data=data_to_emit,
                             clients=self.webserver.connected_clients.keys(),
                             target_element={
-                                "id": "bunch_of_telnet_log_lines_widget",
+                                "id": "telnet_log_widget",
                                 "type": "ul"
                             }
                         )

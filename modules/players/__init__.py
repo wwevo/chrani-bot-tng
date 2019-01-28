@@ -75,12 +75,12 @@ class Players(Module):
 
         self.webserver.send_data_to_client(
             event_data=table_row,
-            data_type="widget_table_row",
+            data_type="widget_content",
             clients=self.webserver.connected_clients.keys(),
             method="update",
             target_element={
                 "id": "player_table_row_{}".format(steamid),
-                "parent_table": "player_table_widget",
+                "selector": "#player_table_widget > tbody",
                 "type": "tr"
             }
         )

@@ -18,11 +18,11 @@ $(document).ready(function() {
         }
     };
 
-    $.fn.upsert = function(selector, htmlString) {
+    $.fn.upsert = function(target_element_id, htmlString) {
         // upsert - find or create new element
         // find based on css selector     https://api.jquery.com/category/selectors/
         // create based on jQuery()       http://api.jquery.com/jquery/#jQuery2
-        let $el = $(this).find(selector);
+        let $el = $(this).find(target_element_id);
         if ($el.length === 0) {
             // didn't exist, create and add to caller
             $el = $(htmlString);
@@ -56,10 +56,17 @@ $(document).ready(function() {
     window.socket.on('data', function(data) {
         if (data["data_type"] === "widget_content") {
             let target_element_type = data["target_element"]["type"];
+            if (target_element_type == null) {
+                target_element_type = "div";
+            }
             let target_element_id = data["target_element"]["id"];
-            let $el = $("body > main > div").upsert('#' + target_element_id, '<' + target_element_type + ' class="widget" id="' + target_element_id + '"></' + target_element_type + '>');
+            let selector = data["target_element"]["selector"];
+            if (selector == null) {
+                selector = "body > main > div";
+            }
+            let $el = $(selector).upsert('#' + target_element_id, '<' + target_element_type + '"></' + target_element_type + '>');
             if (data["method"] === "update") {
-                $el.html(data["event_data"]);
+                $el.replaceWith(data["event_data"]);
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
             } else if (data["method"] === "prepend") {
@@ -68,14 +75,6 @@ $(document).ready(function() {
                 if (entries.length >= 50) {
                     entries.last().remove();
                 }
-            }
-        } else if (data["data_type"] === "widget_table_row") {
-            let target_element_type = data["target_element"]["type"];
-            let target_element_id = data["target_element"]["id"];
-            let parent_element_id = data["target_element"]["parent_table"];
-            let $el = $('#' + parent_element_id + ' > tbody').upsert('#' + target_element_id, '<' + target_element_type + ' id="' + target_element_id + '"></' + target_element_type + '>');
-            if (data["method"] === "update") {
-                $el.replaceWith(data["event_data"]);
             }
         } else if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");

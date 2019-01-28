@@ -14,7 +14,8 @@ available_modules_list = next(walk('.'))[1]
 
 for module in available_modules_list:
     """ at the bottom of each module, the loaded_modules_list will be updated
-    modules may not do any stuff in their __init__, unless you know what you are doing """
+    modules may not do any stuff in their __init__, apart from setting variables
+    and calling static methods, unless you know what you are doing """
     import_module("modules." + module)
 
 

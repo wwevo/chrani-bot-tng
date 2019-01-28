@@ -52,7 +52,7 @@ footer > div {
     flex-basis: 40%;
 }
 
-#bunch_of_telnet_log_lines_widget {
+#telnet_log_widget {
     order: 10;
     flex-basis: 40%;
 }
