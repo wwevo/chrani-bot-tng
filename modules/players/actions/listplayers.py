@@ -86,7 +86,6 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "in_limbo": in_limbo,
             "is_online": True,
         }
-        online_players_list.append(m.group("steamid"))
         module.dom.upsert({
             module.get_module_identifier(): {
                 "players": {
@@ -94,7 +93,11 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
                 }
             }
         }, telnet_datetime=telnet_datetime)
-        module.update_player_table_widget_data(m.group("steamid"))
+        if m.group("steamid") not in online_players_list:
+            module.update_player_table_widget_table_row(m.group("steamid"))
+        else:
+            module.update_player_table_widget_data(m.group("steamid"))
+        online_players_list.append(m.group("steamid"))
 
     for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
         if steamid == 'last_updated':
