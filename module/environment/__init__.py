@@ -39,9 +39,14 @@ class Environment(Module):
     # endregion
 
     def update_gametime_widget_frontend(self):
+        gametime = self.dom.data.get(self.get_module_identifier(), {}).get("last_recorded_gametime", None)
+        if gametime is None:
+            self.manually_trigger_action(["gettime", {}])
+            return False
+
         template_frontend = self.templates.get_template('gametime_widget_frontend.html')
         data_to_emit = template_frontend.render(
-            last_recorded_gametime=self.dom.data.get(self.get_module_identifier()).get("last_recorded_gametime"),
+            last_recorded_gametime=gametime,
         )
 
         self.webserver.send_data_to_client(
@@ -83,7 +88,7 @@ class Environment(Module):
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            self.manually_trigger_event(["gettime", {}])
+            self.manually_trigger_action(["gettime", {}])
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

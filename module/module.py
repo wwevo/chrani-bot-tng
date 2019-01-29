@@ -81,19 +81,6 @@ class Module(Thread, Action, Trigger, Template):
             # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
             self.emit_event_status(event_data, dispatchers_steamid, status)
 
-    def manually_trigger_event(self, event_data):
-        action_identifier = event_data[0]
-        if action_identifier in self.available_actions_dict:
-            status = "found requested action '{}'".format(action_identifier)
-            Thread(
-                target=self.available_actions_dict[action_identifier]["main_function"],
-                args=(self, event_data)
-            ).start()
-        else:
-            status = "could not find requested action '{}'".format(action_identifier)
-
-        print(status)
-
     def emit_event_status(self, event_data, recipient_steamid, status):
         # recipient_steamid can be None, all or [list_of_steamid's]
         if recipient_steamid is None:

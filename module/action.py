@@ -1,5 +1,6 @@
 from os import path, listdir
 from importlib import import_module
+from threading import Thread
 
 
 class Action(object):
@@ -22,3 +23,19 @@ class Action(object):
         except FileNotFoundError as error:
             # module does not have actions
             pass
+
+    def manually_trigger_action(self, event_data):
+        if not self.dom.data.get("module_telnet", {}).get("server_is_online", False):
+            return False
+
+        action_identifier = event_data[0]
+        if action_identifier in self.available_actions_dict:
+            status = "found requested action '{}'".format(action_identifier)
+            Thread(
+                target=self.available_actions_dict[action_identifier]["main_function"],
+                args=(self, event_data)
+            ).start()
+        else:
+            status = "could not find requested action '{}'".format(action_identifier)
+
+        print(status)

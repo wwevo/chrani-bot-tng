@@ -31,24 +31,17 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
-    if any([
-        match.group("day") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("day", 0),
-        match.group("hour") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("hour", 0),
-        match.group("minute") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("minute", 0)
-    ]):
-        module.dom.upsert({
-            module.get_module_identifier(): {
-                "last_recorded_gametime": {
-                    "day": match.group("day"),
-                    "hour": match.group("hour"),
-                    "minute": match.group("minute")
-                }
+    module.dom.upsert({
+        module.get_module_identifier(): {
+            "last_recorded_gametime": {
+                "day": match.group("day"),
+                "hour": match.group("hour"),
+                "minute": match.group("minute")
             }
-        })
-        module.update_gametime_widget_frontend()
-        module.emit_event_status(event_data, dispatchers_steamid, "success")
-    else:
-        print("date didn't change since last poll")
+        }
+    })
+    module.update_gametime_widget_frontend()
+    module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

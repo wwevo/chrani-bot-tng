@@ -41,7 +41,7 @@ class Players(Module):
         template_frontend = self.templates.get_template('player_table_widget_frontend.html')
         template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
 
-        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
+        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", None)
         table_rows = ""
         for steamid, player_dict in all_player_dicts.items():
             in_limbo = player_dict["in_limbo"]
@@ -141,7 +141,7 @@ class Players(Module):
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            self.manually_trigger_event(["listplayers", {}])
+            self.manually_trigger_action(["listplayers", {}])
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
