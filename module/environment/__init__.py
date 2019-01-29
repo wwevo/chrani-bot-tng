@@ -25,10 +25,12 @@ class Environment(Module):
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
         self.update_webserver_status_widget_frontend()
+        self.update_gametime_widget_frontend()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
         self.update_webserver_status_widget_frontend()
+        self.update_gametime_widget_frontend()
 
     # region Standard module stuff
     def setup(self, options=dict):
