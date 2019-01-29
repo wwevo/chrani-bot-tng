@@ -24,6 +24,16 @@ trigger_meta = {
             r"PlayerID='(?P<player_steamid>.*)',\s"
             r"OwnerID='(?P<owner_steamid>.*)',\s"
             r"PlayerName='(?P<player_name>.*)'"
+        ), (
+            r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+            r"Player (?P<reason>.*): "
+            r"EntityID=(?P<entity_id>.*), "
+            r"PlayerID=\'(?P<player_steamid>.*)\', "
+            r"OwnerID=\'(?P<owner_id>.*)\', "
+            r"PlayerName='(?P<player_name>.*)\'$"
+        ), (
+            r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+            r"GMSG:\sPlayer\s\'(?P<player_name>.*)\'\s(?P<reason>.*)$"
         )
     ]
 }
