@@ -1,27 +1,26 @@
-import jinja2
-from os import path, listdir
-from importlib import import_module
 from threading import Thread, Event
 from modules import started_modules_dict
+from .trigger import Trigger
+from .action import Action
+from .template import Template
 
 
-class Module(Thread):
+class Module(Thread, Action, Trigger, Template):
     """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
-    templates = object
+    # we are importing Action and Trigger class to make them available. requires actions and triggers to be there ^^
     options = dict
     stopped = object
 
     run_observer_interval = int
     last_execution_time = float
 
-    available_actions_dict = dict
-
     def __init__(self):
         if type(self) is Module:
             raise NotImplementedError("You may not instantiate this class on it's own")
 
-        self.available_actions_dict = {}
         self.stopped = Event()
+        Action.__init__(self)
+        Trigger.__init__(self)
         Thread.__init__(self)
 
     def setup(self, options=dict):
@@ -32,21 +31,9 @@ class Module(Thread):
         else:
             print("{}: no options provided, default values are used".format(self.default_options["module_name"]))
 
-        modules_root_dir = path.dirname(path.abspath(__file__))
-        modules_template_dir = path.join(modules_root_dir, self.options['module_name'], 'templates')
-
-        module_actions_root_dir = path.join(modules_root_dir, self.options['module_name'], "actions")
-        try:
-            for module_action in listdir(module_actions_root_dir):
-                if module_action == 'common.py' or module_action == '__init__.py' or module_action[-3:] != '.py':
-                    continue
-                import_module("modules." + self.options['module_name'] + ".actions." + module_action[:-3])
-        except FileNotFoundError as error:
-            # module does not have actions
-            pass
-
-        file_loader = jinja2.FileSystemLoader(modules_template_dir)
-        self.templates = jinja2.Environment(loader=file_loader)
+        self.import_actions()
+        self.import_triggers()
+        self.import_templates()
 
         self.name = self.options['module_name']
         return self
@@ -59,9 +46,6 @@ class Module(Thread):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         return self
-
-    def register_action(self, identifier, action_dict):
-        self.available_actions_dict[identifier] = action_dict
 
     def on_socket_connect(self, sid):
         print("'{}' connected to module {}".format(

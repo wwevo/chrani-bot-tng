@@ -1,5 +1,5 @@
 from importlib import import_module
-from os import path, chdir, walk, listdir
+from os import path, chdir, walk
 import json
 from collections import deque
 root_dir = path.dirname(path.abspath(__file__))
