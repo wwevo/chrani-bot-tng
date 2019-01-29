@@ -4,7 +4,6 @@ from module import loaded_modules_dict
 from time import time, sleep
 from collections import deque
 import telnetlib
-from itertools import islice
 
 
 class Telnet(Module):
@@ -13,6 +12,7 @@ class Telnet(Module):
     telnet_buffer = str
     valid_telnet_lines = deque
 
+    telnet_lines_to_process = deque
     telnet_command_queue = deque
 
     def __init__(self):
@@ -60,7 +60,9 @@ class Telnet(Module):
     def setup(self, options=dict):
         Module.setup(self, options)
 
+        self.telnet_lines_to_process = deque(maxlen=self.default_options["max_queue_length"])
         self.valid_telnet_lines = deque(maxlen=self.default_options["max_queue_length"])
+
         self.telnet_buffer = ""
 
         self.run_observer_interval = 0.5
@@ -155,11 +157,18 @@ class Telnet(Module):
         return telnet_lines_list
 
     def get_a_bunch_of_lines(self, this_many_lines):
-        start_the_slice = len(self.valid_telnet_lines) - this_many_lines
-        if this_many_lines > len(self.valid_telnet_lines):
-            return list(reversed(self.valid_telnet_lines))
-        if start_the_slice >= 1:
-            return list(reversed(list(islice(self.valid_telnet_lines, start_the_slice, len(self.valid_telnet_lines)))))
+        telnet_lines = []
+        current_queue_length = 0
+        done = False
+        while (current_queue_length < this_many_lines) and not done:
+            try:
+                telnet_lines.append(self.telnet_lines_to_process.popleft())
+                current_queue_length += 1
+            except IndexError:
+                done = True
+
+        if len(telnet_lines) >= 1:
+            return telnet_lines
         else:
             return []
     # endregion
@@ -208,7 +217,7 @@ class Telnet(Module):
 
         if len(self.webserver.connected_clients) >= 1:
             log_lines = ""
-            for line in self.get_a_bunch_of_lines(25):
+            for line in self.valid_telnet_lines:
                 log_lines += log_line.render(
                     log_line=line
                 )
@@ -302,7 +311,7 @@ class Telnet(Module):
                     valid_telnet_line = None
                     if self.is_a_valid_line(component):  # added complete line
                         valid_telnet_line = component.rstrip("\r\n")
-                        self.valid_telnet_lines.append(valid_telnet_line)
+                        self.telnet_lines_to_process.append(valid_telnet_line)
                         print(valid_telnet_line)
                     else:
                         if response_count == 1:  # not a complete line, might be the remainder of last run
@@ -310,7 +319,7 @@ class Telnet(Module):
                                 combined_line = "{}{}".format(recent_telnet_response, component)
                                 if self.is_a_valid_line(combined_line):  # "added complete combined line"
                                     valid_telnet_line = combined_line.rstrip("\r\n")
-                                    self.valid_telnet_lines.append(valid_telnet_line)
+                                    self.telnet_lines_to_process.append(valid_telnet_line)
                                     print(valid_telnet_line)
                                 else:  # "combined line, it doesnt make sense though"
                                     pass
@@ -332,8 +341,11 @@ class Telnet(Module):
                         else:  # "found incomplete line smack in the middle"
                             pass
 
-                    if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
-                        self.update_telnet_log_widget_log_line(valid_telnet_line)
+                    if valid_telnet_line is not None:
+                        self.valid_telnet_lines.append(valid_telnet_line)
+
+                        if len(self.webserver.connected_clients) >= 1:
+                            self.update_telnet_log_widget_log_line(valid_telnet_line)
 
                     response_count += 1
 

@@ -13,6 +13,7 @@ class Players(Module):
 
         setattr(self, "required_modules", [
             "module_dom",
+            "module_triggers",
             "module_telnet",
             "module_webserver"
         ])

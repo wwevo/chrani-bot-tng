@@ -3,10 +3,9 @@ from importlib import import_module
 
 
 class Action(object):
-    available_actions_dict = dict
 
     def __init__(self):
-        self.available_actions_dict = {}
+        pass
 
     def register_action(self, identifier, action_dict):
         self.available_actions_dict[identifier] = action_dict
