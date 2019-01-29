@@ -16,11 +16,11 @@ for module in available_modules_list:
     """ at the bottom of each module, the loaded_modules_list will be updated
     modules may not do any stuff in their __init__, apart from setting variables
     and calling static methods, unless you know what you are doing """
-    import_module("modules." + module)
+    import_module("module." + module)
 
 
 def batch_setup_modules(modules_list):
-    """ this should load all modules in an order they can work with
+    """ this should load all module in an order they can work with
     Make absolutely SURE there's no circular dependencies, because I won't :) """
     for module_to_setup in modules_list:
         try:

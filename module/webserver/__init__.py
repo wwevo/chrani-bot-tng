@@ -7,9 +7,9 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 """ standard imports """
-from modules.common import dispatch_socket_event, authenticated_only
-from modules.module import Module
-from modules import loaded_modules_dict
+from module.common import dispatch_socket_event, authenticated_only
+from module.module import Module
+from module import loaded_modules_dict
 from .user import User
 
 import re

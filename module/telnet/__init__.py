@@ -1,6 +1,6 @@
 import re
-from modules.module import Module
-from modules import loaded_modules_dict
+from module.module import Module
+from module import loaded_modules_dict
 from time import time, sleep
 from collections import deque
 import telnetlib

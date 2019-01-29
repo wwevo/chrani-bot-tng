@@ -1,5 +1,5 @@
 from threading import Thread, Event
-from modules import started_modules_dict
+from module import started_modules_dict
 from .trigger import Trigger
 from .action import Action
 from .template import Template

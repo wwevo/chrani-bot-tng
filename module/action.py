@@ -19,7 +19,7 @@ class Action(object):
             for module_action in listdir(module_actions_root_dir):
                 if module_action == 'common.py' or module_action == '__init__.py' or module_action[-3:] != '.py':
                     continue
-                import_module("modules." + self.options['module_name'] + ".actions." + module_action[:-3])
+                import_module("module." + self.options['module_name'] + ".actions." + module_action[:-3])
         except FileNotFoundError as error:
             # module does not have actions
             pass
