@@ -49,12 +49,12 @@ class Telnet(Module):
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
         self.update_gameserver_status_widget_frontend()
-        self.update_bunch_of_telnet_log_lines()
+        self.update_telnet_log_widget_frontend()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
         self.update_gameserver_status_widget_frontend()
-        self.update_bunch_of_telnet_log_lines()
+        self.update_telnet_log_widget_frontend()
 
     # region Standard module stuff
     def setup(self, options=dict):
@@ -202,7 +202,7 @@ class Telnet(Module):
             }
         )
 
-    def update_bunch_of_telnet_log_lines(self):
+    def update_telnet_log_widget_frontend(self):
         telnet_log_frontend = self.templates.get_template('telnet_log_widget_frontend.html')
         log_line = self.templates.get_template('telnet_log_widget_log_line.html')
 
@@ -226,6 +226,22 @@ class Telnet(Module):
                     "type": "ul"
                 }
             )
+
+    def update_telnet_log_widget_log_line(self, log_line):
+        telnet_log_line = self.templates.get_template('telnet_log_widget_log_line.html')
+        data_to_emit = telnet_log_line.render(
+            log_line=log_line
+        )
+        self.webserver.send_data_to_client(
+            method="prepend",
+            data_type="widget_content",
+            event_data=data_to_emit,
+            clients=self.webserver.connected_clients.keys(),
+            target_element={
+                "id": "telnet_log_widget",
+                "type": "ul"
+            }
+        )
 
     def run(self):
         next_cycle = 0
@@ -317,20 +333,7 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None and len(self.webserver.connected_clients) >= 1:
-                        telnet_log_line = self.templates.get_template('telnet_log_widget_log_line.html')
-                        data_to_emit = telnet_log_line.render(
-                            log_line=valid_telnet_line
-                        )
-                        self.webserver.send_data_to_client(
-                            method="prepend",
-                            data_type="widget_content",
-                            event_data=data_to_emit,
-                            clients=self.webserver.connected_clients.keys(),
-                            target_element={
-                                "id": "telnet_log_widget",
-                                "type": "ul"
-                            }
-                        )
+                        self.update_telnet_log_widget_log_line(valid_telnet_line)
 
                     response_count += 1
 

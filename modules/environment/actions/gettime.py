@@ -45,7 +45,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
                     "minute": match.group("minute")
                 }
             }
-        }, telnet_datetime=telnet_datetime)
+        })
         module.update_gametime_widget_frontend()
         module.emit_event_status(event_data, dispatchers_steamid, "success")
     else:

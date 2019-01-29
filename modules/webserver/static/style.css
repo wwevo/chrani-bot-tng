@@ -51,6 +51,18 @@ footer > div {
     background-color: antiquewhite;
 }
 
+#gametime_widget {
+    max-height: 1em;
+}
+
+#gameserver_status_widget {
+    max-height: 1em;
+}
+
+#webserver_status_widget {
+    max-height: 2em;
+}
+
 #player_table_widget {
     order: 2;
     flex-basis: 40%;
@@ -63,4 +75,12 @@ footer > div {
 #telnet_log_widget {
     order: 10;
     flex-basis: 40%;
+}
+
+#dom_data_widget {
+    font-size: 80%;
+    order: 10;
+    flex-basis: 30%;
+    white-space: pre-wrap;
+    display: none;
 }

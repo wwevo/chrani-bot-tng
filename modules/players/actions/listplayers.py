@@ -7,15 +7,14 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def reset_and_update_live_status(module, player_dict, conditions):
-    if any(conditions):
-        online_players_list = module.dom.data.get("module_environment", {}).get("online_players_list", [])
-        if player_dict["steamid"] in online_players_list:
-            online_players_list.remove(player_dict["steamid"])
-        module.dom.data[module.get_module_identifier()]["online_players_list"] = online_players_list
-        module.dom.data[module.get_module_identifier()]["players"][player_dict["steamid"]]["is_online"] = False
-        module.dom.data[module.get_module_identifier()]["players"][player_dict["steamid"]]["ping"] = "offline"
-        module.update_player_table_widget_table_row(player_dict)
+def reset_and_update_live_status(module, player_dict):
+    online_players_list = module.dom.data.get("module_environment", {}).get("online_players_list", [])
+    if player_dict["steamid"] in online_players_list:
+        online_players_list.remove(player_dict["steamid"])
+    module.dom.data[module.get_module_identifier()]["online_players_list"] = online_players_list
+    module.dom.data[module.get_module_identifier()]["players"][player_dict["steamid"]]["is_online"] = False
+    module.dom.data[module.get_module_identifier()]["players"][player_dict["steamid"]]["ping"] = "offline"
+    module.update_player_table_widget_table_row(player_dict)
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
@@ -110,12 +109,11 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         if steamid == 'last_updated':
             continue
 
-        reset_and_update_live_status(
-            module,
-            player_dict, [
-                not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
-                player_dict.get("is_online", False) and player_dict["steamid"] not in online_players
-            ])
+        if any([
+            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+            player_dict.get("is_online", False) and player_dict["steamid"] not in online_players
+        ]):
+            reset_and_update_live_status(module, player_dict)
 
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
@@ -125,11 +123,10 @@ def callback_fail(module, event_data, dispatchers_steamid):
         if steamid == 'last_updated':
             continue
 
-        reset_and_update_live_status(
-            module,
-            player_dict, [
-                not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
-            ])
+        if any([
+            not module.dom.data.get(module.telnet.get_module_identifier(), {}).get("server_is_online", False),
+        ]):
+            reset_and_update_live_status(module, player_dict)
 
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 

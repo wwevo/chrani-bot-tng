@@ -1,8 +1,8 @@
 from modules.module import Module
 from modules import loaded_modules_dict
-from time import time, strptime
-from calendar import timegm
+from time import time
 from collections import Mapping
+import json
 
 
 class Dom(Module):
@@ -12,7 +12,9 @@ class Dom(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:]
         })
-        setattr(self, "required_modules", [])
+        setattr(self, "required_modules", [
+            "module_webserver"
+        ])
         Module.__init__(self)
 
     @staticmethod
@@ -23,10 +25,10 @@ class Dom(Module):
     def setup(self, options=dict):
         Module.setup(self, options)
         self.data = {}
-        self.run_observer_interval = 2
+        self.run_observer_interval = 20
     # endregion
 
-    def upsert(self, updated_values_dict, dict_to_update=None, telnet_datetime=None):
+    def upsert(self, updated_values_dict, dict_to_update=None):
         if dict_to_update is None:
             dict_to_update = self.data
 
@@ -39,11 +41,30 @@ class Dom(Module):
 
         return dict_to_update
 
+    def update_data_widget_frontend(self):
+        template_frontend = self.templates.get_template('data_widget_frontend.html')
+        data_to_emit = template_frontend.render(
+            data=json.dumps(self.dom.data, sort_keys=True, indent=4, default=str)
+        )
+
+        self.webserver.send_data_to_client(
+            event_data=data_to_emit,
+            data_type="widget_content",
+            clients=self.webserver.connected_clients.keys(),
+            target_element={
+                "id": "dom_data_widget",
+                "type": "div"
+            }
+        )
+
     def run(self):
         next_cycle = 0
         while not self.stopped.wait(next_cycle):
             profile_start = time()
             self.last_execution_time = time() - profile_start
+
+            self.update_data_widget_frontend()
+
             next_cycle = self.run_observer_interval - self.last_execution_time
 
 
