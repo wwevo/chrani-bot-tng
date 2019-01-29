@@ -68,6 +68,18 @@ footer > div {
     flex-basis: 40%;
 }
 
+#player_table_widget td.center {
+    text-align: center;
+}
+
+#player_table_widget td.right {
+    text-align: right;
+}
+
+#player_table_widget td.nobr {
+    white-space: nowrap;
+}
+
 #player_table_widget caption {
     text-align: right;
 }

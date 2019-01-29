@@ -65,8 +65,8 @@ $(document).ready(function() {
             if (target_element_id == null) {
                 return false;
             }
-            let parent_element = $('#' + target_element_id)
-            parent_element.setClass(data["target_element"]["class"])
+            let parent_element = $('#' + target_element_id);
+            parent_element.setClass(data["target_element"]["class"]);
             let elements_to_update = data["event_data"];
             $.each(elements_to_update, function (key, value) {
                 if ($.type(value) === 'object') {
