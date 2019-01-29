@@ -21,17 +21,16 @@ def main_function(module, event_data, dispatchers_steamid=None):
         sleep(0.25)
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer):
-            telnet_datetime = match.group("datetime")
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime)
+            callback_success(module, event_data, dispatchers_steamid, match)
             return
 
     callback_fail(module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime):
+def callback_success(module, event_data, dispatchers_steamid, match):
     if any([
         match.group("day") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("day", 0),
         match.group("hour") != module.dom.data.get(module.get_module_identifier(), {}).get("last_recorded_gametime", {}).get("hour", 0),
