@@ -96,13 +96,13 @@ $(document).ready(function() {
             if (selector == null) {
                 selector = "body > main > div";
             }
-            let $el = $(selector).upsert('#' + target_element_id, '<' + target_element_type + '"></' + target_element_type + '>');
+            let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
             if (data["method"] === "update") {
-                $el.replaceWith(data["event_data"]);
+                $el.html(data["event_data"]);
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
             } else if (data["method"] === "prepend") {
-                $el.prepend(data["event_data"]);
+                $el.find(target_element_type).prepend(data["event_data"]);
                 let entries = $el.find('li');
                 if (entries.length >= 50) {
                     entries.last().remove();

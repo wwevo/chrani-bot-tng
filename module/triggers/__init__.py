@@ -38,10 +38,10 @@ class Triggers(Module):
             telnet_lines_to_process = self.telnet.get_a_bunch_of_lines(25)
             for telnet_line in telnet_lines_to_process:
                 for trigger_name, trigger in available_triggers_dict.items():
-                    for regex in trigger["regex"]:
-                        regex_results = re.search(regex, telnet_line)
+                    for sub_trigger in trigger["triggers"]:
+                        regex_results = re.search(sub_trigger["regex"], telnet_line)
                         if regex_results:
-                            trigger["main_function"](self, regex_results)
+                            sub_trigger["callback"](self, regex_results)
                             message = "executed trigger: {}".format(trigger_name)
                             print(message)
                             if len(self.webserver.connected_clients) >= 1:

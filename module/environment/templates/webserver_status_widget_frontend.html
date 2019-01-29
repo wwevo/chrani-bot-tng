@@ -1,5 +1,5 @@
 {%- set logged_in_users_count = webserver_logged_in_users|length -%}
-<div id="webserver_status_widget" class="widget">
+<div>
 <strong>{{ logged_in_users_count }}</strong>{%- if logged_in_users_count == 1 %} user is {%- else %} users are {%- endif %} currently using the webinterface!<br />
 {%- if webserver_logged_in_users -%}
 ({{ webserver_logged_in_users|join(', ') }})

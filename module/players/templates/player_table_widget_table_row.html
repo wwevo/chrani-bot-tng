@@ -2,13 +2,13 @@
     <td id="player_table_row_{{ player.steamid }}_name">{{ player.name }}</td>
     <td id="player_table_row_{{ player.steamid }}_id">{{ player.id }}</td>
     <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
-    <td class="center"  id="player_table_row_{{ player.steamid }}_health">{{ player.health }}</td>
-    <td class="nobr" onclick="$(this).selectText();">
+    <td class="center" id="player_table_row_{{ player.steamid }}_health">{{ player.health }}</td>
+    <td class="position" onclick="$(this).selectText();">
         <span id="player_table_row_{{ player.steamid }}_pos_x">{{ player.pos.x }}</span>
         <span id="player_table_row_{{ player.steamid }}_pos_y">{{ player.pos.y }}</span>
         <span id="player_table_row_{{ player.steamid }}_pos_z">{{ player.pos.z }}</span>
     </td>
-    <td class="nobr" >
+    <td class="position">
         <span id="player_table_row_{{ player.steamid }}_rot_x">{{ player.rot.x }}</span>
         <span id="player_table_row_{{ player.steamid }}_rot_y">{{ player.rot.y }}</span>
         <span id="player_table_row_{{ player.steamid }}_rot_z">{{ player.rot.z }}</span>
@@ -20,5 +20,5 @@
     <td class="center" id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
     <td class="center" id="player_table_row_{{ player.steamid }}_players">{{ player.players }}</td>
     <td class="center" id="player_table_row_{{ player.steamid }}_score">{{ player.score }}</td>
-    <td class="nobr right"  id="player_table_row_{{ player.steamid }}_last_updated">{{ player.last_updated }}</td>
+    <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_updated">{{ player.last_updated }}</td>
 </tr>
