@@ -13,14 +13,14 @@ class Action(object):
         self.available_actions_dict[identifier] = action_dict
 
     def import_actions(self):
-        modules_root_dir = path.dirname(path.abspath(__file__))
+        modules_root_dir = path.join(path.dirname(path.abspath(__file__)), "modules")
 
         module_actions_root_dir = path.join(modules_root_dir, self.options['module_name'], "actions")
         try:
             for module_action in listdir(module_actions_root_dir):
                 if module_action == 'common.py' or module_action == '__init__.py' or module_action[-3:] != '.py':
                     continue
-                import_module("bot." + self.options['module_name'] + ".actions." + module_action[:-3])
+                import_module("bot.modules." + self.options['module_name'] + ".actions." + module_action[:-3])
         except FileNotFoundError as error:
             # module does not have actions
             pass

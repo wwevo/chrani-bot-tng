@@ -10,13 +10,13 @@ loaded_modules_dict = {}  # this will be populated by the imports done next:
 modules_to_start_list = deque()
 started_modules_dict = {}
 
-available_modules_list = next(walk('.'))[1]
+available_modules_list = next(walk(path.join('modules', '.')))[1]
 
 for module in available_modules_list:
     """ at the bottom of each module, the loaded_modules_list will be updated
     modules may not do any stuff in their __init__, apart from setting variables
     and calling static methods, unless you know what you are doing """
-    import_module("bot." + module)
+    import_module("bot.modules." + module)
 
 
 def batch_setup_modules(modules_list):

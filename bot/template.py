@@ -11,7 +11,7 @@ class Template(object):
         pass
 
     def import_templates(self):
-        modules_root_dir = path.dirname(path.abspath(__file__))
+        modules_root_dir = path.join(path.dirname(path.abspath(__file__)), "modules")
         modules_template_dir = path.join(modules_root_dir, self.options['module_name'], 'templates')
         file_loader = jinja2.FileSystemLoader(modules_template_dir)
         self.templates = jinja2.Environment(loader=file_loader)
