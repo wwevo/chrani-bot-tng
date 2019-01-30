@@ -19,7 +19,7 @@ class Trigger(object):
             for module_trigger in listdir(module_triggers_root_dir):
                 if module_trigger == 'common.py' or module_trigger == '__init__.py' or module_trigger[-3:] != '.py':
                     continue
-                import_module("module." + self.options['module_name'] + ".triggers." + module_trigger[:-3])
+                import_module("bot." + self.options['module_name'] + ".triggers." + module_trigger[:-3])
         except FileNotFoundError as error:
             # module does not have triggers
             pass

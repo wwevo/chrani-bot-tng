@@ -1,4 +1,4 @@
-from module import loaded_modules_dict
+from bot import loaded_modules_dict
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))

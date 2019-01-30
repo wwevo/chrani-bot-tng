@@ -1,4 +1,4 @@
-from module import loaded_modules_dict
+from bot import loaded_modules_dict
 from os import path, pardir
 from time import sleep, time
 import re

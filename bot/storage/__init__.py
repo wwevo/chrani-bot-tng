@@ -1,8 +1,8 @@
-from module.module import Module
-from module import loaded_modules_dict
-from time import time
-from .persistent_dict import PersistentDict
 from os import path
+from time import time
+from bot.module import Module
+from bot import loaded_modules_dict
+from .persistent_dict import PersistentDict
 
 
 class Storage(Module):

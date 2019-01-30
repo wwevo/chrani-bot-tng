@@ -1,5 +1,5 @@
-from module.module import Module
-from module import loaded_modules_dict
+from bot.module import Module
+from bot import loaded_modules_dict
 from time import time
 from .callback_dict import CallbackDict
 
@@ -24,13 +24,6 @@ class Dom(Module):
         Module.setup(self, options)
         self.run_observer_interval = 5
     # endregion
-
-    def run(self):
-        next_cycle = 0
-        while not self.stopped.wait(next_cycle):
-            profile_start = time()
-            self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Dom().get_module_identifier()] = Dom()

@@ -1,5 +1,5 @@
 import functools
-from module import started_modules_dict
+from bot import started_modules_dict
 from flask_login import current_user
 from flask_socketio import disconnect
 

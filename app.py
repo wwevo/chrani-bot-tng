@@ -1,4 +1,4 @@
-from module import setup_modules, start_modules
+from bot import setup_modules, start_modules
 from time import sleep
 
 setup_modules()
