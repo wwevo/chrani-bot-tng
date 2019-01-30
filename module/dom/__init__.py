@@ -1,18 +1,18 @@
 from module.module import Module
 from module import loaded_modules_dict
 from time import time
-from collections import Mapping
-import json
+from .callback_dict import CallbackDict
 
 
 class Dom(Module):
-    data = dict
+    data = CallbackDict
 
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:]
         })
         setattr(self, "required_modules", [])
+        self.data = CallbackDict()
         Module.__init__(self)
 
     @staticmethod
@@ -22,22 +22,8 @@ class Dom(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.data = {}
         self.run_observer_interval = 5
     # endregion
-
-    def upsert(self, updated_values_dict, dict_to_update=None):
-        if dict_to_update is None:
-            dict_to_update = self.data
-
-        for k, v in updated_values_dict.items():
-            d_v = dict_to_update.get(k)
-            if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.upsert(v, d_v)
-            else:
-                dict_to_update[k] = v  # or d[k] = v if you know what you're doing
-
-        return dict_to_update
 
     def run(self):
         next_cycle = 0

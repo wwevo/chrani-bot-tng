@@ -1,7 +1,7 @@
 import re
 from module.module import Module
 from module import loaded_modules_dict
-from time import time, sleep
+from time import time
 from collections import deque
 import telnetlib
 
@@ -269,7 +269,7 @@ class Telnet(Module):
                 try:
                     telnet_response = self.tn.read_very_eager().decode("utf-8")
                 except (AttributeError, EOFError, ConnectionAbortedError) as error:
-                    self.dom.upsert({
+                    self.dom.data.upsert({
                         self.get_module_identifier(): {
                             "server_is_online": False
                         }
@@ -278,7 +278,7 @@ class Telnet(Module):
 
                     try:
                         self.setup_telnet()
-                        self.dom.upsert({
+                        self.dom.data.upsert({
                             self.get_module_identifier(): {
                                 "server_is_online": True
                             }
@@ -298,7 +298,7 @@ class Telnet(Module):
 
                 # module_dom needs to be in the required modules list!!
                 # let's expose the telnet_buffer to the general module population via our DOM!
-                self.dom.upsert({
+                self.dom.data.upsert({
                     self.get_module_identifier(): {
                         "telnet_buffer": self.telnet_buffer
                     }

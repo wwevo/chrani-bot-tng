@@ -31,7 +31,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
-    module.dom.upsert({
+    module.dom.data.upsert({
         module.get_module_identifier(): {
             "last_recorded_gametime": {
                 "day": match.group("day"),

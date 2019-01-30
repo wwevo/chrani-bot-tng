@@ -16,14 +16,14 @@ def main_function(module, event_data, dispatchers_steamid):
     alert_admin = event_data[1].get("alert_admin", False)
 
     if cancel_shutdown == 1:
-        module.dom.upsert({
+        module.dom.data.upsert({
             module.get_module_identifier(): {
                 "cancel_shutdown": True
             }
         })
 
     if force_shutdown == 1:
-        module.dom.upsert({
+        module.dom.data.upsert({
             module.get_module_identifier(): {
                 "force_shutdown": True
             }
@@ -55,7 +55,7 @@ def main_function(module, event_data, dispatchers_steamid):
             if module.dom.data.get(module.get_module_identifier()).get("force_shutdown", False):
                 break
 
-            module.dom.upsert({
+            module.dom.data.upsert({
                 module.get_module_identifier(): {
                     "shutdown_in_seconds": int(shutdown_timeout - (time() - shutdown_timeout_start))
                 }
@@ -63,7 +63,7 @@ def main_function(module, event_data, dispatchers_steamid):
             module.update_gameserver_status_widget_frontend()
             sleep(1)
 
-        module.dom.upsert({
+        module.dom.data.upsert({
             module.get_module_identifier(): {
                 "shutdown_in_seconds": None,
                 "cancel_shutdown": False,

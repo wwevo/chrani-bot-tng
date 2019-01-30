@@ -83,7 +83,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "is_ready": True if not in_limbo else False,
             "last_updated": telnet_datetime
         }
-        module.dom.upsert({
+        module.dom.data.upsert({
             module.get_module_identifier(): {
                 "players": {
                     m.group("steamid"): player_dict
