@@ -14,16 +14,11 @@ class Module(Thread, Action, Trigger, Template):
     run_observer_interval = int
     last_execution_time = float
 
-    available_triggers_dict = dict
-    available_actions_dict = dict
-
     def __init__(self):
         if type(self) is Module:
             raise NotImplementedError("You may not instantiate this class on it's own")
 
         self.stopped = Event()
-        self.available_triggers_dict = {}
-        self.available_actions_dict = {}
         Action.__init__(self)
         Trigger.__init__(self)
         Thread.__init__(self)

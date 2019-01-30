@@ -88,10 +88,3 @@ footer > div {
     order: 10;
     flex-basis: 40%;
 }
-
-#dom_data_widget {
-    font-size: 80%;
-    order: 10;
-    flex-basis: 30%;
-    white-space: pre-wrap;
-}

@@ -3,9 +3,10 @@ from importlib import import_module
 
 
 class Trigger(object):
+    available_triggers_dict = dict
 
     def __init__(self):
-        pass
+        self.available_triggers_dict = {}
 
     def register_trigger(self, identifier, trigger_dict):
         self.available_triggers_dict[identifier] = trigger_dict

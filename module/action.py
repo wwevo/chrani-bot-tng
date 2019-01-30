@@ -4,9 +4,10 @@ from threading import Thread
 
 
 class Action(object):
+    available_actions_dict = dict
 
     def __init__(self):
-        pass
+        self.available_actions_dict = {}
 
     def register_action(self, identifier, action_dict):
         self.available_actions_dict[identifier] = action_dict
@@ -26,7 +27,7 @@ class Action(object):
 
     def manually_trigger_action(self, event_data):
         if not self.dom.data.get("module_telnet", {}).get("server_is_online", False):
-            return False
+            pass
 
         action_identifier = event_data[0]
         if action_identifier in self.available_actions_dict:
