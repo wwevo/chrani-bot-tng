@@ -24,22 +24,26 @@ class Environment(Module):
 
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
-        self.update_webserver_status_widget_frontend()
-        self.update_gametime_widget_frontend()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
-        self.update_webserver_status_widget_frontend()
-        self.update_gametime_widget_frontend()
 
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 5
+        self.run_observer_interval = 3
+
+    def start(self):
+        Module.start(self)
+        self.dom.data.register_callback("last_recorded_gametime", self.update_gametime_widget_frontend)
+        # registering all the fields. could just watch module_environment instead in this case
+        self.dom.data.register_callback("webserver_logged_in_users", self.update_webserver_status_widget_frontend)
+        self.dom.data.register_callback("server_is_online", self.update_webserver_status_widget_frontend)
+        self.dom.data.register_callback("shutdown_in_seconds", self.update_webserver_status_widget_frontend)
     # endregion
 
-    def update_gametime_widget_frontend(self):
-        gametime = self.dom.data.get(self.get_module_identifier(), {}).get("last_recorded_gametime", None)
+    def update_gametime_widget_frontend(self, updated_values_dict, old_values_dict):
+        gametime = updated_values_dict.get_diff(old_values_dict)[1]
         if gametime is None:
             self.manually_trigger_action(["gettime", {}])
             return False
@@ -58,19 +62,14 @@ class Environment(Module):
                 "type": "div"
             }
         )
+        return gametime
 
-    def update_webserver_status_widget_frontend(self):
-        self.dom.data.update({
-            self.get_module_identifier(): {
-                "webserver_logged_in_users": self.webserver.connected_clients
-            }
-        })
-
+    def update_webserver_status_widget_frontend(self, updated_values_dict, old_values_dict):
         template_frontend = self.templates.get_template('webserver_status_widget_frontend.html')
         data_to_emit = template_frontend.render(
-            webserver_logged_in_users=self.dom.data.get(self.get_module_identifier()).get("webserver_logged_in_users"),
+            webserver_logged_in_users=self.dom.data.get(self.get_module_identifier(), {}).get("webserver_logged_in_users", {}),
             server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
-            shutdown_in_seconds=self.dom.data.get(self.get_module_identifier()).get("shutdown_in_seconds", None)
+            shutdown_in_seconds=self.dom.data.get(self.get_module_identifier(), {}).get("shutdown_in_seconds", None)
         )
 
         self.webserver.send_data_to_client(
@@ -85,10 +84,17 @@ class Environment(Module):
 
     def run(self):
         next_cycle = 0
+
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
             self.manually_trigger_action(["gettime", {}])
+
+            self.dom.data.upsert({
+                self.get_module_identifier(): {
+                    "webserver_logged_in_users": self.webserver.connected_clients
+                }
+            }, overwrite=True)
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

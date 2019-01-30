@@ -41,7 +41,7 @@ class Players(Module):
         template_frontend = self.templates.get_template('player_table_widget_frontend.html')
         template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
 
-        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", None)
+        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
         table_rows = ""
         for steamid, player_dict in all_player_dicts.items():
             in_limbo = player_dict["in_limbo"]

@@ -40,7 +40,6 @@ def callback_success(module, event_data, dispatchers_steamid, match):
             }
         }
     })
-    module.update_gametime_widget_frontend()
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
