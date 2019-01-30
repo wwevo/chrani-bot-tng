@@ -1,4 +1,4 @@
-from os import path, listdir
+from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
 
@@ -13,7 +13,7 @@ class Action(object):
         self.available_actions_dict[identifier] = action_dict
 
     def import_actions(self):
-        modules_root_dir = path.join(path.dirname(path.abspath(__file__)), "modules")
+        modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
 
         module_actions_root_dir = path.join(modules_root_dir, self.options['module_name'], "actions")
         try:

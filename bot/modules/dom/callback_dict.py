@@ -1,4 +1,5 @@
 from collections import Mapping
+from threading import Thread
 
 
 class CallbackDict(dict, object):
@@ -18,7 +19,10 @@ class CallbackDict(dict, object):
 
         for k, v in updated_values_dict.items():
             if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
-                updated_values_dict = self.registered_callbacks[k](CallbackDict(updated_values_dict), dict_to_update)
+                Thread(
+                    target=self.registered_callbacks[k],
+                    args=(CallbackDict(updated_values_dict), dict_to_update)
+                ).start()
                 if overwrite is True:
                     dict_to_update[k] = v
                     return

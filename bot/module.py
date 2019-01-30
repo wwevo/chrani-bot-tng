@@ -1,8 +1,8 @@
 from threading import Thread, Event
 from bot import started_modules_dict
-from .trigger import Trigger
-from .action import Action
-from .template import Template
+from bot.mixins.trigger import Trigger
+from bot.mixins.action import Action
+from bot.mixins.template import Template
 
 
 class Module(Thread, Action, Trigger, Template):
