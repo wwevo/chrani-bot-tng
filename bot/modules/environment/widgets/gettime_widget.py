@@ -9,9 +9,13 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 
 def update_widget(module, updated_values_dict, old_values_dict):
     gametime = updated_values_dict.get("last_recorded_gametime", None)
+    old_gametime = old_values_dict.get("last_recorded_gametime", None)
     if gametime is None:
         module.manually_trigger_action(["gettime", {}])
         return False
+
+    if gametime == old_gametime:
+        return
 
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
     data_to_emit = template_frontend.render(

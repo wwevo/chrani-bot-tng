@@ -74,6 +74,8 @@ class Telnet(Module):
             print('trying to establish telnet connection failed: {}'.format(error))
             raise IOError
 
+        return True
+
     def authenticate(self, connection, password):
         try:
             # Waiting for the prompt.

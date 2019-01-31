@@ -8,15 +8,16 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def update_widget(module, updated_values_dict, old_values_dict):
+    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
+    old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
     template_frontend = module.templates.get_template('webserver_status_widget_frontend.html')
     data_to_emit = template_frontend.render(
-        webserver_logged_in_users=module.dom.data.get(
-            module.get_module_identifier(), {}
-        ).get(
-            "webserver_logged_in_users", {}
-        ),
+        webserver_logged_in_users=webserver_logged_in_users,
         server_is_online=module.dom.data.get("module_telnet").get("server_is_online")
     )
+
+    if webserver_logged_in_users == old_webserver_logged_in_users:
+        return
 
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
