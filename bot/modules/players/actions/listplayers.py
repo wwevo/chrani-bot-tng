@@ -50,11 +50,9 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         r"ping=(?P<ping>\d+)"
         r"\r\n"
     )
-    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
-    online_players = []
+    online_players_dict = {}
     for m in re.finditer(regex, raw_playerdata):
         in_limbo = True if int(m.group("health")) == 0 else False
-        online_players.append(m.group("steamid"))
         player_dict = {
             "id": m.group("id"),
             "name": str(m.group("name")),
@@ -83,33 +81,31 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "is_ready": True if not in_limbo else False,
             "last_updated": telnet_datetime
         }
-        module.dom.data.upsert({
-            module.get_module_identifier(): {
-                "players": {
-                    m.group("steamid"): player_dict
-                }
-            }
-        })
+        online_players_dict[m.group("steamid")] = player_dict
 
-    for steamid, player_dict in all_players_dict.items():
-        if steamid == 'last_updated':
-            continue
-
-        if steamid not in online_players:
-            player_dict["is_online"] = False
-
-        module.update_player_table_widget_data(player_dict)
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
+            "players": online_players_dict,
+            "online_players": list(online_players_dict.keys())
+        }
+    })
 
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    for steamid, player_dict in module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items():
+    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items()
+    for steamid, player_dict in all_players_dict.items():
         if steamid == 'last_updated':
             continue
-
         player_dict["is_online"] = False
-        module.update_player_table_widget_data(player_dict)
+
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
+            "players": all_players_dict,
+            "online_players": []
+        }
+    }, overwrite=True)
 
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 

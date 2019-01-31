@@ -89,12 +89,7 @@ class Environment(Module):
             profile_start = time()
 
             self.manually_trigger_action(["gettime", {}])
-
-            self.dom.data.upsert({
-                self.get_module_identifier(): {
-                    "webserver_logged_in_users": self.webserver.connected_clients
-                }
-            }, overwrite=True)
+            self.manually_trigger_action(["logged_in_users", {}])
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time
