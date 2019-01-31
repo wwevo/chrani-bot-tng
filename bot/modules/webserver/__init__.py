@@ -1,6 +1,11 @@
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-import eventlet
-eventlet.monkey_patch()
+#if not debug:
+from gevent import monkey
+print("monkey-patching status: {}".format(monkey.patch_all()))
+
+#if not debug:
+#import eventlet
+#eventlet.monkey_patch()
 
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
