@@ -1,6 +1,9 @@
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-from gevent import monkey
-monkey.patch_all()
+#from gevent import monkey
+#monkey.patch_all()
+
+import eventlet
+eventlet.monkey_patch()
 
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
@@ -63,7 +66,8 @@ class Webserver(Module):
         login_manager = LoginManager()
         login_manager.init_app(app)
 
-        socketio = SocketIO(
+        socketio = SocketIO()
+        socketio.init_app(
             app,
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
         )
