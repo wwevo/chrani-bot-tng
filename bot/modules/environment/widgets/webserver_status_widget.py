@@ -7,17 +7,37 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def update_widget(module, updated_values_dict, old_values_dict):
-    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
-    old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
+def main_widget(module):
+    webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get("webserver_logged_in_users", {})
+
     template_frontend = module.templates.get_template('webserver_status_widget_frontend.html')
     data_to_emit = template_frontend.render(
         webserver_logged_in_users=webserver_logged_in_users,
         server_is_online=module.dom.data.get("module_telnet").get("server_is_online")
     )
 
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=module.webserver.connected_clients.keys(),
+        target_element={
+            "id": "webserver_status_widget",
+            "type": "div"
+        }
+    )
+
+
+def update_widget(module, updated_values_dict, old_values_dict):
+    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
+    old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
     if webserver_logged_in_users == old_webserver_logged_in_users:
         return
+
+    template_frontend = module.templates.get_template('webserver_status_widget_frontend.html')
+    data_to_emit = template_frontend.render(
+        webserver_logged_in_users=webserver_logged_in_users,
+        server_is_online=module.dom.data.get("module_telnet").get("server_is_online")
+    )
 
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
@@ -32,7 +52,7 @@ def update_widget(module, updated_values_dict, old_values_dict):
 
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
-    "main_widget": None,
+    "main_widget": main_widget,
     "handlers": {
         "webserver_logged_in_users": update_widget
     }
