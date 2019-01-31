@@ -1,16 +1,6 @@
-try:
-    from bot.options.is_local import is_debug
-    debug = is_debug
-except ImportError:
-    debug = False
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-#if not debug:
-#from gevent import monkey
-#print("monkey-patching status: {}".format(monkey.patch_all()))
-
-#if not debug:
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
 
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
@@ -73,7 +63,11 @@ class Webserver(Module):
         login_manager = LoginManager()
         login_manager.init_app(app)
 
-        socketio = SocketIO()
+        socketio = SocketIO(
+            app,
+            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
+        )
+
         self.app = app
         self.websocket = socketio
         self.login_manager = login_manager
@@ -123,6 +117,8 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
+                print(data_package[1])
+                print(data_package[0])
                 self.websocket.emit(
                     'data',
                     data_package[0],
@@ -296,11 +292,6 @@ class Webserver(Module):
         def widget_event(data):
             dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
-
-        self.websocket.init_app(
-            self.app,
-            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
-        )
 
         self.websocket.run(
             self.app,
