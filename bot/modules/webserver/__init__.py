@@ -117,8 +117,6 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
-                print(data_package[1])
-                print(data_package[0])
                 self.websocket.emit(
                     'data',
                     data_package[0],
