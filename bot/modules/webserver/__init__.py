@@ -1,6 +1,6 @@
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-from gevent import monkey
-monkey.patch_all()
+import eventlet
+eventlet.monkey_patch()
 
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
@@ -117,8 +117,6 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
-                print(data_package[1])
-                print(data_package[0])
                 self.websocket.emit(
                     'data',
                     data_package[0],
