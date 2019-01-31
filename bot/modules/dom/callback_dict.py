@@ -19,11 +19,12 @@ class CallbackDict(dict, object):
 
         for k, v in updated_values_dict.items():
             if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
-                if isinstance(v, Mapping):
-                    Thread(
-                        target=self.registered_callbacks[k],
-                        args=(CallbackDict(updated_values_dict), dict_to_update)
-                    ).start()
+                Thread(
+                    target=self.registered_callbacks[k]["callback"],
+                    args=(
+                        self.registered_callbacks[k]["module"], CallbackDict(updated_values_dict), dict_to_update
+                    )
+                ).start()
                 if overwrite is True:
                     dict_to_update[k] = v
                     return
@@ -55,10 +56,18 @@ class CallbackDict(dict, object):
             if result is not None:
                 return result
 
+        if len(diff_dict) >= 1:
+            for key in reversed(path):
+                diff_dict = {key: diff_dict}
+
         if len(path) <= 0:
             pass
-        return path, dict_to_update
+        return diff_dict
 
-    def register_callback(self, dict_to_monitor, callback):
-        self.registered_callbacks[dict_to_monitor] = callback
+    def register_callback(self, module, dict_to_monitor, callback):
+        self.registered_callbacks[dict_to_monitor] = {
+            "callback": callback,
+            "module": module
+        }
+
 

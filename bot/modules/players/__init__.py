@@ -25,95 +25,15 @@ class Players(Module):
 
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
-        self.init_player_table_widget_frontend()
 
     def on_socket_disconnect(self, steamid):
         Module.on_socket_disconnect(self, steamid)
-        self.init_player_table_widget_frontend()
 
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
         self.run_observer_interval = 1.5
-
-    def start(self):
-        Module.start(self)
-        self.dom.data.register_callback("players", self.update_player_table_widget_data)
     # endregion
-
-    def init_player_table_widget_frontend(self):
-        template_frontend = self.templates.get_template('player_table_widget_frontend.html')
-        template_table_rows = self.templates.get_template('player_table_widget_table_row.html')
-
-        all_player_dicts = self.dom.data.get(self.get_module_identifier(), {}).get("players", {})
-        table_rows = ""
-        for steamid, player_dict in all_player_dicts.items():
-            in_limbo = player_dict["in_limbo"]
-            is_online = player_dict["is_online"]
-
-            if in_limbo and is_online:
-                css_class = "is_online in_limbo"
-            elif not in_limbo and is_online:
-                css_class = "is_online"
-            elif in_limbo and not is_online:
-                css_class = "is_offline in_limbo"
-            else:
-                css_class = ""
-
-            if steamid == 'last_updated':
-                continue
-
-            table_rows += template_table_rows.render(
-                player=player_dict,
-                css_class=css_class
-            )
-
-        data_to_emit = template_frontend.render(
-            table_rows=table_rows
-        )
-
-        self.webserver.send_data_to_client(
-            event_data=data_to_emit,
-            data_type="widget_content",
-            clients=self.webserver.connected_clients.keys(),
-            method="update",
-            target_element={
-                "id": "player_table_widget",
-                "type": "table",
-                "selector": "body > main > div"
-            }
-        )
-
-    def update_player_table_widget_data(self, updated_values_dict, old_values_dict):
-        try:
-            for steamid, player_dict in updated_values_dict.get("players", {}).items():
-                in_limbo = player_dict["in_limbo"]
-                is_online = player_dict["is_online"]
-
-                if in_limbo and is_online:
-                    css_class = "is_online in_limbo"
-                elif not in_limbo and is_online:
-                    css_class = "is_online"
-                elif in_limbo and not is_online:
-                    css_class = "is_offline in_limbo"
-                else:
-                    css_class = ""
-
-                self.webserver.send_data_to_client(
-                    event_data=player_dict,
-                    data_type="element_content",
-                    clients=list(self.webserver.connected_clients.keys()),
-                    method="update",
-                    target_element={
-                        "id": "player_table_row_{}".format(player_dict["steamid"]),
-                        "type": "tr",
-                        "dummy_id": "player_table_row_",
-                        "class": css_class,
-                        "selector": "body > main > div > div > table > tbody"
-                    }
-                )
-        except AttributeError as error:
-            pass
 
     def run(self):
         next_cycle = 0

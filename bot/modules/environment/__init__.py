@@ -32,55 +32,7 @@ class Environment(Module):
     def setup(self, options=dict):
         Module.setup(self, options)
         self.run_observer_interval = 3
-
-    def start(self):
-        Module.start(self)
-        self.dom.data.register_callback("last_recorded_gametime", self.update_gametime_widget_frontend)
-        # registering all the fields. could just watch module_environment instead in this case
-        self.dom.data.register_callback("webserver_logged_in_users", self.update_webserver_status_widget_frontend)
-        self.dom.data.register_callback("server_is_online", self.update_webserver_status_widget_frontend)
-        self.dom.data.register_callback("shutdown_in_seconds", self.update_webserver_status_widget_frontend)
     # endregion
-
-    def update_gametime_widget_frontend(self, updated_values_dict, old_values_dict):
-        gametime = updated_values_dict.get_diff(old_values_dict)[1]
-        if gametime is None:
-            self.manually_trigger_action(["gettime", {}])
-            return False
-
-        template_frontend = self.templates.get_template('gametime_widget_frontend.html')
-        data_to_emit = template_frontend.render(
-            last_recorded_gametime=gametime,
-        )
-
-        self.webserver.send_data_to_client(
-            event_data=data_to_emit,
-            data_type="widget_content",
-            clients=self.webserver.connected_clients.keys(),
-            target_element={
-                "id": "gametime_widget",
-                "type": "div"
-            }
-        )
-        return gametime
-
-    def update_webserver_status_widget_frontend(self, updated_values_dict, old_values_dict):
-        template_frontend = self.templates.get_template('webserver_status_widget_frontend.html')
-        data_to_emit = template_frontend.render(
-            webserver_logged_in_users=self.dom.data.get(self.get_module_identifier(), {}).get("webserver_logged_in_users", {}),
-            server_is_online=self.dom.data.get("module_telnet").get("server_is_online"),
-            shutdown_in_seconds=self.dom.data.get(self.get_module_identifier(), {}).get("shutdown_in_seconds", None)
-        )
-
-        self.webserver.send_data_to_client(
-            event_data=data_to_emit,
-            data_type="widget_content",
-            clients=self.webserver.connected_clients.keys(),
-            target_element={
-                "id": "webserver_status_widget",
-                "type": "div"
-            }
-        )
 
     def run(self):
         next_cycle = 0

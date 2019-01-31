@@ -18,7 +18,8 @@ def main_function(module, event_data, dispatchers_steamid):
     if cancel_shutdown == 1:
         module.dom.data.upsert({
             module.get_module_identifier(): {
-                "cancel_shutdown": True
+                "cancel_shutdown": True,
+                "shutdown_in_seconds": None
             }
         })
 
@@ -38,7 +39,7 @@ def main_function(module, event_data, dispatchers_steamid):
         )
 
     shutdown_in_seconds = module.dom.data.get(module.get_module_identifier()).get("shutdown_in_seconds", None)
-    if shutdown_in_seconds is None and not alert_admin:  # should only be none if no shutdown task is running!
+    if shutdown_in_seconds is None and not alert_admin and not cancel_shutdown:  # should only be none if no shutdown task is running!
         shutdown_timeout_start = time()
         try:
             shutdown_timeout = int(event_data[1]["timer"])
@@ -48,11 +49,11 @@ def main_function(module, event_data, dispatchers_steamid):
 
         shutdown_canceled = False
         while time() < shutdown_timeout_start + shutdown_timeout:
-            if module.dom.data.get(module.get_module_identifier()).get("cancel_shutdown", False):
+            if module.dom.data.get(module.get_module_identifier()).get("cancel_shutdown", False) is not False:
                 shutdown_canceled = True
                 break
 
-            if module.dom.data.get(module.get_module_identifier()).get("force_shutdown", False):
+            if module.dom.data.get(module.get_module_identifier()).get("force_shutdown", False) is not False:
                 break
 
             module.dom.data.upsert({
@@ -60,7 +61,6 @@ def main_function(module, event_data, dispatchers_steamid):
                     "shutdown_in_seconds": int(shutdown_timeout - (time() - shutdown_timeout_start))
                 }
             })
-            module.update_gameserver_status_widget_frontend()
             sleep(1)
 
         module.dom.data.upsert({
@@ -88,8 +88,6 @@ def main_function(module, event_data, dispatchers_steamid):
                 if match:
                     callback_success(module, event_data, dispatchers_steamid, match)
                     return
-
-        module.update_gameserver_status_widget_frontend()
 
     callback_fail(module, event_data, dispatchers_steamid)
 

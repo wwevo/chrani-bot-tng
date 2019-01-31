@@ -5,7 +5,6 @@ from collections import deque
 root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
-
 loaded_modules_dict = {}  # this will be populated by the imports done next:
 modules_to_start_list = deque()
 started_modules_dict = {}
