@@ -65,7 +65,24 @@ $(document).ready(function() {
             if (target_element_id == null) {
                 return false;
             }
+            let dummy_id = data["target_element"]["dummy_id"];
+            if (dummy_id == null) {
+                dummy_id = "player_table_row_"
+            }
+            let selector = data["target_element"]["selector"];
+            if (selector == null) {
+                selector = "body > main > div > div > table > tbody";
+            }
+
             let parent_element = $('#' + target_element_id);
+            if (parent_element.length === 0) {
+                let text = $('#' + dummy_id).get(0).outerHTML
+                let steamid = data["event_data"]["steamid"].toString()
+                let re = new RegExp(dummy_id, "g");
+                let new_text = text.replace(re, dummy_id + steamid)
+                parent_element = $(selector).upsert('#' + target_element_id, new_text);
+            }
+
             parent_element.setClass(data["target_element"]["class"]);
             let elements_to_update = data["event_data"];
             $.each(elements_to_update, function (key, value) {

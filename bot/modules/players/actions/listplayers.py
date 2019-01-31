@@ -50,7 +50,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         r"ping=(?P<ping>\d+)"
         r"\r\n"
     )
-    online_players_dict = {}
+    players_to_update_dict = {}
     for m in re.finditer(regex, raw_playerdata):
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {
@@ -81,12 +81,22 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "is_ready": True if not in_limbo else False,
             "last_updated": telnet_datetime
         }
-        online_players_dict[m.group("steamid")] = player_dict
+        players_to_update_dict[m.group("steamid")] = player_dict
+
+    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    online_players_list = list(players_to_update_dict.keys())
+    for steamid, player_dict in all_players_dict.items():
+        if steamid == 'last_updated':
+            continue
+
+        if steamid not in online_players_list:
+            player_dict["is_online"] = False
+            players_to_update_dict.update({steamid: player_dict})
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "players": online_players_dict,
-            "online_players": list(online_players_dict.keys())
+            "players": players_to_update_dict,
+            "online_players": online_players_list
         }
     })
 
@@ -94,7 +104,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).items()
+    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     for steamid, player_dict in all_players_dict.items():
         if steamid == 'last_updated':
             continue

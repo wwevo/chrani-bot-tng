@@ -80,6 +80,7 @@ class Players(Module):
             target_element={
                 "id": "player_table_widget",
                 "type": "table",
+                "selector": "body > main > div"
             }
         )
 
@@ -101,11 +102,14 @@ class Players(Module):
                 self.webserver.send_data_to_client(
                     event_data=player_dict,
                     data_type="element_content",
-                    clients=self.webserver.connected_clients.keys(),
+                    clients=list(self.webserver.connected_clients.keys()),
                     method="update",
                     target_element={
                         "id": "player_table_row_{}".format(player_dict["steamid"]),
-                        "class": css_class
+                        "type": "tr",
+                        "dummy_id": "player_table_row_",
+                        "class": css_class,
+                        "selector": "body > main > div > div > table > tbody"
                     }
                 )
         except AttributeError as error:
