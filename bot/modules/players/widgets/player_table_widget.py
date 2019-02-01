@@ -59,20 +59,19 @@ def main_widget(module):
 def update_widget(module, updated_values_dict, old_values_dict):
     try:
         for steamid, player_dict in updated_values_dict.get("players", {}).items():
-            if player_dict["is_online"] is True:
-                module.webserver.send_data_to_client(
-                    event_data=player_dict,
-                    data_type="element_content",
-                    clients=module.webserver.connected_clients.keys(),
-                    method="update",
-                    target_element={
-                        "id": "player_table_row_{}".format(player_dict["steamid"]),
-                        "type": "tr",
-                        "dummy_id": "player_table_row_",
-                        "class": get_css_class(player_dict),
-                        "selector": "body > main > div > div > table > tbody"
-                    }
-                )
+            module.webserver.send_data_to_client(
+                event_data=player_dict,
+                data_type="element_content",
+                clients=module.webserver.connected_clients.keys(),
+                method="update",
+                target_element={
+                    "id": "player_table_row_{}".format(player_dict["steamid"]),
+                    "type": "tr",
+                    "dummy_id": "player_table_row_",
+                    "class": get_css_class(player_dict),
+                    "selector": "body > main > div > div > table > tbody"
+                }
+            )
     except AttributeError as error:
         pass
 

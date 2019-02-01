@@ -89,7 +89,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         if steamid == 'last_updated':
             continue
 
-        if steamid not in online_players_list:
+        if steamid not in online_players_list and player_dict["is_online"] is True:
             player_dict["is_online"] = False
             players_to_update_dict.update({steamid: player_dict})
 
