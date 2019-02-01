@@ -120,7 +120,7 @@ class Webserver(Module):
             for data_package in data_packages_to_send:
                 if not isinstance(data_package[0]["event_data"], list):
                     print(len(data_package[0]["event_data"].encode('utf-8')))
-                print(data_package[0]["event_data"])
+
                 self.websocket.emit(
                     'data',
                     data_package[0],
