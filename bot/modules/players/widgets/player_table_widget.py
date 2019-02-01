@@ -63,7 +63,7 @@ def update_widget(module, updated_values_dict, old_values_dict):
                 module.webserver.send_data_to_client(
                     event_data=player_dict,
                     data_type="element_content",
-                    clients=list(module.webserver.connected_clients.keys()),
+                    clients=module.webserver.connected_clients.keys(),
                     method="update",
                     target_element={
                         "id": "player_table_row_{}".format(player_dict["steamid"]),
