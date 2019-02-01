@@ -40,7 +40,6 @@ class CallbackDict(dict, object):
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, d_v)
 
-
     def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False):
         if dict_to_update is None:
             dict_to_update = self

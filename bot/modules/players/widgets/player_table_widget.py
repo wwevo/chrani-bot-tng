@@ -8,8 +8,8 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def get_css_class(player_dict):
-    in_limbo = player_dict["in_limbo"]
-    is_online = player_dict["is_online"]
+    in_limbo = player_dict.get("in_limbo", False)
+    is_online = player_dict.get("is_online", False)
 
     if in_limbo and is_online:
         css_class = "is_online in_limbo"

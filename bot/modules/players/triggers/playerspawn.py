@@ -6,8 +6,26 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, regex_result):
-    print(module.getName())
+    print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     print(regex_result.group("reason"))
+    # if regex_result.group("reason") == "Teleport":
+    #     player_dict = {
+    #         "steamid": regex_result.group("player_steamid"),
+    #         "is_online": True,
+    #         "in_limbo": False,
+    #         "pos": {
+    #             "x": int(float(regex_result.group("pos_x"))),
+    #             "y": int(float(regex_result.group("pos_y"))),
+    #             "z": int(float(regex_result.group("pos_z"))),
+    #         }
+    #     }
+    #     module.dom.data.upsert({
+    #         module.get_module_identifier(): {
+    #             "players": {
+    #                 regex_result.group("player_steamid"): player_dict
+    #             }
+    #         }
+    #     })
 
 
 trigger_meta = {

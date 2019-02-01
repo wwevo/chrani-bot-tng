@@ -11,6 +11,7 @@ class Triggers(Module):
             "module_name": self.get_module_identifier()[7:]
         })
         setattr(self, "required_modules", [
+            "module_dom",
             "module_telnet",
             "module_webserver"
         ])
