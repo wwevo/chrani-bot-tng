@@ -118,7 +118,7 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
-                if not isinstance(data_package[0]["event_data"], Mapping):
+                if not isinstance(data_package[0]["event_data"], list) and not isinstance(data_package[0]["event_data"], dict):
                     print(len(data_package[0]["event_data"].encode('utf-8')))
 
                 self.websocket.emit(
