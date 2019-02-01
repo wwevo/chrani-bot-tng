@@ -120,10 +120,7 @@ $(document).ready(function() {
                 $el.append(data["event_data"]);
             } else if (data["method"] === "prepend") {
                 $el.find(target_element_type).prepend(data["event_data"]);
-                let entries = $el.find('li');
-                if (entries.length >= 50) {
-                    entries.last().remove();
-                }
+                $('#telnet_log_widget ul li').length = 10;
             }
         } else if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");

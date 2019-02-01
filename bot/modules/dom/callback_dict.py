@@ -13,6 +13,34 @@ class CallbackDict(dict, object):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
+    def append(self, updated_values_dict, dict_to_update=None):
+        if dict_to_update is None:
+            dict_to_update = self
+
+        for k, v in updated_values_dict.items():
+            if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
+                Thread(
+                    target=self.registered_callbacks[k]["callback"],
+                    args=(
+                        self.registered_callbacks[k]["module"], CallbackDict(updated_values_dict), dict_to_update
+                    )
+                ).start()
+
+                try:
+                    dict_to_update[k].append(v)
+                except KeyError:
+                    dict_to_update[k] = []
+                    dict_to_update[k].append(v)
+                except AttributeError:
+                    pass
+
+                return
+
+            d_v = dict_to_update.get(k)
+            if isinstance(v, Mapping) and isinstance(d_v, Mapping):
+                self.append(v, d_v)
+
+
     def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False):
         if dict_to_update is None:
             dict_to_update = self

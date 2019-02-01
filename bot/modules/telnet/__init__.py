@@ -284,9 +284,9 @@ class Telnet(Module):
                         self.valid_telnet_lines.append(valid_telnet_line)
 
                         if len(self.webserver.connected_clients) >= 1:
-                            self.dom.data.upsert({
+                            self.dom.data.append({
                                 self.get_module_identifier(): {
-                                    "telnet_lines": self.valid_telnet_lines
+                                    "telnet_lines": valid_telnet_line
                                 }
                             })
 

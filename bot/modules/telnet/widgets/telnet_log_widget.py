@@ -35,12 +35,10 @@ def main_widget(module):
 
 def update_widget(module, updated_values_dict, old_values_dict):
     telnet_log_line = module.templates.get_template('telnet_log_widget_log_line.html')
-    data_to_emit = ""
-    reversed_logs = reversed(updated_values_dict["telnet_lines"])
-    for telnet_line in reversed_logs:
-        data_to_emit += telnet_log_line.render(
-            log_line=telnet_line
-        )
+
+    data_to_emit = telnet_log_line.render(
+        log_line=updated_values_dict["telnet_lines"]
+    )
 
     module.webserver.send_data_to_client(
         method="prepend",

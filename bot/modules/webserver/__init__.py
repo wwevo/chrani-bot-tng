@@ -1,11 +1,7 @@
 """ some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
 #if not debug:
 from gevent import monkey
-print("monkey-patching status: {}".format(monkey.patch_all()))
-
-#if not debug:
-#import eventlet
-#eventlet.monkey_patch()
+monkey.patch_all()
 
 from os import path, chdir
 root_dir = path.dirname(path.abspath(__file__))
@@ -25,7 +21,7 @@ from flask_login import LoginManager, login_required, login_user, current_user, 
 from flask_socketio import SocketIO, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
-from collections import KeysView
+from collections import KeysView, Mapping
 
 
 class Webserver(Module):
@@ -122,6 +118,9 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
+                if not isinstance(data_package[0]["event_data"], list):
+                    print(len(data_package[0]["event_data"].encode('utf-8')))
+                print(data_package[0]["event_data"])
                 self.websocket.emit(
                     'data',
                     data_package[0],
