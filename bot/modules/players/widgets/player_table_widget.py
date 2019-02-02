@@ -18,7 +18,7 @@ def get_css_class(player_dict):
     elif in_limbo and not is_online:
         css_class = "is_offline in_limbo"
     else:
-        css_class = "is_offline"
+        css_class = ""
 
     return css_class
 
