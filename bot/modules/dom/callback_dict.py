@@ -13,16 +13,20 @@ class CallbackDict(dict, object):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
-    def append(self, updated_values_dict, dict_to_update=None):
+    def append(self, updated_values_dict, dict_to_update=None, path=None):
         if dict_to_update is None:
             dict_to_update = self
+        if path is None:
+            path = []
 
         for k, v in updated_values_dict.items():
-            if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
+            path.append(k)
+            full_path = "/".join(path)
+            if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 Thread(
-                    target=self.registered_callbacks[k]["callback"],
+                    target=self.registered_callbacks[full_path]["callback"],
                     args=(
-                        self.registered_callbacks[k]["module"], CallbackDict(updated_values_dict), dict_to_update
+                        self.registered_callbacks[full_path]["module"], CallbackDict(updated_values_dict), dict_to_update
                     )
                 ).start()
 
@@ -38,7 +42,7 @@ class CallbackDict(dict, object):
 
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.append(v, d_v)
+                self.append(v, d_v, path=path)
 
     def update_value(self, dict_to_update, key, value):
         dict_to_update[key] = value  # or d[k] = v if you know what you're doing
