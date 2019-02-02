@@ -80,7 +80,7 @@ widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": main_widget,
     "handlers": {
-        "players": update_widget
+        "module_players/players": update_widget
     }
 }
 

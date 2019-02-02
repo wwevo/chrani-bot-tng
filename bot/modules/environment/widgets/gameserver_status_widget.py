@@ -37,10 +37,10 @@ widget_meta = {
     "description": "shows gameserver status, shut it down. or don't ^^",
     "main_widget": main_widget,
     "handlers": {
-        "server_is_online": main_widget,
-        "shutdown_in_seconds": main_widget,
-        "cancel_shutdown": main_widget,
-        "force_shutdown": main_widget
+        "module_telnet/server_is_online": main_widget,
+        "module_telnet/shutdown_in_seconds": main_widget,
+        "module_telnet/cancel_shutdown": main_widget,
+        "module_telnet/force_shutdown": main_widget
     }
 }
 

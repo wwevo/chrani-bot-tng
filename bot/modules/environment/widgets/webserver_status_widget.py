@@ -54,7 +54,7 @@ widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": main_widget,
     "handlers": {
-        "webserver_logged_in_users": update_widget
+        "module_environment/webserver_logged_in_users": update_widget
     }
 }
 
