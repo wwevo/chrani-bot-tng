@@ -78,7 +78,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "ping": int(float(m.group("ping"))),
             "in_limbo": in_limbo,
             "is_online": True,
-            "is_ready": True if not in_limbo else False,
+            "is_initialized": True,
             "last_updated": telnet_datetime
         }
         players_to_update_dict[m.group("steamid")] = player_dict
@@ -86,7 +86,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     online_players_list = list(players_to_update_dict.keys())
     for steamid, player_dict in all_players_dict.items():
-        if steamid == 'last_updated':
+        if steamid == 'last_updated' or player_dict["is_initialized"] is False:
             continue
 
         if steamid not in online_players_list and player_dict["is_online"] is True:

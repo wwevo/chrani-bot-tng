@@ -7,25 +7,8 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(module, regex_result):
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
-    print(regex_result.group("reason"))
-    # if regex_result.group("reason") == "Teleport":
-    #     player_dict = {
-    #         "steamid": regex_result.group("player_steamid"),
-    #         "is_online": True,
-    #         "in_limbo": False,
-    #         "pos": {
-    #             "x": int(float(regex_result.group("pos_x"))),
-    #             "y": int(float(regex_result.group("pos_y"))),
-    #             "z": int(float(regex_result.group("pos_z"))),
-    #         }
-    #     }
-    #     module.dom.data.upsert({
-    #         module.get_module_identifier(): {
-    #             "players": {
-    #                 regex_result.group("player_steamid"): player_dict
-    #             }
-    #         }
-    #     })
+    command = regex_result.group("command")
+    print(command)
 
 
 trigger_meta = {
@@ -37,7 +20,7 @@ trigger_meta = {
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"PlayerSpawnedInWorld\s"
                 r"\("
-                r"reason: (?P<reason>.+?),\s"
+                r"reason: (?P<command>.+?),\s"
                 r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
                 r"\):\s"
                 r"EntityID=(?P<entity_id>.*),\s"
@@ -49,7 +32,7 @@ trigger_meta = {
         }, {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Player (?P<reason>.*): "
+                r"Player (?P<command>.*): "
                 r"EntityID=(?P<entity_id>.*), "
                 r"PlayerID=\'(?P<player_steamid>.*)\', "
                 r"OwnerID=\'(?P<owner_id>.*)\', "
@@ -59,7 +42,7 @@ trigger_meta = {
         }, {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"GMSG:\sPlayer\s\'(?P<player_name>.*)\'\s(?P<reason>.*)$"
+                r"GMSG:\sPlayer\s\'(?P<player_name>.*)\'\s(?P<command>.*)$"
             ),
             "callback": main_function
         }
