@@ -209,11 +209,6 @@ class Telnet(Module):
                 try:
                     telnet_response = self.tn.read_very_eager().decode("utf-8")
                 except (AttributeError, EOFError, ConnectionAbortedError) as error:
-                    self.dom.data.upsert({
-                        self.get_module_identifier(): {
-                            "server_is_online": False
-                        }
-                    })
                     try:
                         self.setup_telnet()
                         self.dom.data.upsert({
@@ -223,6 +218,11 @@ class Telnet(Module):
                         })
 
                     except (OSError, Exception) as error:
+                        self.dom.data.upsert({
+                            self.get_module_identifier(): {
+                                "server_is_online": False
+                            }
+                        })
                         self.telnet_buffer = ""
                         telnet_response = ""
                         last_connection_loss = time()
