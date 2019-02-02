@@ -7,13 +7,18 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module):
+def main_widget(module, updated_values_dict=None, old_values_dict=None):
     webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get("webserver_logged_in_users", {})
+
+    try:
+        server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
+    except AttributeError as error:
+        server_is_online = True
 
     template_frontend = module.templates.get_template('webserver_status_widget_frontend.html')
     data_to_emit = template_frontend.render(
         webserver_logged_in_users=webserver_logged_in_users,
-        server_is_online=module.dom.data.get("module_telnet").get("server_is_online")
+        server_is_online=server_is_online
     )
 
     module.webserver.send_data_to_client(
@@ -54,7 +59,7 @@ widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": main_widget,
     "handlers": {
-        "webserver_logged_in_users": update_widget
+        "module_environment/webserver_logged_in_users": update_widget
     }
 }
 

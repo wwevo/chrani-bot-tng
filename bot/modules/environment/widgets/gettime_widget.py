@@ -38,7 +38,7 @@ widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": None,
     "handlers": {
-        "last_recorded_gametime": update_widget
+        "module_environment/last_recorded_gametime": update_widget
     }
 }
 

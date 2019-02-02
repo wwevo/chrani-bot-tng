@@ -11,8 +11,15 @@ def main_widget(module, updated_values_dict=None, old_values_dict=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     if updated_values_dict is None:
-        server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
-        shutdown_in_seconds = module.dom.data.get("module_telnet").get("shutdown_in_seconds")
+        try:
+            server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
+        except AttributeError as error:
+            server_is_online = True
+
+        try:
+            shutdown_in_seconds = module.dom.data.get("module_telnet").get("shutdown_in_seconds")
+        except AttributeError as error:
+            shutdown_in_seconds = None
     else:
         server_is_online = updated_values_dict.get("server_is_online", True)
         shutdown_in_seconds = updated_values_dict.get("shutdown_in_seconds", None)
@@ -37,10 +44,10 @@ widget_meta = {
     "description": "shows gameserver status, shut it down. or don't ^^",
     "main_widget": main_widget,
     "handlers": {
-        "server_is_online": main_widget,
-        "shutdown_in_seconds": main_widget,
-        "cancel_shutdown": main_widget,
-        "force_shutdown": main_widget
+        "module_environment/server_is_online": main_widget,
+        "module_environment/shutdown_in_seconds": main_widget,
+        "module_environment/cancel_shutdown": main_widget,
+        "module_environment/force_shutdown": main_widget
     }
 }
 

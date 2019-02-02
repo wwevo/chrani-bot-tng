@@ -16,7 +16,7 @@ widget_meta = {
     "description": "for now, this just prints the admin list when changed ^^",
     "main_widget": None,
     "handlers": {
-        "admins": update_widget
+        "module_players/admins": update_widget
     }
 }
 

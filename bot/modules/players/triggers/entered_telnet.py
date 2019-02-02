@@ -9,17 +9,50 @@ def main_function(module, regex_result):
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
     print(command)
+    executed_trigger = False
     if command == "Authenticating":
+        player_steamid = regex_result.group("player_steamid")
+
+        player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(player_steamid)
+        if player_dict is None:
+            player_dict = {
+                "name": regex_result.group("player_name"),
+                "steamid": player_steamid
+            }
+
+        player_dict["is_online"] = False
+        player_dict["in_limbo"] = True
+        player_dict["is_initialized"] = False
+
+        executed_trigger = True
+
+    if command == "connected":
+        player_steamid = regex_result.group("player_steamid")
+
+        player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(player_steamid)
+        if player_dict is None:
+            player_dict = {
+                "name": regex_result.group("player_name"),
+                "steamid": player_steamid,
+            }
+
+        player_dict["id"] = regex_result.group("entity_id")
+        player_dict["ip"] = regex_result.group("player_ip")
+        player_dict["is_online"] = False
+        player_dict["in_limbo"] = True
+        player_dict["is_initialized"] = False
+
+        executed_trigger = True
+
+    if executed_trigger is True:
         module.dom.data.upsert({
             "module_players": {
                 "players": {
-                    regex_result.group("player_steamid"): {
-                        "steamid": regex_result.group("player_steamid"),
-                        "in_limbo": True
-                    }
+                    player_steamid: player_dict
                 }
             }
         })
+        print(player_dict)
 
 
 trigger_meta = {
