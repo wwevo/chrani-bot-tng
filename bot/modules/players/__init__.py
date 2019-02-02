@@ -37,6 +37,7 @@ class Players(Module):
 
     def run(self):
         next_cycle = 0
+        self.manually_trigger_action(["listadmins", {}])
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 

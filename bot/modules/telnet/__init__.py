@@ -1,7 +1,7 @@
 import re
 from bot.module import Module
 from bot import loaded_modules_dict
-from time import time
+from time import time, sleep
 from collections import deque
 import telnetlib
 
@@ -209,13 +209,6 @@ class Telnet(Module):
                 try:
                     telnet_response = self.tn.read_very_eager().decode("utf-8")
                 except (AttributeError, EOFError, ConnectionAbortedError) as error:
-                    self.dom.data.upsert({
-                        self.get_module_identifier(): {
-                            "server_is_online": False
-                        }
-                    })
-                    self.telnet_buffer = ""
-
                     try:
                         self.setup_telnet()
                         self.dom.data.upsert({
@@ -225,6 +218,12 @@ class Telnet(Module):
                         })
 
                     except (OSError, Exception) as error:
+                        self.dom.data.upsert({
+                            self.get_module_identifier(): {
+                                "server_is_online": False
+                            }
+                        })
+                        self.telnet_buffer = ""
                         last_connection_loss = time()
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")

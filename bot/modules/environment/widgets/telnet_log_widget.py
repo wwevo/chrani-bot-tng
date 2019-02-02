@@ -13,7 +13,7 @@ def main_widget(module):
 
     if len(module.webserver.connected_clients) >= 1:
         log_lines = ""
-        for line in module.valid_telnet_lines:
+        for line in module.telnet.valid_telnet_lines:
             log_lines += log_line.render(
                 log_line=line
             )
