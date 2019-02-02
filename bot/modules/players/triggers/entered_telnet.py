@@ -7,6 +7,19 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(module, regex_result):
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
+    command = regex_result.group("command")
+    print(command)
+    if command == "Authenticating":
+        module.dom.data.upsert({
+            "module_players": {
+                "players": {
+                    regex_result.group("player_steamid"): {
+                        "steamid": regex_result.group("player_steamid"),
+                        "in_limbo": True
+                    }
+                }
+            }
+        })
 
 
 trigger_meta = {
