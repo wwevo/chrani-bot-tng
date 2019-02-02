@@ -26,17 +26,23 @@ class Action(object):
             pass
 
     def manually_trigger_action(self, event_data):
-        if not self.dom.data.get("module_telnet", {}).get("server_is_online", False):
-            pass
-
         action_identifier = event_data[0]
         if action_identifier in self.available_actions_dict:
-            status = "found requested action '{}'".format(action_identifier)
-            Thread(
-                target=self.available_actions_dict[action_identifier]["main_function"],
-                args=(self, event_data)
-            ).start()
-        else:
-            status = "could not find requested action '{}'".format(action_identifier)
+            status_message = "found requested action '{}'".format(action_identifier)
 
-        print(status)
+            server_is_online = self.dom.data.get("module_telnet", {}).get("server_is_online", False)
+            action_requires_server_to_be_online = self.available_actions_dict[action_identifier].get(
+                "requires_telnet_connection", False
+            )
+            if server_is_online is True or action_requires_server_to_be_online is not True:
+                Thread(
+                    target=self.available_actions_dict[action_identifier]["main_function"],
+                    args=(self, event_data)
+                ).start()
+            else:
+                status_message = "action '{}' requires an active telnet connection!".format(action_identifier)
+
+        else:
+            status_message = "could not find requested action '{}'".format(action_identifier)
+
+        print(status_message)

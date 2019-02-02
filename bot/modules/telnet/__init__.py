@@ -215,20 +215,21 @@ class Telnet(Module):
                             self.get_module_identifier(): {
                                 "server_is_online": True
                             }
-                        })
+                        }, overwrite=True)
 
                     except (OSError, Exception) as error:
                         self.dom.data.upsert({
                             self.get_module_identifier(): {
                                 "server_is_online": False
                             }
-                        })
+                        }, overwrite=True)
                         self.telnet_buffer = ""
+                        telnet_response = ""
                         last_connection_loss = time()
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
-
-                    telnet_response = ""
+                except Exception as error:
+                    print("########### Unforeseen Error: {}".format(type(error)))
 
             if len(telnet_response) > 0:
                 self.telnet_buffer += telnet_response.lstrip()
@@ -291,7 +292,8 @@ class Telnet(Module):
 
                     response_count += 1
 
-            self.execute_telnet_command_queue()
+            if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
+                self.execute_telnet_command_queue()
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

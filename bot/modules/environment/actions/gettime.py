@@ -51,7 +51,8 @@ action_meta = {
     "description": "gets the current gettime readout",
     "main_function": main_function,
     "callback_success": callback_success,
-    "callback_fail": callback_fail
+    "callback_fail": callback_fail,
+    "requires_telnet_connection": True
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

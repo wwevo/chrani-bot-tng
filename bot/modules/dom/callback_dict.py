@@ -46,7 +46,6 @@ class CallbackDict(dict, object):
 
         for k, v in updated_values_dict.items():
             if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
-                # we will only call the callback if stuff has actually changed ^^
                 Thread(
                     target=self.registered_callbacks[k]["callback"],
                     args=(
