@@ -40,11 +40,15 @@ class CallbackDict(dict, object):
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, d_v)
 
+    def update_value(self, dict_to_update, key, value):
+        dict_to_update[key] = value  # or d[k] = v if you know what you're doing
+
     def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False):
         if dict_to_update is None:
             dict_to_update = self
 
         for k, v in updated_values_dict.items():
+            forced_overwrite = False
             if len(self.registered_callbacks) >= 1 and k in self.registered_callbacks.keys():
                 Thread(
                     target=self.registered_callbacks[k]["callback"],
@@ -53,14 +57,15 @@ class CallbackDict(dict, object):
                     )
                 ).start()
                 if overwrite is True:
-                    dict_to_update[k] = v
-                    return
+                    forced_overwrite = True
+                    self.update_value(dict_to_update, k, v)
 
             d_v = dict_to_update.get(k)
-            if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.upsert(v, d_v, overwrite=overwrite)
-            else:
-                dict_to_update[k] = v  # or d[k] = v if you know what you're doing
+            if not forced_overwrite:
+                if isinstance(v, Mapping) and isinstance(d_v, Mapping):
+                    self.upsert(v, d_v, overwrite=overwrite)
+                else:
+                    self.update_value(dict_to_update, k, v)
 
     def register_callback(self, module, dict_to_monitor, callback):
         self.registered_callbacks[dict_to_monitor] = {

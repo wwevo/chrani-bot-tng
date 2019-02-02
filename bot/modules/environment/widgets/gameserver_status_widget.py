@@ -10,8 +10,12 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 def main_widget(module, updated_values_dict=None, old_values_dict=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
-    server_is_online = module.dom.data.get("module_telnet").get("server_is_online", False)
-    shutdown_in_seconds = module.dom.data.get("module_telnet").get("shutdown_in_seconds", None)
+    if updated_values_dict is None:
+        server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
+        shutdown_in_seconds = module.dom.data.get("module_telnet").get("shutdown_in_seconds")
+    else:
+        server_is_online = updated_values_dict.get("server_is_online", True)
+        shutdown_in_seconds = updated_values_dict.get("shutdown_in_seconds", None)
 
     data_to_emit = template_frontend.render(
         server_is_online=server_is_online,
