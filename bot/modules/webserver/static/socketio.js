@@ -70,16 +70,13 @@ $(document).ready(function() {
                 dummy_id = "player_table_row_"
             }
             let selector = data["target_element"]["selector"];
-            if (selector == null) {
-                selector = "body > main > div > div > table > tbody";
-            }
 
             let parent_element = $('#' + target_element_id);
             if (parent_element.length === 0) {
-                let text = $('#' + dummy_id).get(0).outerHTML
-                let steamid = data["event_data"]["steamid"].toString()
+                let text = $('#' + dummy_id).get(0).outerHTML;
+                let steamid = data["event_data"]["steamid"].toString();
                 let re = new RegExp(dummy_id, "g");
-                let new_text = text.replace(re, dummy_id + steamid)
+                let new_text = text.replace(re, dummy_id + steamid);
                 parent_element = $(selector).upsert('#' + target_element_id, new_text);
             }
 
@@ -105,19 +102,15 @@ $(document).ready(function() {
             if (target_element_id == null) {
                 return false;
             }
-            let target_element_type = data["target_element"]["type"];
-            if (target_element_type == null) {
-                target_element_type = "div";
-            }
             let selector = data["target_element"]["selector"];
-            if (selector == null) {
-                selector = "body > main > div";
-            }
             let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
+
             if (data["method"] === "update") {
                 $el.html(data["event_data"]);
+
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
+
             } else if (data["method"] === "prepend") {
                 $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
                 $el.prepend(data["event_data"]);

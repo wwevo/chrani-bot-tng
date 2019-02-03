@@ -7,7 +7,26 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def update_widget(module, updated_values_dict, old_values_dict):
+def main_widget(module):
+    template_frontend = module.templates.get_template('gametime_widget_frontend.html')
+    gametime = module.dom.data.get("module_environment").get("last_recorded_gametime", True)
+    data_to_emit = template_frontend.render(
+        last_recorded_gametime=gametime,
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=module.webserver.connected_clients.keys(),
+        target_element={
+            "id": "gametime_widget",
+            "type": "div",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def update_widget(module, updated_values_dict=None, old_values_dict=None):
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = old_values_dict.get("last_recorded_gametime", None)
     if gametime is None:
@@ -28,7 +47,8 @@ def update_widget(module, updated_values_dict, old_values_dict):
         clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "gametime_widget",
-            "type": "div"
+            "type": "div",
+            "selector": "body > main > div"
         }
     )
     return gametime
@@ -36,7 +56,7 @@ def update_widget(module, updated_values_dict, old_values_dict):
 
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
-    "main_widget": None,
+    "main_widget": main_widget,
     "handlers": {
         "module_environment/last_recorded_gametime": update_widget
     }

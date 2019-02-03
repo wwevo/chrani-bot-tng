@@ -23,7 +23,7 @@ def get_css_class(player_dict):
     return css_class
 
 
-def main_widget(module, updated_values_dict=None, old_values_dict=None):
+def main_widget(module):
     template_frontend = module.templates.get_template('player_table_widget_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
 
@@ -56,7 +56,7 @@ def main_widget(module, updated_values_dict=None, old_values_dict=None):
     )
 
 
-def update_widget(module, updated_values_dict, old_values_dict):
+def update_widget(module, updated_values_dict=None, old_values_dict=None):
     for steamid, player_dict in updated_values_dict.get("players", {}).items():
         try:
             module.webserver.send_data_to_client(

@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, updated_values_dict=None, old_values_dict=None):
+def main_widget(module):
     webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get("webserver_logged_in_users", {})
 
     try:
@@ -27,12 +27,13 @@ def main_widget(module, updated_values_dict=None, old_values_dict=None):
         clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "webserver_status_widget",
-            "type": "div"
+            "type": "div",
+            "selector": "body > main > div"
         }
     )
 
 
-def update_widget(module, updated_values_dict, old_values_dict):
+def update_widget(module, updated_values_dict=None, old_values_dict=None):
     webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
     old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
     if webserver_logged_in_users == old_webserver_logged_in_users:
@@ -50,7 +51,8 @@ def update_widget(module, updated_values_dict, old_values_dict):
         clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "webserver_status_widget",
-            "type": "div"
+            "type": "div",
+            "selector": "body > main > div"
         }
     )
 

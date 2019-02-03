@@ -28,12 +28,13 @@ def main_widget(module):
             method="update",
             target_element={
                 "id": "telnet_log_widget",
-                "type": "ul"
+                "type": "ul",
+                "selector": "body > main > div"
             }
         )
 
 
-def update_widget(module, updated_values_dict, old_values_dict):
+def update_widget(module, updated_values_dict=None, old_values_dict=None):
     telnet_log_line = module.templates.get_template('telnet_log_widget_log_line.html')
 
     data_to_emit = telnet_log_line.render(
@@ -47,7 +48,8 @@ def update_widget(module, updated_values_dict, old_values_dict):
         clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "telnet_log_widget",
-            "type": "ul"
+            "type": "ul",
+            "selector": "body > main > div"
         }
     )
 
