@@ -59,12 +59,35 @@ $(document).ready(function() {
             15000);
     });
 
-    function request_player_table_widget_row(widget, widget_id, row_id) {
-        window.socket.emit('widget_event', ['players', ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
+    function request_player_table_widget_row(module, widget, widget_id, row_id) {
+        window.socket.emit('widget_event', [module, ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
     }
 
     window.socket.on('data', function(data) {
-        if (data["data_type"] === "player_table_widget_row") {
+        if (data["data_type"] === "widget_content") {
+            let target_element_id = data["target_element"]["id"];
+            if (target_element_id == null) {
+                return false;
+            }
+            let selector = data["target_element"]["selector"];
+            let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
+
+            if (data["method"] === "update") {
+                $el.html(data["event_data"]);
+
+            } else if (data["method"] === "append") {
+                $el.append(data["event_data"]);
+
+            } else if (data["method"] === "prepend") {
+                $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
+                $el.prepend(data["event_data"]);
+                let $entries = $el.find('li');
+                if ($entries.length >= 50) {
+                    $entries.last().remove();
+                }
+            }
+        }
+        if (data["data_type"] === "table_row") {
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
@@ -74,7 +97,7 @@ $(document).ready(function() {
             let parent_element = $(selector);
             parent_element.append(data["event_data"]);
         }
-        if (data["data_type"] === "player_table_widget_row_content") {
+        if (data["data_type"] === "table_row_content") {
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
@@ -84,7 +107,12 @@ $(document).ready(function() {
             let parent_element = $('#' + target_element_id + '_' + data["event_data"]["steamid"]);
             if (parent_element.length === 0) {
                 /* seems like the container we want ain't here- let's request it */
-                request_player_table_widget_row(data["target_element"]["parent_id"], target_element_id, data["event_data"]["steamid"]);
+                request_player_table_widget_row(
+                    data["target_element"]["module"],
+                    data["target_element"]["parent_id"],
+                    target_element_id,
+                    data["event_data"]["steamid"]
+                );
                 return false;
             }
 
@@ -143,28 +171,6 @@ $(document).ready(function() {
                     }
                 }
             });
-        } else if (data["data_type"] === "widget_content") {
-            let target_element_id = data["target_element"]["id"];
-            if (target_element_id == null) {
-                return false;
-            }
-            let selector = data["target_element"]["selector"];
-            let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
-
-            if (data["method"] === "update") {
-                $el.html(data["event_data"]);
-
-            } else if (data["method"] === "append") {
-                $el.append(data["event_data"]);
-
-            } else if (data["method"] === "prepend") {
-                $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
-                $el.prepend(data["event_data"]);
-                let $entries = $el.find('li');
-                if ($entries.length >= 50) {
-                    $entries.last().remove();
-                }
-            }
         } else if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
         } else if (data["data_type"] === "alert_message") {

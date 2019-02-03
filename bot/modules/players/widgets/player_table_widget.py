@@ -67,7 +67,7 @@ def component_widget(module, event_data, dispatchers_steamid):
 
     module.webserver.send_data_to_client(
         event_data=table_row,
-        data_type="player_table_widget_row",
+        data_type="table_row",
         clients=module.webserver.connected_clients.keys(),
         method="update",
         target_element={
@@ -84,12 +84,13 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
         try:
             module.webserver.send_data_to_client(
                 event_data=player_dict,
-                data_type="player_table_widget_row_content",
+                data_type="table_row_content",
                 clients=module.webserver.connected_clients.keys(),
                 method="update",
                 target_element={
                     "id": "player_table_row",
                     "parent_id": "player_table_widget",
+                    "module": "players",
                     "type": "tr",
                     "class": get_css_class(player_dict),
                     "selector": "body > main > div > div > table > tbody"
