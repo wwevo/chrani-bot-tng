@@ -1,24 +1,24 @@
-<tr id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
-    <td id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_name">{%- if player -%}{{ player.name }}{%- endif -%}</td>
-    <td id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_id">{%- if player -%}{{ player.id }}{%- endif -%}</td>
-    <td id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_steamid" onclick="$(this).selectText();">{%- if player -%}{{ player.steamid }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_health">{%- if player -%}{{ player.health }}{%- endif -%}</td>
+<tr id="player_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}{%- endif -%}">
+    <td id="player_table_row_{{ player.steamid }}_name">{{ player.name }}</td>
+    <td id="player_table_row_{{ player.steamid }}_id">{{ player.id }}</td>
+    <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_health">{{ player.health }}</td>
     <td class="position" onclick="$(this).selectText();">
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_pos_x">{%- if player -%}{{ player.pos.x }}{%- endif -%}</span>
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_pos_y">{%- if player -%}{{ player.pos.y }}{%- endif -%}</span>
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_pos_z">{%- if player -%}{{ player.pos.z }}{%- endif -%}</span>
+        <span id="player_table_row_{{ player.steamid }}_pos_x">{{ ((player | default({})).pos | default({}) ).x | default('0') }}</span>
+        <span id="player_table_row_{{ player.steamid }}_pos_y">{{ ((player | default({})).pos | default({}) ).y | default('0') }}</span>
+        <span id="player_table_row_{{ player.steamid }}_pos_z">{{ ((player | default({})).pos | default({}) ).z | default('0') }}</span>
     </td>
     <td class="position">
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_rot_x">{%- if player -%}{{ player.rot.x }}{%- endif -%}</span>
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_rot_y">{%- if player -%}{{ player.rot.y }}{%- endif -%}</span>
-        <span id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_rot_z">{%- if player -%}{{ player.rot.z }}{%- endif -%}</span>
+        <span id="player_table_row_{{ player.steamid }}_rot_x">{{ ((player | default({})).rot | default({}) ).x | default('0') }}</span>
+        <span id="player_table_row_{{ player.steamid }}_rot_y">{{ ((player | default({})).rot | default({}) ).y | default('0') }}</span>
+        <span id="player_table_row_{{ player.steamid }}_rot_z">{{ ((player | default({})).rot | default({}) ).z | default('0') }}</span>
     </td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_level">{%- if player -%}{{ player.level }}{%- endif -%}</td>
-    <td onclick="$(this).selectText();" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_ip">{%- if player -%}{{ player.ip }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_ping">{%- if player -%}{{ player.ping }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_deaths">{%- if player -%}{{ player.deaths }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_zombies">{%- if player -%}{{ player.zombies }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_players">{%- if player -%}{{ player.players }}{%- endif -%}</td>
-    <td class="center" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_score">{%- if player -%}{{ player.score }}{%- endif -%}</td>
-    <td class="nobr right" id="player_table_row_{%- if player -%}{{ player.steamid }}{%- endif -%}_last_updated">{%- if player -%}{{ player.last_updated }}{%- endif -%}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_level">{{ player.level }}</td>
+    <td onclick="$(this).selectText();" id="player_table_row_{{ player.steamid }}_ip">{{ player.ip }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_ping">{{ player.ping }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_players">{{ player.players }}</td>
+    <td class="center" id="player_table_row_{{ player.steamid }}_score">{{ player.score }}</td>
+    <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_updated">{{ player.last_updated }}</td>
 </tr>

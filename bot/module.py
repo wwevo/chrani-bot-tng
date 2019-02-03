@@ -83,6 +83,8 @@ class Module(Thread, Action, Trigger, Template, Widget):
             # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
             self.emit_event_status(event_data, dispatchers_steamid, status)
 
+        Widget.on_socket_event(self, event_data, dispatchers_steamid)
+
     def emit_event_status(self, event_data, recipient_steamid, status):
         # recipient_steamid can be None, all or [list_of_steamid's]
         if recipient_steamid is None:

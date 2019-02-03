@@ -29,6 +29,12 @@ class Widget(object):
     def register_widget(self, identifier, widget_dict):
         self.available_widgets_dict[identifier] = widget_dict
 
+    def on_socket_event(self, event_data, dispatchers_steamid):
+        if event_data[0] == 'request_table_row':
+            widget = self.available_widgets_dict[event_data[1]["widget"]]
+            if widget["component_widget"] is not None:
+                widget["component_widget"](self, event_data, dispatchers_steamid)
+
     def import_widgets(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
 

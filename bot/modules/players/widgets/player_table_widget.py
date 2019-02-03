@@ -56,18 +56,41 @@ def main_widget(module):
     )
 
 
+def component_widget(module, event_data, dispatchers_steamid):
+    template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
+
+    player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(dispatchers_steamid)
+    table_row = template_table_rows.render(
+        player=player_dict,
+        css_class=get_css_class(player_dict)
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=table_row,
+        data_type="player_table_widget_row",
+        clients=module.webserver.connected_clients.keys(),
+        method="update",
+        target_element={
+            "id": "player_table_widget",
+            "type": "tr",
+            "class": get_css_class(player_dict),
+            "selector": "body > main > div > div > table > tbody"
+        }
+    )
+
+
 def update_widget(module, updated_values_dict=None, old_values_dict=None):
     for steamid, player_dict in updated_values_dict.get("players", {}).items():
         try:
             module.webserver.send_data_to_client(
                 event_data=player_dict,
-                data_type="element_content",
+                data_type="player_table_widget_row_content",
                 clients=module.webserver.connected_clients.keys(),
                 method="update",
                 target_element={
-                    "id": "player_table_row_{}".format(steamid),
+                    "id": "player_table_row",
+                    "parent_id": "player_table_widget",
                     "type": "tr",
-                    "dummy_id": "player_table_row_",
                     "class": get_css_class(player_dict),
                     "selector": "body > main > div > div > table > tbody"
                 }
@@ -79,6 +102,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": main_widget,
+    "component_widget": component_widget,
     "handlers": {
         "module_players/players": update_widget
     }

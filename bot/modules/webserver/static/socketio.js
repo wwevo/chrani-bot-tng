@@ -59,7 +59,55 @@ $(document).ready(function() {
             15000);
     });
 
+    function request_player_table_widget_row(widget, widget_id, row_id) {
+        window.socket.emit('widget_event', ['players', ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
+    }
+
     window.socket.on('data', function(data) {
+        if (data["data_type"] === "player_table_widget_row") {
+            let target_element_id = data["target_element"]["id"];
+            if (target_element_id == null) {
+                return false;
+            }
+            let selector = data["target_element"]["selector"];
+
+            let parent_element = $(selector);
+            parent_element.append(data["event_data"]);
+        }
+        if (data["data_type"] === "player_table_widget_row_content") {
+            let target_element_id = data["target_element"]["id"];
+            if (target_element_id == null) {
+                return false;
+            }
+            let selector = data["target_element"]["selector"];
+
+            let parent_element = $('#' + target_element_id + '_' + data["event_data"]["steamid"]);
+            if (parent_element.length === 0) {
+                /* seems like the container we want ain't here- let's request it */
+                request_player_table_widget_row(data["target_element"]["parent_id"], target_element_id, data["event_data"]["steamid"]);
+                return false;
+            }
+
+            parent_element.setClass(data["target_element"]["class"]);
+
+            let elements_to_update = data["event_data"];
+            $.each(elements_to_update, function (key, value) {
+                if ($.type(value) === 'object') {
+                    $.each(value, function (sub_key, sub_value) {
+                        let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key + '_' + sub_key);
+                        if (element_to_update.text() !== sub_value.toString()) {
+                            element_to_update.html(sub_value);
+                        }
+                    });
+                } else {
+                    let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key);
+                    if (element_to_update.text() !== value.toString()) {
+                        element_to_update.html(value);
+                    }
+                }
+            });
+        }
+
         if (data["data_type"] === "element_content") {
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
@@ -73,14 +121,12 @@ $(document).ready(function() {
 
             let parent_element = $('#' + target_element_id);
             if (parent_element.length === 0) {
-                let text = $('#' + dummy_id).get(0).outerHTML;
-                let steamid = data["event_data"]["steamid"].toString();
-                let re = new RegExp(dummy_id, "g");
-                let new_text = text.replace(re, dummy_id + steamid);
-                parent_element = $(selector).upsert('#' + target_element_id, new_text);
+                /* seems like the container we want ain't here- let's request it */
+                request_player_table_widget_row(target_element_id, data["event_data"]["steamid"])
             }
 
             parent_element.setClass(data["target_element"]["class"]);
+
             let elements_to_update = data["event_data"];
             $.each(elements_to_update, function (key, value) {
                 if ($.type(value) === 'object') {
