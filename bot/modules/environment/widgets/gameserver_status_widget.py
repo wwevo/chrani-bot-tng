@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module):
+def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
@@ -20,7 +20,7 @@ def main_widget(module):
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
         data_type="widget_content",
-        clients=module.webserver.connected_clients.keys(),
+        clients=[dispatchers_steamid],
         target_element={
             "id": "gameserver_status_widget",
             "type": "div",

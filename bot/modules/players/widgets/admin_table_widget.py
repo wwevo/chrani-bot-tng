@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module):
+def main_widget(module, dispatchers_steamid=None):
     pass
 
 

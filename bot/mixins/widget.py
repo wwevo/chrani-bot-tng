@@ -8,17 +8,17 @@ class Widget(object):
     def __init__(self):
         self.available_widgets_dict = {}
 
-    def on_socket_connect(self, sid):
+    def on_socket_connect(self, steamid):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
             for name, widget in self.available_widgets_dict.items():
                 if widget["main_widget"] is not None:
-                    widget["main_widget"](self)
+                    widget["main_widget"](self, steamid)
 
-    def on_socket_disconnect(self, sid):
+    def on_socket_disconnect(self, steamid):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
             for name, widget in self.available_widgets_dict.items():
                 if widget["main_widget"] is not None:
-                    widget["main_widget"](self)
+                    widget["main_widget"](self, steamid)
 
     def start(self):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:

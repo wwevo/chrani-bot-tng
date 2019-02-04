@@ -116,6 +116,9 @@ class Webserver(Module):
                     except AttributeError as error:
                         # user has got no session id yet
                         pass
+                    except KeyError as error:
+                        # user seems to have disappeared
+                        pass
 
             for data_package in data_packages_to_send:
                 if not isinstance(data_package[0]["event_data"], list) and not isinstance(data_package[0]["event_data"], dict):
@@ -283,11 +286,15 @@ class Webserver(Module):
         def ding_dong():
             current_user.last_seen = time()
             print("got 'ding' from {}".format(current_user.id))
-            emit(
-                'dong',
-                room=current_user.sid
-            )
-            print("sent 'dong' to {}".format(current_user.id))
+            try:
+                emit(
+                    'dong',
+                    room=current_user.sid
+                )
+                print("sent 'dong' to {}".format(current_user.id))
+            except AttributeError as error:
+                # user disappeared
+                pass
 
         @self.websocket.on('widget_event', namespace='/chrani-bot-ng')
         @authenticated_only

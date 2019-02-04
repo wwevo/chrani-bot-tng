@@ -23,7 +23,7 @@ def get_css_class(player_dict):
     return css_class
 
 
-def main_widget(module):
+def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
 
@@ -46,7 +46,7 @@ def main_widget(module):
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
         data_type="widget_content",
-        clients=module.webserver.connected_clients.keys(),
+        clients=[dispatchers_steamid],
         method="update",
         target_element={
             "id": "player_table_widget",
@@ -59,7 +59,7 @@ def main_widget(module):
 def component_widget(module, event_data, dispatchers_steamid):
     template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
 
-    player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(dispatchers_steamid)
+    player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(event_data[1]["row_id"])
     table_row = template_table_rows.render(
         player=player_dict,
         css_class=get_css_class(player_dict)
@@ -68,7 +68,7 @@ def component_widget(module, event_data, dispatchers_steamid):
     module.webserver.send_data_to_client(
         event_data=table_row,
         data_type="table_row",
-        clients=module.webserver.connected_clients.keys(),
+        clients=[dispatchers_steamid],
         method="update",
         target_element={
             "id": "player_table_widget",

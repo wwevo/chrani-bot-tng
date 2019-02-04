@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module):
+def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
     gametime = module.dom.data.get("module_environment").get("last_recorded_gametime", True)
     data_to_emit = template_frontend.render(
@@ -17,7 +17,7 @@ def main_widget(module):
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
         data_type="widget_content",
-        clients=module.webserver.connected_clients.keys(),
+        clients=[dispatchers_steamid],
         target_element={
             "id": "gametime_widget",
             "type": "div",
