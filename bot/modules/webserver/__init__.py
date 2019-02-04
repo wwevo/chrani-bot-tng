@@ -101,16 +101,14 @@ class Webserver(Module):
             }
             if clients is "all":
                 emit_options = {
-                    "broadcast": True,
-                    "namespace": '/chrani-bot-ng'
+                    "broadcast": True
                 }
                 data_packages_to_send.append([widget_options, emit_options])
             elif isinstance(clients, KeysView) or isinstance(clients, list):
                 for steamid in clients:
                     try:
                         emit_options = {
-                            "room": self.connected_clients[steamid].sid,
-                            "namespace": '/chrani-bot-ng'
+                            "room": self.connected_clients[steamid].sid
                         }
                         data_packages_to_send.append([widget_options, emit_options])
                     except AttributeError as error:
@@ -122,7 +120,7 @@ class Webserver(Module):
 
             for data_package in data_packages_to_send:
                 if not isinstance(data_package[0]["event_data"], list) and not isinstance(data_package[0]["event_data"], dict):
-                    print(len(data_package[0]["event_data"].encode('utf-8')))
+                    print(data_package[0]["event_data"].encode('utf-8'))
 
                 self.websocket.emit(
                     'data',
@@ -208,7 +206,7 @@ class Webserver(Module):
         @self.app.route('/logout')
         @login_required
         def logout():
-            disconnect(sid=current_user.sid, namespace='/chrani-bot-ng')
+            disconnect(sid=current_user.sid)
             del self.connected_clients[current_user.id]
             print("user {} disconnected...".format(current_user.id))
             for module in loaded_modules_dict.values():
@@ -266,7 +264,7 @@ class Webserver(Module):
         # endregion
 
         # region Websocket handling
-        @self.websocket.on('connect', namespace='/chrani-bot-ng')
+        @self.websocket.on('connect')
         @authenticated_only
         def connect_handler():
             if hasattr(request, 'sid'):
@@ -281,7 +279,7 @@ class Webserver(Module):
             else:
                 return False  # not allowed here
 
-        @self.websocket.on('ding', namespace='/chrani-bot-ng')
+        @self.websocket.on('ding')
         @authenticated_only
         def ding_dong():
             current_user.last_seen = time()
@@ -296,7 +294,7 @@ class Webserver(Module):
                 # user disappeared
                 pass
 
-        @self.websocket.on('widget_event', namespace='/chrani-bot-ng')
+        @self.websocket.on('widget_event')
         @authenticated_only
         def widget_event(data):
             dispatch_socket_event(data[0], data[1], current_user.id)
