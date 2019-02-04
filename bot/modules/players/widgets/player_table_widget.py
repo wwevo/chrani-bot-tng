@@ -80,22 +80,24 @@ def component_widget(module, event_data, dispatchers_steamid):
 
 
 def update_widget(module, updated_values_dict=None, old_values_dict=None):
-    for steamid, player_dict in updated_values_dict.get("players", {}).items():
+    for clientid in module.webserver.connected_clients.keys():
         try:
-            module.webserver.send_data_to_client(
-                event_data=player_dict,
-                data_type="table_row_content",
-                clients=module.webserver.connected_clients.keys(),
-                method="update",
-                target_element={
-                    "id": "player_table_row",
-                    "parent_id": "player_table_widget",
-                    "module": "players",
-                    "type": "tr",
-                    "class": get_css_class(player_dict),
-                    "selector": "body > main > div > div > table > tbody"
-                }
-            )
+            for steamid, player_dict in updated_values_dict.get("players", {}).items():
+                module.webserver.send_data_to_client(
+                    event_data=player_dict,
+                    data_type="table_row_content",
+                    clients=[clientid],
+                    method="update",
+                    target_element={
+                        "id": "player_table_row",
+                        "parent_id": "player_table_widget",
+                        "module": "players",
+                        "type": "tr",
+                        "class": get_css_class(player_dict),
+                        "selector": "body > main > div > div > table > tbody"
+                    }
+                )
+                print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
         except KeyError as error:
             pass
 

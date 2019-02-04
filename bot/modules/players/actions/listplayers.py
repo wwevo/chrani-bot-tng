@@ -95,7 +95,12 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "players": players_to_update_dict,
+            "players": players_to_update_dict
+        }
+    })
+
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
             "online_players": online_players_list
         }
     })

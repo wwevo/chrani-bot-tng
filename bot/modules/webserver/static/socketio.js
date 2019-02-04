@@ -40,7 +40,9 @@ $(document).ready(function() {
 
     //connect to the socket server.
     window.socket = io.connect(
-        'http://' + document.domain + ':' + location.port
+        'http://' + document.domain + ':' + location.port, {
+            'sync disconnect on unload': true
+        }
     );
 
     window.socket.on('connected', function() {
@@ -49,14 +51,17 @@ $(document).ready(function() {
         console.log("sent 'ding' to server");
     });
 
+    let ding_dong_times = [];
+        let start_time;
+        start_time = (new Date).getTime();
+        window.setInterval(function() {
+            start_time = (new Date).getTime();
+            socket.emit('ding');
+        }, 5000);
+
     window.socket.on('dong', function() {
-        console.log("got 'dong' from server");
-        window.setTimeout(
-            function () {
-                window.socket.emit('ding');
-                console.log("sent 'ding' to server");
-            },
-            15000);
+        let latency = (new Date).getTime() - start_time;
+        console.log("ding/dong took " + latency + "ms");
     });
 
     function request_player_table_widget_row(module, widget, widget_id, row_id) {

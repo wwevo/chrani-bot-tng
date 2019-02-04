@@ -18,7 +18,7 @@ from time import time
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, emit, disconnect
+from flask_socketio import SocketIO, send, emit, disconnect
 from requests import post
 from urllib.parse import urlencode
 from collections import KeysView, Mapping
@@ -66,7 +66,9 @@ class Webserver(Module):
 
         socketio = SocketIO(
             app,
-            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode"))
+            async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode")),
+            ping_timeout=15,
+            ping_interval=5
         )
 
         self.app = app
@@ -112,10 +114,10 @@ class Webserver(Module):
                         }
                         data_packages_to_send.append([widget_options, emit_options])
                     except AttributeError as error:
-                        # user has got no session id yet
+                        print("user has got no session id yet")
                         pass
                     except KeyError as error:
-                        # user seems to have disappeared
+                        print("user seems to have disappeared")
                         pass
 
             for data_package in data_packages_to_send:
@@ -266,6 +268,7 @@ class Webserver(Module):
         @authenticated_only
         def connect_handler():
             if hasattr(request, 'sid'):
+                print("connect_handler {}".format(self.connected_clients))
                 self.connected_clients[current_user.id].sid = request.sid
                 emit(
                     'connected',
@@ -277,20 +280,28 @@ class Webserver(Module):
             else:
                 return False  # not allowed here
 
+        @self.websocket.on('disconnect')
+        def disconnect_handler():
+            pass
+
         @self.websocket.on('ding')
-        @authenticated_only
         def ding_dong():
             current_user.last_seen = time()
-            print("got 'ding' from {}".format(current_user.id))
+            print("got 'ding' from client {} ({})".format(current_user.id, current_user.sid))
             try:
                 emit(
                     'dong',
                     room=current_user.sid
                 )
-                print("sent 'dong' to {}".format(current_user.id))
+                self.connected_clients[current_user.id].sid = request.sid
+                print("server sent 'dong' to {} ({})".format(current_user.id, current_user.sid))
             except AttributeError as error:
                 # user disappeared
                 pass
+
+        @self.websocket.on_error_default  # handles all namespaces without an explicit error handler
+        def default_error_handler(e):
+            print(request.event["message"])  # "my error event"
 
         @self.websocket.on('widget_event')
         @authenticated_only

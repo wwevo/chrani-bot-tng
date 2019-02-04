@@ -12,10 +12,10 @@ class Players(Module):
         })
 
         setattr(self, "required_modules", [
+            "module_webserver",
             "module_dom",
             "module_triggers",
-            "module_telnet",
-            "module_webserver"
+            "module_telnet"
         ])
         Module.__init__(self)
 

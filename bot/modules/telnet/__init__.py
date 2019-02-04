@@ -184,12 +184,12 @@ class Telnet(Module):
                 done = True
 
         for telnet_command in telnet_command_list:
-            print("processed command '{}'".format(telnet_command))
             command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
             try:
                 self.tn.write(command.encode('ascii'))
             except Exception as error:
+                print("couldn't process command '{}'".format(telnet_command))
                 print("error in telnet write: {}".format(error))
 
     def run(self):

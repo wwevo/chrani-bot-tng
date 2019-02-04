@@ -53,8 +53,10 @@ class CallbackDict(dict, object):
             path = []
 
         for k, v in updated_values_dict.items():
+            # something is wonky here. path is getting too long. not critical, just wasteful
             path.append(k)
             full_path = "/".join(path)
+
             forced_overwrite = False
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 for callback in self.registered_callbacks[full_path]:

@@ -1,6 +1,5 @@
 from bot.module import Module
 from bot import loaded_modules_dict
-from time import time
 from .callback_dict import CallbackDict
 
 

@@ -45,24 +45,24 @@ class Module(Thread, Action, Trigger, Template, Widget):
     def start(self):
         for required_module in self.required_modules:
             setattr(self, required_module[7:], started_modules_dict[required_module])
-        setattr(self, self.name, self)  # add self to dnamic module list to unify calls from actions
+        setattr(self, self.name, self)  # add self to dynamic module list to unify calls from actions
 
         self.setDaemon(daemonic=True)
         Thread.start(self)
         Widget.start(self)
         return self
 
-    def on_socket_connect(self, sid):
+    def on_socket_connect(self, dispatchers_steamid):
         print("'{}' connected to module {}".format(
-            sid, self.options['module_name']
+            dispatchers_steamid, self.options['module_name']
         ))
-        Widget.on_socket_connect(self, sid)
+        Widget.on_socket_connect(self, dispatchers_steamid)
 
-    def on_socket_disconnect(self, sid):
+    def on_socket_disconnect(self, dispatchers_steamid):
         print("'{}' disconnected from module {}".format(
-            sid, self.options['module_name']
+            dispatchers_steamid, self.options['module_name']
         ))
-        Widget.on_socket_disconnect(self, sid)
+        Widget.on_socket_disconnect(self, dispatchers_steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         action_identifier = event_data[0]
@@ -71,17 +71,17 @@ class Module(Thread, Action, Trigger, Template, Widget):
         ))
 
         if action_identifier in self.available_actions_dict:
-            status = "found requested action '{}'".format(action_identifier)
+            status_message = "found requested action '{}'".format(action_identifier)
             Thread(
                 target=self.available_actions_dict[action_identifier]["main_function"],
                 args=(self, event_data, dispatchers_steamid)
             ).start()
         else:
-            status = "could not find requested action '{}'".format(action_identifier)
+            status_message = "could not find requested action '{}'".format(action_identifier)
 
         if dispatchers_steamid is not None:
             # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
-            self.emit_event_status(event_data, dispatchers_steamid, status)
+            self.emit_event_status(event_data, dispatchers_steamid, status_message)
 
         Widget.on_socket_event(self, event_data, dispatchers_steamid)
 
