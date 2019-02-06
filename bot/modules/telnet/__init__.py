@@ -288,7 +288,7 @@ class Telnet(Module):
                                 self.get_module_identifier(): {
                                     "telnet_lines": valid_telnet_line
                                 }
-                            })
+                            }, maxlen=150)
 
                     response_count += 1
 

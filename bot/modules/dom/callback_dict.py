@@ -1,4 +1,4 @@
-from collections import Mapping
+from collections import Mapping,deque
 from threading import Thread
 
 
@@ -13,7 +13,7 @@ class CallbackDict(dict, object):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
-    def append(self, updated_values_dict, dict_to_update=None, path=None):
+    def append(self, updated_values_dict, dict_to_update=None, path=None, maxlen=None):
         if dict_to_update is None:
             dict_to_update = self
         if path is None:
@@ -32,7 +32,12 @@ class CallbackDict(dict, object):
                 try:
                     dict_to_update[k].append(v)
                 except KeyError:
-                    dict_to_update[k] = [v]
+                    if maxlen is not None:
+                        dict_to_update[k] = deque(maxlen=maxlen)
+                    else:
+                        dict_to_update[k] = []
+
+                    dict_to_update[k].append(v)
                 except AttributeError:
                     pass
 
@@ -40,7 +45,7 @@ class CallbackDict(dict, object):
 
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.append(v, d_v, path=path)
+                self.append(v, d_v, path=path, maxlen=maxlen)
 
     def update_value(self, dict_to_update, key, value):
         # TODO: only update changed values?
