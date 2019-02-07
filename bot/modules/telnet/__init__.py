@@ -261,7 +261,7 @@ class Telnet(Module):
                                     self.telnet_lines_to_process.append(valid_telnet_line)
                                     print(valid_telnet_line)
                                 else:  # "combined line, it doesnt make sense though"
-                                    pass
+                                    print("WRN {}".format(combined_line.rstrip("\r\n")))
 
                                 recent_telnet_response = None
                             else:
@@ -269,16 +269,16 @@ class Telnet(Module):
                                     if self.has_valid_start(component):  # "found incomplete line, storing for next run"
                                         recent_telnet_response = component
                                     else:  # "what happened?"
-                                        pass
+                                        print("WRN {}".format(component.rstrip("\r\n")))
 
                         elif response_count == len(telnet_response_components):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
                                 recent_telnet_response = component
-                            else:  # "does not seem to be usable"
-                                pass
+                            else:  # part of a telnet-command response
+                                print(component.rstrip("\r\n"))
 
                         else:  # "found incomplete line smack in the middle"
-                            pass
+                            print(component.rstrip("\r\n"))
 
                     if valid_telnet_line is not None:
                         self.valid_telnet_lines.append(valid_telnet_line)
