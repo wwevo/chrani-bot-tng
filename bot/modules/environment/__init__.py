@@ -16,6 +16,7 @@ class Environment(Module):
             "module_telnet",
             "module_webserver"
         ])
+        self.next_cycle = 0
         Module.__init__(self)
 
     @staticmethod
@@ -35,16 +36,14 @@ class Environment(Module):
     # endregion
 
     def run(self):
-        next_cycle = 0
-
-        while not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            self.manually_trigger_action(["gettime", {}])
-            self.manually_trigger_action(["logged_in_users", {}])
+            self.trigger_action(["gettime", {}])
+            self.trigger_action(["logged_in_users", {}])
 
             self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observer_interval - self.last_execution_time
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Environment().get_module_identifier()] = Environment()

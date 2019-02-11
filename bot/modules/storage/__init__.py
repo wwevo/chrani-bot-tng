@@ -15,6 +15,8 @@ class Storage(Module):
         setattr(self, "required_modules", [
             "module_dom"
         ])
+        self.next_cycle = 0
+        self.root_dir = path.dirname(path.abspath(__file__))
         Module.__init__(self)
 
     @staticmethod
@@ -27,20 +29,27 @@ class Storage(Module):
         self.run_observer_interval = 15
     # endregion
 
-    def run(self):
-        self.root_dir = path.dirname(path.abspath(__file__))
+    def load_persistent_dict_to_dom(self):
         with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
             self.dom.data.update(storage)
 
-        next_cycle = 0
-        while not self.stopped.wait(next_cycle):
+    def save_dom_to_persistent_dict(self):
+        with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
+            storage.update(self.dom.data)
+
+    def start(self):
+        Module.start(self)
+        self.load_persistent_dict_to_dom()
+
+    def run(self):
+
+        while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
-                storage.update(self.dom.data)
+            self.save_dom_to_persistent_dict()
 
             self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observer_interval - self.last_execution_time
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Storage().get_module_identifier()] = Storage()

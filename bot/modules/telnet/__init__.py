@@ -34,7 +34,8 @@ class Telnet(Module):
                 ]
             }
         })
-
+        self.next_cycle = 0
+        self.telnet_response = ""
         setattr(self, "required_modules", [
             "module_dom",
             "module_webserver"
@@ -193,13 +194,10 @@ class Telnet(Module):
                 print("error in telnet write: {}".format(error))
 
     def run(self):
-        next_cycle = 0
-
-        telnet_response = ""
         last_connection_loss = None
         recent_telnet_response = None
 
-        while not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
             if last_connection_loss is None or profile_start > last_connection_loss + 10:
@@ -207,7 +205,7 @@ class Telnet(Module):
                 # or if n seconds have passed after last loss,
                 # to prevent connect hammering
                 try:
-                    telnet_response = self.tn.read_very_eager().decode("utf-8")
+                    self.telnet_response = self.tn.read_very_eager().decode("utf-8")
                 except (AttributeError, EOFError, ConnectionAbortedError) as error:
                     try:
                         self.setup_telnet()
@@ -224,15 +222,15 @@ class Telnet(Module):
                             }
                         })
                         self.telnet_buffer = ""
-                        telnet_response = ""
+                        self.telnet_response = ""
                         last_connection_loss = time()
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
                 except Exception as error:
                     print("########### Unforeseen Error: {}".format(type(error)))
 
-            if len(telnet_response) > 0:
-                self.telnet_buffer += telnet_response.lstrip()
+            if len(self.telnet_response) > 0:
+                self.telnet_buffer += self.telnet_response.lstrip()
                 self.telnet_buffer = self.telnet_buffer[-4096:]
 
                 # module_dom needs to be in the required modules list!!
@@ -245,7 +243,7 @@ class Telnet(Module):
 
                 """ telnet returned data. let's get some information about it"""
                 response_count = 1
-                telnet_response_components = self.get_lines(telnet_response)
+                telnet_response_components = self.get_lines(self.telnet_response)
                 for component in telnet_response_components:
                     valid_telnet_line = None
                     if self.is_a_valid_line(component):  # added complete line
@@ -269,7 +267,8 @@ class Telnet(Module):
                                     if self.has_valid_start(component):  # "found incomplete line, storing for next run"
                                         recent_telnet_response = component
                                     else:  # "what happened?"
-                                        print("WRN {}".format(component.rstrip("\r\n")))
+                                        if len(component.rstrip("\r\n")) != 0:
+                                            print("WRN {}".format(component.rstrip("\r\n")))
 
                         elif response_count == len(telnet_response_components):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
@@ -296,7 +295,7 @@ class Telnet(Module):
                 self.execute_telnet_command_queue()
 
             self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observer_interval - self.last_execution_time
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Telnet().get_module_identifier()] = Telnet()

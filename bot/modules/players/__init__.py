@@ -37,11 +37,13 @@ class Players(Module):
 
     def run(self):
         next_cycle = 0
-        self.manually_trigger_action(["listadmins", {}])
         while not self.stopped.wait(next_cycle):
             profile_start = time()
 
-            self.manually_trigger_action(["listplayers", {}])
+            self.trigger_action(["listadmins", {
+                "execute_only_once": True
+            }])
+            self.trigger_action(["listplayers", {}])
 
             self.last_execution_time = time() - profile_start
             next_cycle = self.run_observer_interval - self.last_execution_time

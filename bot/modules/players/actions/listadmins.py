@@ -46,6 +46,10 @@ def callback_success(module, event_data, dispatchers_steamid, match):
         }
     }, overwrite=True)
 
+    execute_only_once = event_data[1]["execute_only_once"]
+    if execute_only_once:
+        module.disable_action(action_name)
+
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 
 
@@ -58,7 +62,8 @@ action_meta = {
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,
-    "requires_telnet_connection": True
+    "requires_telnet_connection": True,
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

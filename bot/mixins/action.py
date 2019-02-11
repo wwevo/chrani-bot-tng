@@ -12,6 +12,12 @@ class Action(object):
     def register_action(self, identifier, action_dict):
         self.available_actions_dict[identifier] = action_dict
 
+    def enable_action(self, identifier):
+        self.available_actions_dict[identifier]["enabled"] = True
+
+    def disable_action(self, identifier):
+        self.available_actions_dict[identifier]["enabled"] = False
+
     def import_actions(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
 
@@ -25,7 +31,7 @@ class Action(object):
             # module does not have actions
             pass
 
-    def manually_trigger_action(self, event_data):
+    def trigger_action(self, event_data):
         action_identifier = event_data[0]
         if action_identifier in self.available_actions_dict:
             status_message = "found requested action '{}'".format(action_identifier)
@@ -34,7 +40,12 @@ class Action(object):
             action_requires_server_to_be_online = self.available_actions_dict[action_identifier].get(
                 "requires_telnet_connection", False
             )
-            if server_is_online is True or action_requires_server_to_be_online is not True:
+            action_is_enabled = self.available_actions_dict[action_identifier]["enabled"]
+            if not action_is_enabled:
+                status_message = "found requested action '{}', but it is disabled - skipping it!".format(
+                    action_identifier
+                )
+            elif server_is_online is True or action_requires_server_to_be_online is not True:
                 Thread(
                     target=self.available_actions_dict[action_identifier]["main_function"],
                     args=(self, event_data)
@@ -44,5 +55,6 @@ class Action(object):
 
         else:
             status_message = "could not find requested action '{}'".format(action_identifier)
-            print(status_message)
+
+        print(status_message)
 
