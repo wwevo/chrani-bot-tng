@@ -1,0 +1,20 @@
+{%- macro construct_toggle_link(bool, active_text, deactivate_event, inactive_text, activate_event) -%}
+{%- set bool = bool|default(false) -%}
+{%- set active_text = active_text|default(none) -%}
+{%- set deactivate_event = deactivate_event|default(none) -%}
+{%- set inactive_text = inactive_text|default(none) -%}
+{%- set activate_event = activate_event|default(none) -%}
+{%- if bool == true -%}
+    {%- if deactivate_event != none and activate_event != none -%}
+    <span><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+    {%- elif deactivate_event != none and activate_event == none -%}
+    <span><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+    {%- endif -%}
+{%- else -%}
+    {%- if deactivate_event != none and activate_event != none -%}
+    <span><a href="#" onclick="window.socket.emit('{{ activate_event[0] }}', {{ activate_event[1] }}); return false;">{{ inactive_text }}</a></span>
+    {%- elif deactivate_event != none and activate_event == none -%}
+    <span><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+    {%- endif -%}
+{%- endif -%}
+{%- endmacro -%}

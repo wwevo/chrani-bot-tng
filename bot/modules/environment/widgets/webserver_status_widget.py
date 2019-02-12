@@ -58,7 +58,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
 
 
 widget_meta = {
-    "description": "sends and updates a table of all currently known players",
+    "description": "shows all users with an active session for the webinterface",
     "main_widget": main_widget,
     "handlers": {
         "module_environment/webserver_logged_in_users": update_widget

@@ -1,7 +1,5 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-from time import sleep, time
-import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
@@ -69,7 +67,7 @@ def component_widget(module, event_data, dispatchers_steamid):
         event_data=table_row,
         data_type="table_row",
         clients=[dispatchers_steamid],
-        method="update",
+        method="append",
         target_element={
             "id": "player_table_widget",
             "type": "tr",

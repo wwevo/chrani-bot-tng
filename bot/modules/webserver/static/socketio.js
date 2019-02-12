@@ -100,16 +100,25 @@ $(document).ready(function() {
             let selector = data["target_element"]["selector"];
 
             let parent_element = $(selector);
-            parent_element.append(data["event_data"]);
+
+            if (data["method"] === "append") {
+                parent_element.append(data["event_data"]);
+            } else if (data["method"] === "update") {
+                parent_element.find("#" + target_element_id).replaceWith(data["event_data"]);
+            }
         }
         if (data["data_type"] === "table_row_content") {
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
             }
+            let target_player_steamid = data["event_data"]["steamid"];
+            if (target_player_steamid == null) {
+                return false;
+            }
             let selector = data["target_element"]["selector"];
 
-            let parent_element = $('#' + target_element_id + '_' + data["event_data"]["steamid"]);
+            let parent_element = $('#' + target_element_id + '_' + target_player_steamid);
             if (parent_element.length === 0) {
                 /* seems like the container we want ain't here- let's request it */
                 request_player_table_widget_row(
@@ -128,13 +137,13 @@ $(document).ready(function() {
                 if ($.type(value) === 'object') {
                     $.each(value, function (sub_key, sub_value) {
                         let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key + '_' + sub_key);
-                        if (element_to_update.text() !== sub_value.toString()) {
+                        if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
                             element_to_update.html(sub_value);
                         }
                     });
                 } else {
                     let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key);
-                    if (element_to_update.text() !== value.toString()) {
+                    if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
                         element_to_update.html(value);
                     }
                 }

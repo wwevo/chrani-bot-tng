@@ -43,6 +43,10 @@ footer > div {
     background-color: limegreen;
 }
 
+.on_whitelist {
+    background-color: greenyellow;
+}
+
 .is_online.in_limbo {
     background-color: darkorange;
 }
@@ -82,6 +86,14 @@ footer > div {
 
 #player_table_widget caption {
     text-align: right;
+}
+
+@media only screen and (max-width: 960px) {
+	tr th:nth-child(6), tr td:nth-child(6),
+	tr th:nth-child(8), tr td:nth-child(8) {
+        display:none;
+        visibility:hidden;
+    }
 }
 
 #telnet_log_widget {
