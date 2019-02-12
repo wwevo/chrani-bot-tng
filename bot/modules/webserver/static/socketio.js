@@ -100,11 +100,12 @@ $(document).ready(function() {
             let selector = data["target_element"]["selector"];
 
             let parent_element = $(selector);
+            let target_element = parent_element.find("#" + target_element_id);
 
-            if (data["method"] === "append") {
+            if (target_element.length === 0) {
                 parent_element.append(data["event_data"]);
-            } else if (data["method"] === "update") {
-                parent_element.find("#" + target_element_id).replaceWith(data["event_data"]);
+            } else {
+                target_element.replaceWith(data["event_data"]);
             }
         }
         if (data["data_type"] === "table_row_content") {

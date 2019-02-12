@@ -89,8 +89,8 @@ footer > div {
 }
 
 @media only screen and (max-width: 960px) {
-	tr th:nth-child(6), tr td:nth-child(6),
-	tr th:nth-child(8), tr td:nth-child(8) {
+	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
+	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8) {
         display:none;
         visibility:hidden;
     }

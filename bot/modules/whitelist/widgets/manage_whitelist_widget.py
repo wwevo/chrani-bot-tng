@@ -83,7 +83,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
                         "module": "whitelist",
                         "type": "tr",
                         "class": get_css_class(player_dict_to_update),
-                        "selector": "body > main > div > div > table > tbody"
+                        "selector": "body > main > div > div#manage_whitelist_widget > table > tbody"
                     }
                 )
                 print("updating whitelist widget for webinterface user {} and player {}".format(clientid, steamid))
@@ -95,7 +95,8 @@ widget_meta = {
     "description": "manages whitelist entries",
     "main_widget": main_widget,
     "handlers": {
-        "module_whitelist/players": update_widget
+        "module_whitelist/players": update_widget,
+        "module_players/players": update_widget
     }
 }
 
