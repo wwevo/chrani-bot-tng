@@ -65,28 +65,35 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
 
     for clientid in module.webserver.connected_clients.keys():
         try:
-            for steamid, player_dict_to_update in updated_values_dict.get("players", {}).items():
-                player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid)
-                player_dict.update(player_dict_to_update)
-                table_row = template_table_rows.render(
-                    player=player_dict,
-                    css_class=get_css_class(player_dict)
-                )
-                module.webserver.send_data_to_client(
-                    event_data=table_row,
-                    data_type="table_row",
-                    clients=[clientid],
-                    method="update",
-                    target_element={
-                        "id": "manage_whitelist_table_row_{}".format(steamid),
-                        "parent_id": "manage_whitelist_widget",
-                        "module": "whitelist",
-                        "type": "tr",
-                        "class": get_css_class(player_dict_to_update),
-                        "selector": "body > main > div > div#manage_whitelist_widget > table > tbody"
-                    }
-                )
-                print("updating whitelist widget for webinterface user {} and player {}".format(clientid, steamid))
+            for steamid, player_dict in old_values_dict.get("players", {}).items():
+                if any([
+                    steamid in updated_values_dict.get("online_players", []),
+                    steamid in updated_values_dict.get("players", {})
+                ]):
+                    player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid)
+                    player_whitelist_entry = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid)
+                    if player_whitelist_entry is not None:
+                        player_dict.update(player_whitelist_entry)
+
+                    table_row = template_table_rows.render(
+                        player=player_dict,
+                        css_class=get_css_class(player_dict)
+                    )
+                    module.webserver.send_data_to_client(
+                        event_data=table_row,
+                        data_type="table_row",
+                        clients=[clientid],
+                        method="update",
+                        target_element={
+                            "id": "manage_whitelist_table_row_{}".format(steamid),
+                            "parent_id": "manage_whitelist_widget",
+                            "module": "whitelist",
+                            "type": "tr",
+                            "class": get_css_class(player_dict),
+                            "selector": "body > main > div > div#manage_whitelist_widget > table > tbody"
+                        }
+                    )
+                    print("updating whitelist widget for webinterface user {} and player {}".format(clientid, steamid))
         except KeyError as error:
             pass
 

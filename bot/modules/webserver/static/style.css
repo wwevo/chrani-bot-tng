@@ -72,6 +72,10 @@ footer > div {
     flex-basis: 40%;
 }
 
+#player_table_widget table {
+    width: 100%;
+}
+
 #player_table_widget td.center {
     text-align: center;
 }
@@ -99,4 +103,12 @@ footer > div {
 #telnet_log_widget {
     order: 10;
     flex-basis: 40%;
+}
+
+#manage_whitelist_widget table {
+    width: 100%;
+}
+
+#manage_whitelist_widget caption {
+    text-align: right;
 }

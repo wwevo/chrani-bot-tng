@@ -64,15 +64,19 @@ class CallbackDict(dict, object):
 
             forced_overwrite = False
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
-                for callback in self.registered_callbacks[full_path]:
-                    Thread(
-                        target=callback["callback"],
-                        args=(callback["module"], CallbackDict(updated_values_dict), dict_to_update)
-                    ).start()
-
                 if overwrite is True:
                     forced_overwrite = True
                     self.update_value(dict_to_update, k, v)
+
+                try:
+                    for callback in self.registered_callbacks[full_path]:
+                        Thread(
+                            target=callback["callback"],
+                            args=(callback["module"], CallbackDict(updated_values_dict), dict_to_update)
+                        ).start()
+                except KeyError:
+                    # not present in the target dict, skipping
+                    pass
 
             d_v = dict_to_update.get(k)
             if not forced_overwrite:
