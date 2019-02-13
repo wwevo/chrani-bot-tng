@@ -12,6 +12,7 @@ class Dom(Module):
         })
         setattr(self, "required_modules", [])
         self.data = CallbackDict()
+        self.run_observer_interval = 5
         Module.__init__(self)
 
     @staticmethod
@@ -21,7 +22,6 @@ class Dom(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 5
     # endregion
 
 

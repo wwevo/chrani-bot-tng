@@ -94,9 +94,10 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
 widget_meta = {
     "description": "manages whitelist entries",
     "main_widget": main_widget,
+    "component_widget": update_widget,
     "handlers": {
         "module_whitelist/players": update_widget,
-        "module_players/players": update_widget
+        "module_players/online_players": update_widget
     }
 }
 

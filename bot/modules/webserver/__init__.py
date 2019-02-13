@@ -18,10 +18,10 @@ from time import time
 from socket import socket, AF_INET, SOCK_DGRAM
 from flask import Flask, request, redirect, Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
-from flask_socketio import SocketIO, send, emit, disconnect
+from flask_socketio import SocketIO, emit
 from requests import post
 from urllib.parse import urlencode
-from collections import KeysView, Mapping
+from collections import KeysView
 
 
 class Webserver(Module):

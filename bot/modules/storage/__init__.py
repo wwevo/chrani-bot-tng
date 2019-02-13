@@ -16,18 +16,12 @@ class Storage(Module):
             "module_dom"
         ])
         self.next_cycle = 0
-        self.root_dir = path.dirname(path.abspath(__file__))
+        self.run_observer_interval = 15
         Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
         return "module_storage"
-
-    # region Standard module stuff
-    def setup(self, options=dict):
-        Module.setup(self, options)
-        self.run_observer_interval = 15
-    # endregion
 
     def load_persistent_dict_to_dom(self):
         with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
@@ -37,12 +31,17 @@ class Storage(Module):
         with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
             storage.update(self.dom.data)
 
+    # region Standard module stuff
+    def setup(self, options=dict):
+        self.root_dir = path.dirname(path.abspath(__file__))
+        Module.setup(self, options)
+
     def start(self):
         Module.start(self)
         self.load_persistent_dict_to_dom()
+    # endregion
 
     def run(self):
-
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 

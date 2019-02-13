@@ -17,6 +17,7 @@ class Environment(Module):
             "module_webserver"
         ])
         self.next_cycle = 0
+        self.run_observer_interval = 3
         Module.__init__(self)
 
     @staticmethod
@@ -32,7 +33,6 @@ class Environment(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 3
     # endregion
 
     def run(self):

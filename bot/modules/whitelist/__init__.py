@@ -18,6 +18,7 @@ class Whitelist(Module):
             "module_webserver",
             "module_triggers"
         ])
+        self.run_observer_interval = 1
         self.next_cycle = 0
         Module.__init__(self)
 
@@ -34,7 +35,6 @@ class Whitelist(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 1
     # endregion
 
     def run(self):

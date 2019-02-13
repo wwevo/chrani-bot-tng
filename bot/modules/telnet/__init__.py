@@ -1,7 +1,7 @@
 import re
 from bot.module import Module
 from bot import loaded_modules_dict
-from time import time, sleep
+from time import time
 from collections import deque
 import telnetlib
 
@@ -34,12 +34,13 @@ class Telnet(Module):
                 ]
             }
         })
-        self.next_cycle = 0
-        self.telnet_response = ""
         setattr(self, "required_modules", [
             "module_dom",
             "module_webserver"
         ])
+
+        self.next_cycle = 0
+        self.telnet_response = ""
 
         Module.__init__(self)
 
@@ -64,6 +65,9 @@ class Telnet(Module):
 
         self.run_observer_interval = 0.5
         self.last_execution_time = 0.0
+
+        self.last_connection_loss = None
+        self.recent_telnet_response = None
     # endregion
 
     # region Handling telnet initialization and authentication
@@ -170,7 +174,6 @@ class Telnet(Module):
             return telnet_lines
         else:
             return []
-    # endregion
 
     def add_telnet_command_to_queue(self, command):
         self.telnet_command_queue.appendleft(command)
@@ -192,15 +195,13 @@ class Telnet(Module):
             except Exception as error:
                 print("couldn't process command '{}'".format(telnet_command))
                 print("error in telnet write: {}".format(error))
+    # endregion
 
     def run(self):
-        last_connection_loss = None
-        recent_telnet_response = None
-
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            if last_connection_loss is None or profile_start > last_connection_loss + 10:
+            if self.last_connection_loss is None or profile_start > self.last_connection_loss + 10:
                 # only execute if server has connection,
                 # or if n seconds have passed after last loss,
                 # to prevent connect hammering
@@ -223,7 +224,7 @@ class Telnet(Module):
                         })
                         self.telnet_buffer = ""
                         self.telnet_response = ""
-                        last_connection_loss = time()
+                        self.last_connection_loss = time()
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
                 except Exception as error:
@@ -252,8 +253,8 @@ class Telnet(Module):
                         print(valid_telnet_line)
                     else:
                         if response_count == 1:  # not a complete line, might be the remainder of last run
-                            if recent_telnet_response is not None:
-                                combined_line = "{}{}".format(recent_telnet_response, component)
+                            if self.recent_telnet_response is not None:
+                                combined_line = "{}{}".format(self.recent_telnet_response, component)
                                 if self.is_a_valid_line(combined_line):  # "added complete combined line"
                                     valid_telnet_line = combined_line.rstrip("\r\n")
                                     self.telnet_lines_to_process.append(valid_telnet_line)
@@ -261,18 +262,18 @@ class Telnet(Module):
                                 else:  # "combined line, it doesnt make sense though"
                                     print("WRN {}".format(combined_line.rstrip("\r\n")))
 
-                                recent_telnet_response = None
+                                self.recent_telnet_response = None
                             else:
                                 if len(telnet_response_components) == 1:
                                     if self.has_valid_start(component):  # "found incomplete line, storing for next run"
-                                        recent_telnet_response = component
+                                        self.recent_telnet_response = component
                                     else:  # "what happened?"
                                         if len(component.rstrip("\r\n")) != 0:
                                             print("WRN {}".format(component.rstrip("\r\n")))
 
                         elif response_count == len(telnet_response_components):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
-                                recent_telnet_response = component
+                                self.recent_telnet_response = component
                             else:  # part of a telnet-command response
                                 print(component.rstrip("\r\n"))
 

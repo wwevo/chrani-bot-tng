@@ -17,6 +17,8 @@ class Players(Module):
             "module_triggers",
             "module_telnet"
         ])
+        self.run_observer_interval = 1.5
+        self.next_cycle = 0
         Module.__init__(self)
 
     @staticmethod
@@ -32,12 +34,10 @@ class Players(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-        self.run_observer_interval = 1.5
     # endregion
 
     def run(self):
-        next_cycle = 0
-        while not self.stopped.wait(next_cycle):
+        while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
             self.trigger_action(["listadmins", {
@@ -46,7 +46,7 @@ class Players(Module):
             self.trigger_action(["listplayers", {}])
 
             self.last_execution_time = time() - profile_start
-            next_cycle = self.run_observer_interval - self.last_execution_time
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Players().get_module_identifier()] = Players()
