@@ -99,11 +99,12 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
         }
     })
 
-    module.dom.data.upsert({
-        module.get_module_identifier(): {
-            "online_players": online_players_list
-        }
-    })
+    if online_players_list != module.dom.data.get(module.get_module_identifier()).get("online_players"):
+        module.dom.data.upsert({
+            module.get_module_identifier(): {
+                "online_players": online_players_list
+            }
+        })
 
     module.emit_event_status(event_data, dispatchers_steamid, "success")
 

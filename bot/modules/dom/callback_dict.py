@@ -47,10 +47,6 @@ class CallbackDict(dict, object):
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, d_v, path=path, maxlen=maxlen)
 
-    def update_value(self, dict_to_update, key, value):
-        # TODO: only update changed values?
-        dict_to_update[key] = value
-
     def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None):
         if dict_to_update is None:
             dict_to_update = self
@@ -66,7 +62,7 @@ class CallbackDict(dict, object):
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 if overwrite is True:
                     forced_overwrite = True
-                    self.update_value(dict_to_update, k, v)
+                    dict_to_update[k] = v
 
                 try:
                     for callback in self.registered_callbacks[full_path]:
@@ -82,8 +78,22 @@ class CallbackDict(dict, object):
             if not forced_overwrite:
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                     self.upsert(v, d_v, overwrite=overwrite, path=path)
+                elif isinstance(v, Mapping):
+                    dict_to_update[k] = v
+                    combined_full_path = "{}/{}".format(full_path, next(iter(v)))
+                    try:
+                        for callback in self.registered_callbacks[combined_full_path]:
+                            Thread(
+                                target=callback["callback"],
+                                args=(callback["module"], CallbackDict(v), dict_to_update[k])
+                            ).start()
+                    except KeyError:
+                        # not present in the target dict, skipping
+                        pass
+
                 else:
-                    self.update_value(dict_to_update, k, v)
+                    dict_to_update[k] = v
+
 
     def register_callback(self, module, dict_to_monitor, callback):
         try:
