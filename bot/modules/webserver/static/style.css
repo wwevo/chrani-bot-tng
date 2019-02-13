@@ -105,6 +105,10 @@ footer > div {
     flex-basis: 40%;
 }
 
+#manage_whitelist_widget {
+    order: 9;
+}
+
 #manage_whitelist_widget table {
     width: 100%;
 }
