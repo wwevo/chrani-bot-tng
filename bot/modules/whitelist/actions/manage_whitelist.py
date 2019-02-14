@@ -9,29 +9,30 @@ def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("steamid", None)
     if action is not None and player_steamid is not None:
-        if action == "add_to_whitelist":
-            module.dom.data.upsert({
-                "module_whitelist": {
-                    "players": {
-                        player_steamid: {
-                            "on_whitelist": True
+        if len(player_steamid) == 17 and player_steamid.isdigit():
+            if action == "add_to_whitelist":
+                module.dom.data.upsert({
+                    "module_whitelist": {
+                        "players": {
+                            player_steamid: {
+                                "on_whitelist": True
+                            }
                         }
                     }
-                }
-            })
-        if action == "remove_from_whitelist":
-            module.dom.data.upsert({
-                "module_whitelist": {
-                    "players": {
-                        player_steamid: {
-                            "on_whitelist": False
+                })
+            if action == "remove_from_whitelist":
+                module.dom.data.upsert({
+                    "module_whitelist": {
+                        "players": {
+                            player_steamid: {
+                                "on_whitelist": False
+                            }
                         }
                     }
-                }
-            })
+                })
 
-        callback_success(module, event_data, dispatchers_steamid)
-        return
+            callback_success(module, event_data, dispatchers_steamid)
+            return
 
     callback_fail(module, event_data, dispatchers_steamid)
 

@@ -78,7 +78,7 @@ class CallbackDict(dict, object):
             if not forced_overwrite:
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                     self.upsert(v, d_v, overwrite=overwrite, path=path)
-                elif isinstance(v, Mapping):
+                elif isinstance(v, Mapping) and len(v) >= 1:
                     dict_to_update[k] = v
                     combined_full_path = "{}/{}".format(full_path, next(iter(v)))
                     try:
@@ -93,7 +93,6 @@ class CallbackDict(dict, object):
 
                 else:
                     dict_to_update[k] = v
-
 
     def register_callback(self, module, dict_to_monitor, callback):
         try:

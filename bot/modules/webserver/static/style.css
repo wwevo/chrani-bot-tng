@@ -100,6 +100,29 @@ footer > div {
     }
 }
 
+@media only screen and (max-width: 840px) {
+	#player_table_widget tr th:nth-child(5), #player_table_widget tr td:nth-child(5),
+	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
+	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8),
+    #player_table_widget tr th:nth-child(10), #player_table_widget tr td:nth-child(10),
+	#player_table_widget tr th:nth-child(12), #player_table_widget tr td:nth-child(12) {
+        display:none;
+        visibility:hidden;
+    }
+}
+
+@media only screen and (max-width: 640px) {
+	#player_table_widget tr th:nth-child(5), #player_table_widget tr td:nth-child(5),
+	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
+	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8),
+    #player_table_widget tr th:nth-child(10), #player_table_widget tr td:nth-child(10),
+	#player_table_widget tr th:nth-child(11), #player_table_widget tr td:nth-child(11),
+	#player_table_widget tr th:nth-child(12), #player_table_widget tr td:nth-child(12) {
+        display:none;
+        visibility:hidden;
+    }
+}
+
 #telnet_log_widget {
     order: 10;
     flex-basis: 40%;
@@ -111,8 +134,35 @@ footer > div {
 
 #manage_whitelist_widget table {
     width: 100%;
+    max-width: 30em;
 }
 
 #manage_whitelist_widget caption {
+    text-align: right;
+}
+
+#manage_whitelist_widget tfoot {
+    line-height: 1em;
+    background-color: slategrey;
+}
+
+#manage_whitelist_widget tfoot a {
+    color: black;
+}
+
+#manage_whitelist_widget label {
+    width: 100%;
+    border: 0;
+    margin: 0; padding: 0;
+}
+
+#manage_whitelist_add_steamid_input {
+    width: 100%;
+    border: 0;
+    margin: 0; padding: 0;
+    background-color: azure;
+}
+
+#manage_whitelist_widget td:last-child {
     text-align: right;
 }

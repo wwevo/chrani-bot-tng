@@ -1,5 +1,6 @@
 from bot import loaded_modules_dict
 from os import path, pardir
+from copy import deepcopy
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
@@ -24,8 +25,14 @@ def get_css_class(player_dict):
 def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget_frontend.html')
     template_table_rows = module.templates.get_template('manage_whitelist_widget_table_row.html')
+    template_add_steamid_form = module.templates.get_template('manage_whitelist_widget_add_steamid_form.html')
 
-    all_player_dicts = module.dom.data.get("module_players", {}).get("players", {})
+    all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
+    whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
+    for steamid, player_dict in whitelisted_players.items():
+        if steamid not in all_player_dicts:
+            all_player_dicts[steamid] = player_dict
+            all_player_dicts[steamid]["steamid"] = steamid
 
     table_rows = ""
     for steamid, player_dict in all_player_dicts.items():
@@ -45,8 +52,11 @@ def main_widget(module, dispatchers_steamid=None):
             css_class=get_css_class(player_dict_to_add)
         )
 
+    table_form = template_add_steamid_form.render()
+
     data_to_emit = template_frontend.render(
-        table_rows=table_rows
+        table_rows=table_rows,
+        table_form=table_form
     )
 
     module.webserver.send_data_to_client(
@@ -72,13 +82,17 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
     for clientid in module.webserver.connected_clients.keys():
         players_to_update = {}
         for steamid, player_dict_to_update in updated_values_dict.get("players", {}).items():
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid)
+            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {"steamid": steamid})
             player_dict.update(player_dict_to_update)
             players_to_update[steamid] = player_dict
 
         for steamid in updated_values_dict.get("online_players", []):
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid)
+            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {"steamid": steamid})
+            player_is_whitelisted = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
             players_to_update[steamid] = player_dict
+            if player_is_whitelisted is not None:
+                for key, value in player_is_whitelisted.items():
+                    players_to_update[steamid][key] = value
 
         for steamid, player_dict in players_to_update.items():
             table_row = template_table_rows.render(
