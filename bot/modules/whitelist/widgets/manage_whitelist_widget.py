@@ -26,6 +26,7 @@ def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget_frontend.html')
     template_table_rows = module.templates.get_template('manage_whitelist_widget_table_row.html')
     template_add_steamid_form = module.templates.get_template('manage_whitelist_widget_add_steamid_form.html')
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget_enable_disable_toggle.html')
 
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
     whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
@@ -53,8 +54,13 @@ def main_widget(module, dispatchers_steamid=None):
         )
 
     table_form = template_add_steamid_form.render()
+    enable_disable_toggle = template_enable_disable_toggle.render(
+        whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
+        enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
+    )
 
     data_to_emit = template_frontend.render(
+        enable_disable_toggle=enable_disable_toggle,
         table_rows=table_rows,
         table_form=table_form
     )
@@ -116,13 +122,35 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
             print("updating whitelist widget for webinterface user {} and player {}".format(clientid, player_dict["steamid"]))
 
 
+def update_widget_status(module, updated_values_dict=None, old_values_dict=None):
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget_enable_disable_toggle.html')
+    enable_disable_toggle = template_enable_disable_toggle.render(
+        whitelist_status="whitelist is active" if updated_values_dict.get("is_active", False) else "whitelist is deactivated",
+        enable_disable_toggle=updated_values_dict.get("is_active", False)
+    )
+    module.webserver.send_data_to_client(
+        event_data=enable_disable_toggle,
+        data_type="table_row",
+        clients="all",
+        method="update",
+        target_element={
+            "id": "manage_whitelist_widget_status",
+            "parent_id": "manage_whitelist_widget",
+            "module": "whitelist",
+            "type": "tr",
+            "selector": "body > main > div > div#manage_whitelist_widget > table > thead"
+        }
+    )
+
+
 widget_meta = {
     "description": "manages whitelist entries",
     "main_widget": main_widget,
     "component_widget": update_widget,
     "handlers": {
         "module_whitelist/players": update_widget,
-        "module_players/online_players": update_widget
+        "module_players/online_players": update_widget,
+        "module_whitelist/is_active": update_widget_status
     }
 }
 

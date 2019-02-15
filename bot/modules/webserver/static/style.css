@@ -141,6 +141,11 @@ footer > div {
     text-align: right;
 }
 
+#manage_whitelist_widget_status th {
+    text-align: right;
+    background-color: darkkhaki;
+}
+
 #manage_whitelist_widget tfoot {
     line-height: 1em;
     background-color: slategrey;

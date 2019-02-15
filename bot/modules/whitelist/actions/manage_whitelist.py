@@ -33,6 +33,22 @@ def main_function(module, event_data, dispatchers_steamid):
 
             callback_success(module, event_data, dispatchers_steamid)
             return
+    elif action is not None and player_steamid is None:
+        if action == "activate_whitelist":
+            module.dom.data.upsert({
+                "module_whitelist": {
+                    "is_active": True
+                }
+            })
+        if action == "deactivate_whitelist":
+            module.dom.data.upsert({
+                "module_whitelist": {
+                    "is_active": False
+                }
+            })
+
+        callback_success(module, event_data, dispatchers_steamid)
+        return
 
     callback_fail(module, event_data, dispatchers_steamid)
 
