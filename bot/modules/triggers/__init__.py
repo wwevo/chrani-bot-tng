@@ -29,9 +29,6 @@ class Triggers(Module):
 
     def start(self):
         Module.start(self)
-        self.available_triggers_dict = {}
-        for loaded_module in loaded_modules_dict.values():
-            self.available_triggers_dict.update(loaded_module.available_triggers_dict)
     # endregion
 
     def run(self):
@@ -40,17 +37,18 @@ class Triggers(Module):
 
             telnet_lines_to_process = self.telnet.get_a_bunch_of_lines(25)
             for telnet_line in telnet_lines_to_process:
-                for trigger_name, trigger in self.available_triggers_dict.items():
-                    for sub_trigger in trigger["triggers"]:
-                        regex_results = re.search(sub_trigger["regex"], telnet_line)
-                        if regex_results:
-                            sub_trigger["callback"](self, regex_results)
-                            message = "executed trigger: {}".format(trigger_name)
-                            print(message)
-                            if len(self.webserver.connected_clients) >= 1:
-                                # TODO: add method to append log, or create a new one
-                                pass
-#                                self.telnet.update_telnet_log_widget_log_line(message)
+                for loaded_module in loaded_modules_dict.values():
+                    for trigger_name, trigger in loaded_module.available_triggers_dict.items():
+                        for sub_trigger in trigger["triggers"]:
+                            regex_results = re.search(sub_trigger["regex"], telnet_line)
+                            if regex_results:
+                                sub_trigger["callback"](self, regex_results)
+                                message = "executed trigger: {}".format(trigger_name)
+                                print(message)
+                                if len(self.webserver.connected_clients) >= 1:
+                                    # TODO: add method to append log, or create a new one
+                                    pass
+    #                                self.telnet.update_telnet_log_widget_log_line(message)
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time
