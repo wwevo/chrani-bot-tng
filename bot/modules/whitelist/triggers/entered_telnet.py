@@ -8,12 +8,23 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, regex_result):
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-    executed_trigger = False
-    if command == "Authenticating":
-        executed_trigger = True
 
-    if executed_trigger is True:
-        pass
+    if command == "Authenticating":
+        player_steamid = regex_result.group("player_steamid")
+
+        player_dict = module.dom.data.get("module_whitelist", {}).get("players", {}).get(player_steamid)
+        admins = module.dom.data.get("module_players", {}).get("admins", {})
+        if player_dict is not None:
+            player_is_on_whitelist = player_dict.get("on_whitelist")
+            if player_is_on_whitelist is True or player_steamid in admins:
+                # player is fine and shall be allowed to play!
+                pass
+            else:
+                # player is not on the whitelist and is not an admin or mod.
+                whitelist_is_active = module.dom.data.get("module_whitelist", {}).get("is_active", False)
+                if whitelist_is_active is True:
+                    # if whitelist is active, get rid of the player!
+                    pass
 
 
 trigger_meta = {
