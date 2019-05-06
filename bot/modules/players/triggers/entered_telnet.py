@@ -56,7 +56,7 @@ def main_function(module, regex_result):
 
 
 trigger_meta = {
-    "description": "reacts to telnets player dicovery messages for real time responses!",
+    "description": "reacts to telnets player discovery messages for real time responses!",
     "main_function": main_function,
     "triggers": [
         {

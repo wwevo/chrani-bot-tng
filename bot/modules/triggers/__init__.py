@@ -48,7 +48,6 @@ class Triggers(Module):
                                 if len(self.webserver.connected_clients) >= 1:
                                     # TODO: add method to append log, or create a new one
                                     pass
-    #                                self.telnet.update_telnet_log_widget_log_line(message)
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time

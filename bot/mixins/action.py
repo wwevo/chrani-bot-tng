@@ -51,6 +51,17 @@ class Action(object):
                     args=(self, event_data)
                 ).start()
             else:
+                try:
+                    skip_it_callback = self.available_actions_dict[action_identifier]["skip_it"]
+                except KeyError:
+                    skip_it_callback = None
+
+                if skip_it_callback is not None:
+                    Thread(
+                        target=self.available_actions_dict[action_identifier]["skip_it"],
+                        args=(self, event_data)
+                    ).start()
+
                 status_message = "action '{}' requires an active telnet connection!".format(action_identifier)
 
         else:

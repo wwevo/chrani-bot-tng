@@ -88,7 +88,9 @@ class Module(Thread, Action, Trigger, Template, Widget):
     def emit_event_status(self, event_data, recipient_steamid, status):
         # recipient_steamid can be None, all or [list_of_steamid's]
         if recipient_steamid is None:
-            return
+            "all"
+        else:
+            recipient_steamid = [recipient_steamid]
 
         action_identifier = event_data[0]
         print("module '{}' sent status '{}' for '{}' to {}".format(
@@ -97,6 +99,6 @@ class Module(Thread, Action, Trigger, Template, Widget):
         self.webserver.send_data_to_client(
             event_data,
             data_type="status_message",
-            clients=[recipient_steamid],
+            clients=recipient_steamid,
             status=status
         )

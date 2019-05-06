@@ -47,11 +47,16 @@ def callback_fail(module, event_data, dispatchers_steamid):
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 
 
+def skip_it(module, event_data, dispatchers_steamid=None):
+    pass
+
+
 action_meta = {
     "description": "gets the current gettime readout",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,
+    "skip_it": skip_it,
     "requires_telnet_connection": True,
     "enabled": True
 }

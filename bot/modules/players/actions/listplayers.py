@@ -126,11 +126,20 @@ def callback_fail(module, event_data, dispatchers_steamid):
     module.emit_event_status(event_data, dispatchers_steamid, "fail")
 
 
+def skip_it(module, event_data, dispatchers_steamid=None):
+    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    for steamid, player_dict in all_players_dict.items():
+        player_dict["is_online"] = False
+
+    pass
+
+
 action_meta = {
     "description": "gets a list of all currently logged in players",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,
+    "skip_it": skip_it,
     "requires_telnet_connection": True,
     "enabled": True
 }
