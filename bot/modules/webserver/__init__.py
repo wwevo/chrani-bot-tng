@@ -121,7 +121,7 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
-                #  print(data_package[0]["event_data"])
+                # print(data_package[0]["event_data"])
 
                 self.websocket.emit(
                     'data',

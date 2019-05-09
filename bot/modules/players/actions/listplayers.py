@@ -52,6 +52,11 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
     )
     players_to_update_dict = {}
     for m in re.finditer(regex, raw_playerdata):
+        last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
+            day=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("day", {}),
+            hour=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("hour", {}),
+            minute=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("minute", {})
+        )
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {
             "id": m.group("id"),
@@ -79,14 +84,15 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             "in_limbo": in_limbo,
             "is_online": True,
             "is_initialized": True,
-            "last_updated": telnet_datetime
+            "last_updated_servertime": telnet_datetime,
+            "last_seen_gametime": last_seen_gametime_string
         }
         players_to_update_dict[m.group("steamid")] = player_dict
 
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     online_players_list = list(players_to_update_dict.keys())
     for steamid, player_dict in all_players_dict.items():
-        if steamid == 'last_updated' or player_dict["is_initialized"] is False:
+        if steamid == 'last_updated_servertime' or player_dict["is_initialized"] is False:
             continue
 
         if steamid not in online_players_list and player_dict["is_online"] is True:
@@ -112,7 +118,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
 def callback_fail(module, event_data, dispatchers_steamid):
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     for steamid, player_dict in all_players_dict.items():
-        if steamid == 'last_updated':
+        if steamid == 'last_updated_servertime':
             continue
         player_dict["is_online"] = False
 

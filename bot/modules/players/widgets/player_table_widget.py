@@ -29,7 +29,7 @@ def main_widget(module, dispatchers_steamid=None):
     table_rows = ""
     for steamid, player_dict in all_player_dicts.items():
 
-        if steamid == 'last_updated':
+        if steamid == 'last_updated_servertime':
             continue
 
         table_rows += template_table_rows.render(
@@ -105,7 +105,8 @@ widget_meta = {
     "main_widget": main_widget,
     "component_widget": component_widget,
     "handlers": {
-        "module_players/players": update_widget
+        "module_players/players": update_widget,
+        "module_players/players/last_seen_gametime": update_widget
     }
 }
 

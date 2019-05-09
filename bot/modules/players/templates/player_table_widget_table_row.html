@@ -20,5 +20,10 @@
     <td class="center" id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
     <td class="center" id="player_table_row_{{ player.steamid }}_players">{{ player.players }}</td>
     <td class="center" id="player_table_row_{{ player.steamid }}_score">{{ player.score }}</td>
-    <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_updated">{{ player.last_updated }}</td>
+    <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_updated_servertime">
+        {{ player.last_updated_servertime }}
+    </td>
+    <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_seen_gametime">
+        {{ player.last_seen_gametime }}
+    </td>
 </tr>

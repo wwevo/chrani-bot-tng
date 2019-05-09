@@ -76,14 +76,17 @@ footer > div {
     width: 100%;
 }
 
+#player_table_widget th.center,
 #player_table_widget td.center {
     text-align: center;
 }
 
+#player_table_widget th.right,
 #player_table_widget td.right {
     text-align: right;
 }
 
+#player_table_widget th.nobr,
 #player_table_widget td.nobr {
     white-space: nowrap;
 }

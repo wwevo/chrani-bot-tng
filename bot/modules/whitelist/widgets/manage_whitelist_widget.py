@@ -38,7 +38,7 @@ def main_widget(module, dispatchers_steamid=None):
     table_rows = ""
     for steamid, player_dict in all_player_dicts.items():
 
-        if steamid == 'last_updated':
+        if steamid == 'last_updated_servertime':
             continue
 
         player_dict_to_add = {}
