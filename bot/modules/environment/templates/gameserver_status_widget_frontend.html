@@ -4,13 +4,13 @@
 <div>
 <span>The server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}({{ construct_toggle_link(
         server_is_online,
-        "shutdown", ['widget_event', ['telnet', ['shutdown', {"timer": '30'}]]],
-        "contact admin", ['widget_event', ['telnet', ['shutdown', {"alert_admin": 1}]]]
+        "shutdown", ['widget_event', ['telnet', ['shutdown', {"timer": '30', "action": "trigger_shutdown"}]]],
+        "contact admin", ['widget_event', ['telnet', ['shutdown', {"alert_admin": 1, "action": "contact_admin"}]]]
 )}}){%- else %} ({{ construct_toggle_link(
         server_is_online,
-        "shutdown", ['widget_event', ['telnet', ['shutdown', {"force": 1}]]]
+        "shutdown", ['widget_event', ['telnet', ['shutdown', {"force": 1, "action": "forced_shutdown"}]]]
 )}} in {{ shutdown_in_seconds }} seconds {{ construct_toggle_link(
         server_is_online,
-        "cancel", ['widget_event', ['telnet', ['shutdown', {"cancel": 1}]]]
+        "cancel", ['widget_event', ['telnet', ['shutdown', {"cancel": 1, "action": "cancel_shutdown"}]]]
 )}}){%- endif -%}</span>
 </div>

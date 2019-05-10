@@ -68,15 +68,14 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         action_category = event_data[0]
-        action_identifier = event_data[1]["action"]
+        action_identifier = event_data[1].get("action", "unknown")
         print("module '{}' received event '{}' from {}".format(
             self.options['module_name'], action_category, dispatchers_steamid
         ))
 
         if action_category not in self.available_actions_dict:
             status_message = "could not find requested action '{}'".format(action_category)
-
-        if self.has_permission(action_category, action_identifier, dispatchers_steamid):
+        elif self.has_permission(action_category, action_identifier, dispatchers_steamid):
             status_message = "found and executed requested action '{action}' for user {steamid}".format(
                 action=action_category,
                 steamid=dispatchers_steamid
