@@ -5,9 +5,11 @@ from threading import Thread
 
 class Action(object):
     available_actions_dict = dict
+    trigger_action_hook = object
 
     def __init__(self):
         self.available_actions_dict = {}
+        self.trigger_action_hook = self.trigger_action
 
     def register_action(self, identifier, action_dict):
         self.available_actions_dict[identifier] = action_dict
@@ -31,7 +33,7 @@ class Action(object):
             # module does not have actions
             pass
 
-    def trigger_action(self, event_data):
+    def trigger_action(self, module, event_data, dispatchers_steamid=None):
         action_identifier = event_data[0]
         if action_identifier in self.available_actions_dict:
             status_message = "found requested action '{}'".format(action_identifier)
@@ -48,7 +50,7 @@ class Action(object):
             elif server_is_online is True or action_requires_server_to_be_online is not True:
                 Thread(
                     target=self.available_actions_dict[action_identifier]["main_function"],
-                    args=(self, event_data)
+                    args=(self, event_data, dispatchers_steamid)
                 ).start()
             else:
                 try:

@@ -4,10 +4,9 @@ from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
 from bot.mixins.widget import Widget
-from bot.mixins.permission import Permission
 
 
-class Module(Thread, Action, Trigger, Template, Widget, Permission):
+class Module(Thread, Action, Trigger, Template, Widget):
     """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
     # we are importing Action and Trigger class to make them available. requires actions and triggers to be there ^^
     options = dict
@@ -25,7 +24,6 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
         Trigger.__init__(self)
         Template.__init__(self)
         Widget.__init__(self)
-        Permission.__init__(self)
         Thread.__init__(self)
 
     def setup(self, options=dict):
@@ -40,7 +38,6 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
         self.import_actions()
         self.import_templates()
         self.import_widgets()
-
         self.name = self.options['module_name']
         return self
 
@@ -52,6 +49,9 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         Widget.start(self)
+
+        trigger_action_hook = self.trigger_action
+
         return self
 
     def on_socket_connect(self, dispatchers_steamid):
@@ -68,27 +68,11 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         action_category = event_data[0]
-        action_identifier = event_data[1].get("action", "unknown")
-        print("module '{}' received event '{}' from {}".format(
+        status_message = "module '{}' received event '{}' from {}".format(
             self.options['module_name'], action_category, dispatchers_steamid
-        ))
+        )
 
-        if action_category not in self.available_actions_dict:
-            status_message = "could not find requested action '{}'".format(action_category)
-        elif self.has_permission(action_category, action_identifier, dispatchers_steamid):
-            status_message = "found and executed requested action '{action}' for user {steamid}".format(
-                action=action_category,
-                steamid=dispatchers_steamid
-            )
-            Thread(
-                target=self.available_actions_dict[action_category]["main_function"],
-                args=(self, event_data, dispatchers_steamid)
-            ).start()
-        else:
-            status_message = "requested action '{action}' denied for user {steamid}".format(
-                action=action_category,
-                steamid=dispatchers_steamid
-            )
+        self.trigger_action_hook(self, event_data, dispatchers_steamid)
 
         if dispatchers_steamid is not None:
             # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
@@ -99,7 +83,7 @@ class Module(Thread, Action, Trigger, Template, Widget, Permission):
     def emit_event_status(self, event_data, recipient_steamid, status):
         # recipient_steamid can be None, all or [list_of_steamid's]
         if recipient_steamid is None:
-            "all"
+            recipient_steamid = "all"
         else:
             recipient_steamid = [recipient_steamid]
 

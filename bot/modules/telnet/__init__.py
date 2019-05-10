@@ -194,7 +194,7 @@ class Telnet(Module):
                 self.tn.write(command.encode('ascii'))
             except Exception as error:
                 print("couldn't process command '{}'".format(telnet_command))
-                print("error in telnet write: {}".format(error))
+                print("error during telnet write: {}".format(error))
     # endregion
 
     def run(self):
@@ -275,10 +275,12 @@ class Telnet(Module):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
                                 self.recent_telnet_response = component
                             else:  # part of a telnet-command response
-                                print(component.rstrip("\r\n"))
+                                # print(component.rstrip("\r\n"))
+                                pass
 
                         else:  # "found incomplete line smack in the middle"
-                            print(component.rstrip("\r\n"))
+                            # print(component.rstrip("\r\n"))
+                            pass
 
                     if valid_telnet_line is not None:
                         self.valid_telnet_lines.append(valid_telnet_line)

@@ -30,7 +30,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = old_values_dict.get("last_recorded_gametime", None)
     if gametime is None:
-        module.trigger_action(["gettime", {}])
+        module.trigger_action_hook(module, ["gettime", {}])
         return False
 
     if gametime == old_gametime:
