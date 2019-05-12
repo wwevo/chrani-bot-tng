@@ -1,3 +1,8 @@
+""" some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
+from gevent import monkey
+monkey.patch_all()
+
+""" standard imports """
 from importlib import import_module
 from os import path, chdir, walk
 import json

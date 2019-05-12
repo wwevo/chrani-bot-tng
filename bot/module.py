@@ -3,10 +3,11 @@ from bot import started_modules_dict
 from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
+from bot.mixins.socketio import SocketIO
 from bot.mixins.widget import Widget
 
 
-class Module(Thread, Action, Trigger, Template, Widget):
+class Module(Thread, Action, Trigger, Template, SocketIO, Widget):
     """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
     # we are importing Action and Trigger class to make them available. requires actions and triggers to be there ^^
     options = dict

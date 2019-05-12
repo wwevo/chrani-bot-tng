@@ -1,14 +1,3 @@
-""" some IDE's will throw 'PEP 8' warnings for imports, but this has to happen early, I think """
-#if not debug:
-from gevent import monkey
-monkey.patch_all()
-
-from os import path, chdir
-root_dir = path.dirname(path.abspath(__file__))
-chdir(root_dir)
-
-""" standard imports """
-from bot.common import dispatch_socket_event, authenticated_only
 from bot.module import Module
 from bot import loaded_modules_dict
 from .user import User
@@ -265,7 +254,7 @@ class Webserver(Module):
 
         # region Websocket handling
         @self.websocket.on('connect')
-        @authenticated_only
+        @self.authenticated_only
         def connect_handler():
             if hasattr(request, 'sid'):
                 print("connect_handler {}".format(self.connected_clients))
@@ -304,9 +293,9 @@ class Webserver(Module):
             print(request.event["message"])  # "my error event"
 
         @self.websocket.on('widget_event')
-        @authenticated_only
+        @self.authenticated_only
         def widget_event(data):
-            dispatch_socket_event(data[0], data[1], current_user.id)
+            self.dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
 
         self.websocket.run(
