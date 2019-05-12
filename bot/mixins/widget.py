@@ -25,7 +25,7 @@ class Widget(object):
             for name, widget in self.available_widgets_dict.items():
                 for trigger, handler in widget["handlers"].items():
                     self.dom.data.register_callback(self, trigger, handler)
-                    print(trigger, handler)
+                    # print(trigger, handler)
 
     def register_widget(self, identifier, widget_dict):
         self.available_widgets_dict[identifier] = widget_dict

@@ -3,11 +3,10 @@ from bot import started_modules_dict
 from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
-from bot.mixins.socketio import SocketIO
 from bot.mixins.widget import Widget
 
 
-class Module(Thread, Action, Trigger, Template, SocketIO, Widget):
+class Module(Thread, Action, Trigger, Template, Widget):
     """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
     # we are importing Action and Trigger class to make them available. requires actions and triggers to be there ^^
     options = dict
@@ -33,7 +32,8 @@ class Module(Thread, Action, Trigger, Template, SocketIO, Widget):
             self.options.update(options)
             print("{}: provided options have been set".format(self.options['module_name']))
         else:
-            print("{}: no options provided, default values are used".format(self.default_options["module_name"]))
+            # print("{}: no options provided, default values are used".format(self.default_options["module_name"]))
+            pass
 
         self.import_triggers()
         self.import_actions()
@@ -50,8 +50,6 @@ class Module(Thread, Action, Trigger, Template, SocketIO, Widget):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         Widget.start(self)
-
-        trigger_action_hook = self.trigger_action
 
         return self
 

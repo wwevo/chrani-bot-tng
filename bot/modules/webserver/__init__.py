@@ -1,3 +1,7 @@
+import functools
+from bot import started_modules_dict
+from flask_socketio import disconnect
+
 from bot.module import Module
 from bot import loaded_modules_dict
 from .user import User
@@ -38,6 +42,30 @@ class Webserver(Module):
     def get_module_identifier():
         return "module_webserver"
 
+    # region SocketIO stuff
+    @staticmethod
+    def dispatch_socket_event(target_module, event_data, dispatchers_steamid):
+        module_identifier = "module_{}".format(target_module)
+        print("user '{}' tries sending {} to module {}...".format(dispatchers_steamid, event_data, module_identifier))
+        try:
+            started_modules_dict[module_identifier].on_socket_event(event_data, dispatchers_steamid)
+        except KeyError as error:
+            print("users '{}' attempt to send data to module {} failed: module not found!".format(
+                dispatchers_steamid, module_identifier
+            ))
+
+    @staticmethod
+    def authenticated_only(f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            if not current_user.is_authenticated:
+                disconnect()
+            else:
+                return f(*args, **kwargs)
+
+        return wrapped
+    # endregion
+
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
@@ -53,15 +81,13 @@ class Webserver(Module):
         login_manager = LoginManager()
         login_manager.init_app(app)
 
-        socketio = SocketIO(
+        self.app = app
+        self.websocket = SocketIO(
             app,
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode")),
             ping_timeout=15,
             ping_interval=5
         )
-
-        self.app = app
-        self.websocket = socketio
         self.login_manager = login_manager
     # endregion
 
