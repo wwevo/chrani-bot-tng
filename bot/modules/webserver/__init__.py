@@ -144,6 +144,14 @@ class Webserver(Module):
                     **data_package[1]
                 )
 
+    def emit_event_status(self, event_data, recipient_steamid, status):
+        self.send_data_to_client(
+            event_data,
+            data_type="status_message",
+            clients=recipient_steamid,
+            status=status
+        )
+
     def run(self):
         template_frontend = self.templates.get_template('index.html')
 

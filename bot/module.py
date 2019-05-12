@@ -72,27 +72,21 @@ class Module(Thread, Action, Trigger, Template, Widget):
         )
 
         self.trigger_action_hook(self, event_data, dispatchers_steamid)
-
-        if dispatchers_steamid is not None:
-            # we don't need to dispatch a status if there's no user doing the call, unless it's a broadcast!
-            self.emit_event_status(event_data, dispatchers_steamid, status_message)
+        self.emit_event_status(event_data, dispatchers_steamid, status_message)
 
         Widget.on_socket_event(self, event_data, dispatchers_steamid)
 
     def emit_event_status(self, event_data, recipient_steamid, status):
-        # recipient_steamid can be None, all or [list_of_steamid's]
-        if recipient_steamid is None:
-            recipient_steamid = "all"
-        else:
+        # TODO: send this to a dynamic list of recipients, can't have hardcoded module references in here ^^
+        # recipient_steamid can be None, "all" or [list_of_steamid's]
+        if recipient_steamid is not None:
             recipient_steamid = [recipient_steamid]
+            print("module '{module_name}' sent status '{status}' for '{action_identifier}' to {recipient_steamid}".format(
+                module_name=self.options['module_name'],
+                status=status,
+                action_identifier=event_data[0],
+                recipient_steamid=recipient_steamid
+            ))
 
-        action_identifier = event_data[0]
-        print("module '{}' sent status '{}' for '{}' to {}".format(
-            self.options['module_name'], status, action_identifier, recipient_steamid
-        ))
-        self.webserver.send_data_to_client(
-            event_data,
-            data_type="status_message",
-            clients=recipient_steamid,
-            status=status
-        )
+        self.webserver.emit_event_status(event_data, recipient_steamid, status)
+
