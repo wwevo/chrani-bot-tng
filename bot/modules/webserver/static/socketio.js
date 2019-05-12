@@ -150,45 +150,10 @@ $(document).ready(function() {
                 }
             });
         }
-
-        if (data["data_type"] === "element_content") {
-            let target_element_id = data["target_element"]["id"];
-            if (target_element_id == null) {
-                return false;
-            }
-            let dummy_id = data["target_element"]["dummy_id"];
-            if (dummy_id == null) {
-                dummy_id = "player_table_row_"
-            }
-            let selector = data["target_element"]["selector"];
-
-            let parent_element = $('#' + target_element_id);
-            if (parent_element.length === 0) {
-                /* seems like the container we want ain't here- let's request it */
-                request_player_table_widget_row(target_element_id, data["event_data"]["steamid"])
-            }
-
-            parent_element.setClass(data["target_element"]["class"]);
-
-            let elements_to_update = data["event_data"];
-            $.each(elements_to_update, function (key, value) {
-                if ($.type(value) === 'object') {
-                    $.each(value, function (sub_key, sub_value) {
-                        let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
-                        if (element_to_update.text() !== sub_value.toString()) {
-                            element_to_update.html(sub_value);
-                        }
-                    });
-                } else {
-                    let element_to_update = $('#' + target_element_id + '_' + key);
-                    if (element_to_update.text() !== value.toString()) {
-                        element_to_update.html(value);
-                    }
-                }
-            });
-        } else if (data["data_type"] === "status_message") {
+        if (data["data_type"] === "status_message") {
             console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
-        } else if (data["data_type"] === "alert_message") {
+        }
+        if (data["data_type"] === "alert_message") {
             alert(data['status']);
         }
     });
