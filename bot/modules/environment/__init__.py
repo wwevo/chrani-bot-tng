@@ -39,6 +39,12 @@ class Environment(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
+            self.trigger_action_hook(self, ["getgamestats", {
+                "execute_only_once": True
+            }])
+            self.trigger_action_hook(self, ["getgameprefs", {
+                "execute_only_once": True
+            }])
             self.trigger_action_hook(self, ["gettime", {}])
             self.trigger_action_hook(self, ["logged_in_users", {}])
 
