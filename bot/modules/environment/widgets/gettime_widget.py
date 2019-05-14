@@ -26,7 +26,7 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = old_values_dict.get("last_recorded_gametime", None)
     if gametime is None:

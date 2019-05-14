@@ -11,7 +11,7 @@ def main_widget(module, dispatchers_steamid=None):
     pass
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     admin_dict = updated_values_dict.get("admins", {})
     print(admin_dict)
 

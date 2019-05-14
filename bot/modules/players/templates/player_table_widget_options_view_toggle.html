@@ -1,0 +1,11 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+<tr id="player_table_widget_options_toggle">
+    <th class="left">Players</th>
+    <th class="right" colspan="14">
+        ({{ construct_toggle_link(
+            options_view_toggle,
+            "options", ['widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': steamid, "action": "show_options"}]]],
+            "frontend", ['widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
+        ) }})
+    </th>
+</tr>

@@ -81,6 +81,11 @@ footer > div {
     text-align: center;
 }
 
+#player_table_widget th.left,
+#player_table_widget td.left {
+    text-align: left;
+}
+
 #player_table_widget th.right,
 #player_table_widget td.right {
     text-align: right;
@@ -94,6 +99,12 @@ footer > div {
 #player_table_widget caption {
     text-align: right;
 }
+
+#player_table_widget_options_toggle th {
+    text-align: right;
+    background-color: darkkhaki;
+}
+
 
 @media only screen and (max-width: 960px) {
 	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),

@@ -78,7 +78,7 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     """ send updated information to each active client of the webinterface
         widget will update
             whenever the whitelist status of any player changes or
@@ -122,7 +122,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None):
             print("updating whitelist widget for webinterface user {} and player {}".format(clientid, player_dict["steamid"]))
 
 
-def update_widget_status(module, updated_values_dict=None, old_values_dict=None):
+def update_widget_status(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget_enable_disable_toggle.html')
     enable_disable_toggle = template_enable_disable_toggle.render(
         whitelist_status="whitelist is active" if updated_values_dict.get("is_active", False) else "whitelist is deactivated",

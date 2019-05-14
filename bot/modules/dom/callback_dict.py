@@ -1,5 +1,6 @@
 from collections import Mapping,deque
 from threading import Thread
+import re
 
 
 class CallbackDict(dict, object):
@@ -13,7 +14,7 @@ class CallbackDict(dict, object):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
-    def append(self, updated_values_dict, dict_to_update=None, path=None, maxlen=None):
+    def append(self, updated_values_dict, dict_to_update=None, path=None, maxlen=None, dispatchers_steamid=None):
         if dict_to_update is None:
             dict_to_update = self
         if path is None:
@@ -26,7 +27,12 @@ class CallbackDict(dict, object):
                 for callback in self.registered_callbacks[full_path]:
                     Thread(
                         target=callback["callback"],
-                        args=(callback["module"], CallbackDict(updated_values_dict), dict_to_update)
+                        args=[callback["module"]],
+                        kwargs={
+                            "updated_values_dict": CallbackDict(updated_values_dict),
+                            "old_values_dict": dict_to_update,
+                            "dispatchers_steamid": dispatchers_steamid
+                        }
                     ).start()
 
                 try:
@@ -47,16 +53,20 @@ class CallbackDict(dict, object):
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, d_v, path=path, maxlen=maxlen)
 
-    def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None):
+    def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None, dispatchers_steamid=None):
         if dict_to_update is None:
             dict_to_update = self
         if path is None:
             path = []
 
         for k, v in updated_values_dict.items():
-            # something is wonky here. path is getting too long. not critical, just wasteful
             path.append(k)
             full_path = "/".join(path)
+
+            regex = r"\d{17}"
+            for match in re.finditer(regex, k, re.MULTILINE):
+                path[-1] = "%steamid%"
+                full_path = "/".join(path)
 
             forced_overwrite = False
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
@@ -68,7 +78,12 @@ class CallbackDict(dict, object):
                     for callback in self.registered_callbacks[full_path]:
                         Thread(
                             target=callback["callback"],
-                            args=(callback["module"], CallbackDict(updated_values_dict), dict_to_update)
+                            args=[callback["module"]],
+                            kwargs={
+                                "updated_values_dict": CallbackDict(updated_values_dict),
+                                "old_values_dict": dict_to_update,
+                                "dispatchers_steamid": dispatchers_steamid
+                            }
                         ).start()
                 except KeyError:
                     # not present in the target dict, skipping
@@ -77,7 +92,7 @@ class CallbackDict(dict, object):
             d_v = dict_to_update.get(k)
             if not forced_overwrite:
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                    self.upsert(v, d_v, overwrite=overwrite, path=path)
+                    self.upsert(v, d_v, overwrite=overwrite, path=path, dispatchers_steamid=dispatchers_steamid)
                 elif isinstance(v, Mapping) and len(v) >= 1:
                     dict_to_update[k] = v
                     combined_full_path = "{}/{}".format(full_path, next(iter(v)))
@@ -85,7 +100,12 @@ class CallbackDict(dict, object):
                         for callback in self.registered_callbacks[combined_full_path]:
                             Thread(
                                 target=callback["callback"],
-                                args=(callback["module"], CallbackDict(v), dict_to_update[k])
+                                args=[callback["module"]],
+                                kwargs={
+                                    "updated_values_dict": CallbackDict(v),
+                                    "old_values_dict": dict_to_update[k],
+                                    "dispatchers_steamid": dispatchers_steamid
+                                }
                             ).start()
                     except KeyError:
                         # not present in the target dict, skipping

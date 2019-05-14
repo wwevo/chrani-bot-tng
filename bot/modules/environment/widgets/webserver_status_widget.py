@@ -33,7 +33,7 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
     old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
     if webserver_logged_in_users == old_webserver_logged_in_users:
