@@ -53,7 +53,12 @@ class CallbackDict(dict, object):
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, d_v, path=path, maxlen=maxlen)
 
-    def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None, dispatchers_steamid=None):
+    def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None, dispatchers_steamid=None, layer=0, callbacks=None):
+        if layer == 0:
+            if callbacks is None:
+                callbacks = []
+
+        layer += 1
         if dict_to_update is None:
             dict_to_update = self
         if path is None:
@@ -76,15 +81,18 @@ class CallbackDict(dict, object):
 
                 try:
                     for callback in self.registered_callbacks[full_path]:
-                        Thread(
-                            target=callback["callback"],
-                            args=[callback["module"]],
-                            kwargs={
-                                "updated_values_dict": CallbackDict(updated_values_dict),
-                                "old_values_dict": dict_to_update,
-                                "dispatchers_steamid": dispatchers_steamid
-                            }
-                        ).start()
+                        callbacks.append(
+                            Thread(
+                                target=callback["callback"],
+                                args=[callback["module"]],
+                                kwargs={
+                                    "updated_values_dict": CallbackDict(updated_values_dict),
+                                    "old_values_dict": dict_to_update,
+                                    "dispatchers_steamid": dispatchers_steamid
+                                }
+                            )
+                        )
+
                 except KeyError:
                     # not present in the target dict, skipping
                     pass
@@ -92,27 +100,34 @@ class CallbackDict(dict, object):
             d_v = dict_to_update.get(k)
             if not forced_overwrite:
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                    self.upsert(v, d_v, overwrite=overwrite, path=path, dispatchers_steamid=dispatchers_steamid)
+                    self.upsert(v, d_v, overwrite=overwrite, path=path, dispatchers_steamid=dispatchers_steamid, layer=layer, callbacks=callbacks)
                 elif isinstance(v, Mapping) and len(v) >= 1:
                     dict_to_update[k] = v
                     combined_full_path = "{}/{}".format(full_path, next(iter(v)))
                     try:
                         for callback in self.registered_callbacks[combined_full_path]:
-                            Thread(
-                                target=callback["callback"],
-                                args=[callback["module"]],
-                                kwargs={
-                                    "updated_values_dict": CallbackDict(v),
-                                    "old_values_dict": dict_to_update[k],
-                                    "dispatchers_steamid": dispatchers_steamid
-                                }
-                            ).start()
+                            callbacks.append(
+                                Thread(
+                                    target=callback["callback"],
+                                    args=[callback["module"]],
+                                    kwargs={
+                                        "updated_values_dict": CallbackDict(v),
+                                        "old_values_dict": dict_to_update[k],
+                                        "dispatchers_steamid": dispatchers_steamid
+                                    }
+                                )
+                            )
+
                     except KeyError:
                         # not present in the target dict, skipping
                         pass
 
                 else:
                     dict_to_update[k] = v
+        layer -= 1
+        if layer == 0:
+            for callback in callbacks:
+                callback.start()
 
     def register_callback(self, module, dict_to_monitor, callback):
         try:

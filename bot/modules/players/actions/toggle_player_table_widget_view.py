@@ -13,22 +13,35 @@ def main_function(module, event_data, dispatchers_steamid):
             module.dom.data.upsert({
                 "module_players": {
                     "visibility": {
-                        player_steamid: {
-                            "current_view": "options"
+                        dispatchers_steamid: {
+                            "current_view": "options",
+                            "current_view_steamid": None
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, overwrite=True)
+            }, dispatchers_steamid=dispatchers_steamid)
         if action == "show_frontend":
             module.dom.data.upsert({
                 "module_players": {
                     "visibility": {
-                        player_steamid: {
-                            "current_view": "frontend"
+                        dispatchers_steamid: {
+                            "current_view": "frontend",
+                            "current_view_steamid": None
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, overwrite=True)
+            }, dispatchers_steamid=dispatchers_steamid)
+        if action == "show_info_view":
+            module.dom.data.upsert({
+                "module_players": {
+                    "visibility": {
+                        dispatchers_steamid: {
+                            "current_view": "info_view",
+                            "current_view_steamid": player_steamid
+                        }
+                    }
+                }
+            }, dispatchers_steamid=dispatchers_steamid)
 
         callback_success(module, event_data, dispatchers_steamid)
         return

@@ -73,7 +73,9 @@ footer > div {
 }
 
 #player_table_widget table {
-    width: 100%;
+/*    width: 100%; */
+    font-size: 90%;
+    min-width: 832px;
 }
 
 #player_table_widget th.center,
@@ -107,34 +109,12 @@ footer > div {
 
 
 @media only screen and (max-width: 960px) {
-	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
-	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8) {
-        display:none;
-        visibility:hidden;
-    }
 }
 
 @media only screen and (max-width: 840px) {
-	#player_table_widget tr th:nth-child(5), #player_table_widget tr td:nth-child(5),
-	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
-	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8),
-    #player_table_widget tr th:nth-child(10), #player_table_widget tr td:nth-child(10),
-	#player_table_widget tr th:nth-child(12), #player_table_widget tr td:nth-child(12) {
-        display:none;
-        visibility:hidden;
-    }
 }
 
 @media only screen and (max-width: 640px) {
-	#player_table_widget tr th:nth-child(5), #player_table_widget tr td:nth-child(5),
-	#player_table_widget tr th:nth-child(6), #player_table_widget tr td:nth-child(6),
-	#player_table_widget tr th:nth-child(8), #player_table_widget tr td:nth-child(8),
-    #player_table_widget tr th:nth-child(10), #player_table_widget tr td:nth-child(10),
-	#player_table_widget tr th:nth-child(11), #player_table_widget tr td:nth-child(11),
-	#player_table_widget tr th:nth-child(12), #player_table_widget tr td:nth-child(12) {
-        display:none;
-        visibility:hidden;
-    }
 }
 
 #telnet_log_widget {
