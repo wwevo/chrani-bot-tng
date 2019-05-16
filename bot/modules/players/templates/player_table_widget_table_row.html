@@ -1,3 +1,4 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 <tr id="player_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="player_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
     <td id="player_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
@@ -16,6 +17,9 @@
         {{ player.last_seen_gametime }}
     </td>
     <td class="nobr right" id="player_table_row_{{  player.steamid }}_info }}">
-        (<span><a href="#" onclick="window.socket.emit('widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': '{{ player.steamid }}', 'action': 'show_info_view'}]]); return false;">info</a></span>)
+        <span>({{ construct_toggle_link(
+            True,
+            "info", ['widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': player.steamid, 'action': 'show_info_view'}]]]
+        )}})</span>
     </td>
 </tr>
