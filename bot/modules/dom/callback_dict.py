@@ -14,18 +14,35 @@ class CallbackDict(dict, object):
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
 
-    def append(self, updated_values_dict, dict_to_update=None, path=None, maxlen=None, dispatchers_steamid=None):
+    def append(self, updated_values_dict, dict_to_update=None, path=None, maxlen=None, dispatchers_steamid=None, layer=0, callbacks=None):
+        if layer == 0:
+            if callbacks is None:
+                callbacks = []
+
+        layer += 1
         if dict_to_update is None:
             dict_to_update = self
         if path is None:
             path = []
+        else:
+            path = path[0:layer-1]
 
         for k, v in updated_values_dict.items():
-            path.append(k)
+            if re.match(r"\d{17}", k, re.MULTILINE):
+                try:
+                    path[layer-1] = "%steamid%"
+                except IndexError:
+                    path.append("%steamid%")
+            else:
+                try:
+                    path[layer-1] = k
+                except IndexError:
+                    path.append(k)
+
             full_path = "/".join(path)
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 for callback in self.registered_callbacks[full_path]:
-                    Thread(
+                    callbacks.append(Thread(
                         target=callback["callback"],
                         args=[callback["module"]],
                         kwargs={
@@ -33,7 +50,7 @@ class CallbackDict(dict, object):
                             "old_values_dict": dict_to_update,
                             "dispatchers_steamid": dispatchers_steamid
                         }
-                    ).start()
+                    ))
 
                 try:
                     dict_to_update[k].append(v)
@@ -51,7 +68,12 @@ class CallbackDict(dict, object):
 
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.append(v, d_v, path=path, maxlen=maxlen)
+                self.append(v, d_v, path=path, maxlen=maxlen, layer=layer, callbacks=callbacks)
+
+        layer -= 1
+        if layer == 0:
+            for callback in callbacks:
+                callback.start()
 
     def upsert(self, updated_values_dict, dict_to_update=None, overwrite=False, path=None, dispatchers_steamid=None, layer=0, callbacks=None):
         if layer == 0:
@@ -63,16 +85,22 @@ class CallbackDict(dict, object):
             dict_to_update = self
         if path is None:
             path = []
+        else:
+            path = path[0:layer-1]
 
         for k, v in updated_values_dict.items():
-            path.append(k)
+            if re.match(r"\d{17}", k, re.MULTILINE):
+                try:
+                    path[layer-1] = "%steamid%"
+                except IndexError:
+                    path.append("%steamid%")
+            else:
+                try:
+                    path[layer-1] = k
+                except IndexError:
+                    path.append(k)
+
             full_path = "/".join(path)
-
-            regex = r"\d{17}"
-            for match in re.finditer(regex, k, re.MULTILINE):
-                path[-1] = "%steamid%"
-                full_path = "/".join(path)
-
             forced_overwrite = False
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 if overwrite is True:

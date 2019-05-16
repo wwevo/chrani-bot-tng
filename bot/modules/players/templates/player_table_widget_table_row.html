@@ -16,10 +16,14 @@
     <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_seen_gametime">
         {{ player.last_seen_gametime }}
     </td>
-    <td class="nobr right" id="player_table_row_{{  player.steamid }}_info }}">
+    <td class="nobr right">
         <span>({{ construct_toggle_link(
             True,
             "info", ['widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': player.steamid, 'action': 'show_info_view'}]]]
-        )}})</span>
+        )}})</span>{%- if player.is_online == true -%}
+        <span>({{ construct_toggle_link(
+            True,
+            "kick", ['widget_event', ['players', ['kickplayer', {'steamid': player.steamid, 'reason': 'whatever'}]]]
+        )}})</span>{%- endif -%}
     </td>
 </tr>

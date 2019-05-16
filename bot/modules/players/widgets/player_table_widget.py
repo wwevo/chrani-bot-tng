@@ -213,14 +213,20 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
             pass
 
 
+def test(*args, **kwargs):
+    print("ONLINE STATUS CHANGED FOR PLAYER {steamid}!!!!!!!".format(steamid=kwargs.get("updated_values_dict").get("steamid")))
+
+
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": select_view,
     "component_widget": component_widget,
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
+        "module_players/players/%steamid%/is_online": test,
+        "module_players/players/%steamid%/in_limbo": test,
         "module_players/players": update_widget,
-        "module_players/players/last_seen_gametime": update_widget
+        "module_players/players//%steamid%/last_seen_gametime": update_widget
     }
 }
 
