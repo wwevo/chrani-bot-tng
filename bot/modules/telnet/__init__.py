@@ -9,6 +9,8 @@ import telnetlib
 class Telnet(Module):
     tn = object
 
+    data_transfer_enabled = bool
+
     telnet_buffer = str
     valid_telnet_lines = deque
 
@@ -23,6 +25,7 @@ class Telnet(Module):
             "port": 8081,
             "password": "thisissecret",
             "max_queue_length": 100,
+            "data_transfer_enabled": True,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
@@ -58,8 +61,9 @@ class Telnet(Module):
     def setup(self, options=dict):
         Module.setup(self, options)
 
-        self.telnet_lines_to_process = deque(maxlen=self.default_options["max_queue_length"])
-        self.valid_telnet_lines = deque(maxlen=self.default_options["max_queue_length"])
+        self.telnet_lines_to_process = deque(maxlen=self.options["max_queue_length"])
+        self.valid_telnet_lines = deque(maxlen=self.options["max_queue_length"])
+        self.data_transfer_enabled = self.options.get("data_transfer_enabled", self.default_options.get("data_transfer_enabled", False))
 
         self.telnet_buffer = ""
 
@@ -191,10 +195,16 @@ class Telnet(Module):
             command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
             try:
-                self.tn.write(command.encode('ascii'))
+                if self.data_transfer_enabled:
+                    self.tn.write(command.encode('ascii'))
+                else:
+                    raise ConnectionRefusedError("telnet data transfer has been disabled")
+
             except Exception as error:
-                print("couldn't process command '{}'".format(telnet_command))
-                print("error during telnet write: {}".format(error))
+                print("couldn't process command '{command}' due to: '{error}'".format(
+                    command=telnet_command,
+                    error=error
+                ))
     # endregion
 
     def run(self):
@@ -206,15 +216,23 @@ class Telnet(Module):
                 # or if n seconds have passed after last loss,
                 # to prevent connect hammering
                 try:
-                    self.telnet_response = self.tn.read_very_eager().decode("utf-8")
-                except (AttributeError, EOFError, ConnectionAbortedError) as error:
+                    if self.data_transfer_enabled:
+                        self.telnet_response = self.tn.read_very_eager().decode("utf-8")
+                    else:
+                        print(
+                            "Telnet: data transfer is disabled. "
+                            "We won't communicate with the server"
+                        )
+                        raise ConnectionRefusedError
+                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionRefusedError) as error:
                     try:
-                        self.setup_telnet()
-                        self.dom.data.upsert({
-                            self.get_module_identifier(): {
-                                "server_is_online": True
-                            }
-                        })
+                        if not isinstance(error, ConnectionRefusedError):
+                            self.setup_telnet()
+                            self.dom.data.upsert({
+                                self.get_module_identifier(): {
+                                    "server_is_online": True
+                                }
+                            })
 
                     except (OSError, Exception) as error:
                         self.dom.data.upsert({
