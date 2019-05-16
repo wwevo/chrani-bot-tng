@@ -39,18 +39,22 @@ footer > div {
     font-size: 0.8em;
 }
 
+span.is_online,
 tr.is_online {
     background-color: limegreen;
 }
 
+span.on_whitelist,
 tr.on_whitelist {
     background-color: greenyellow;
 }
 
+span.is_online.in_limbo,
 tr.is_online.in_limbo {
     background-color: darkorange;
 }
 
+span.is_offline.in_limbo,
 tr.is_offline.in_limbo {
     background-color: antiquewhite;
 }
