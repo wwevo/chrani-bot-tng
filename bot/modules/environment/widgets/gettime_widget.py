@@ -34,7 +34,8 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         return False
 
     if gametime == old_gametime:
-        return
+        pass
+        # return
 
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
     data_to_emit = template_frontend.render(

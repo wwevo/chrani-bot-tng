@@ -69,7 +69,9 @@ def show_info_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget_info_view.html')
     template_options_toggle = module.templates.get_template('player_table_widget_options_view_toggle.html')
     options_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+
     current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
+
     if options_view == "frontend":
         options_view_toggle = True
     else:
@@ -82,7 +84,8 @@ def show_info_view(module, dispatchers_steamid=None):
 
     data_to_emit = template_frontend.render(
         options_toggle=options_toggle,
-        current_view_steamid=current_view_steamid
+        current_view_steamid=current_view_steamid,
+        player=module.dom.data.get("module_players", {}).get("players", {}).get(current_view_steamid, None)
     )
 
     module.webserver.send_data_to_client(
@@ -164,18 +167,18 @@ def component_widget(module, event_data, dispatchers_steamid=None):
             target_element={
                 "id": "player_table_widget",
                 "type": "tr",
-                # c"class": get_player_table_row_css_class(player_dict),
+                # "class": get_player_table_row_css_class(player_dict),
                 "selector": "body > main > div > div#player_table_widget > table > tbody"
             }
         )
 
 
 def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    options_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
-    if options_view == "frontend":
-        for clientid in module.webserver.connected_clients.keys():
-            try:
-                for steamid, player_dict in updated_values_dict.get("players", {}).items():
+    for clientid in module.webserver.connected_clients.keys():
+        try:
+            for steamid, player_dict in updated_values_dict.get("players", {}).items():
+                options_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(steamid,{}).get("current_view", None)
+                if options_view == "frontend":
                     module.webserver.send_data_to_client(
                         event_data=player_dict,
                         data_type="table_row_content",
@@ -191,8 +194,23 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                         }
                     )
                     print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
-            except KeyError as error:
-                pass
+                elif options_view == "info_view":
+                    module.webserver.send_data_to_client(
+                        event_data=player_dict,
+                        data_type="table_row_content",
+                        clients=[clientid],
+                        method="update",
+                        target_element={
+                            "id": "player_table_row",
+                            "parent_id": "player_table_widget",
+                            "module": "players",
+                            "type": "tr",
+                            "selector": "body > main > div > div > table > tbody"
+                        }
+                    )
+                    print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
+        except KeyError as error:
+            pass
 
 
 widget_meta = {

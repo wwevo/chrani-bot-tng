@@ -2,10 +2,81 @@
     <thead>
         {{ options_toggle }}
     </thead>
-    <tbody>
+    <tbody id="player_table_row_{{ player.steamid }}">
         <tr>
-            <th>player-info ({{ current_view_steamid }})</th>
+            <th colspan="2">player-info ({{ current_view_steamid }})</th>
         </tr>
-        {{ table_rows }}
+        <tr>
+            <td>Name</td>
+            <td id="player_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
+        </tr>
+        <tr>
+            <td>ID</td>
+            <td id="player_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
+        </tr>
+        <tr>
+            <td>SteamID</td>
+            <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+        </tr>
+        <tr>
+            <td>Health</td>
+            <td id="player_table_row_{{ player.steamid }}_health">{{ player.health }}</td>
+        </tr>
+        <tr>
+            <td>Position</td>
+            <td class="position" onclick="$(this).selectText();">
+                <span id="player_table_row_{{ player.steamid }}_pos_x">{{ ((player | default({})).pos | default({}) ).x | default('0') }}</span>
+                <span id="player_table_row_{{ player.steamid }}_pos_y">{{ ((player | default({})).pos | default({}) ).y | default('0') }}</span>
+                <span id="player_table_row_{{ player.steamid }}_pos_z">{{ ((player | default({})).pos | default({}) ).z | default('0') }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Rotation</td>
+            <td class="position">
+                <span id="player_table_row_{{ player.steamid }}_rot_x">{{ ((player | default({})).rot | default({}) ).x | default('0') }}</span>
+                <span id="player_table_row_{{ player.steamid }}_rot_y">{{ ((player | default({})).rot | default({}) ).y | default('0') }}</span>
+                <span id="player_table_row_{{ player.steamid }}_rot_z">{{ ((player | default({})).rot | default({}) ).z | default('0') }}</span>
+            </td>
+        </tr>
+        <tr>
+            <td>Level</td>
+            <td id="player_table_row_{{ player.steamid }}_level">{{ player.level }}</td>
+        </tr>
+        <tr>
+            <td>IP-Address</td>
+            <td onclick="$(this).selectText();" id="player_table_row_{{ player.steamid }}_ip">{{ player.ip }}</td>
+        </tr>
+        <tr>
+            <td>Ping</td>
+            <td id="player_table_row_{{ player.steamid }}_ping">{{ player.ping }}</td>
+        </tr>
+        <tr>
+            <td>Deaths</td>
+            <td id="player_table_row_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
+        </tr>
+        <tr>
+            <td>Zombie-Kills</td>
+            <td id="player_table_row_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
+        </tr>
+        <tr>
+            <td>Player-Kills</td>
+            <td id="player_table_row_{{ player.steamid }}_players">{{ player.players }}</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td id="player_table_row_{{ player.steamid }}_score">{{ player.score }}</td>
+        </tr>
+        <tr>
+            <td>Last seen</td>
+            <td class="nobr" id="player_table_row_{{ player.steamid }}_last_updated_servertime">
+                {{ player.last_updated_servertime }}
+            </td>
+        </tr>
+        <tr>
+            <td>Last seen (gametime)</td>
+            <td class="nobr" id="player_table_row_{{ player.steamid }}_last_seen_gametime">
+                {{ player.last_seen_gametime }}
+            </td>
+        </tr>
     </tbody>
 </table>
