@@ -12,5 +12,9 @@
 )}} in {{ shutdown_in_seconds }} seconds {{ construct_toggle_link(
         server_is_online,
         "cancel", ['widget_event', ['telnet', ['shutdown', {"cancel": 1, "action": "cancel_shutdown"}]]]
-)}}){%- endif -%}</span>
+)}}){%- endif -%} ({{ construct_toggle_link(
+        data_transfer_enabled,
+        "disable telnet", ['widget_event', ['telnet', ['switch_data_transfer', {"action": "disable_telnet_data_transfer"}]]],
+        "enable telnet", ['widget_event', ['telnet', ['switch_data_transfer', {"action": "enable_telnet_data_transfer"}]]]
+)}})</span>
 </div>

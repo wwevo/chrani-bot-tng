@@ -216,28 +216,22 @@ class Telnet(Module):
                 # or if n seconds have passed after last loss,
                 # to prevent connect hammering
                 try:
-                    if self.data_transfer_enabled:
-                        self.telnet_response = self.tn.read_very_eager().decode("utf-8")
-                    else:
-                        print(
-                            "Telnet: data transfer is disabled. "
-                            "We won't communicate with the server"
-                        )
-                        raise ConnectionRefusedError
-                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionRefusedError) as error:
+                    self.telnet_response = self.tn.read_very_eager().decode("utf-8")
+                except (AttributeError, EOFError, ConnectionAbortedError) as main_error:
                     try:
-                        if not isinstance(error, ConnectionRefusedError):
-                            self.setup_telnet()
-                            self.dom.data.upsert({
-                                self.get_module_identifier(): {
-                                    "server_is_online": True
-                                }
-                            })
-
-                    except (OSError, Exception) as error:
+                        self.setup_telnet()
                         self.dom.data.upsert({
                             self.get_module_identifier(): {
-                                "server_is_online": False
+                                "server_is_online": True,
+                                "data_transfer_enabled": self.data_transfer_enabled
+                            }
+                        })
+
+                    except (OSError, Exception, ConnectionRefusedError) as sub_error:
+                        self.dom.data.upsert({
+                            self.get_module_identifier(): {
+                                "server_is_online": False,
+                                "data_transfer_enabled": self.data_transfer_enabled
                             }
                         })
                         self.telnet_buffer = ""
@@ -245,8 +239,8 @@ class Telnet(Module):
                         self.last_connection_loss = time()
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
-                except Exception as error:
-                    print("########### Unforeseen Error: {}".format(type(error)))
+                except Exception as main_error:
+                    print("########### Unforeseen Error: {}".format(type(main_error)))
 
             if len(self.telnet_response) > 0:
                 self.telnet_buffer += self.telnet_response.lstrip()

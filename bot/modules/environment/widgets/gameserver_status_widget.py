@@ -11,10 +11,12 @@ def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
+    telnet_data_transfer_is_enabled = module.dom.data.get("module_telnet", {}).get("data_transfer_enabled", True)
     shutdown_in_seconds = module.dom.data.get("module_telnet", {}).get("shutdown_in_seconds", None)
     data_to_emit = template_frontend.render(
         server_is_online=server_is_online,
-        shutdown_in_seconds=shutdown_in_seconds
+        shutdown_in_seconds=shutdown_in_seconds,
+        data_transfer_enabled=telnet_data_transfer_is_enabled
     )
 
     module.webserver.send_data_to_client(
@@ -34,6 +36,11 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
 
     if updated_values_dict is None:
         try:
+            telnet_data_transfer_is_enabled = module.dom.data.get("module_telnet").get("data_transfer_enabled", False)
+        except AttributeError as error:
+            telnet_data_transfer_is_enabled = False
+
+        try:
             server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
         except AttributeError as error:
             server_is_online = True
@@ -45,10 +52,12 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
     else:
         server_is_online = updated_values_dict.get("server_is_online", True)
         shutdown_in_seconds = updated_values_dict.get("shutdown_in_seconds", None)
+        telnet_data_transfer_is_enabled = updated_values_dict.get("data_transfer_enabled", False)
 
     data_to_emit = template_frontend.render(
         server_is_online=server_is_online,
-        shutdown_in_seconds=shutdown_in_seconds
+        shutdown_in_seconds=shutdown_in_seconds,
+        data_transfer_enabled=telnet_data_transfer_is_enabled
     )
 
     module.webserver.send_data_to_client(
@@ -68,6 +77,7 @@ widget_meta = {
     "main_widget": main_widget,
     "handlers": {
         "module_telnet/server_is_online": update_widget,
+        "module_telnet/data_transfer_enabled": update_widget,
         "module_telnet/shutdown_in_seconds": update_widget,
         "module_telnet/cancel_shutdown": update_widget,
         "module_telnet/force_shutdown": update_widget
