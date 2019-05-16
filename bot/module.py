@@ -13,6 +13,8 @@ class Module(Thread, Action, Trigger, Template, Widget):
     stopped = object
 
     run_observer_interval = int
+    run_observer_interval_idle = int
+
     last_execution_time = float
 
     def __init__(self):

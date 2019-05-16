@@ -25,6 +25,8 @@ class Telnet(Module):
             "port": 8081,
             "password": "thisissecret",
             "max_queue_length": 100,
+            "run_observer_interval": 3,
+            "run_observer_interval_idle": 10,
             "data_transfer_enabled": True,
             "match_types_generic": {
                 'log_start': [
@@ -64,10 +66,11 @@ class Telnet(Module):
         self.telnet_lines_to_process = deque(maxlen=self.options["max_queue_length"])
         self.valid_telnet_lines = deque(maxlen=self.options["max_queue_length"])
         self.data_transfer_enabled = self.options.get("data_transfer_enabled", self.default_options.get("data_transfer_enabled", False))
+        self.run_observer_interval = self.options.get("run_observer_interval", self.default_options.get("run_observer_interval", None))
+        self.run_observer_interval_idle = self.options.get("run_observer_interval_idle", self.default_options.get("run_observer_interval_idle", None))
 
         self.telnet_buffer = ""
 
-        self.run_observer_interval = 0.5
         self.last_execution_time = 0.0
 
         self.last_connection_loss = None
@@ -310,7 +313,12 @@ class Telnet(Module):
                 self.execute_telnet_command_queue()
 
             self.last_execution_time = time() - profile_start
-            self.next_cycle = self.run_observer_interval - self.last_execution_time
+            if self.data_transfer_enabled:
+                interval = self.run_observer_interval
+            else:
+                interval = self.run_observer_interval_idle
+
+            self.next_cycle = interval - self.last_execution_time
 
 
 loaded_modules_dict[Telnet().get_module_identifier()] = Telnet()
