@@ -290,7 +290,9 @@ class Webserver(Module):
         @self.websocket.on('connect')
         @self.authenticated_only
         def connect_handler():
-            if hasattr(request, 'sid'):
+            if not hasattr(request, 'sid'):
+                return False  # not allowed here
+            else:
                 print("connect_handler {}".format(self.connected_clients))
                 self.connected_clients[current_user.id].sid = request.sid
                 emit(
@@ -300,8 +302,6 @@ class Webserver(Module):
                 )
                 for module in loaded_modules_dict.values():
                     module.on_socket_connect(current_user.id)
-            else:
-                return False  # not allowed here
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
@@ -310,14 +310,13 @@ class Webserver(Module):
         @self.websocket.on('ding')
         def ding_dong():
             current_user.last_seen = time()
-            print("got 'ding' from client {} ({})".format(current_user.id, current_user.sid))
             try:
                 emit(
                     'dong',
                     room=current_user.sid
                 )
                 self.connected_clients[current_user.id].sid = request.sid
-                print("server sent 'dong' to {} ({})".format(current_user.id, current_user.sid))
+                print("got 'ding' from client {} (SID:{}) -> sent back a 'dong'!".format(current_user.id, current_user.sid))
             except AttributeError as error:
                 # user disappeared
                 pass

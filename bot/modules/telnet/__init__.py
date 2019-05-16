@@ -65,9 +65,15 @@ class Telnet(Module):
 
         self.telnet_lines_to_process = deque(maxlen=self.options["max_queue_length"])
         self.valid_telnet_lines = deque(maxlen=self.options["max_queue_length"])
-        self.data_transfer_enabled = self.options.get("data_transfer_enabled", self.default_options.get("data_transfer_enabled", False))
-        self.run_observer_interval = self.options.get("run_observer_interval", self.default_options.get("run_observer_interval", None))
-        self.run_observer_interval_idle = self.options.get("run_observer_interval_idle", self.default_options.get("run_observer_interval_idle", None))
+        self.data_transfer_enabled = self.options.get(
+            "data_transfer_enabled", self.default_options.get("data_transfer_enabled", False)
+        )
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
+        self.run_observer_interval_idle = self.options.get(
+            "run_observer_interval_idle", self.default_options.get("run_observer_interval_idle", None)
+        )
 
         self.telnet_buffer = ""
 
@@ -290,11 +296,11 @@ class Telnet(Module):
                             if self.has_valid_start(component):  # not a complete line, might be the start of next run
                                 self.recent_telnet_response = component
                             else:  # part of a telnet-command response
-                                # print(component.rstrip("\r\n"))
+                                print(component.rstrip("\r\n"))
                                 pass
 
                         else:  # "found incomplete line smack in the middle"
-                            # print(component.rstrip("\r\n"))
+                            print(component.rstrip("\r\n"))
                             pass
 
                     if valid_telnet_line is not None:

@@ -8,7 +8,9 @@ class Players(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "run_observer_interval": 2,
+            "run_observer_interval_idle": 10,
         })
 
         setattr(self, "required_modules", [
@@ -17,7 +19,6 @@ class Players(Module):
             "module_triggers",
             "module_telnet"
         ])
-        self.run_observer_interval = 1.5
         self.next_cycle = 0
         Module.__init__(self)
 
@@ -34,6 +35,13 @@ class Players(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
+
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
+        self.run_observer_interval_idle = self.options.get(
+            "run_observer_interval_idle",self.default_options.get("run_observer_interval_idle", None)
+        )
     # endregion
 
     def run(self):
