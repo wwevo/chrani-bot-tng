@@ -1,3 +1,5 @@
+## do use the development branch for updates- master is rarely updated and only meant for stable (not necessarily usable ^^)
+
 # chrani-bot-tng
 Flexible, modern, and easy to extend bot/webinterface for the game 7dtd
 
