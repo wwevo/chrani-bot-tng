@@ -8,42 +8,33 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("steamid", None)
-    if action is not None and player_steamid is not None:
+    if action is not None:
+        either_true = True
         if action == "show_options":
+            current_view = "options"
+            current_view_steamid = None
+        elif action == "show_frontend":
+            current_view = "frontend"
+            current_view_steamid = None
+        elif action == "show_info_view":
+            current_view = "info_view"
+            current_view_steamid = player_steamid
+        else:
+            either_true = False
+
+        if either_true:
             module.dom.data.upsert({
                 "module_players": {
                     "visibility": {
                         dispatchers_steamid: {
-                            "current_view": "options",
-                            "current_view_steamid": None
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-        if action == "show_frontend":
-            module.dom.data.upsert({
-                "module_players": {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": "frontend",
-                            "current_view_steamid": None
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-        if action == "show_info_view":
-            module.dom.data.upsert({
-                "module_players": {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": "info_view",
-                            "current_view_steamid": player_steamid
+                            "current_view": current_view,
+                            "current_view_steamid": current_view_steamid
                         }
                     }
                 }
             }, dispatchers_steamid=dispatchers_steamid)
 
-        callback_success(module, event_data, dispatchers_steamid)
+            callback_success(module, event_data, dispatchers_steamid)
         return
 
     callback_fail(module, event_data, dispatchers_steamid)
