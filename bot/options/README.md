@@ -1,3 +1,5 @@
+###### `Do use the development branch for updates, testing for bleeding edge - master is rarely updated and only meant for stable (not necessarily usable ^^)`
+
 # default options
 Store default configurations for your modules
 
