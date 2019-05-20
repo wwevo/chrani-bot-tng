@@ -108,6 +108,9 @@ def show_info_view(module, dispatchers_steamid=None):
 def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
+    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
 
     all_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
@@ -119,7 +122,13 @@ def frontend_view(module, dispatchers_steamid=None):
 
         table_rows += template_table_rows.render(
             player=player_dict,
-            css_class=get_player_table_row_css_class(player_dict)
+            css_class=get_player_table_row_css_class(player_dict),
+            control_info_link=control_info_link.render(
+                player_steamid=player_dict["steamid"]
+            ),
+            control_kick_link=control_kick_link.render(
+                player_steamid=player_dict["steamid"],
+            )
         )
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")

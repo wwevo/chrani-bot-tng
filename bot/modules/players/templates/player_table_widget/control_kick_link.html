@@ -1,0 +1,5 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+({{ construct_toggle_link(
+    True,
+    "kick", ['widget_event', ['players', ['kickplayer', {'steamid': player_steamid, 'reason': 'whatever'}]]]
+)}})
