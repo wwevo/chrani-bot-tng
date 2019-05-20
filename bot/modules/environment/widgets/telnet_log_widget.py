@@ -1,15 +1,13 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-from time import sleep, time
-import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_widget(module, dispatchers_steamid=None):
-    telnet_log_frontend = module.templates.get_template('telnet_log_widget_frontend.html')
-    log_line = module.templates.get_template('telnet_log_widget_log_line.html')
+    telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_frontend.html')
+    log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
     if len(module.webserver.connected_clients) >= 1:
         log_lines = ""
@@ -35,7 +33,7 @@ def main_widget(module, dispatchers_steamid=None):
 
 
 def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    telnet_log_line = module.templates.get_template('telnet_log_widget_log_line.html')
+    telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
     data_to_emit = telnet_log_line.render(
         log_line=updated_values_dict["telnet_lines"]
