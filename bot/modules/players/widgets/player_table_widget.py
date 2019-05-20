@@ -124,10 +124,10 @@ def frontend_view(module, dispatchers_steamid=None):
             player=player_dict,
             css_class=get_player_table_row_css_class(player_dict),
             control_info_link=control_info_link.render(
-                player_steamid=player_dict["steamid"]
+                player=player_dict
             ),
             control_kick_link=control_kick_link.render(
-                player_steamid=player_dict["steamid"],
+                player=player_dict,
             )
         )
 
