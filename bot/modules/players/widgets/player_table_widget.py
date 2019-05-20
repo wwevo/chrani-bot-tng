@@ -29,15 +29,15 @@ def select_view(module, *args, **kwargs):
 
     if current_view == "options":
         options_view(module, dispatchers_steamid)
-    elif current_view == "info_view":
+    elif current_view == "info":
         show_info_view(module, dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid)
 
 
 def options_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('player_table_widget_options.html')
-    template_options_toggle = module.templates.get_template('player_table_widget_options_view_toggle.html')
+    template_frontend = module.templates.get_template('player_table_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
@@ -70,8 +70,8 @@ def options_view(module, dispatchers_steamid=None):
 
 
 def show_info_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('player_table_widget_info_view.html')
-    template_options_toggle = module.templates.get_template('player_table_widget_options_view_toggle.html')
+    template_frontend = module.templates.get_template('player_table_widget/view_info.html')
+    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
     current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
 
@@ -106,9 +106,9 @@ def show_info_view(module, dispatchers_steamid=None):
 
 
 def frontend_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('player_table_widget_frontend.html')
-    template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
-    template_options_toggle = module.templates.get_template('player_table_widget_options_view_toggle.html')
+    template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
+    template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
+    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
 
     all_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     table_rows = ""
@@ -154,7 +154,7 @@ def frontend_view(module, dispatchers_steamid=None):
 def component_widget(module, event_data, dispatchers_steamid=None):
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
     if current_view == "frontend":
-        template_table_rows = module.templates.get_template('player_table_widget_table_row.html')
+        template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
 
         player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(event_data[1]["row_id"])
         table_row = template_table_rows.render(
@@ -197,7 +197,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                         }
                     )
                     print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
-                elif current_view == "info_view":
+                elif current_view == "info":
                     module.webserver.send_data_to_client(
                         event_data=player_dict,
                         data_type="table_row_content",

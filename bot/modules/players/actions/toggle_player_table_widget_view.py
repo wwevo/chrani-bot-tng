@@ -17,7 +17,7 @@ def main_function(module, event_data, dispatchers_steamid):
             current_view = "frontend"
             current_view_steamid = None
         elif action == "show_info_view":
-            current_view = "info_view"
+            current_view = "info"
             current_view_steamid = player_steamid
         else:
             either_true = False
