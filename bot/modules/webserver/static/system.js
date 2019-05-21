@@ -69,6 +69,18 @@ $(document).ready(function() {
     }
 
     window.socket.on('data', function(data) {
+        if (data["data_type"] === "element_content") {
+            let target_element_id = data["target_element"]["id"];
+            let target_element = document.getElementById(target_element_id);
+            if (target_element_id == null || target_element == null) {
+                return false;
+            }
+            if (target_element.innerHTML !== data["event_data"]) {
+                target_element.innerHTML = data["event_data"];
+            } else {
+                return false;
+            }
+        }
         if (data["data_type"] === "widget_content") {
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
