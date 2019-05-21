@@ -39,25 +39,38 @@ footer > div {
     font-size: 0.8em;
 }
 
-span.is_online,
-tr.is_online {
-    background-color: limegreen;
-}
-
 span.on_whitelist,
 tr.on_whitelist {
     background-color: greenyellow;
 }
 
-span.is_online.in_limbo,
-tr.is_online.in_limbo {
-    background-color: darkorange;
+/* player_table_widget */
+/* offline */
+#player_table_widget span:not([class]),
+#player_table_widget tr:not([class]) {
+    background-color: transparent;
 }
-
-span.is_offline.in_limbo,
-tr.is_offline.in_limbo {
-    background-color: antiquewhite;
+/* offline and dead */
+#player_table_widget span.in_limbo:not(.is_online):not(.is_initialized),
+#player_table_widget tr.in_limbo:not(.is_online):not(.is_initialized) {
+    background-color: orange;
 }
+/* online and logging in */
+#player_table_widget span.is_online:not(.is_initialized):not(.in_limbo),
+#player_table_widget tr.is_online:not(.is_initialized):not(.in_limbo) {
+    background-color: lightgreen;
+}
+/* online */
+#player_table_widget span.is_online.is_initialized:not(.in_limbo),
+#player_table_widget tr.is_online.is_initialized:not(.in_limbo) {
+    background-color: limegreen;
+}
+/* online and dead */
+#player_table_widget span.is_online.is_initialized.in_limbo,
+#player_table_widget tr.is_online.is_initialized.in_limbo {
+    background-color: orangered;
+}
+/* player_table_widget */
 
 #gametime_widget {
     max-height: 1em;

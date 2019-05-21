@@ -8,15 +8,34 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 def get_player_table_row_css_class(player_dict):
     in_limbo = player_dict.get("in_limbo", False)
     is_online = player_dict.get("is_online", False)
+    is_initialized = player_dict.get("is_initialized", False)
 
-    if in_limbo and is_online:
-        css_class = "is_online in_limbo"
-    elif not in_limbo and is_online:
-        css_class = "is_online"
-    elif in_limbo and not is_online:
-        css_class = "is_offline in_limbo"
-    else:
+    css_class = ""
+
+    # offline
+    if not is_online and not in_limbo and not is_initialized:
         css_class = ""
+    # offline + dead
+    if not is_online and in_limbo and not is_initialized:
+        css_class = "in_limbo"
+    # online + logging in
+    if is_online and not in_limbo and not is_initialized:
+        css_class = "is_online"
+    # online + logged in
+    if is_online and not in_limbo and is_initialized:
+        css_class = "is_online is_initialized"
+    # online + logged in + dead
+    if is_online and in_limbo and is_initialized:
+        css_class = "is_online in_limbo is_initialized"
+
+    # if in_limbo and is_online:
+    #     css_class = "is_online in_limbo"
+    # elif not in_limbo and is_online:
+    #     css_class = "is_online"
+    # elif in_limbo and not is_online:
+    #     css_class = "is_offline in_limbo"
+    # else:
+    #     css_class = ""
 
     return css_class
 
@@ -236,7 +255,6 @@ widget_meta = {
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/is_online": test,
-        "module_players/players/%steamid%/in_limbo": test,
         "module_players/players": update_widget,
         "module_players/players//%steamid%/last_seen_gametime": update_widget
     }

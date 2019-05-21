@@ -6,6 +6,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, regex_result):
+    return
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
     print(command)
@@ -62,21 +63,11 @@ trigger_meta = {
         {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"\[Steamworks.NET\]\s"
-                r"(?P<command>.*)\s"
-                r"player:\s(?P<player_name>.*)\s"
-                r"SteamId:\s(?P<player_steamid>\d+)\s(.*)"
-            ),
-            "callback": main_function
-        }, {
-            "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Player (?P<command>.*), "
-                r"entityid=(?P<entity_id>.*), "
-                r"name=(?P<player_name>.*), "
-                r"steamid=(?P<player_steamid>.*), "
-                r"steamOwner=(?P<owner_id>.*), "
-                r"ip=(?P<player_ip>.*)"
+                r"Player (?P<command>.*): "
+                r"EntityID=(?P<entity_id>[-1]\d+), "
+                r"PlayerID='(?P<player_steamid>\d{17})', "
+                r"OwnerID='(?P<owner_id>\d{17})', "
+                r"PlayerName='(?P<player_name>.*)'"
             ),
             "callback": main_function
         }

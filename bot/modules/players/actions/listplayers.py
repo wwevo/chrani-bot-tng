@@ -97,6 +97,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
 
         if steamid not in online_players_list and player_dict["is_online"] is True:
             player_dict["is_online"] = False
+            player_dict["is_initialized"] = False
             players_to_update_dict.update({steamid: player_dict})
 
     module.dom.data.upsert({
@@ -121,6 +122,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
         if steamid == 'last_updated_servertime':
             continue
         player_dict["is_online"] = False
+        player_dict["is_initialized"] = False
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
@@ -136,6 +138,7 @@ def skip_it(module, event_data, dispatchers_steamid=None):
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     for steamid, player_dict in all_players_dict.items():
         player_dict["is_online"] = False
+        player_dict["is_initialized"] = False
 
     pass
 
