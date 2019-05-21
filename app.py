@@ -1,3 +1,4 @@
+""" Lasciate ogni speranza voi ch’entrate """
 from bot import setup_modules, start_modules
 from time import sleep
 
