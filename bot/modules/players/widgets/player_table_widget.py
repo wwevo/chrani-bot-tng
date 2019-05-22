@@ -19,7 +19,7 @@ def get_player_table_row_css_class(player_dict):
     if not is_online and in_limbo and not is_initialized:
         css_class = "in_limbo"
     # online + logging in
-    if is_online and not in_limbo and not is_initialized:
+    if is_online and in_limbo and not is_initialized:
         css_class = "is_online"
     # online + logged in
     if is_online and not in_limbo and is_initialized:

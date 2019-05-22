@@ -8,7 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, regex_result):
     print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-    print(command)
+    # print(command)
     executed_trigger = False
     if command == "Authenticating":
         player_steamid = regex_result.group("player_steamid")
@@ -52,7 +52,7 @@ def main_function(module, regex_result):
                 }
             }
         })
-        print(player_dict)
+        # print(player_dict)
 
 
 trigger_meta = {
