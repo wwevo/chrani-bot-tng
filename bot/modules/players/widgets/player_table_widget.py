@@ -127,6 +127,7 @@ def show_info_view(module, dispatchers_steamid=None):
 def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
+    template_table_header = module.templates.get_template('player_table_widget/table_header.html')
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
@@ -163,7 +164,8 @@ def frontend_view(module, dispatchers_steamid=None):
 
     data_to_emit = template_frontend.render(
         options_toggle=options_toggle,
-        table_rows=table_rows
+        table_rows=table_rows,
+        table_header=template_table_header.render()
     )
 
     module.webserver.send_data_to_client(
