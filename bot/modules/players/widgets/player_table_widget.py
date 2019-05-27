@@ -242,11 +242,18 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                         }
                     )
                     print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
+        except AttributeError as error:
+            # probably dealing with a player_dict here, not the players dict
+            pass
         except KeyError as error:
             pass
 
 
 def test(*args, **kwargs):
+    module = args[0]
+    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+
     print("ONLINE STATUS CHANGED FOR PLAYER {steamid}!!!!!!!".format(steamid=kwargs.get("updated_values_dict").get("steamid")))
 
 
@@ -258,7 +265,7 @@ widget_meta = {
         "module_players/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/is_online": test,
         "module_players/players": update_widget,
-        "module_players/players//%steamid%/last_seen_gametime": update_widget
+        "module_players/players/%steamid%/last_seen_gametime": update_widget
     }
 }
 
