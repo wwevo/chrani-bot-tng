@@ -109,25 +109,18 @@ class CallbackDict(dict, object):
 
                 try:
                     for callback in self.registered_callbacks[full_path]:
-                        if updated_values_dict[k] != dict_to_update[k]:
-                            print("{}:{}".format(updated_values_dict[k], dict_to_update[k]))
-                            callbacks.append(
-                                Thread(
-                                    target=callback["callback"],
-                                    args=[callback["module"]],
-                                    kwargs={
-                                        "updated_values_dict": CallbackDict(updated_values_dict),
-                                        "old_values_dict": dict_to_update,
-                                        "dispatchers_steamid": dispatchers_steamid
-                                    }
-                                )
+                        print("{}:{}".format(updated_values_dict[k], dict_to_update[k]))
+                        callbacks.append(
+                            Thread(
+                                target=callback["callback"],
+                                args=[callback["module"]],
+                                kwargs={
+                                    "updated_values_dict": CallbackDict(updated_values_dict),
+                                    "old_values_dict": dict_to_update,
+                                    "dispatchers_steamid": dispatchers_steamid
+                                }
                             )
-                        else:
-                            print("CallbackDict: No change for field {key} ({player_steamid}). Skipping callback".format(
-                                key=k,
-                                player_steamid=dict_to_update.get("steamid", None)
-                            ))
-                            pass
+                        )
 
                 except KeyError:
                     # not present in the target dict, skipping

@@ -226,7 +226,7 @@ class Telnet(Module):
                 # to prevent connect hammering
                 try:
                     self.telnet_response = self.tn.read_very_eager().decode("utf-8")
-                except (AttributeError, EOFError, ConnectionAbortedError) as main_error:
+                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as main_error:
                     try:
                         self.setup_telnet()
                         self.dom.data.upsert({
