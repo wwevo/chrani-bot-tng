@@ -1,4 +1,4 @@
-from collections import Mapping,deque
+from collections import Mapping, deque
 from threading import Thread
 import re
 
@@ -109,7 +109,11 @@ class CallbackDict(dict, object):
 
                 try:
                     for callback in self.registered_callbacks[full_path]:
-                        print("{}:{}".format(updated_values_dict[k], dict_to_update[k]))
+                        if isinstance(updated_values_dict[k], Mapping) and len(updated_values_dict[k]) < 1:
+                            # print("##### EMPTY?? {}:{}".format(updated_values_dict[k], dict_to_update[k]))
+                            continue
+
+                        # print("callback {} = {} (old: {})".format(full_path, updated_values_dict[k], dict_to_update[k]))
                         callbacks.append(
                             Thread(
                                 target=callback["callback"],

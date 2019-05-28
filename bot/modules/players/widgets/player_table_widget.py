@@ -28,15 +28,6 @@ def get_player_table_row_css_class(player_dict):
     if is_online and in_limbo and is_initialized:
         css_class = "is_online in_limbo is_initialized"
 
-    # if in_limbo and is_online:
-    #     css_class = "is_online in_limbo"
-    # elif not in_limbo and is_online:
-    #     css_class = "is_online"
-    # elif in_limbo and not is_online:
-    #     css_class = "is_offline in_limbo"
-    # else:
-    #     css_class = ""
-
     return css_class
 
 
@@ -207,6 +198,7 @@ def component_widget(module, event_data, dispatchers_steamid=None):
 
 
 def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+    print(updated_values_dict)
     for clientid in module.webserver.connected_clients.keys():
         try:
             for steamid, player_dict in updated_values_dict.get("players", {}).items():
@@ -249,12 +241,42 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
             pass
 
 
-def test(*args, **kwargs):
+def update_component(*args, **kwargs):
     module = args[0]
-    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    player_steamid = kwargs.get("updated_values_dict").get("steamid", None)
+    player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(player_steamid, None)
 
-    print("ONLINE STATUS CHANGED FOR PLAYER {steamid}!!!!!!!".format(steamid=kwargs.get("updated_values_dict").get("steamid")))
+    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+    data_to_emit = control_info_link.render(
+        player=player_dict
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="element_content",
+        clients="all",
+        method="update",
+        target_element={
+            "id": "player_table_row_{}_control_info_link".format(str(player_steamid)),
+        }
+    )
+
+    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    data_to_emit = control_kick_link.render(
+        player=player_dict
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="element_content",
+        clients="all",
+        method="update",
+        target_element={
+            "id": "player_table_row_{}_control_kick_link".format(str(player_steamid)),
+        }
+    )
+
+    # print("ONLINE STATUS CHANGED FOR PLAYER {steamid}!!!!!!!".format(steamid=player_steamid))
 
 
 widget_meta = {
@@ -263,7 +285,7 @@ widget_meta = {
     "component_widget": component_widget,
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
-        "module_players/players/%steamid%/is_online": test,
+        "module_players/players/%steamid%/is_online": update_component,
         "module_players/players": update_widget,
         "module_players/players/%steamid%/last_seen_gametime": update_widget
     }

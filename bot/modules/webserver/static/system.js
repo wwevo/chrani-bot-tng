@@ -57,7 +57,7 @@ $(document).ready(function() {
         window.setInterval(function() {
             start_time = (new Date).getTime();
             socket.emit('ding');
-        }, 5000);
+        }, 10000);
 
     window.socket.on('dong', function() {
         let latency = (new Date).getTime() - start_time;

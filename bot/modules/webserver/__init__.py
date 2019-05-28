@@ -14,7 +14,7 @@ from flask_login import LoginManager, login_required, login_user, current_user, 
 from flask_socketio import SocketIO, emit
 from requests import post
 from urllib.parse import urlencode
-from collections import KeysView
+from collections.abc import KeysView
 
 
 class Webserver(Module):
@@ -316,8 +316,9 @@ class Webserver(Module):
                     room=current_user.sid
                 )
                 self.connected_clients[current_user.id].sid = request.sid
-                print("got 'ding' from client {} (SID:{}) -> sent back a 'dong'!".format(current_user.id, current_user.sid))
+                # print("got 'ding' from client {} (SID:{}) -> sent back a 'dong'!".format(current_user.id, current_user.sid))
             except AttributeError as error:
+                print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
                 # user disappeared
                 pass
 
