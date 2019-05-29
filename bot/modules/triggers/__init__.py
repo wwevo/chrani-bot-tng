@@ -44,7 +44,7 @@ class Triggers(Module):
                             if regex_results:
                                 sub_trigger["callback"](self, regex_results)
                                 message = "executed trigger: {}".format(trigger_name)
-                                print(message)
+                                # print(message)
                                 if len(self.webserver.connected_clients) >= 1:
                                     # TODO: add method to append log, or create a new one
                                     pass

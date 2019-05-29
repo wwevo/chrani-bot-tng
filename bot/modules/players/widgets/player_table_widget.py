@@ -31,7 +31,8 @@ def get_player_table_row_css_class(player_dict):
     return css_class
 
 
-def select_view(module, *args, **kwargs):
+def select_view(*args, **kwargs):
+    module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
@@ -76,7 +77,6 @@ def options_view(module, dispatchers_steamid=None):
             "selector": "body > main > div"
         }
     )
-    pass
 
 
 def show_info_view(module, dispatchers_steamid=None):
@@ -112,7 +112,6 @@ def show_info_view(module, dispatchers_steamid=None):
             "selector": "body > main > div"
         }
     )
-    pass
 
 
 def frontend_view(module, dispatchers_steamid=None):
@@ -197,12 +196,18 @@ def component_widget(module, event_data, dispatchers_steamid=None):
         )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    print(updated_values_dict)
-    for clientid in module.webserver.connected_clients.keys():
+def update_widget(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
+    player_entries_to_update = updated_values_dict
+    player_clients_to_update = list(module.webserver.connected_clients.keys())
+
+    for clientid in player_clients_to_update:
         try:
-            for steamid, player_dict in updated_values_dict.get("players", {}).items():
-                current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(steamid,{}).get("current_view", None)
+            module_players = module.dom.data.get("module_players", {})
+            for steamid, player_dict in player_entries_to_update.items():
+                current_view = module_players.get("visibility", {}).get(steamid, {}).get("current_view", None)
                 if current_view == "frontend":
                     module.webserver.send_data_to_client(
                         event_data=player_dict,
@@ -218,7 +223,6 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                             "selector": "body > main > div > div > table > tbody"
                         }
                     )
-                    print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
                 elif current_view == "info":
                     module.webserver.send_data_to_client(
                         event_data=player_dict,
@@ -233,12 +237,17 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                             "selector": "body > main > div > div > table > tbody"
                         }
                     )
-                    print("updating player widget for webinterface user {} and player {}".format(clientid, steamid))
         except AttributeError as error:
             # probably dealing with a player_dict here, not the players dict
             pass
         except KeyError as error:
             pass
+
+    if len(player_entries_to_update) >= 1:
+        print("updating player widget for webinterface users {} and players {}".format(
+            player_clients_to_update,
+            list(player_entries_to_update.keys())
+        ))
 
 
 def update_component(*args, **kwargs):
@@ -286,8 +295,7 @@ widget_meta = {
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/is_online": update_component,
-        "module_players/players": update_widget,
-        "module_players/players/%steamid%/last_seen_gametime": update_widget
+        "module_players/players/%steamid%": update_widget,
     }
 }
 
