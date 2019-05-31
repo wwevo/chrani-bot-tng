@@ -6,9 +6,9 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, regex_result):
-    print("{}: {}".format(module.getName(), regex_result.re.groupindex))
+    # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-    print(command)
+    # print(command)
 
 
 trigger_meta = {

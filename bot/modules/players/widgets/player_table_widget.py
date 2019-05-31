@@ -243,11 +243,11 @@ def update_widget(*args, **kwargs):
         except KeyError as error:
             pass
 
-    if len(player_entries_to_update) >= 1:
-        print("updating player widget for webinterface users {} and players {}".format(
-            player_clients_to_update,
-            list(player_entries_to_update.keys())
-        ))
+    # if len(player_entries_to_update) >= 1:
+    #     print("updating player widget for webinterface users {} and players {}".format(
+    #         player_clients_to_update,
+    #         list(player_entries_to_update.keys())
+    #     ))
 
 
 def update_component(*args, **kwargs):

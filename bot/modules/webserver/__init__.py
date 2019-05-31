@@ -27,6 +27,7 @@ class Webserver(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
+            "title": "chrani-bot tng",
             "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
             "port": 5000,
@@ -35,7 +36,9 @@ class Webserver(Module):
             "SocketIO_use_reloader": False,
             "SocketIO_debug": False
         })
-        setattr(self, "required_modules", [])
+        setattr(self, "required_modules", [
+            'module_dom'
+        ])
         Module.__init__(self)
 
     @staticmethod
@@ -46,7 +49,7 @@ class Webserver(Module):
     @staticmethod
     def dispatch_socket_event(target_module, event_data, dispatchers_steamid):
         module_identifier = "module_{}".format(target_module)
-        print("user '{}' tries sending {} to module {}...".format(dispatchers_steamid, event_data, module_identifier))
+        # print("user '{}' tries sending {} to module {}...".format(dispatchers_steamid, event_data, module_identifier))
         try:
             started_modules_dict[module_identifier].on_socket_event(event_data, dispatchers_steamid)
         except KeyError as error:
@@ -106,7 +109,14 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, event_data, data_type="widget_content", target_element=None, clients=None, method="update", status=""):
+    def send_data_to_client(self, *args, **kwargs):
+        event_data = kwargs.get("event_data", None)
+        data_type = kwargs.get("data_type", "widget_content")
+        target_element = kwargs.get("target_element", None)
+        clients = kwargs.get("clients", None)
+        method = kwargs.get("method", "update")
+        status = kwargs.get("status", "")
+
         with self.app.app_context():
             data_packages_to_send = []
             widget_options = {
@@ -129,10 +139,10 @@ class Webserver(Module):
                         }
                         data_packages_to_send.append([widget_options, emit_options])
                     except AttributeError as error:
-                        print("user has got no session id yet")
+                        # print("user has got no session id yet")
                         pass
                     except KeyError as error:
-                        print("user seems to have disappeared")
+                        # print("user seems to have disappeared")
                         pass
 
             for data_package in data_packages_to_send:
@@ -146,14 +156,16 @@ class Webserver(Module):
 
     def emit_event_status(self, event_data, recipient_steamid, status):
         self.send_data_to_client(
-            event_data,
+            event_data=event_data,
             data_type="status_message",
             clients=recipient_steamid,
             status=status
         )
 
     def run(self):
+        template_header = self.templates.get_template('header.html')
         template_frontend = self.templates.get_template('index.html')
+        template_footer = self.templates.get_template('footer.html')
 
         # region Management function and routes without any user-display or interaction
         @self.login_manager.user_loader
@@ -180,7 +192,7 @@ class Webserver(Module):
                     port=self.options.get("port", self.default_options.get("port"))
                 ),
                 'openid.realm': "http://{host}:{port}".format(
-                    host=self.options.get("host",self.default_options.get("host")),
+                    host=self.options.get("host", self.default_options.get("host")),
                     port=self.options.get("port", self.default_options.get("port"))
                 )
             }
@@ -222,8 +234,7 @@ class Webserver(Module):
                     steamid = p.group("steamid")
                     webserver_user = User(steamid)
                     login_user(webserver_user, remember=True)
-                    print("user {} connected...".format(webserver_user.id))
-                    return redirect("/protected")
+                    # print("user {} connected...".format(webserver_user.id))
 
             return redirect("/")
 
@@ -231,7 +242,7 @@ class Webserver(Module):
         @login_required
         def logout():
             del self.connected_clients[current_user.id]
-            print("user {} disconnected...".format(current_user.id))
+            print("webinterface-client '{}' disconnected from the webinterface.".format(current_user.id))
             for module in loaded_modules_dict.values():
                 module.on_socket_disconnect(current_user.id)
             logout_user()
@@ -245,45 +256,23 @@ class Webserver(Module):
         def unauthorized_handler():
             return redirect("/")
 
-        @self.app.errorhandler(404)
-        def page_not_found(error):
-            header_output  = '<h1>chrani-bot tng</h1> (public area)'
-            header_output += '<aside>'
-            header_output += '<a href="/login">log in</a>'
-            header_output += '</aside>'
-            output  = '<p>{}</p>'.format(error)
-            output += '<p><a href="/">home</a></p>'
-
-            header_markup = Markup(header_output)
-            markup = Markup(output)
-            return template_frontend.render(main=markup, header=header_markup), 404
-
         @self.app.route('/')
-        def index():
-            if current_user.is_authenticated is True:
-                return redirect("/protected")
-
-            header_output  = '<h1>chrani-bot tng</h1> (public area)'
-            header_output += '<aside>'
-            header_output += '<a href="/login">log in</a>'
-            header_output += '</aside>'
-            main_output  = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
-            main_output += '<p>You can use your steam-account to log in!</p>'
-
-            header_markup = Markup(header_output)
-            main_markup = Markup(main_output)
-            return template_frontend.render(main=main_markup, header=header_markup)
-
-        @self.app.route('/protected')
-        @login_required
         def protected():
-            header_output  = '<h1>chrani-bot tng</h1> (protected area)'
-            header_output += '<aside>'
-            header_output += '<a href="/logout">log out</a>'
-            header_output += '</aside>'
+            header_markup = template_header.render(
+                current_user=current_user, title=self.options.get("title", self.default_options.get("title"))
+            )
+            template_options = {
+                'title': self.options.get("title", self.default_options.get("title")),
+                'header': header_markup,
+                'footer': template_footer.render()
+            }
+            if not current_user.is_authenticated:
+                main_output = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
+                main_output += '<p>You can use your steam-account to log in!</p>'
+                main_markup = Markup(main_output)
+                template_options['main'] = main_markup
 
-            header_markup = Markup(header_output)
-            return template_frontend.render(header=header_markup)
+            return template_frontend.render(template_options)
         # endregion
 
         # region Websocket handling
@@ -293,7 +282,7 @@ class Webserver(Module):
             if not hasattr(request, 'sid'):
                 return False  # not allowed here
             else:
-                print("connect_handler {}".format(self.connected_clients))
+                print("webinterface-client '{}' connected and is ready to roll!".format(current_user.id))
                 self.connected_clients[current_user.id].sid = request.sid
                 emit(
                     'connected',
@@ -324,7 +313,7 @@ class Webserver(Module):
 
         @self.websocket.on_error_default  # handles all namespaces without an explicit error handler
         def default_error_handler(e):
-            print(request.event["message"])  # "my error event"
+            print("websocket error: {}".format(request.event["message"]))  # "my error event"
 
         @self.websocket.on('widget_event')
         @self.authenticated_only

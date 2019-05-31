@@ -56,15 +56,15 @@ class Module(Thread, Action, Trigger, Template, Widget):
         return self
 
     def on_socket_connect(self, dispatchers_steamid):
-        print("'{}' connected to module {}".format(
-            dispatchers_steamid, self.options['module_name']
-        ))
+        # print("'{}' connected to module {}".format(
+        #     dispatchers_steamid, self.options['module_name']
+        # ))
         Widget.on_socket_connect(self, dispatchers_steamid)
 
     def on_socket_disconnect(self, dispatchers_steamid):
-        print("'{}' disconnected from module {}".format(
-            dispatchers_steamid, self.options['module_name']
-        ))
+        # print("'{}' disconnected from module {}".format(
+        #     dispatchers_steamid, self.options['module_name']
+        # ))
         Widget.on_socket_disconnect(self, dispatchers_steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):

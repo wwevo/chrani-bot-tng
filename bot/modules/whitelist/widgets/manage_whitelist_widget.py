@@ -119,7 +119,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                     "selector": "body > main > div > div#manage_whitelist_widget > table > tbody"
                 }
             )
-            print("updating whitelist widget for webinterface user {} and player {}".format(clientid, player_dict["steamid"]))
+            # print("updating whitelist widget for webinterface user {} and player {}".format(clientid, player_dict["steamid"]))
 
 
 def update_widget_status(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):

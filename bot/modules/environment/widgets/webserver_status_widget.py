@@ -26,7 +26,7 @@ def main_widget(module, dispatchers_steamid=None):
         target_element={
             "id": "webserver_status_widget",
             "type": "div",
-            "selector": "body > main > div"
+            "selector": "body > footer > div"
         }
     )
 
@@ -50,7 +50,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         target_element={
             "id": "webserver_status_widget",
             "type": "div",
-            "selector": "body > main > div"
+            "selector": "body > footer > div"
         }
     )
 

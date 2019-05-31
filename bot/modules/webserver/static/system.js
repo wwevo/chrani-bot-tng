@@ -26,13 +26,11 @@ $(document).ready(function() {
 
     $.fn.upsert = function(target_element_id, htmlString) {
         // upsert - find or create new element
-        // find based on css selector     https://api.jquery.com/category/selectors/
-        // create based on jQuery()       http://api.jquery.com/jquery/#jQuery2
         let $el = $(this).find(target_element_id);
         if ($el.length === 0) {
             // didn't exist, create and add to caller
             $el = $(htmlString);
-            $(this).append($el);
+            $(this).prepend($el);
         }
 
         return $el;
