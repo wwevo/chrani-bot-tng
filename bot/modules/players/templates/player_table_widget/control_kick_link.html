@@ -1,5 +1,5 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-{%- if player.is_online == true or player.in_limbo == true -%}
+{%- if player.is_online == true or player.is_initialized == true -%}
 ({{ construct_toggle_link(
     True,
     "kick", ['widget_event', ['players', ['kickplayer', {'steamid': player.steamid, 'reason': 'whatever'}]]]

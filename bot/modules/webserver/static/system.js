@@ -1,4 +1,4 @@
-$(document).ready(function() {
+document.addEventListener("DOMContentLoaded", function(event) {
     // https://stackoverflow.com/a/38311629/8967590
     $.fn.setClass = function(classes) {
         this.attr('class', classes);
@@ -49,13 +49,12 @@ $(document).ready(function() {
         console.log("sent 'ding' to server");
     });
 
-    let ding_dong_times = [];
-        let start_time;
+    let start_time = (new Date).getTime();
+
+    window.setInterval(function() {
         start_time = (new Date).getTime();
-        window.setInterval(function() {
-            start_time = (new Date).getTime();
-            socket.emit('ding');
-        }, 10000);
+        socket.emit('ding');
+    }, 10000);
 
     window.socket.on('dong', function() {
         let latency = (new Date).getTime() - start_time;
@@ -169,4 +168,3 @@ $(document).ready(function() {
     });
 
 });
-
