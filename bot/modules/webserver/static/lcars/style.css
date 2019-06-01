@@ -1,0 +1,137 @@
+@font-face {
+    font-family: 'SWISS 911 Ultra Compressed BT';
+    src: url('fonts/SWISS911UltraCompressedBT.ttf'); /*URL to font*/
+}
+
+@font-face {
+    font-family: 'SWISS 911 Extra Compressed BT';
+    src: url('fonts/SWISS911ExtraCompressedBT.ttf'); /*URL to font*/
+}
+
+html {
+    background: black;
+    color: #FF9900;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #FFCC99;
+}
+
+caption {
+    color: #CC6699;
+}
+
+a, a:visited {
+    text-decoration: none;
+    color: #CC99CC;
+}
+
+body {
+    margin: 0 16px;
+    font-family: "SWISS 911 Extra Compressed BT", sans-serif;
+}
+
+header {
+    height: 92px;
+    background:
+            url(ui/shoulder.png) no-repeat top left,
+            url(ui/horizontal_bar_end.png) no-repeat top right;
+}
+
+header > div {
+    position: relative;
+    height: 92px;
+    margin: 0 17px 0 340px;
+    background: url(ui/horizontal_bar.png) repeat-x;
+}
+
+header #gametime_widget {
+    position: absolute;
+    font-size: 40px;
+    color: #000000;
+    bottom: 20px; left: -328px;
+}
+
+header > div > hgroup {
+    position: absolute;
+    top: 0; right: 32px;
+    background-color: #000000;
+    height: 42px;
+}
+
+header > div > hgroup > h1 {
+    color: #FF9900;
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    text-transform: uppercase;
+    padding: 0 8px 0 8px;
+    font-size: 42px; line-height: 42px;
+}
+
+header > div > aside {
+    position: absolute;
+    bottom: 24px; right: 0;
+    background-color: #000000;
+}
+
+header #gameserver_status_widget {
+    position: absolute;
+    bottom: 24px;
+    background-color: #000000;
+}
+
+main {
+    background: url(ui/vertical_bar.png) repeat-y;
+}
+
+main > div {
+    margin: 0 0 0 340px;
+}
+
+main > div > .widget {
+    margin-bottom: 2em;
+}
+
+main > div > .widget table {
+    max-width: 672px;
+}
+
+main > div > .widget:last-child {
+    margin-bottom: 0;
+}
+
+footer {
+    transform: scaleY(-1);
+    height: 92px;
+    background:
+            url(ui/shoulder.png) no-repeat top left,
+            url(ui/horizontal_bar_end.png) no-repeat top right;
+}
+
+
+footer > div:before {
+    transform: scaleY(-1);
+    width: 100%;
+    height: 92px;
+    content: "";
+    z-index: -1;
+    position: absolute;
+    background: url(ui/horizontal_bar.png) repeat-x;
+}
+
+footer > div {
+    display: flex;
+    align-items: flex-end;
+
+    height: 92px;
+    margin: 0 17px 0 340px;
+
+    position: relative;
+    overflow: hidden;
+
+    transform: scaleY(-1);
+}
+
+footer > div > p {
+    width: calc(100vw - 340px - 32px);
+    white-space: nowrap;
+}

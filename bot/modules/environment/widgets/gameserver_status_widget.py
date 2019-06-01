@@ -24,7 +24,7 @@ def main_widget(module, dispatchers_steamid=None):
         target_element={
             "id": "gameserver_status_widget",
             "type": "div",
-            "selector": "body > main > div"
+            "selector": "body > header > div"
         }
     )
 
@@ -65,7 +65,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         target_element={
             "id": "gameserver_status_widget",
             "type": "div",
-            "selector": "body > main > div"
+            "selector": "body > header > div"
         }
     )
 

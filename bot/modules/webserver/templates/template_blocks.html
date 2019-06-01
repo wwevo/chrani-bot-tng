@@ -1,0 +1,22 @@
+{%- extends "index.html" -%}
+{%- block title -%}
+    {%- if title -%}{{ title }}{%- else -%}{{ super() }}{%- endif -%}
+{%- endblock -%}
+{%- block head -%}
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="/static/reset.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.slim.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+    <script src="/static/system.js"></script>
+    {%- if head -%}{{ head }}{%- else -%}{{ super() }}{%- endif -%}
+{%- endblock -%}
+{%- block header -%}
+    {%- if header -%}{{ header }}{%- else -%}{{ super() }}{%- endif -%}
+{%- endblock -%}
+{%- block main -%}
+    {%- if main -%}{{ main }}{%- else -%}{{ super() }}{%- endif -%}
+{%- endblock -%}
+{%- block footer -%}
+    {%- if footer -%}{{ footer }}{%- else -%}{{ super() }}{%- endif -%}
+{%- endblock -%}

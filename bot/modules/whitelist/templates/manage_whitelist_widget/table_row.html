@@ -2,9 +2,9 @@
 {%- set player_is_on_whitelist = player.on_whitelist|default(false) -%}
 <tr id="manage_whitelist_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="manage_whitelist_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
-    <td id="manage_whitelist_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
-    <td id="manage_whitelist_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
-    <td id="manage_whitelist_table_row_{{ player.steamid }}_actions">
+    <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
+    <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+    <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_actions">
         {{ construct_toggle_link(
             player_is_on_whitelist,
             "remove", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "remove_from_whitelist"}]]],

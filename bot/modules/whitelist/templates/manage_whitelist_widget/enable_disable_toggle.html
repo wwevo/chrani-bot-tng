@@ -1,6 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 <tr id="manage_whitelist_widget_status">
-    <th colspan="4">
+    <th class="right" colspan="4">
         {{ whitelist_status }}
         ({{ construct_toggle_link(
             enable_disable_toggle,

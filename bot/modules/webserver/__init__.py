@@ -164,7 +164,7 @@ class Webserver(Module):
 
     def run(self):
         template_header = self.templates.get_template('header.html')
-        template_frontend = self.templates.get_template('index.html')
+        template_frontend = self.templates.get_template('template_blocks.html')
         template_footer = self.templates.get_template('footer.html')
 
         # region Management function and routes without any user-display or interaction
