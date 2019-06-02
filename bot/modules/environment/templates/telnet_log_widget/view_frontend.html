@@ -1,3 +1,11 @@
-<ul>
-    {{ log_lines }}
-</ul>
+<table>
+    <thead>
+        <tr id="telnet_log_widget_status" class="pull_out">
+            <th>Telnet Log</th>
+        </tr>
+        {{ table_header }}
+    </thead>
+    <tbody>
+        <tr>{{ log_lines }}</tr>
+    </tbody>
+</table>

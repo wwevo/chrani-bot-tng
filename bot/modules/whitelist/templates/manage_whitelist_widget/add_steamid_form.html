@@ -1,13 +1,11 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
 <tr>
-    <td colspan="2">
-    </td>
-    <td>
+    <td colspan="3" class="right">
         <label>
             <input id="manage_whitelist_add_steamid_input" type="text" placeholder="" />
         </label>
     </td>
-    <td>
+    <td class="right">
         <script language="javascript">
             function add_steamid_to_whitelist() {
                 let steamid = $('#manage_whitelist_add_steamid_input').val();

@@ -27,22 +27,23 @@ a, a:visited {
 }
 
 body {
-    margin: 0 16px;
+    margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
+    min-width: 980px; max-width: 1062px;
 }
 
 header {
     height: 92px;
     background:
-            url(ui/shoulder.png) no-repeat top left,
-            url(ui/horizontal_bar_end.png) no-repeat top right;
+            url(ui/main_shoulder.png) no-repeat top left,
+            url(ui/main_horizontal_bar_end.png) no-repeat top right;
 }
 
 header > div {
     position: relative;
     height: 92px;
     margin: 0 17px 0 340px;
-    background: url(ui/horizontal_bar.png) repeat-x;
+    background: url(ui/main_horizontal_bar.png) repeat-x;
 }
 
 header #gametime_widget {
@@ -69,18 +70,19 @@ header > div > hgroup > h1 {
 
 header > div > aside {
     position: absolute;
-    bottom: 24px; right: 0;
+    bottom: 18px; right: 0;
     background-color: #000000;
 }
 
 header #gameserver_status_widget {
     position: absolute;
-    bottom: 24px;
+    bottom: 18px;
     background-color: #000000;
 }
 
 main {
-    background: url(ui/vertical_bar.png) repeat-y;
+    position: relative;
+    background: url(ui/main_vertical_bar.png) repeat-y;
 }
 
 main > div {
@@ -91,22 +93,50 @@ main > div > .widget {
     margin-bottom: 2em;
 }
 
+main > div > .widget:last-child {
+    margin-bottom: 0;
+}
+
 main > div > .widget table {
     max-width: 672px;
 }
 
-main > div > .widget:last-child {
-    margin-bottom: 0;
+main > div > .widget thead tr {
+    color: #000000;
+    background-color: #CC6699;
+    height: 2em; line-height: 2em;
+    border-top: 16px solid black;
+    border-bottom: 8px solid black;
+}
+
+main > div > .widget .pull_out {
+    position: absolute;
+    left: 0;
+    width: 314px;
+    background-color: transparent;
+    display: flex;
+    justify-content: flex-end;
+}
+
+main > div > .widget:first-child thead tr {
+    border-top: 0;
+}
+
+main > div > .widget .pull_out th {
+    margin-right: 8px;
+}
+
+main > div > .widget .log_line {
+    height: 16px; line-height: 16px;
 }
 
 footer {
     transform: scaleY(-1);
     height: 92px;
     background:
-            url(ui/shoulder.png) no-repeat top left,
-            url(ui/horizontal_bar_end.png) no-repeat top right;
+            url(ui/main_shoulder.png) no-repeat top left,
+            url(ui/main_horizontal_bar_end.png) no-repeat top right;
 }
-
 
 footer > div:before {
     transform: scaleY(-1);
@@ -115,7 +145,7 @@ footer > div:before {
     content: "";
     z-index: -1;
     position: absolute;
-    background: url(ui/horizontal_bar.png) repeat-x;
+    background: url(ui/main_horizontal_bar.png) repeat-x;
 }
 
 footer > div {

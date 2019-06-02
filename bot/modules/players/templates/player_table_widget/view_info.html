@@ -1,11 +1,11 @@
 <table>
     <thead>
         {{ options_toggle }}
-    </thead>
-    <tbody id="player_table_row_{{ player.steamid }}">
         <tr>
             <th colspan="2">player-info ({{ current_view_steamid }})</th>
         </tr>
+    </thead>
+    <tbody id="player_table_row_{{ player.steamid }}">
         <tr>
             <td>Name</td>
             <td id="player_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>

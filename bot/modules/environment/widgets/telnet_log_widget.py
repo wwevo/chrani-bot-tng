@@ -7,6 +7,7 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_widget(module, dispatchers_steamid=None):
     telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_frontend.html')
+    template_table_header = module.templates.get_template('telnet_log_widget/table_header.html')
     log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
     if len(module.webserver.connected_clients) >= 1:
@@ -17,7 +18,8 @@ def main_widget(module, dispatchers_steamid=None):
             )
 
         data_to_emit = telnet_log_frontend.render(
-            log_lines=log_lines
+            log_lines=log_lines,
+            table_header=template_table_header.render()
         )
         module.webserver.send_data_to_client(
             event_data=data_to_emit,
@@ -26,7 +28,7 @@ def main_widget(module, dispatchers_steamid=None):
             method="update",
             target_element={
                 "id": "telnet_log_widget",
-                "type": "ul",
+                "type": "table",
                 "selector": "body > main > div"
             }
         )
@@ -46,7 +48,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "telnet_log_widget",
-            "type": "ul",
+            "type": "table",
             "selector": "body > main > div"
         }
     )

@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             } else if (data["method"] === "prepend") {
                 $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
                 $el.prepend(data["event_data"]);
-                let $entries = $el.find('li');
+                let $entries = $el.find('tr');
                 if ($entries.length >= 50) {
                     $entries.last().remove();
                 }
