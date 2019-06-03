@@ -34,6 +34,7 @@ def get_player_table_row_css_class(player_dict):
 def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
@@ -46,78 +47,11 @@ def select_view(*args, **kwargs):
         frontend_view(module, dispatchers_steamid)
 
 
-def options_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('player_table_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
-    )
-    if current_view == "frontend":
-        options_view_toggle = True
-    else:
-        options_view_toggle = False
-
-    options_toggle = template_options_toggle.render(
-        options_view_toggle=options_view_toggle,
-        steamid=dispatchers_steamid
-    )
-
-    data_to_emit = template_frontend.render(
-        options_toggle=options_toggle
-    )
-
-    module.webserver.send_data_to_client(
-        event_data=data_to_emit,
-        data_type="widget_content",
-        clients=[dispatchers_steamid],
-        method="update",
-        target_element={
-            "id": "player_table_widget",
-            "type": "table",
-            "selector": "body > main > div"
-        }
-    )
-
-
-def show_info_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('player_table_widget/view_info.html')
-    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
-    current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
-
-    if current_view == "frontend":
-        options_view_toggle = True
-    else:
-        options_view_toggle = False
-
-    options_toggle = template_options_toggle.render(
-        options_view_toggle=options_view_toggle,
-        steamid=dispatchers_steamid
-    )
-
-    data_to_emit = template_frontend.render(
-        options_toggle=options_toggle,
-        current_view_steamid=current_view_steamid,
-        player=module.dom.data.get("module_players", {}).get("players", {}).get(current_view_steamid, None)
-    )
-
-    module.webserver.send_data_to_client(
-        event_data=data_to_emit,
-        data_type="widget_content",
-        clients=[dispatchers_steamid],
-        method="update",
-        target_element={
-            "id": "player_table_widget",
-            "type": "table",
-            "selector": "body > main > div"
-        }
-    )
-
-
 def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
     template_table_header = module.templates.get_template('player_table_widget/table_header.html')
+
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
@@ -142,13 +76,9 @@ def frontend_view(module, dispatchers_steamid=None):
         )
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
-    if current_view == "frontend":
-        options_view_toggle = True
-    else:
-        options_view_toggle = False
 
     options_toggle = template_options_toggle.render(
-        options_view_toggle=options_view_toggle,
+        options_view_toggle=(True if current_view == "frontend" else False),
         steamid=dispatchers_steamid
     )
 
@@ -156,6 +86,64 @@ def frontend_view(module, dispatchers_steamid=None):
         options_toggle=options_toggle,
         table_rows=table_rows,
         table_header=template_table_header.render()
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "player_table_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def options_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('player_table_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
+
+    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+    options_toggle = template_options_toggle.render(
+        options_view_toggle=(True if current_view == "frontend" else False),
+        steamid=dispatchers_steamid
+    )
+
+    data_to_emit = template_frontend.render(
+        options_toggle=options_toggle
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "player_table_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def show_info_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('player_table_widget/view_info.html')
+    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
+
+    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
+    options_toggle = template_options_toggle.render(
+        options_view_toggle=(True if current_view == "frontend" else False),
+        steamid=dispatchers_steamid
+    )
+
+    data_to_emit = template_frontend.render(
+        options_toggle=options_toggle,
+        player=module.dom.data.get("module_players", {}).get("players", {}).get(current_view_steamid, None)
     )
 
     module.webserver.send_data_to_client(

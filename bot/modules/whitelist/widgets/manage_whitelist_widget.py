@@ -26,7 +26,7 @@ def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
     template_add_steamid_form = module.templates.get_template('manage_whitelist_widget/add_steamid_form.html')
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/enable_disable_toggle.html')
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
 
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
     whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
@@ -123,7 +123,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
 
 
 def update_widget_status(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/enable_disable_toggle.html')
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
     enable_disable_toggle = template_enable_disable_toggle.render(
         whitelist_status="whitelist is active" if updated_values_dict.get("is_active", False) else "whitelist is deactivated",
         enable_disable_toggle=updated_values_dict.get("is_active", False)

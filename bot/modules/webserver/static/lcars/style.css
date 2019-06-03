@@ -102,28 +102,39 @@ main > div > .widget table {
 }
 
 main > div > .widget thead tr {
+    height: 2em; line-height: 2em;
+    border-bottom: 16px solid black;
+}
+
+main > div > .widget thead tr:last-child {
     color: #000000;
     background-color: #CC6699;
-    height: 2em; line-height: 2em;
-    border-top: 16px solid black;
-    border-bottom: 8px solid black;
+    border-top: 8px solid #000000;
+}
+
+main > div > .widget:first-child thead tr:last-child {
+
 }
 
 main > div > .widget .pull_out {
     position: absolute;
     left: 0;
     width: 314px;
-    background-color: transparent;
     display: flex;
     justify-content: flex-end;
 }
 
-main > div > .widget:first-child thead tr {
-    border-top: 0;
+main > div > .widget .pull_out td {
+    width: 100%;
 }
 
-main > div > .widget .pull_out th {
-    margin-right: 8px;
+main > div > .widget .pull_out td > div {
+    background-color: #CC6699;
+    border-top: 8px solid black;
+    border-bottom: 8px solid black;
+}
+
+main > div > .widget:first-child .pull_out td > div:first-child {
 }
 
 main > div > .widget .log_line {
