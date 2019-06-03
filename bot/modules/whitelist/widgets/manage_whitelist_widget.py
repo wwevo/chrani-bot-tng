@@ -22,11 +22,26 @@ def get_css_class(player_dict):
     return css_class
 
 
-def main_widget(module, dispatchers_steamid=None):
+def select_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    if current_view == "options":
+        options_view(module, dispatchers_steamid)
+    else:
+        frontend_view(module, dispatchers_steamid)
+
+
+def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
+    template_table_header = module.templates.get_template('manage_whitelist_widget/table_header.html')
+
     template_add_steamid_form = module.templates.get_template('manage_whitelist_widget/add_steamid_form.html')
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
 
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
     whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
@@ -53,16 +68,62 @@ def main_widget(module, dispatchers_steamid=None):
             css_class=get_css_class(player_dict_to_add)
         )
 
-    table_form = template_add_steamid_form.render()
-    enable_disable_toggle = template_enable_disable_toggle.render(
-        whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
-        enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
+    template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_whitelist_widget/control_switch_options_view.html')
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+
+    current_view = module.dom.data.get("whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    options_toggle = template_options_toggle.render(
+        control_switch_options_view=template_options_toggle_view.render(
+            options_view_toggle=(True if current_view == "frontend" else False),
+            steamid=dispatchers_steamid
+        ),
+        enable_disable_toggle=template_enable_disable_toggle.render(
+            whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
+            enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
+        )
     )
 
     data_to_emit = template_frontend.render(
-        enable_disable_toggle=enable_disable_toggle,
+        options_toggle=options_toggle,
+        table_header=template_table_header.render(),
         table_rows=table_rows,
-        table_form=table_form
+        table_form=template_add_steamid_form.render()
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "manage_whitelist_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def options_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('manage_whitelist_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_whitelist_widget/control_switch_options_view.html')
+    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+
+    current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    options_toggle = template_options_toggle.render(
+        control_switch_options_view=template_options_toggle_view.render(
+            options_view_toggle=(True if current_view == "frontend" else False),
+            steamid=dispatchers_steamid
+        ),
+        enable_disable_toggle=template_enable_disable_toggle.render(
+            whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
+            enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
+        )
+    )
+
+    data_to_emit = template_frontend.render(
+        options_toggle=options_toggle
     )
 
     module.webserver.send_data_to_client(
@@ -119,22 +180,23 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                     "selector": "body > main > div > div#manage_whitelist_widget > table > tbody"
                 }
             )
-            # print("updating whitelist widget for webinterface user {} and player {}".format(clientid, player_dict["steamid"]))
 
 
 def update_widget_status(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+
     enable_disable_toggle = template_enable_disable_toggle.render(
         whitelist_status="whitelist is active" if updated_values_dict.get("is_active", False) else "whitelist is deactivated",
-        enable_disable_toggle=updated_values_dict.get("is_active", False)
+        enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
     )
+
     module.webserver.send_data_to_client(
         event_data=enable_disable_toggle,
-        data_type="table_row",
+        data_type="element_content",
         clients="all",
         method="update",
         target_element={
-            "id": "manage_whitelist_widget_status",
+            "id": "manage_whitelist_widget_enable_disable_toggle",
             "parent_id": "manage_whitelist_widget",
             "module": "whitelist",
             "type": "tr",
@@ -145,9 +207,10 @@ def update_widget_status(module, updated_values_dict=None, old_values_dict=None,
 
 widget_meta = {
     "description": "manages whitelist entries",
-    "main_widget": main_widget,
+    "main_widget": select_view,
     "component_widget": update_widget,
     "handlers": {
+        "module_whitelist/visibility/%steamid%/current_view": select_view,
         "module_whitelist/players": update_widget,
         "module_players/online_players": update_widget,
         "module_whitelist/is_active": update_widget_status
