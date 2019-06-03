@@ -56,6 +56,7 @@ def frontend_view(module, dispatchers_steamid=None):
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
     all_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     table_rows = ""
@@ -78,8 +79,10 @@ def frontend_view(module, dispatchers_steamid=None):
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
 
     options_toggle = template_options_toggle.render(
-        options_view_toggle=(True if current_view == "frontend" else False),
-        steamid=dispatchers_steamid
+        control_switch_options_view=template_options_toggle_view.render(
+            options_view_toggle=(True if current_view == "frontend" else False),
+            steamid=dispatchers_steamid
+        )
     )
 
     data_to_emit = template_frontend.render(
@@ -104,13 +107,16 @@ def frontend_view(module, dispatchers_steamid=None):
 def options_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_options.html')
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
     options_toggle = template_options_toggle.render(
-        options_view_toggle=(True if current_view == "frontend" else False),
-        steamid=dispatchers_steamid
+        control_switch_options_view=template_options_toggle_view.render(
+            options_view_toggle=(True if current_view == "frontend" else False),
+            steamid=dispatchers_steamid
+        )
     )
 
     data_to_emit = template_frontend.render(
@@ -133,12 +139,15 @@ def options_view(module, dispatchers_steamid=None):
 def show_info_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_info.html')
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
     current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
     options_toggle = template_options_toggle.render(
-        options_view_toggle=(True if current_view == "frontend" else False),
-        steamid=dispatchers_steamid
+        control_switch_options_view=template_options_toggle_view.render(
+            options_view_toggle=(True if current_view == "frontend" else False),
+            steamid=dispatchers_steamid
+        )
     )
 
     data_to_emit = template_frontend.render(
@@ -178,7 +187,7 @@ def component_widget(module, event_data, dispatchers_steamid=None):
             target_element={
                 "id": "player_table_widget",
                 "type": "tr",
-                # "class": get_player_table_row_css_class(player_dict),
+                "class": get_player_table_row_css_class(player_dict),
                 "selector": "body > main > div > div#player_table_widget > table > tbody"
             }
         )
@@ -231,12 +240,6 @@ def update_widget(*args, **kwargs):
         except KeyError as error:
             pass
 
-    # if len(player_entries_to_update) >= 1:
-    #     print("updating player widget for webinterface users {} and players {}".format(
-    #         player_clients_to_update,
-    #         list(player_entries_to_update.keys())
-    #     ))
-
 
 def update_component(*args, **kwargs):
     module = args[0]
@@ -272,8 +275,6 @@ def update_component(*args, **kwargs):
             "id": "player_table_row_{}_control_kick_link".format(str(player_steamid)),
         }
     )
-
-    # print("ONLINE STATUS CHANGED FOR PLAYER {steamid}!!!!!!!".format(steamid=player_steamid))
 
 
 widget_meta = {
