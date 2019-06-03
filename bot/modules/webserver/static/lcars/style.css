@@ -1,3 +1,16 @@
+:root {
+    --background: black;
+
+    --lcars-orange: #ff9900;
+    --lcars-lilac: #CC99CC;
+    --lcars-dark-blue: #9999CC;
+    --lcars-red: #CC6666;
+    --lcars-yellow: #FFCC99;
+    --lcars-light-blue: #9999FF;
+    --lcars-brown: #FF9966;
+    --lcars-purple: #CC6699;
+}
+
 @font-face {
     font-family: 'SWISS 911 Ultra Compressed BT';
     src: url('fonts/SWISS911UltraCompressedBT.ttf'); /*URL to font*/
@@ -7,33 +20,30 @@
     font-family: 'SWISS 911 Extra Compressed BT';
     src: url('fonts/SWISS911ExtraCompressedBT.ttf'); /*URL to font*/
 }
-
+/* */
 html {
-    background: black;
-    color: #FF9900;
+    font-size: 16px;
+    background: var(--background);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: #FFCC99;
-}
-
-caption {
-    color: #CC6699;
-}
-
-a, a:visited {
+a,
+a:visited {
+    color: var(--background);
     text-decoration: none;
-    color: #CC99CC;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 body {
     margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
-    min-width: 980px; max-width: 1062px;
+    min-width: 61.25em; max-width: 66em;
 }
 
 header {
-    height: 92px;
+    height: 5.75em;
     background:
             url(ui/main_shoulder.png) no-repeat top left,
             url(ui/main_horizontal_bar_end.png) no-repeat top right;
@@ -41,56 +51,81 @@ header {
 
 header > div {
     position: relative;
-    height: 92px;
-    margin: 0 17px 0 340px;
+    height: 5.75em;
+    margin: 0 1em 0 21.25em;
     background: url(ui/main_horizontal_bar.png) repeat-x;
 }
 
 header #gametime_widget {
     position: absolute;
-    font-size: 40px;
-    color: #000000;
-    bottom: 20px; left: -328px;
+    font-size: 2.5em;
+    color: black;
+    bottom: 0.5em; left: -8.2em;
 }
 
 header > div > hgroup {
     position: absolute;
-    top: 0; right: 32px;
-    background-color: #000000;
-    height: 42px;
+    top: 0; right: 2em;
+    background-color: var(--background);
+    height: 2.625em;
 }
 
 header > div > hgroup > h1 {
-    color: #FF9900;
+    color: var(--lcars-yellow);
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
     text-transform: uppercase;
-    padding: 0 8px 0 8px;
-    font-size: 42px; line-height: 42px;
+    padding: 0 0.5em;
+    font-size: 2.625em; line-height: 1em;
 }
 
 header > div > aside {
     position: absolute;
-    bottom: 18px; right: 0;
-    background-color: #000000;
+    bottom: 1.125em; right: 0;
+    color: var(--lcars-orange);
+    background-color: var(--background);
+}
+
+header > div > aside a,
+header > div > aside a:visited {
+    color: var(--lcars-light-blue);
 }
 
 header #gameserver_status_widget {
     position: absolute;
-    bottom: 18px;
-    background-color: #000000;
+    bottom: 1.125em;
+    color: var(--lcars-orange);
+    background-color: var(--background);
+}
+
+header #gameserver_status_widget a,
+header #gameserver_status_widget a:visited {
+    color: var(--lcars-light-blue);
 }
 
 main {
     position: relative;
     background: url(ui/main_vertical_bar.png) repeat-y;
+    color: var(--lcars-orange);
 }
 
 main > div {
-    margin: 0 0 0 340px;
+    margin: 0 0 0 21.25em;
 }
 
 main > div > .widget {
+    color: var(--lcars-brown);
     margin-bottom: 2em;
+    min-height: 10em;
+}
+
+main > div > .widget a,
+main > div > .widget a:visited {
+    color: var(--lcars-light-blue);
+}
+
+main > div > .widget .pull_out span a,
+main > div > .widget .pull_out span a:visited {
+    color: var(--background);
 }
 
 main > div > .widget:last-child {
@@ -98,28 +133,30 @@ main > div > .widget:last-child {
 }
 
 main > div > .widget table {
-    max-width: 672px;
+    max-width: 42em;
+}
+
+main > div > .widget table caption {
+    color: var(--lcars-dark-blue);
+    margin-top: 0.5em;
 }
 
 main > div > .widget thead tr {
+    color: black;
     height: 2em; line-height: 2em;
-    border-bottom: 16px solid black;
+    border-bottom: 1em solid var(--background);
 }
 
 main > div > .widget thead tr:last-child {
-    color: #000000;
+    color: black;
     background-color: #CC6699;
-    border-top: 8px solid #000000;
-}
-
-main > div > .widget:first-child thead tr:last-child {
-
+    border-top: 0.5em solid var(--background);
 }
 
 main > div > .widget .pull_out {
     position: absolute;
     left: 0;
-    width: 314px;
+    width: 19.625em;
     display: flex;
     justify-content: flex-end;
 }
@@ -128,22 +165,40 @@ main > div > .widget .pull_out td {
     width: 100%;
 }
 
-main > div > .widget .pull_out td > div {
-    background-color: #CC6699;
-    border-top: 8px solid black;
-    border-bottom: 8px solid black;
+main > div > .widget .pull_out td > div:first-child > span {
+    border-top: 0.5em solid var(--background);
 }
 
-main > div > .widget:first-child .pull_out td > div:first-child {
+main > div > .widget .pull_out td > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    border-bottom: 0.5em solid var(--background);
+    padding-right: 0.5em;
+}
+
+main > div > .widget .pull_out td > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+main > div > .widget .pull_out td > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive {
+    background-color: var(--lcars-red);
+}
+
+main > div > .widget .pull_out td > div {
+    background-color: #CC6699;
 }
 
 main > div > .widget .log_line {
-    height: 16px; line-height: 16px;
+    height:1em; line-height:1em;
 }
 
 footer {
     transform: scaleY(-1);
-    height: 92px;
+    height: 5.75em;
     background:
             url(ui/main_shoulder.png) no-repeat top left,
             url(ui/main_horizontal_bar_end.png) no-repeat top right;
@@ -152,7 +207,7 @@ footer {
 footer > div:before {
     transform: scaleY(-1);
     width: 100%;
-    height: 92px;
+    height: 5.75em;
     content: "";
     z-index: -1;
     position: absolute;
@@ -163,8 +218,8 @@ footer > div {
     display: flex;
     align-items: flex-end;
 
-    height: 92px;
-    margin: 0 17px 0 340px;
+    height: 5.75em;
+    margin: 0 1em 0 21.25em;
 
     position: relative;
     overflow: hidden;
@@ -173,6 +228,6 @@ footer > div {
 }
 
 footer > div > p {
-    width: calc(100vw - 340px - 32px);
+    width: calc(100vw - 21.25em - 2em);
     white-space: nowrap;
 }

@@ -2,7 +2,7 @@
 <div id="manage_whitelist_widget_enable_disable_toggle">
     {{ construct_toggle_link(
         enable_disable_toggle,
-        "deactivate", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "deactivate_whitelist"}]]],
-        "activate", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "activate_whitelist"}]]]
+        "online", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "deactivate_whitelist"}]]],
+        "offline", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "activate_whitelist"}]]]
     )}}
 </div>

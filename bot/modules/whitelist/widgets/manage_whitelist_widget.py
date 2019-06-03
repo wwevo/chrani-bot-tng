@@ -194,7 +194,7 @@ def update_widget_status(module, updated_values_dict=None, old_values_dict=None,
         event_data=enable_disable_toggle,
         data_type="element_content",
         clients="all",
-        method="update",
+        method="replace",
         target_element={
             "id": "manage_whitelist_widget_enable_disable_toggle",
             "parent_id": "manage_whitelist_widget",

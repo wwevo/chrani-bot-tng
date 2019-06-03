@@ -72,11 +72,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (target_element_id == null || target_element == null) {
                 return false;
             }
-            if (target_element.innerHTML !== data["event_data"]) {
-                target_element.innerHTML = data["event_data"];
-            } else {
-                return false;
+            if (data["method"] === "update") {
+                if (target_element.innerHTML !== data["event_data"]) {
+                    target_element.innerHTML = data["event_data"];
+                } else {
+                    return false;
+                }
+            } else if (data["method"] === "replace") {
+                target_element.outerHTML = data["event_data"];
             }
+
         }
         if (data["data_type"] === "widget_content") {
             let target_element_id = data["target_element"]["id"];
@@ -88,10 +93,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
             if (data["method"] === "update") {
                 $el.html(data["event_data"]);
-
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
-
             } else if (data["method"] === "prepend") {
                 $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
                 $el.prepend(data["event_data"]);
