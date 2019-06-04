@@ -39,7 +39,7 @@ a:hover {
 body {
     margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
-    min-width: 61.25em; max-width: 66em;
+    min-width: 66.5em; max-width: 78em;
 }
 
 header {
@@ -133,7 +133,7 @@ main > div > .widget:last-child {
 }
 
 main > div > .widget table {
-    max-width: 42em;
+    width: calc(100% - 3em);
 }
 
 main > div > .widget table caption {
@@ -144,13 +144,29 @@ main > div > .widget table caption {
 main > div > .widget thead tr {
     color: black;
     height: 2em; line-height: 2em;
-    border-bottom: 1em solid var(--background);
+    border-bottom: 0.5em solid var(--background);
 }
 
 main > div > .widget thead tr:last-child {
     color: black;
     background-color: #CC6699;
     border-top: 0.5em solid var(--background);
+}
+
+main > div > .widget:first-child thead tr:last-child {
+    border-top: 0;
+}
+
+main > div > .widget tfoot tr {
+    border-top: 0.5em solid var(--background);
+}
+
+main > div > .widget:not(:first-child) .pull_out td > div > span {
+    border-bottom: 0;
+}
+
+main > div > .widget:not(:first-child) .pull_out td > div:last-child > span {
+    border-bottom: 0.5em solid var(--background);
 }
 
 main > div > .widget tr:not(.pull_out) a:before,
@@ -168,7 +184,6 @@ main > div > .widget tr:not(.pull_out) a:before {
 main > div > .widget tr:not(.pull_out) a {
     font-size: 90%;
     border-radius: 0.5em;
-    border: 1px solid black;
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
 }
 
@@ -203,7 +218,8 @@ main > div > .widget .pull_out td {
     width: 100%;
 }
 
-main > div > .widget .pull_out td > div:first-child > span {
+main > div > .widget:not(:first-child) .pull_out td > div:first-child > span,
+main > div > .widget:not(:first-child) .pull_out td > div:last-child > span {
     border-top: 0.5em solid var(--background);
 }
 
