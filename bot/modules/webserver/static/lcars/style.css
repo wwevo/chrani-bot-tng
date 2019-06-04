@@ -43,7 +43,6 @@ body {
 }
 
 header {
-    height: 5.75em;
     background:
             url(ui/main_shoulder.png) no-repeat top left,
             url(ui/main_horizontal_bar_end.png) no-repeat top right;
@@ -51,7 +50,7 @@ header {
 
 header > div {
     position: relative;
-    height: 5.75em;
+    height: 5em;
     margin: 0 1em 0 21.25em;
     background: url(ui/main_horizontal_bar.png) repeat-x;
 }
@@ -80,7 +79,7 @@ header > div > hgroup > h1 {
 
 header > div > aside {
     position: absolute;
-    bottom: 1.125em; right: 0;
+    bottom: 0.5em; right: 0;
     color: var(--lcars-orange);
     background-color: var(--background);
 }
@@ -92,7 +91,7 @@ header > div > aside a:visited {
 
 header #gameserver_status_widget {
     position: absolute;
-    bottom: 1.125em;
+    bottom: 0.5em;
     color: var(--lcars-orange);
     background-color: var(--background);
 }
@@ -132,22 +131,12 @@ main > div #telnet_log_widget {
 
 main > div > .widget {
     color: var(--lcars-brown);
-    margin-bottom: 2em;
-    min-height: 10em;
+    min-height: 8em;
 }
 
 main > div > .widget a,
 main > div > .widget a:visited {
     color: var(--lcars-light-blue);
-}
-
-main > div > .widget .pull_out span a,
-main > div > .widget .pull_out span a:visited {
-    color: var(--background);
-}
-
-main > div > .widget:last-child {
-    margin-bottom: 0;
 }
 
 main > div > .widget table {
@@ -156,36 +145,78 @@ main > div > .widget table {
 
 main > div > .widget table caption {
     color: var(--lcars-dark-blue);
-    margin-top: 0.5em;
 }
 
 main > div > .widget thead tr {
     color: black;
     height: 2em; line-height: 2em;
-    border-bottom: 0.5em solid var(--background);
 }
 
 main > div > .widget thead tr:last-child {
-    color: black;
-    background-color: #CC6699;
-    border-top: 0.5em solid var(--background);
+    /* this contains the header stuff for the widget-content */
+    background-color: var(--lcars-purple);
+    border-top: 0.5em solid black;
+
 }
 
-main > div > .widget:first-child thead tr:last-child {
-    border-top: 0;
+/* the pull_outs are the parts of a mopdule that we want to display on the left-hand side, making them UI elements) */
+main > div > .widget .pull_out {
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    left: 0;
+    width: 19.625em;
 }
 
-main > div > .widget tfoot tr {
-    border-top: 0.5em solid var(--background);
+main > div > .widget .pull_out span a,
+main > div > .widget .pull_out span a:visited {
+    color: var(--background);
 }
 
-main > div > .widget:not(:first-child) .pull_out td > div > span {
-    border-bottom: 0;
+main > div > .widget .pull_out > td {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-main > div > .widget:not(:first-child) .pull_out td > div:last-child > span {
-    border-bottom: 0.5em solid var(--background);
+main > div > .widget .pull_out > td > div {
+    border-top: 0.5em solid black;
 }
+
+main > div > .widget .pull_out > td > div:last-child {
+    border-bottom: 0.5em solid black;
+}
+
+main > div > .widget .pull_out td > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    padding: 0 0.5em;
+}
+
+main > div > .widget .pull_out td > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+main > div > .widget .pull_out td > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+main > div > .widget .pull_out td > div > span.info {
+    background-color: var(--lcars-yellow);
+}
+
+main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive  {
+    background-color: var(--lcars-red);
+}
+
+main > div > .widget .pull_out span a {
+    display: block;
+    width: 100%; height: 2em;
+    font-size: 1em;
+    background-color: transparent;
+}
+
+/* */
 
 main > div > .widget tr:not(.pull_out) a:before,
 main > div > .widget tr:not(.pull_out) a:after {
@@ -224,52 +255,7 @@ main > div > .widget tr:not(.pull_out) span.inactive a {
     background-color: var(--lcars-red);
 }
 
-main > div > .widget .pull_out {
-    position: absolute;
-    left: 0;
-    width: 19.625em;
-    display: flex;
-    justify-content: flex-end;
-}
-
-main > div > .widget .pull_out td {
-    width: 100%;
-}
-
-main > div > .widget:not(:first-child) .pull_out td > div:first-child > span,
-main > div > .widget:not(:first-child) .pull_out td > div:last-child > span {
-    border-top: 0.5em solid var(--background);
-}
-
-main > div > .widget .pull_out td > div > span {
-    display: block;
-    background-color: var(--lcars-purple);
-    border-bottom: 0.5em solid var(--background);
-    padding: 0 0.5em;
-}
-
-main > div > .widget .pull_out td > div > span.active {
-    background-color: var(--lcars-lilac);
-}
-
-main > div > .widget .pull_out td > div > span.inactive {
-    background-color: var(--lcars-purple);
-}
-
-main > div > .widget .pull_out td > div > span.info {
-    background-color: var(--lcars-yellow);
-}
-
-main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive  {
-    background-color: var(--lcars-red);
-}
-
-main > div > .widget .pull_out span a {
-    display: block;
-    width: 100%; height: 2em;
-    font-size: 1em;
-    background-color: transparent;
-}
+/* */
 
 main > div > .widget .log_line {
     height:1em; line-height:1em;
