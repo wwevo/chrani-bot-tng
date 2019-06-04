@@ -153,6 +153,44 @@ main > div > .widget thead tr:last-child {
     border-top: 0.5em solid var(--background);
 }
 
+main > div > .widget tr:not(.pull_out) a:before,
+main > div > .widget tr:not(.pull_out) a:after {
+    content: " ";
+    z-index: -1;
+    display: inline-block;
+    width: 1em; height: 1em;
+}
+
+main > div > .widget tr:not(.pull_out) a:before {
+    width: 1em;
+}
+
+main > div > .widget tr:not(.pull_out) a {
+    font-size: 90%;
+    border-radius: 0.5em;
+    border: 1px solid black;
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+}
+
+main > div > .widget tr:not(.pull_out) a,
+main > div > .widget tr:not(.pull_out) a:visited {
+    background-color: var(--lcars-light-blue);
+    color: black;
+}
+main > div > .widget tr:not(.pull_out) a:hover {
+    text-decoration: none;
+}
+
+main > div > .widget tr:not(.pull_out) span.inactive a:hover,
+main > div > .widget tr:not(.pull_out) span.active a {
+    background-color: var(--lcars-yellow);
+}
+
+main > div > .widget tr:not(.pull_out) span.active:hover a,
+main > div > .widget tr:not(.pull_out) span.inactive a {
+    background-color: var(--lcars-red);
+}
+
 main > div > .widget .pull_out {
     position: absolute;
     left: 0;
@@ -173,7 +211,7 @@ main > div > .widget .pull_out td > div > span {
     display: block;
     background-color: var(--lcars-purple);
     border-bottom: 0.5em solid var(--background);
-    padding-right: 0.5em;
+    padding: 0 0.5em;
 }
 
 main > div > .widget .pull_out td > div > span.active {
@@ -188,8 +226,15 @@ main > div > .widget .pull_out td > div > span.info {
     background-color: var(--lcars-yellow);
 }
 
-main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive {
+main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive  {
     background-color: var(--lcars-red);
+}
+
+main > div > .widget .pull_out span a {
+    display: block;
+    width: 100%; height: 2em;
+    font-size: 1em;
+    background-color: transparent;
 }
 
 main > div > .widget .log_line {

@@ -1,5 +1,5 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-({{ construct_toggle_link(
+{{ construct_toggle_link(
     True,
     "info", ['widget_event', ['players', ['toggle_player_table_widget_view', {'steamid': player.steamid, 'action': 'show_info_view'}]]]
-)}})
+)}}
