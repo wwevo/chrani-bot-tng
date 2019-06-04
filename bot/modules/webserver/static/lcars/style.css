@@ -184,12 +184,12 @@ main > div > .widget .pull_out td > div > span.inactive {
     background-color: var(--lcars-purple);
 }
 
-main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive {
-    background-color: var(--lcars-red);
+main > div > .widget .pull_out td > div > span.info {
+    background-color: var(--lcars-yellow);
 }
 
-main > div > .widget .pull_out td > div {
-    background-color: #CC6699;
+main > div > .widget .pull_out td > #manage_whitelist_widget_enable_disable_toggle > span.inactive {
+    background-color: var(--lcars-red);
 }
 
 main > div > .widget .log_line {
