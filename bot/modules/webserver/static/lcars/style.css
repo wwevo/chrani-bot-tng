@@ -152,14 +152,23 @@ main > div > .widget thead tr {
     height: 2em; line-height: 2em;
 }
 
+main > div > .widget tbody tr td:last-child {
+    width: 6em;
+}
+
 main > div > .widget thead tr:last-child {
     /* this contains the header stuff for the widget-content */
     background-color: var(--lcars-purple);
     border-top: 0.5em solid black;
-
+    border-bottom: 0.5em solid black;
 }
 
-/* the pull_outs are the parts of a mopdule that we want to display on the left-hand side, making them UI elements) */
+main > div > .widget caption {
+    border-top: 0.5em solid black;
+    border-bottom: 0.5em solid black;
+}
+
+/* the pull_outs are the parts of a module that we want to display on the left-hand side, making them UI elements) */
 main > div > .widget .pull_out {
     display: flex;
     justify-content: flex-end;
