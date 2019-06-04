@@ -110,6 +110,24 @@ main {
 
 main > div {
     margin: 0 0 0 21.25em;
+    display: flex;
+    flex-direction: column;
+}
+
+main > div #webserver_status_widget {
+    order: -1;
+}
+
+main > div #player_table_widget {
+    order: 0;
+}
+
+main > div #manage_whitelist_widget {
+    order: 1;
+}
+
+main > div #telnet_log_widget {
+    order: 99;
 }
 
 main > div > .widget {
