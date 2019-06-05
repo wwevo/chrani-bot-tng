@@ -156,9 +156,12 @@ main > div > .widget tbody tr td:last-child {
     width: 6em;
 }
 
+main > div > .widget thead tr:last-child th {
+    background-color: var(--lcars-purple);
+}
+
 main > div > .widget thead tr:last-child {
     /* this contains the header stuff for the widget-content */
-    background-color: var(--lcars-purple);
     border-top: 0.5em solid black;
     border-bottom: 0.5em solid black;
 }
