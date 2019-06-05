@@ -59,7 +59,7 @@ header #gametime_widget {
     position: absolute;
     font-size: 2.5em;
     color: black;
-    bottom: 0.5em; left: -8.2em;
+    bottom: 0.25em; left: -8.2em;
 }
 
 header > div > hgroup {
