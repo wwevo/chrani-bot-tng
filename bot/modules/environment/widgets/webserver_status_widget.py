@@ -28,6 +28,8 @@ def frontend_view(module, dispatchers_steamid=None):
         'webserver_status_widget/control_switch_options_view.html'
     )
 
+    component_logged_in_users = module.templates.get_template('webserver_status_widget/component_logged_in_users.html')
+
     try:
         server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
     except AttributeError as error:
@@ -41,7 +43,9 @@ def frontend_view(module, dispatchers_steamid=None):
         "webserver_logged_in_users", {}
     )
     data_to_emit = template_frontend.render(
-        webserver_logged_in_users=webserver_logged_in_users,
+        component_logged_in_users=component_logged_in_users.render(
+            webserver_logged_in_users=webserver_logged_in_users
+        ),
         options_toggle=template_options_toggle.render(
             control_switch_options_view=template_options_toggle_view.render(
                 steamid=dispatchers_steamid,
@@ -103,32 +107,6 @@ def options_view(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
-    old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
-
-    if webserver_logged_in_users == old_webserver_logged_in_users:
-        return
-
-    template_frontend = module.templates.get_template('webserver_status_widget/view_frontend.html')
-
-    data_to_emit = template_frontend.render(
-        webserver_logged_in_users=webserver_logged_in_users,
-        server_is_online=module.dom.data.get("module_telnet").get("server_is_online")
-    )
-
-    module.webserver.send_data_to_client(
-        event_data=data_to_emit,
-        data_type="widget_content",
-        clients=[dispatchers_steamid],
-        target_element={
-            "id": "webserver_status_widget",
-            "type": "table",
-            "selector": "body > main > div"
-        }
-    )
-
-
 def update_servertime(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
     servertime_view=template_servertime.render(
@@ -141,9 +119,27 @@ def update_servertime(module, updated_values_dict=None, old_values_dict=None, di
         method="replace",
         clients=module.webserver.connected_clients.keys(),
         target_element={
-            "id": "server_status_widget_servertime",
-            "type": "div",
-            "selector": "body > main > div"
+            "id": "server_status_widget_servertime"
+        }
+    )
+
+
+def update_logged_in_users(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
+    old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
+
+    component_logged_in_users = module.templates.get_template('webserver_status_widget/component_logged_in_users.html')
+    component_logged_in_users_view = component_logged_in_users.render(
+        webserver_logged_in_users=webserver_logged_in_users
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=component_logged_in_users_view,
+        data_type="element_content",
+        method="replace",
+        clients=module.webserver.connected_clients.keys(),
+        target_element={
+            "id": "server_status_widget_logged_in_users"
         }
     )
 
@@ -153,7 +149,7 @@ widget_meta = {
     "main_widget": select_view,
     "handlers": {
         "module_webserver/visibility/%steamid%/current_view": select_view,
-        "module_environment/webserver_logged_in_users": update_widget,
+        "module_environment/webserver_logged_in_users": update_logged_in_users,
         "module_telnet/last_recorded_servertime": update_servertime
     }
 }
