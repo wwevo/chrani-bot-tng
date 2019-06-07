@@ -5,20 +5,51 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, dispatchers_steamid=None):
-    webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get("webserver_logged_in_users", {})
+def select_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    if current_view == "options":
+        options_view(module, dispatchers_steamid)
+    else:
+        frontend_view(module, dispatchers_steamid)
+
+
+def frontend_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('webserver_status_widget/view_frontend.html')
+    template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
+
+    template_options_toggle = module.templates.get_template('webserver_status_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'webserver_status_widget/control_switch_options_view.html'
+    )
 
     try:
         server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
     except AttributeError as error:
         server_is_online = True
 
-    template_frontend = module.templates.get_template('webserver_status_widget/view_frontend.html')
-    template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
+    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get(
+        "webserver_logged_in_users", {}
+    )
     data_to_emit = template_frontend.render(
         webserver_logged_in_users=webserver_logged_in_users,
-        servertime=template_servertime.render(
-            time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
+        options_toggle=template_options_toggle.render(
+            control_switch_options_view=template_options_toggle_view.render(
+                steamid=dispatchers_steamid,
+                options_view_toggle=(True if current_view == "frontend" else False)
+            ),
+            control_servertime=template_servertime.render(
+                time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
+            )
         ),
         server_is_online=server_is_online
     )
@@ -26,7 +57,44 @@ def main_widget(module, dispatchers_steamid=None):
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
         data_type="widget_content",
-        clients=webserver_logged_in_users.keys(),
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "webserver_status_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def options_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('webserver_status_widget/view_options.html')
+    template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
+
+    template_options_toggle = module.templates.get_template('webserver_status_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'webserver_status_widget/control_switch_options_view.html'
+    )
+
+    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    data_to_emit = template_frontend.render(
+        options_toggle=template_options_toggle.render(
+            control_switch_options_view=template_options_toggle_view.render(
+                steamid=dispatchers_steamid,
+                options_view_toggle=(True if current_view == "frontend" else False)
+            ),
+            control_servertime=template_servertime.render(
+                time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
+            )
+        )
+    )
+
+    module.webserver.send_data_to_client(
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
         target_element={
             "id": "webserver_status_widget",
             "type": "table",
@@ -52,7 +120,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
     module.webserver.send_data_to_client(
         event_data=data_to_emit,
         data_type="widget_content",
-        clients=module.webserver.connected_clients.keys(),
+        clients=[dispatchers_steamid],
         target_element={
             "id": "webserver_status_widget",
             "type": "table",
@@ -82,10 +150,11 @@ def update_servertime(module, updated_values_dict=None, old_values_dict=None, di
 
 widget_meta = {
     "description": "shows all users with an active session for the webinterface",
-    "main_widget": main_widget,
+    "main_widget": select_view,
     "handlers": {
-        "module_telnet/last_recorded_servertime": update_servertime,
-        "module_environment/webserver_logged_in_users": update_widget
+        "module_webserver/visibility/%steamid%/current_view": select_view,
+        "module_environment/webserver_logged_in_users": update_widget,
+        "module_telnet/last_recorded_servertime": update_servertime
     }
 }
 

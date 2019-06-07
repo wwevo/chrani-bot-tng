@@ -69,17 +69,29 @@ def frontend_view(module, dispatchers_steamid=None):
         )
 
     template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('manage_whitelist_widget/control_switch_options_view.html')
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_whitelist_widget/control_switch_options_view.html'
+    )
+    template_enable_disable_toggle = module.templates.get_template(
+        'manage_whitelist_widget/control_enable_disable.html'
+    )
 
-    current_view = module.dom.data.get("whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    current_view = module.dom.data.get("whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
+        whitelist_status = "whitelist is active"
+    else:
+        whitelist_status = "whitelist is deactivated"
+
     options_toggle = template_options_toggle.render(
         control_switch_options_view=template_options_toggle_view.render(
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         ),
         enable_disable_toggle=template_enable_disable_toggle.render(
-            whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
+            whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
         )
     )
@@ -107,17 +119,29 @@ def frontend_view(module, dispatchers_steamid=None):
 def options_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget/view_options.html')
     template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('manage_whitelist_widget/control_switch_options_view.html')
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_whitelist_widget/control_switch_options_view.html'
+    )
+    template_enable_disable_toggle = module.templates.get_template(
+        'manage_whitelist_widget/control_enable_disable.html'
+    )
 
-    current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
+        whitelist_status = "whitelist is active"
+    else:
+        whitelist_status = "whitelist is deactivated"
+
     options_toggle = template_options_toggle.render(
         control_switch_options_view=template_options_toggle_view.render(
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         ),
         enable_disable_toggle=template_enable_disable_toggle.render(
-            whitelist_status="whitelist is active" if module.dom.data.get("module_whitelist", {}).get("is_active", False) else "whitelist is deactivated",
+            whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
         )
     )
@@ -149,12 +173,16 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
     for clientid in module.webserver.connected_clients.keys():
         players_to_update = {}
         for steamid, player_dict_to_update in updated_values_dict.get("players", {}).items():
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {"steamid": steamid})
+            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
+                steamid, {"steamid": steamid}
+            )
             player_dict.update(player_dict_to_update)
             players_to_update[steamid] = player_dict
 
         for steamid in updated_values_dict.get("online_players", []):
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {"steamid": steamid})
+            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
+                steamid, {"steamid": steamid}
+            )
             player_is_whitelisted = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
             players_to_update[steamid] = player_dict
             if player_is_whitelisted is not None:
@@ -183,10 +211,17 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
 
 
 def update_widget_status(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
-    template_enable_disable_toggle = module.templates.get_template('manage_whitelist_widget/control_enable_disable.html')
+    template_enable_disable_toggle = module.templates.get_template(
+        'manage_whitelist_widget/control_enable_disable.html'
+    )
+
+    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
+        whitelist_status = "whitelist is active"
+    else:
+        whitelist_status = "whitelist is deactivated"
 
     enable_disable_toggle = template_enable_disable_toggle.render(
-        whitelist_status="whitelist is active" if updated_values_dict.get("is_active", False) else "whitelist is deactivated",
+        whitelist_status=whitelist_status,
         enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
     )
 

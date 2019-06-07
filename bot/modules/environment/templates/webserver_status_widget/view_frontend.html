@@ -1,16 +1,9 @@
 {%- set logged_in_users_count = webserver_logged_in_users|length -%}
 <table>
     <thead>
-        <tr class="pull_out">
-            <td class="right">
-                <div>
-                    <span>Webserver</span>
-                </div>
-                {{ servertime }}
-            </td>
-        </tr>
+        {{ options_toggle }}
         <tr>
-            <th>Status</th>
+            <th>Webserver Status</th>
         </tr>
     </thead>
     <tbody>

@@ -152,7 +152,7 @@ main > div > .widget thead tr {
     height: 2em; line-height: 2em;
 }
 
-main > div > .widget tbody tr td:last-child {
+main > div > .widget tbody tr td[id$='_actions'] {
     width: 6em;
 }
 
@@ -171,7 +171,9 @@ main > div > .widget caption {
     border-bottom: 0.5em solid black;
 }
 
-/* the pull_outs are the parts of a module that we want to display on the left-hand side, making them UI elements) */
+/*
+    the pull_outs are the parts of a module that we want to display on the left-hand side, making them UI elements)
+*/
 main > div > .widget .pull_out {
     display: flex;
     justify-content: flex-end;
@@ -228,8 +230,9 @@ main > div > .widget .pull_out span a {
     background-color: transparent;
 }
 
-/* */
-
+/*
+    Buttons that will appear inside a widgets main area that's not in the left hand menu
+*/
 main > div > .widget tr:not(.pull_out) a:before,
 main > div > .widget tr:not(.pull_out) a:after {
     content: " ";
@@ -268,9 +271,10 @@ main > div > .widget tr:not(.pull_out) span.inactive a {
 }
 
 /* */
-
-main > div > .widget .log_line {
-    height:1em; line-height:1em;
+main > div > .widget .log_line,
+main > div > .widget .log_line td {
+    height: 1em;
+    line-height: 1em;
 }
 
 footer {
