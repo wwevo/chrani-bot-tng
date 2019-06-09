@@ -171,34 +171,61 @@ main > div > .widget caption {
     border-bottom: 0.5em solid black;
 }
 
+#player_table_widget caption span {
+    border-radius: 0.5em;
+    color: var(--background);
+}
+
+#player_table_widget caption span:before,
+#player_table_widget caption span:after {
+    content: " ";
+    z-index: -1;
+    display: inline-block;
+    width: 1em; height: 1em;
+}
+
+#player_table_widget caption span:before {
+    width: 1em;
+}
+
+#player_table_widget caption span:not([class]) {
+    background-color: var(--lcars-orange);
+}
+#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized) {
+    background-color: var(--lcars-brown);
+}
+#player_table_widget caption span.is_online:not(.is_initialized):not(.in_limbo) {
+    background-color: var(--lcars-yellow);
+}
+#player_table_widget caption span.is_online.is_initialized:not(.in_limbo) {
+    background-color: var(--lcars-yellow);
+}
+#player_table_widget caption span.is_online.is_initialized.in_limbo {
+    background-color: var(--lcars-red);
+}
 /* player_table_widget */
 /* offline */
 #player_table_widget tbody span:not([class]),
-#player_table_widget caption span:not([class]),
 #player_table_widget tbody tr:not([class]) {
     color: var(--lcars-orange);
 }
 /* offline and dead */
 #player_table_widget tbody span.in_limbo:not(.is_online):not(.is_initialized),
-#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
 #player_table_widget tbody tr.in_limbo:not(.is_online):not(.is_initialized) {
     color: var(--lcars-brown);
 }
 /* online and logging in */
 #player_table_widget tbody span.is_online:not(.is_initialized):not(.in_limbo),
-#player_table_widget caption span.is_online:not(.is_initialized):not(.in_limbo),
 #player_table_widget tbody tr.is_online:not(.is_initialized):not(.in_limbo) {
     color: var(--lcars-yellow);
 }
 /* online */
 #player_table_widget tbody span.is_online.is_initialized:not(.in_limbo),
-#player_table_widget caption span.is_online.is_initialized:not(.in_limbo),
 #player_table_widget tbody tr.is_online.is_initialized:not(.in_limbo) {
     color: var(--lcars-yellow);
 }
 /* online and dead */
 #player_table_widget tbody span.is_online.is_initialized.in_limbo,
-#player_table_widget caption span.is_online.is_initialized.in_limbo,
 #player_table_widget tbody tr.is_online.is_initialized.in_limbo {
     color: var(--lcars-red);
 }

@@ -120,7 +120,8 @@ def options_view(module, dispatchers_steamid=None):
     )
 
     data_to_emit = template_frontend.render(
-        options_toggle=options_toggle
+        options_toggle=options_toggle,
+        widget_options=module.options
     )
 
     module.webserver.send_data_to_client(

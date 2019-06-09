@@ -92,7 +92,8 @@ def options_view(module, dispatchers_steamid=None):
             control_servertime=template_servertime.render(
                 time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
             )
-        )
+        ),
+        widget_options=module.webserver.options
     )
 
     module.webserver.send_data_to_client(
