@@ -28,6 +28,15 @@ class Permissions(Module):
 
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ TODO: permission check to be added here!! """
+        if any([
+                event_data[0] == "toggle_player_table_widget_view",
+                event_data[0] == "toggle_whitelist_widget_view",
+                event_data[0] == "toggle_webserver_status_view"
+        ]):
+            if event_data[1]["action"] == "show_options":
+                if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
+                    return False
+
         return module.trigger_action(module, event_data, dispatchers_id)
 
     def run(self):
