@@ -27,7 +27,9 @@ class Permissions(Module):
     # endregion
 
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
-        """ TODO: permission check to be added here!! """
+        """ TODO: permission check to be added here!!
+            Manually for now, this will be handled by a permissions widget.
+        """
         if any([
                 event_data[0] == "toggle_player_table_widget_view",
                 event_data[0] == "toggle_whitelist_widget_view",
@@ -36,6 +38,25 @@ class Permissions(Module):
             if event_data[1]["action"] == "show_options":
                 if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
                     return False
+
+        if any([
+                event_data[0] == "manage_whitelist",
+        ]):
+            if any([
+                event_data[1]["action"] == "activate_whitelist",
+                event_data[1]["action"] == "deactivate_whitelist",
+                event_data[1]["action"] == "remove_from_whitelist",
+                event_data[1]["action"] == "add_to_whitelist"
+            ]):
+                if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                    return False
+
+        if any([
+                event_data[0] == "shutdown",
+                event_data[0] == "switch_data_transfer"
+        ]):
+            if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                return False
 
         return module.trigger_action(module, event_data, dispatchers_id)
 
