@@ -15,6 +15,7 @@ from flask_socketio import SocketIO, emit
 from requests import post
 from urllib.parse import urlencode
 from collections.abc import KeysView
+from threading import Thread
 
 
 class Webserver(Module):
@@ -39,6 +40,8 @@ class Webserver(Module):
         setattr(self, "required_modules", [
             'module_dom'
         ])
+        self.next_cycle = 0
+        self.run_observer_interval = 5
         Module.__init__(self)
 
     @staticmethod
@@ -321,13 +324,23 @@ class Webserver(Module):
             self.dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
 
-        self.websocket.run(
-            self.app,
-            host=self.options.get("host", self.default_options.get("host")),
-            port=self.options.get("port", self.default_options.get("port")),
-            debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
-            use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
-        )
+        Thread(
+            target=self.websocket.run,
+            args=[self.app],
+            kwargs={
+                "host": self.options.get("host", self.default_options.get("host")),
+                "port": self.options.get("port", self.default_options.get("port")),
+                "debug": self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
+                "use_reloader": self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
+            }
+        ).start()
+        while not self.stopped.wait(self.next_cycle):
+            profile_start = time()
+
+            self.trigger_action_hook(self, ["logged_in_users", {}])
+
+            self.last_execution_time = time() - profile_start
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Webserver().get_module_identifier()] = Webserver()

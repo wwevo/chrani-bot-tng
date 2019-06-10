@@ -46,7 +46,6 @@ class Environment(Module):
                 "execute_only_once": True
             }])
             self.trigger_action_hook(self, ["gettime", {}])
-            self.trigger_action_hook(self, ["logged_in_users", {}])
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time

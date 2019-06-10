@@ -8,7 +8,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid=None):
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "webserver_logged_in_users": module.webserver.connected_clients
+            "webserver_logged_in_users": module.connected_clients
         }
     }, overwrite=True)
 
