@@ -1,0 +1,20 @@
+<table>
+    <thead>
+        {{ options_toggle }}
+        <tr>
+            <th colspan="2">permissions widget options</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key, value in widget_options.items() %}
+        <tr>
+            <td>{{key}}</td><td>{{value}}
+        </tr>
+        {% endfor %}
+        {% for key, value in available_actions.items() %}
+        <tr>
+            <td>{{key}}</td><td>{{value}}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
