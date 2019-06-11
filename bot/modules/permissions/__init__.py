@@ -26,6 +26,11 @@ class Permissions(Module):
         Module.setup(self, options)
     # endregion
 
+    def start(self):
+        Module.start(self)
+        self.set_permission_hooks()
+    # endregion
+
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ TODO: permission check to be added here!!
             Manually for now, this will be handled by a permissions widget.
@@ -60,10 +65,11 @@ class Permissions(Module):
 
         return module.trigger_action(module, event_data, dispatchers_id)
 
-    def run(self):
+    def set_permission_hooks(self):
         for identifier, module in loaded_modules_dict.items():
             module.trigger_action_hook = self.trigger_action_with_permission
 
+    def run(self):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
