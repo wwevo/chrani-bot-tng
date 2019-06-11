@@ -22,7 +22,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
         if either_true:
             module.dom.data.upsert({
-                "module_webserver": {
+                module.get_module_identifier(): {
                     "visibility": {
                         dispatchers_steamid: {
                             "current_view": current_view,

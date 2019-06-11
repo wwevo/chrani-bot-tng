@@ -71,4 +71,4 @@ def start_modules():
         module_to_start.start()
         started_modules_dict[module_to_start.get_module_identifier()] = module_to_start
     if len(loaded_modules_dict) == len(started_modules_dict):
-        print("all modules started")
+        print("modules started: {}".format(list(started_modules_dict.keys())))

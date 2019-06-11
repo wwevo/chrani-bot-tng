@@ -9,7 +9,7 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
 
@@ -35,7 +35,7 @@ def frontend_view(module, dispatchers_steamid=None):
     except AttributeError as error:
         server_is_online = True
 
-    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
 
@@ -79,7 +79,7 @@ def options_view(module, dispatchers_steamid=None):
         'webserver_status_widget/control_switch_options_view.html'
     )
 
-    current_view = module.dom.data.get("module_webserver", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
 
@@ -150,7 +150,7 @@ widget_meta = {
     "main_widget": select_view,
     "handlers": {
         "module_webserver/visibility/%steamid%/current_view": select_view,
-        "module_environment/webserver_logged_in_users": update_logged_in_users,
+        "module_webserver/webserver_logged_in_users": update_logged_in_users,
         "module_telnet/last_recorded_servertime": update_servertime
     }
 }
