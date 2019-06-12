@@ -17,6 +17,7 @@ class Permissions(Module):
         self.next_cycle = 0
         self.run_observer_interval = 5
         self.all_available_actions_dict = {}
+        self.all_available_widgets_dict = {}
         Module.__init__(self)
 
     @staticmethod
@@ -31,6 +32,7 @@ class Permissions(Module):
     def start(self):
         self.set_permission_hooks()
         self.all_available_actions_dict = self.get_all_available_actions()
+        self.all_available_widgets_dict = self.get_all_available_widgets()
         Module.start(self)
     # endregion
 
@@ -42,6 +44,15 @@ class Permissions(Module):
                 all_available_actions_dict[loaded_module_identifier] = loaded_module.available_actions_dict
 
         return all_available_actions_dict
+
+    @staticmethod
+    def get_all_available_widgets():
+        all_available_widgets_dict = {}
+        for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
+            if len(loaded_module.available_widgets_dict) >= 1:
+                all_available_widgets_dict[loaded_module_identifier] = loaded_module.available_widgets_dict
+
+        return all_available_widgets_dict
 
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ Manually for now, this will be handled by a permissions widget. """
@@ -84,6 +95,50 @@ class Permissions(Module):
     def set_permission_hooks(self):
         for identifier, module in loaded_modules_dict.items():
             module.trigger_action_hook = self.trigger_action_with_permission
+            module.trigger_widget_hook = self.trigger_widget_with_permission
+            module.trigger_widget_component_hook = self.trigger_widget_component_with_permission
+
+    def trigger_widget_with_permission(self, module, dispatchers_steamid=None):
+        permission_denied = False
+        player_access_level = int(
+            module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
+        )
+
+        if isinstance(module.available_widgets_dict, dict) and len(module.available_widgets_dict) >= 1:
+            for name, widget in module.available_widgets_dict.items():
+                if widget["main_widget"] is not None:
+                    if any([
+                        name == "permissions_widget" and player_access_level > 2,
+                        name == "gameserver_status_widget" and player_access_level > 2,
+                        name == "manage_whitelist_widget" and player_access_level > 4
+                    ]):
+                        permission_denied = True
+
+        if not permission_denied:
+            return module.trigger_widget(module, dispatchers_steamid)
+        else:
+            return False
+
+    def trigger_widget_component_with_permission(self, module, event_data, dispatchers_steamid=None):
+        permission_denied = False
+        player_access_level = int(
+            module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
+        )
+
+        if isinstance(module.available_widgets_dict, dict) and len(module.available_widgets_dict) >= 1:
+            for name, widget in module.available_widgets_dict.items():
+                if widget["main_widget"] is not None:
+                    if any([
+                        name == "permissions_widget" and player_access_level > 2,
+                        name == "gameserver_status_widget" and player_access_level > 2,
+                        name == "manage_whitelist_widget" and player_access_level > 4
+                    ]):
+                        permission_denied = True
+
+        if not permission_denied:
+            return module.trigger_widget_component(module, event_data, dispatchers_steamid)
+        else:
+            return False
 
     def run(self):
         while not self.stopped.wait(self.next_cycle):
