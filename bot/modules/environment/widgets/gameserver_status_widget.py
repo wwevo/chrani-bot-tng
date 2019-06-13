@@ -11,7 +11,9 @@ def main_widget(module, dispatchers_steamid=None):
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
     telnet_data_transfer_is_enabled = module.dom.data.get("module_telnet", {}).get("data_transfer_enabled", True)
     shutdown_in_seconds = module.dom.data.get("module_telnet", {}).get("shutdown_in_seconds", None)
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         server_is_online=server_is_online,
         shutdown_in_seconds=shutdown_in_seconds,
         data_transfer_enabled=telnet_data_transfer_is_enabled
@@ -53,7 +55,9 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         shutdown_in_seconds = updated_values_dict.get("shutdown_in_seconds", None)
         telnet_data_transfer_is_enabled = updated_values_dict.get("data_transfer_enabled", False)
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         server_is_online=server_is_online,
         shutdown_in_seconds=shutdown_in_seconds,
         data_transfer_enabled=telnet_data_transfer_is_enabled

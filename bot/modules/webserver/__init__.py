@@ -160,11 +160,16 @@ class Webserver(Module):
                 )
 
     def emit_event_status(self, module, event_data, recipient_steamid, status):
+        if recipient_steamid is None:
+            return False
+
+        clients = recipient_steamid
+
         self.send_data_to_client_hook(
             module,
             event_data=event_data,
             data_type="status_message",
-            clients=recipient_steamid,
+            clients=clients,
             status=status
         )
 
@@ -264,13 +269,19 @@ class Webserver(Module):
 
         @self.app.route('/')
         def protected():
-            header_markup = template_header.render(
-                current_user=current_user, title=self.options.get("title", self.default_options.get("title"))
+            header_markup = self.template_render_hook(
+                self,
+                template_header,
+                current_user=current_user,
+                title=self.options.get("title", self.default_options.get("title"))
             )
             template_options = {
                 'title': self.options.get("title", self.default_options.get("title")),
                 'header': header_markup,
-                'footer': template_footer.render()
+                'footer': self.template_render_hook(
+                    self,
+                    template_footer
+                )
             }
             if not current_user.is_authenticated:
                 main_output = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
@@ -278,7 +289,11 @@ class Webserver(Module):
                 main_markup = Markup(main_output)
                 template_options['main'] = main_markup
 
-            return template_frontend.render(template_options)
+            return self.template_render_hook(
+                self,
+                template_frontend,
+                **template_options
+            )
         # endregion
 
         # region Websocket handling

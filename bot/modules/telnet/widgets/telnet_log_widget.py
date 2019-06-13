@@ -13,13 +13,20 @@ def main_widget(module, dispatchers_steamid=None):
     if len(module.webserver.connected_clients) >= 1:
         log_lines = ""
         for line in reversed(module.dom.data.get("module_telnet", {}).get("telnet_lines", {})):
-            log_lines += log_line.render(
+            log_lines += module.template_render_hook(
+                module,
+                log_line,
                 log_line=line
             )
 
-        data_to_emit = telnet_log_frontend.render(
+        data_to_emit = module.template_render_hook(
+            module,
+            telnet_log_frontend,
             log_lines=log_lines,
-            table_header=template_table_header.render()
+            table_header=module.template_render_hook(
+                module,
+                template_table_header
+            )
         )
         module.webserver.send_data_to_client_hook(
         module,
@@ -38,7 +45,9 @@ def main_widget(module, dispatchers_steamid=None):
 def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
-    data_to_emit = telnet_log_line.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        telnet_log_line,
         log_line=updated_values_dict["telnet_lines"]
     )
 

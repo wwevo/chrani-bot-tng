@@ -8,7 +8,9 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 def main_widget(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
     gametime = module.dom.data.get("module_environment").get("last_recorded_gametime", True)
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         last_recorded_gametime=gametime,
     )
 
@@ -37,7 +39,9 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         # return
 
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         last_recorded_gametime=gametime,
     )
 

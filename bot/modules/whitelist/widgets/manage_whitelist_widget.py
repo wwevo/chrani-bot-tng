@@ -63,7 +63,9 @@ def frontend_view(module, dispatchers_steamid=None):
             for key, value in player_is_whitelisted.items():
                 player_dict_to_add[key] = value
 
-        table_rows += template_table_rows.render(
+        table_rows += module.template_render_hook(
+            module,
+            template_table_rows,
             player=player_dict_to_add,
             css_class=get_css_class(player_dict_to_add)
         )
@@ -85,22 +87,36 @@ def frontend_view(module, dispatchers_steamid=None):
     else:
         whitelist_status = "whitelist is deactivated"
 
-    options_toggle = template_options_toggle.render(
-        control_switch_options_view=template_options_toggle_view.render(
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         ),
-        enable_disable_toggle=template_enable_disable_toggle.render(
+        enable_disable_toggle=module.template_render_hook(
+            module,
+            template_enable_disable_toggle,
             whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
         )
     )
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         options_toggle=options_toggle,
-        table_header=template_table_header.render(),
+        table_header=module.template_render_hook(
+            module,
+            template_table_header
+        ),
         table_rows=table_rows,
-        table_form=template_add_steamid_form.render()
+        table_form=module.template_render_hook(
+            module,
+            template_add_steamid_form
+        )
     )
 
     module.webserver.send_data_to_client_hook(
@@ -136,18 +152,26 @@ def options_view(module, dispatchers_steamid=None):
     else:
         whitelist_status = "whitelist is deactivated"
 
-    options_toggle = template_options_toggle.render(
-        control_switch_options_view=template_options_toggle_view.render(
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         ),
-        enable_disable_toggle=template_enable_disable_toggle.render(
+        enable_disable_toggle=module.template_render_hook(
+            module,
+            template_enable_disable_toggle,
             whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
         )
     )
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         options_toggle=options_toggle,
         widget_options=module.options
     )
@@ -193,12 +217,14 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                     players_to_update[steamid][key] = value
 
         for steamid, player_dict in players_to_update.items():
-            table_row = template_table_rows.render(
+            table_row = module.template_render_hook(
+                module,
+                template_table_rows,
                 player=player_dict,
                 css_class=get_css_class(player_dict)
             )
             module.webserver.send_data_to_client_hook(
-        module,
+                module,
                 event_data=table_row,
                 data_type="table_row",
                 clients=[clientid],
@@ -224,7 +250,9 @@ def update_widget_status(module, updated_values_dict=None, old_values_dict=None,
     else:
         whitelist_status = "whitelist is deactivated"
 
-    enable_disable_toggle = template_enable_disable_toggle.render(
+    enable_disable_toggle = module.template_render_hook(
+        module,
+        template_enable_disable_toggle,
         whitelist_status=whitelist_status,
         enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
     )

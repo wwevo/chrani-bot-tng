@@ -29,6 +29,7 @@ class Permissions(Module):
     # endregion
 
     def start(self):
+        """ all modules have been loaded and initialized by now. we can bend the rules here."""
         self.set_permission_hooks()
         self.all_available_actions_dict = self.get_all_available_actions()
         Module.start(self)
@@ -54,7 +55,7 @@ class Permissions(Module):
                 event_data[0] == "toggle_permissions_view"
         ]):
             if event_data[1]["action"] == "show_options":
-                if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
+                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
                     permission_denied = True
 
         if any([
@@ -66,14 +67,14 @@ class Permissions(Module):
                 event_data[1]["action"] == "remove_from_whitelist",
                 event_data[1]["action"] == "add_to_whitelist"
             ]):
-                if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
         if any([
                 event_data[0] == "shutdown",
                 event_data[0] == "switch_data_transfer"
         ]):
-            if int(module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+            if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                 permission_denied = True
 
         if not permission_denied:
@@ -81,32 +82,14 @@ class Permissions(Module):
         else:
             return False
 
-    def send_data_to_client_with_permission(self, *args, **kwargs):
-        module = args[0]
-        clients = kwargs.get("clients", [])
-        allowed_clients = []
-
-        if clients is not "all" and clients is not None:
-            for client in clients:
-                player_access_level = int(
-                    module.dom.data.get("module_players", {}).get("admins", {}).get(client, 2000)
-                )
-                if any([
-                    module.get_module_identifier() == "module_permissions" and player_access_level > 2,
-                    module.get_module_identifier() == "module_telnet" and player_access_level > 2
-                ]):
-                    continue
-                else:
-                    allowed_clients.append(client)
-
-            kwargs["clients"] = allowed_clients
-
-        return self.webserver.send_data_to_client(*args, **kwargs)
+    def template_render_hook_with_permission(self, module, template, **kwargs):
+        # print(module.get_module_identifier(), template.name)
+        return module.template_render(module, template, **kwargs)
 
     def set_permission_hooks(self):
         for identifier, module in loaded_modules_dict.items():
             module.trigger_action_hook = self.trigger_action_with_permission
-            module.send_data_to_client_hook = self.send_data_to_client_with_permission
+            module.template_render_hook = self.template_render_hook_with_permission
 
     def run(self):
         while not self.stopped.wait(self.next_cycle):

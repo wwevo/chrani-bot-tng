@@ -65,30 +65,45 @@ def frontend_view(module, dispatchers_steamid=None):
         if steamid == 'last_updated_servertime':
             continue
 
-        table_rows += template_table_rows.render(
+        table_rows += module.template_render_hook(
+            module,
+            template_table_rows,
             player=player_dict,
             css_class=get_player_table_row_css_class(player_dict),
-            control_info_link=control_info_link.render(
+            control_info_link=module.template_render_hook(
+                module,
+                control_info_link,
                 player=player_dict
             ),
-            control_kick_link=control_kick_link.render(
+            control_kick_link=module.template_render_hook(
+                module,
+                control_kick_link,
                 player=player_dict,
             )
         )
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
 
-    options_toggle = template_options_toggle.render(
-        control_switch_options_view=template_options_toggle_view.render(
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         )
     )
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         options_toggle=options_toggle,
         table_rows=table_rows,
-        table_header=template_table_header.render()
+        table_header=module.template_render_hook(
+            module,
+            template_table_header
+        )
     )
 
     module.webserver.send_data_to_client_hook(
@@ -113,14 +128,20 @@ def options_view(module, dispatchers_steamid=None):
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
-    options_toggle = template_options_toggle.render(
-        control_switch_options_view=template_options_toggle_view.render(
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         )
     )
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         options_toggle=options_toggle,
         widget_options=module.options
     )
@@ -146,14 +167,20 @@ def show_info_view(module, dispatchers_steamid=None):
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
     current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
-    options_toggle = template_options_toggle.render(
-        control_switch_options_view=template_options_toggle_view.render(
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         )
     )
 
-    data_to_emit = template_frontend.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
         options_toggle=options_toggle,
         player=module.dom.data.get("module_players", {}).get("players", {}).get(current_view_steamid, None)
     )
@@ -178,13 +205,15 @@ def component_widget(module, event_data, dispatchers_steamid=None):
         template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
 
         player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(event_data[1]["row_id"])
-        table_row = template_table_rows.render(
+        table_row = module.template_render_hook(
+            module,
+            template_table_rows,
             player=player_dict,
             css_class=get_player_table_row_css_class(player_dict)
         )
 
         module.webserver.send_data_to_client_hook(
-        module,
+            module,
             event_data=table_row,
             data_type="table_row",
             clients=[dispatchers_steamid],
@@ -212,7 +241,7 @@ def update_widget(*args, **kwargs):
                 current_view = module_players.get("visibility", {}).get(steamid, {}).get("current_view", None)
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
-        module,
+                        module,
                         event_data=player_dict,
                         data_type="table_row_content",
                         clients=[clientid],
@@ -228,7 +257,7 @@ def update_widget(*args, **kwargs):
                     )
                 elif current_view == "info":
                     module.webserver.send_data_to_client_hook(
-        module,
+                        module,
                         event_data=player_dict,
                         data_type="table_row_content",
                         clients=[clientid],
@@ -254,7 +283,9 @@ def update_component(*args, **kwargs):
     player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(player_steamid, None)
 
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-    data_to_emit = control_info_link.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        control_info_link,
         player=player_dict
     )
 
@@ -270,7 +301,9 @@ def update_component(*args, **kwargs):
     )
 
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
-    data_to_emit = control_kick_link.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        control_kick_link,
         player=player_dict
     )
 

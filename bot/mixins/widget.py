@@ -4,9 +4,11 @@ from importlib import import_module
 
 class Widget(object):
     available_widgets_dict = dict
+    template_render_hook = object
 
     def __init__(self):
         self.available_widgets_dict = {}
+        self.template_render_hook = self.template_render
 
     def on_socket_connect(self, steamid):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
@@ -27,6 +29,10 @@ class Widget(object):
             widget = self.available_widgets_dict[event_data[1]["widget"]]
             if widget["component_widget"] is not None:
                 widget["component_widget"](self, event_data, dispatchers_steamid=dispatchers_steamid)
+
+    def template_render(self, module, template, **kwargs):
+        rendered_template = template.render(**kwargs)
+        return rendered_template
 
     def start(self):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:

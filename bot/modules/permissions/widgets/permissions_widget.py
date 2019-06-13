@@ -31,9 +31,15 @@ def frontend_view(module, dispatchers_steamid=None):
         "current_view", "frontend"
     )
 
-    data_to_emit = template_frontend.render(
-        options_toggle=template_options_toggle.render(
-            control_switch_options_view=template_options_toggle_view.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
+        options_toggle=module.template_render_hook(
+            module,
+            template_options_toggle,
+            control_switch_options_view=module.template_render_hook(
+                module,
+                template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=(True if current_view == "frontend" else False)
             )
@@ -65,9 +71,15 @@ def options_view(module, dispatchers_steamid=None):
         "current_view", "frontend"
     )
 
-    data_to_emit = template_frontend.render(
-        options_toggle=template_options_toggle.render(
-            control_switch_options_view=template_options_toggle_view.render(
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
+        options_toggle=module.template_render_hook(
+            module,
+            template_options_toggle,
+            control_switch_options_view=module.template_render_hook(
+                module,
+                template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=(True if current_view == "frontend" else False)
             )
