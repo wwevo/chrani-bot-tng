@@ -57,7 +57,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
 
 
 widget_meta = {
-    "description": "sends and updates a table of all currently known players",
+    "description": "displays a bunch of telnet lines, updating in real time",
     "main_widget": main_widget,
     "handlers": {
         "module_telnet/telnet_lines": update_widget,

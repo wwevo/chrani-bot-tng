@@ -82,7 +82,25 @@ class Permissions(Module):
             return False
 
     def send_data_to_client_with_permission(self, *args, **kwargs):
-        # print(args[0].get_module_identifier(), kwargs)
+        module = args[0]
+        clients = kwargs.get("clients", [])
+        allowed_clients = []
+
+        if clients is not "all" and clients is not None:
+            for client in clients:
+                player_access_level = int(
+                    module.dom.data.get("module_players", {}).get("admins", {}).get(client, 2000)
+                )
+                if any([
+                    module.get_module_identifier() == "module_permissions" and player_access_level > 2,
+                    module.get_module_identifier() == "module_telnet" and player_access_level > 2
+                ]):
+                    continue
+                else:
+                    allowed_clients.append(client)
+
+            kwargs["clients"] = allowed_clients
+
         return self.webserver.send_data_to_client(*args, **kwargs)
 
     def set_permission_hooks(self):
