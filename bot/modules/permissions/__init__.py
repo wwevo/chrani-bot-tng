@@ -81,9 +81,14 @@ class Permissions(Module):
         else:
             return False
 
+    def send_data_to_client_with_permission(self, *args, **kwargs):
+        # print(args[0].get_module_identifier(), kwargs)
+        return self.webserver.send_data_to_client(*args, **kwargs)
+
     def set_permission_hooks(self):
         for identifier, module in loaded_modules_dict.items():
             module.trigger_action_hook = self.trigger_action_with_permission
+            module.send_data_to_client_hook = self.send_data_to_client_with_permission
 
     def run(self):
         while not self.stopped.wait(self.next_cycle):

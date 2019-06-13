@@ -58,7 +58,8 @@ def frontend_view(module, dispatchers_steamid=None):
         server_is_online=server_is_online
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -96,7 +97,8 @@ def options_view(module, dispatchers_steamid=None):
         widget_options=module.webserver.options
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -114,7 +116,8 @@ def update_servertime(module, updated_values_dict=None, old_values_dict=None, di
         time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None)
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=servertime_view,
         data_type="element_content",
         method="replace",
@@ -134,7 +137,8 @@ def update_logged_in_users(module, updated_values_dict=None, old_values_dict=Non
         webserver_logged_in_users=webserver_logged_in_users
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=component_logged_in_users_view,
         data_type="element_content",
         method="replace",

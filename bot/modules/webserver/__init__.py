@@ -25,6 +25,7 @@ class Webserver(Module):
 
     connected_clients = dict
     broadcast_queue = dict
+    send_data_to_client_hook = object
 
     def __init__(self):
         setattr(self, "default_options", {
@@ -41,6 +42,7 @@ class Webserver(Module):
             'module_dom'
         ])
         self.next_cycle = 0
+        self.send_data_to_client_hook = self.send_data_to_client
         self.run_observer_interval = 5
         Module.__init__(self)
 
@@ -157,8 +159,9 @@ class Webserver(Module):
                     **data_package[1]
                 )
 
-    def emit_event_status(self, event_data, recipient_steamid, status):
-        self.send_data_to_client(
+    def emit_event_status(self, module, event_data, recipient_steamid, status):
+        self.send_data_to_client_hook(
+            module,
             event_data=event_data,
             data_type="status_message",
             clients=recipient_steamid,

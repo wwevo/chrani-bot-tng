@@ -21,7 +21,8 @@ def main_widget(module, dispatchers_steamid=None):
             log_lines=log_lines,
             table_header=template_table_header.render()
         )
-        module.webserver.send_data_to_client(
+        module.webserver.send_data_to_client_hook(
+        module,
             event_data=data_to_emit,
             data_type="widget_content",
             clients=[dispatchers_steamid],
@@ -41,7 +42,8 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         log_line=updated_values_dict["telnet_lines"]
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         method="prepend",
         data_type="widget_content",
         event_data=data_to_emit,

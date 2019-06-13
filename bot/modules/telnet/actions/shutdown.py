@@ -31,7 +31,8 @@ def main_function(module, event_data, dispatchers_steamid):
         })
 
     if alert_admin == 1:
-        module.webserver.send_data_to_client(
+        module.webserver.send_data_to_client_hook(
+        module,
             event_data=event_data,
             status="admin contacted! (well, not really)",
             data_type="alert_message",
@@ -93,11 +94,11 @@ def main_function(module, event_data, dispatchers_steamid):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match):
-    module.emit_event_status(event_data, dispatchers_steamid, "success")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(event_data, dispatchers_steamid, "fail")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
 
 
 action_meta = {

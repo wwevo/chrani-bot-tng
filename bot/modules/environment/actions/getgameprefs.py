@@ -50,11 +50,11 @@ def callback_success(module, event_data, dispatchers_steamid, match):
     if execute_only_once:
         module.disable_action(action_name)
 
-    module.emit_event_status(event_data, dispatchers_steamid, "success")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(event_data, dispatchers_steamid, "fail")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
 
 
 action_meta = {

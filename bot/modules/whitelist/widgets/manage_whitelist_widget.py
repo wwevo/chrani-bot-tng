@@ -103,7 +103,8 @@ def frontend_view(module, dispatchers_steamid=None):
         table_form=template_add_steamid_form.render()
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -151,7 +152,8 @@ def options_view(module, dispatchers_steamid=None):
         widget_options=module.options
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -195,7 +197,8 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
                 player=player_dict,
                 css_class=get_css_class(player_dict)
             )
-            module.webserver.send_data_to_client(
+            module.webserver.send_data_to_client_hook(
+        module,
                 event_data=table_row,
                 data_type="table_row",
                 clients=[clientid],
@@ -226,7 +229,8 @@ def update_widget_status(module, updated_values_dict=None, old_values_dict=None,
         enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=enable_disable_toggle,
         data_type="element_content",
         clients="all",

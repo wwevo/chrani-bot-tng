@@ -74,11 +74,11 @@ class Module(Thread, Action, Trigger, Template, Widget):
         )
 
         self.trigger_action_hook(self, event_data, dispatchers_steamid)
-        self.emit_event_status(event_data, dispatchers_steamid, status_message)
+        self.emit_event_status(self, event_data, dispatchers_steamid, status_message)
 
         Widget.on_socket_event(self, event_data, dispatchers_steamid)
 
-    def emit_event_status(self, event_data, recipient_steamid, status):
+    def emit_event_status(self, module, event_data, recipient_steamid, status):
         # TODO: send this to a dynamic list of recipients, can't have hardcoded module references in here ^^
         # recipient_steamid can be None, "all" or [list_of_steamid's]
         if recipient_steamid is not None:
@@ -90,5 +90,5 @@ class Module(Thread, Action, Trigger, Template, Widget):
                 recipient_steamid=recipient_steamid
             ))
 
-        self.webserver.emit_event_status(event_data, recipient_steamid, status)
+        self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
 

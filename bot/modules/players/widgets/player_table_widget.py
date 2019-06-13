@@ -91,7 +91,8 @@ def frontend_view(module, dispatchers_steamid=None):
         table_header=template_table_header.render()
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -124,7 +125,8 @@ def options_view(module, dispatchers_steamid=None):
         widget_options=module.options
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -156,7 +158,8 @@ def show_info_view(module, dispatchers_steamid=None):
         player=module.dom.data.get("module_players", {}).get("players", {}).get(current_view_steamid, None)
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -180,7 +183,8 @@ def component_widget(module, event_data, dispatchers_steamid=None):
             css_class=get_player_table_row_css_class(player_dict)
         )
 
-        module.webserver.send_data_to_client(
+        module.webserver.send_data_to_client_hook(
+        module,
             event_data=table_row,
             data_type="table_row",
             clients=[dispatchers_steamid],
@@ -207,7 +211,8 @@ def update_widget(*args, **kwargs):
             for steamid, player_dict in player_entries_to_update.items():
                 current_view = module_players.get("visibility", {}).get(steamid, {}).get("current_view", None)
                 if current_view == "frontend":
-                    module.webserver.send_data_to_client(
+                    module.webserver.send_data_to_client_hook(
+        module,
                         event_data=player_dict,
                         data_type="table_row_content",
                         clients=[clientid],
@@ -222,7 +227,8 @@ def update_widget(*args, **kwargs):
                         }
                     )
                 elif current_view == "info":
-                    module.webserver.send_data_to_client(
+                    module.webserver.send_data_to_client_hook(
+        module,
                         event_data=player_dict,
                         data_type="table_row_content",
                         clients=[clientid],
@@ -252,7 +258,8 @@ def update_component(*args, **kwargs):
         player=player_dict
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="element_content",
         clients="all",
@@ -267,7 +274,8 @@ def update_component(*args, **kwargs):
         player=player_dict
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="element_content",
         clients="all",

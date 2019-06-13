@@ -40,7 +40,8 @@ def frontend_view(module, dispatchers_steamid=None):
         )
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -75,7 +76,8 @@ def options_view(module, dispatchers_steamid=None):
         available_actions=module.all_available_actions_dict
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],

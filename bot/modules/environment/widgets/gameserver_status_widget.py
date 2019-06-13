@@ -17,7 +17,8 @@ def main_widget(module, dispatchers_steamid=None):
         data_transfer_enabled=telnet_data_transfer_is_enabled
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
@@ -58,7 +59,8 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
         data_transfer_enabled=telnet_data_transfer_is_enabled
     )
 
-    module.webserver.send_data_to_client(
+    module.webserver.send_data_to_client_hook(
+        module,
         event_data=data_to_emit,
         data_type="widget_content",
         clients=module.webserver.connected_clients.keys(),

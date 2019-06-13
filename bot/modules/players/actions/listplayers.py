@@ -113,7 +113,7 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             }
         })
 
-    module.emit_event_status(event_data, dispatchers_steamid, "success")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
@@ -131,7 +131,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
         }
     }, overwrite=True)
 
-    module.emit_event_status(event_data, dispatchers_steamid, "fail")
+    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
