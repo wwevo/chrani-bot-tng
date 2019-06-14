@@ -238,8 +238,18 @@ main > div > .widget caption {
     border-top-right-radius: 0.75em;
 }
 
-#permissions_widget > table > tbody > tr:last-child {
+#permissions_widget > table > tbody > tr {
+    line-height: 1.33em;
     border-bottom: 0.5em solid var(--background);
+}
+
+#permissions_widget > table > tbody > tr:first-child {
+    line-height: 1.33em;
+    border-bottom: 0;
+}
+
+#permissions_widget > table > tbody > tr:last-child {
+    border-bottom: 1.5em solid var(--background);
 }
 
 #permissions_widget > table > tbody > tr > td:last-child > span {
@@ -259,7 +269,7 @@ main > div > .widget caption {
 
 #permissions_widget > table > tbody > tr > th > span,
 #permissions_widget > table > tbody > tr > td:last-child > span {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-yellow);
 }
 
 #permissions_widget > table > tbody > tr:hover > td:last-child > span {

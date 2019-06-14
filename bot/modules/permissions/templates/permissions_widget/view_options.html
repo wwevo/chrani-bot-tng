@@ -15,6 +15,7 @@
         </tr>
         {% endfor %}
     </tbody>
+<!--
     <tbody>
         <tr>
             <th colspan="2"><span>available actions</span></th>
@@ -25,7 +26,13 @@
                 <table>
                     {% for action_name, action_value in value.items() %}
                     <tr>
-                        <td>{{ action_name }}</td><td>{{ action_value.description }}</td><td class="right"><span>0</span></td>
+                        <td>{{ action_name }}</td>
+                        <td>{{ action_value.description }}</td>
+                        <td class="right">
+                            <span id="widget_permission_{{ action_name }}">
+                                <input type="number" class="dial" value="{{ permission }}" onclick="window.socket.emit('widget_event', ['permissions', ['change_permission', {'id': '{{ action_name }}'}]]); return false;" />
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -44,7 +51,13 @@
                 <table>
                     {% for widget_name, widget_value in value.items() %}
                     <tr>
-                        <td>{{ widget_name }}</td><td>{{ widget_value.description }}</td><td class="right"><span>0</span></td>
+                        <td>{{ widget_name }}</td>
+                        <td>{{ widget_value.description }}</td>
+                        <td class="right">
+                            <span id="widget_permission_{{ widget_name }}">
+                                <input type="number" class="dial" value="{{ permission }}" onclick="window.socket.emit('widget_event', ['permissions', ['change_permission', {'id': '{{ widget_name }}'}]]); return false;" />
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -53,4 +66,5 @@
         </tr>
         {% endfor %}
     </tbody>
+//-->
 </table>
