@@ -60,7 +60,7 @@ def update_widget(module, updated_values_dict=None, old_values_dict=None, dispat
 
 
 widget_meta = {
-    "description": "sends and updates a table of all currently known players",
+    "description": "displays the in-game time and day",
     "main_widget": main_widget,
     "handlers": {
         "module_environment/last_recorded_gametime": update_widget

@@ -1,5 +1,6 @@
 from os import path, listdir, pardir
 from importlib import import_module
+from bot import loaded_modules_dict
 
 
 class Widget(object):
@@ -33,6 +34,15 @@ class Widget(object):
     def template_render(self, module, template, **kwargs):
         rendered_template = template.render(**kwargs)
         return rendered_template
+
+    @staticmethod
+    def get_all_available_widgets_dict():
+        all_available_widgets_dict = {}
+        for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
+            if len(loaded_module.available_widgets_dict) >= 1:
+                all_available_widgets_dict[loaded_module_identifier] = loaded_module.available_widgets_dict
+
+        return all_available_widgets_dict
 
     def start(self):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:

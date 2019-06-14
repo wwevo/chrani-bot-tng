@@ -1,6 +1,7 @@
 from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
+from bot import loaded_modules_dict
 
 
 class Action(object):
@@ -19,6 +20,15 @@ class Action(object):
 
     def disable_action(self, identifier):
         self.available_actions_dict[identifier]["enabled"] = False
+
+    @staticmethod
+    def get_all_available_actions_dict():
+        all_available_actions_dict = {}
+        for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
+            if len(loaded_module.available_actions_dict) >= 1:
+                all_available_actions_dict[loaded_module_identifier] = loaded_module.available_actions_dict
+
+        return all_available_actions_dict
 
     def import_actions(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")

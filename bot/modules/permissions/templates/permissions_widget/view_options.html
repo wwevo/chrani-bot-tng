@@ -6,14 +6,50 @@
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <th colspan="2"><span>widget-options</span></th>
+        </tr>
         {% for key, value in widget_options.items() %}
         <tr>
-            <td>{{key}}</td><td>{{value}}
+            <td>{{value}}</td><td><span>{{key}}</span></td>
         </tr>
         {% endfor %}
+    </tbody>
+    <tbody>
+        <tr>
+            <th colspan="2"><span>available actions</span></th>
+        </tr>
         {% for key, value in available_actions.items() %}
         <tr>
-            <td>{{key}}</td><td>{{value}}
+            <td>
+                <table>
+                    {% for action_name, action_value in value.items() %}
+                    <tr>
+                        <td>{{ action_name }}</td><td>{{ action_value.description }}</td><td class="right"><span>0</span></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+            <td><span>{{ key }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tbody>
+        <tr>
+            <th colspan="2"><span>available widgets</span></th>
+        </tr>
+        {% for key, value in available_widgets.items() %}
+        <tr>
+            <td>
+                <table>
+                    {% for widget_name, widget_value in value.items() %}
+                    <tr>
+                        <td>{{ widget_name }}</td><td>{{ widget_value.description }}</td><td class="right"><span>0</span></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+            <td><span>{{ key }}</span></td>
         </tr>
         {% endfor %}
     </tbody>

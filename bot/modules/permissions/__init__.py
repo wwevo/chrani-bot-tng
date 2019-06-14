@@ -17,6 +17,7 @@ class Permissions(Module):
         self.next_cycle = 0
         self.run_observer_interval = 5
         self.all_available_actions_dict = {}
+        self.all_available_widgets_dict = {}
         Module.__init__(self)
 
     @staticmethod
@@ -31,18 +32,10 @@ class Permissions(Module):
     def start(self):
         """ all modules have been loaded and initialized by now. we can bend the rules here."""
         self.set_permission_hooks()
-        self.all_available_actions_dict = self.get_all_available_actions()
+        self.all_available_actions_dict = self.get_all_available_actions_dict()
+        self.all_available_widgets_dict = self.get_all_available_widgets_dict()
         Module.start(self)
     # endregion
-
-    @staticmethod
-    def get_all_available_actions():
-        all_available_actions_dict = {}
-        for loaded_module_identifier, loaded_module in loaded_modules_dict.items():
-            if len(loaded_module.available_actions_dict) >= 1:
-                all_available_actions_dict[loaded_module_identifier] = loaded_module.available_actions_dict
-
-        return all_available_actions_dict
 
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ Manually for now, this will be handled by a permissions widget. """
@@ -55,7 +48,7 @@ class Permissions(Module):
                 event_data[0] == "toggle_permissions_view"
         ]):
             if event_data[1]["action"] == "show_options":
-                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
+                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
         if any([

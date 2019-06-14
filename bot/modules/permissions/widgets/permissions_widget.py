@@ -85,7 +85,8 @@ def options_view(module, dispatchers_steamid=None):
             )
         ),
         widget_options=module.options,
-        available_actions=module.all_available_actions_dict
+        available_actions=module.all_available_actions_dict,
+        available_widgets=module.all_available_widgets_dict
     )
 
     module.webserver.send_data_to_client_hook(
