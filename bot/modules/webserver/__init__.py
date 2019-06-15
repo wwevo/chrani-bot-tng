@@ -31,7 +31,7 @@ class Webserver(Module):
         setattr(self, "default_options", {
             "title": "chrani-bot tng",
             "module_name": self.get_module_identifier()[7:],
-            "host": "127.0.0.1",
+            "host": "0.0.0.0",
             "port": 5000,
             "Flask_secret_key": "thisissecret",
             "SocketIO_asynch_mode": None,
@@ -352,6 +352,7 @@ class Webserver(Module):
                 "use_reloader": self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
             }
         ).start()
+
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
