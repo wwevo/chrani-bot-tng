@@ -105,6 +105,8 @@ main {
     position: relative;
     background: url(ui/main_vertical_bar.png) repeat-y;
     color: var(--lcars-orange);
+    height: calc(100vh - 5em - 5.75em);
+    overflow: auto;
 }
 
 main > div {
@@ -113,16 +115,16 @@ main > div {
     flex-direction: column;
 }
 
-main > div #webserver_status_widget {
+main > div #player_table_widget {
     order: -1;
 }
 
-main > div #player_table_widget {
+main > div #manage_whitelist_widget {
     order: 0;
 }
 
-main > div #manage_whitelist_widget {
-    order: 1;
+main > div #webserver_status_widget {
+    order: 98;
 }
 
 main > div #telnet_log_widget {
@@ -131,7 +133,8 @@ main > div #telnet_log_widget {
 
 main > div > .widget {
     color: var(--lcars-brown);
-    min-height: 8em;
+    min-height: 12em;
+    height: calc(100vh - 5em - 5.75em);
 }
 
 main > div > .widget a,
@@ -264,6 +267,25 @@ main > div > .widget .pull_out td > div > span {
     background-color: var(--lcars-purple);
     padding: 0 0.5em;
 }
+
+/* ############ */
+
+main > div > .widget:nth-of-type(2) .pull_out td > div > span,
+main > div > .widget:nth-of-type(2) thead tr:last-child th {
+    background-color: var(--lcars-yellow);
+}
+
+main > div > .widget:nth-of-type(3) .pull_out td > div > span,
+main > div > .widget:nth-of-type(3) thead tr:last-child th {
+    background-color: var(--lcars-dark-blue);
+}
+
+main > div > .widget:nth-of-type(4) .pull_out td > div > span,
+main > div > .widget:nth-of-type(4) thead tr:last-child th {
+    background-color: var(--lcars-light-blue);
+}
+
+/* ############ */
 
 main > div > .widget .pull_out td > div > span.active {
     background-color: var(--lcars-lilac);
