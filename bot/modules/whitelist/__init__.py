@@ -16,7 +16,6 @@ class Whitelist(Module):
             "module_players",
             "module_telnet",
             "module_webserver",
-            "module_triggers"
         ])
         self.run_observer_interval = 1
         self.next_cycle = 0

@@ -16,9 +16,9 @@ class Players(Module):
         setattr(self, "required_modules", [
             "module_webserver",
             "module_dom",
-            "module_triggers",
             "module_telnet"
         ])
+
         self.next_cycle = 0
         Module.__init__(self)
 

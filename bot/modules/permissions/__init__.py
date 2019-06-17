@@ -9,11 +9,13 @@ class Permissions(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:]
         })
+
         setattr(self, "required_modules", [
             'module_dom',
             'module_players',
             'module_webserver'
         ])
+
         self.next_cycle = 0
         self.run_observer_interval = 5
         self.all_available_actions_dict = {}

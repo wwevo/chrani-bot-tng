@@ -16,6 +16,7 @@ class Environment(Module):
             "module_telnet",
             "module_webserver"
         ])
+
         self.next_cycle = 0
         self.run_observer_interval = 3
         Module.__init__(self)
@@ -46,6 +47,8 @@ class Environment(Module):
                 "execute_only_once": True
             }])
             self.trigger_action_hook(self, ["gettime", {}])
+
+            self.execute_telnet_triggers()
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time

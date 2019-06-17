@@ -10,7 +10,9 @@ class Dom(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:]
         })
+
         setattr(self, "required_modules", [])
+
         self.data = CallbackDict()
         self.run_observer_interval = 5
         Module.__init__(self)

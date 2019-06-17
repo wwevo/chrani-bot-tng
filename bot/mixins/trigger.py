@@ -1,5 +1,7 @@
+from bot import loaded_modules_dict
 from os import path, listdir, pardir
 from importlib import import_module
+import re
 
 
 class Trigger(object):
@@ -23,3 +25,17 @@ class Trigger(object):
         except FileNotFoundError as error:
             # module does not have triggers
             pass
+
+    def execute_telnet_triggers(self):
+        telnet_lines_to_process = self.telnet.get_a_bunch_of_lines(25)
+        for telnet_line in telnet_lines_to_process:
+            for loaded_module in loaded_modules_dict.values():
+                for trigger_name, trigger_group in loaded_module.available_triggers_dict.items():
+                    for trigger in trigger_group["triggers"]:
+                        regex_results = re.search(trigger["regex"], telnet_line)
+                        if regex_results:
+                            trigger["callback"](self, regex_results)
+                            if len(self.webserver.connected_clients) >= 1:
+                                message = "executed trigger: {}".format(trigger_name)
+                                # print(message)
+                                # TODO: add method to append log, or create a new one

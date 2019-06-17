@@ -28,10 +28,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
         Widget.__init__(self)
         Thread.__init__(self)
 
-    def setup(self, options=dict):
+    def setup(self, provided_options=dict):
         self.options = self.default_options
-        if isinstance(options, dict):
-            self.options.update(options)
+        if isinstance(provided_options, dict):
+            self.options.update(provided_options)
             print("{}: provided options have been set".format(self.options['module_name']))
         else:
             # print("{}: no options provided, default values are used".format(self.default_options["module_name"]))

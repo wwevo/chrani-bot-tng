@@ -12,9 +12,11 @@ class Storage(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:]
         })
+
         setattr(self, "required_modules", [
             "module_dom"
         ])
+
         self.next_cycle = 0
         self.run_observer_interval = 15
         Module.__init__(self)
