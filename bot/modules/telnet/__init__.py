@@ -307,11 +307,11 @@ class Telnet(Module):
                         self.valid_telnet_lines.append(valid_telnet_line)
 
                         if len(self.webserver.connected_clients) >= 1:
-                            self.dom.data.append({
+                            self.dom.data.upsert({
                                 self.get_module_identifier(): {
                                     "telnet_lines": valid_telnet_line
                                 }
-                            }, maxlen=150)
+                            }, maxlen=150, mode="append")
 
                     response_count += 1
 
