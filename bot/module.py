@@ -79,7 +79,6 @@ class Module(Thread, Action, Trigger, Template, Widget):
         Widget.on_socket_event(self, event_data, dispatchers_steamid)
 
     def emit_event_status(self, module, event_data, recipient_steamid, status):
-        # TODO: send this to a dynamic list of recipients, can't have hardcoded module references in here ^^
         # recipient_steamid can be None, "all" or [list_of_steamid's]
         if recipient_steamid is not None:
             recipient_steamid = [recipient_steamid]
