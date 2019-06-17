@@ -32,8 +32,9 @@ class Dom(Module):
                 identifier, self.data.get(module_identifier).get(identifier, default_value)
             )
         except AttributeError as error:
-            updated_or_default_value = False
+            updated_or_default_value = default_value
 
         return updated_or_default_value
+
 
 loaded_modules_dict[Dom().get_module_identifier()] = Dom()
