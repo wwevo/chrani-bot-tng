@@ -35,25 +35,17 @@ def main_widget(module, dispatchers_steamid=None):
 def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
-    if updated_values_dict is None:
-        try:
-            telnet_data_transfer_is_enabled = module.dom.data.get("module_telnet").get("data_transfer_enabled", False)
-        except AttributeError as error:
-            telnet_data_transfer_is_enabled = False
+    telnet_data_transfer_is_enabled = module.dom.get_updated_or_default_value(
+        "module_telnet", "data_transfer_enabled", updated_values_dict, False
+    )
 
-        try:
-            server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
-        except AttributeError as error:
-            server_is_online = True
+    server_is_online = module.dom.get_updated_or_default_value(
+        "module_telnet", "server_is_online", updated_values_dict, True
+    )
 
-        try:
-            shutdown_in_seconds = module.dom.data.get("module_telnet").get("shutdown_in_seconds")
-        except AttributeError as error:
-            shutdown_in_seconds = None
-    else:
-        server_is_online = updated_values_dict.get("server_is_online", True)
-        shutdown_in_seconds = updated_values_dict.get("shutdown_in_seconds", None)
-        telnet_data_transfer_is_enabled = updated_values_dict.get("data_transfer_enabled", False)
+    shutdown_in_seconds = module.dom.get_updated_or_default_value(
+        "module_telnet", "shutdown_in_seconds", updated_values_dict, None
+    )
 
     data_to_emit = module.template_render_hook(
         module,

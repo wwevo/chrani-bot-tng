@@ -90,4 +90,3 @@ class Module(Thread, Action, Trigger, Template, Widget):
             ))
 
         self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
-

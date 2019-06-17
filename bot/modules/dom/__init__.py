@@ -26,5 +26,14 @@ class Dom(Module):
         Module.setup(self, options)
     # endregion
 
+    def get_updated_or_default_value(self, module_identifier, identifier, updated_values_dict, default_value):
+        try:
+            updated_or_default_value = updated_values_dict.get(
+                identifier, self.data.get(module_identifier).get(identifier, default_value)
+            )
+        except AttributeError as error:
+            updated_or_default_value = False
+
+        return updated_or_default_value
 
 loaded_modules_dict[Dom().get_module_identifier()] = Dom()

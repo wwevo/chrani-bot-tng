@@ -16,25 +16,20 @@ class CallbackDict(dict, object):
 
     def upsert(self, *args, **kwargs):
         updated_values_dict = args[0]
-        dict_to_update = kwargs.get("dict_to_update", None)
+        dict_to_update = kwargs.get("dict_to_update", self)
         overwrite = kwargs.get("overwrite", False)
-        path = kwargs.get("path", None)
+        path = kwargs.get("path", [])
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
         layer = kwargs.get("layer", 0)
         callbacks = kwargs.get("callbacks", None)
         mode = kwargs.get("mode", "upsert")
         maxlen = kwargs.get("maxlen", None)
 
-        if layer == 0:
-            if callbacks is None:
-                callbacks = []
+        if layer == 0 and callbacks is None:
+            callbacks = []
 
         layer += 1
-        if dict_to_update is None:
-            dict_to_update = self
-        if path is None:
-            path = []
-        else:
+        if path is not None:
             path = path[0:layer-1]
 
         for k, v in updated_values_dict.items():
