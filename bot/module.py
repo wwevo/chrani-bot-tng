@@ -69,8 +69,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
     def on_socket_event(self, event_data, dispatchers_steamid):
         action_category = event_data[0]
-        status_message = "module '{}' received event '{}' from {}".format(
-            self.options['module_name'], action_category, dispatchers_steamid
+        status_message = "module '{}' received event '{}' from '{}'".format(
+            self.options['module_name'],
+            action_category,
+            dispatchers_steamid
         )
 
         self.trigger_action_hook(self, event_data, dispatchers_steamid)
@@ -82,10 +84,9 @@ class Module(Thread, Action, Trigger, Template, Widget):
         # recipient_steamid can be None, "all" or [list_of_steamid's]
         if recipient_steamid is not None:
             recipient_steamid = [recipient_steamid]
-            print("module '{module_name}' sent status '{status}' for '{action_identifier}' to {recipient_steamid}".format(
+            print("module '{module_name}' sent status '{status}' to {recipient_steamid}".format(
                 module_name=self.options['module_name'],
                 status=status,
-                action_identifier=event_data[0],
                 recipient_steamid=recipient_steamid
             ))
 

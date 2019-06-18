@@ -1,4 +1,45 @@
 document.addEventListener("DOMContentLoaded", function(event) {
+    Audio.prototype.play = (function(play) {
+        return function () {
+            var audio = this,
+            args = arguments,
+            promise = play.apply(audio, args);
+            if (promise !== undefined) {
+                promise.catch(_ => {
+                    // Autoplay was prevented. This is optional, but add a button to start playing.
+                });
+            }
+        };
+    }) (Audio.prototype.play);
+
+    let audio_files = [];
+
+    function load_audio_files() {
+        audio_files["computer_work_beep"] = new Audio('/static/lcars/audio/computer_work_beep.mp3');
+        audio_files["keyok1"] = new Audio('/static/lcars/audio/keyok1.mp3');
+        audio_files["input_ok_2_clean"] = new Audio('/static/lcars/audio/input_ok_2_clean.mp3');
+        audio_files["processing"] = new Audio('/static/lcars/audio/processing.mp3');
+        audio_files["computerbeep_38"] = new Audio('/static/lcars/audio/computerbeep_38.mp3');
+        audio_files["computerbeep_38"].volume = 0.05;
+        audio_files["computerbeep_65"] = new Audio('/static/lcars/audio/computerbeep_65.mp3');
+    }
+
+    function play_audio_file(identifier) {
+        try {
+            if (audio_files[identifier].readyState === 4) { // 4 = HAVE_ENOUGH_DATA
+                if (!audio_files[identifier].ended) {
+                    audio_files[identifier].currentTime = 0;
+                    console.log("replay");
+                } else {
+                    audio_files[identifier].play();
+                    console.log("play");
+                }
+            }
+        } catch(err) {
+            console.log("bleh:" + err);
+        }
+    }
+
     // https://stackoverflow.com/a/38311629/8967590
     $.fn.setClass = function(classes) {
         this.attr('class', classes);
@@ -65,6 +106,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         window.socket.emit('widget_event', [module, ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
     }
 
+    load_audio_files();
+
     window.socket.on('data', function(data) {
         if (data["data_type"] === "element_content") {
             let target_element_id = data["target_element"]["id"];
@@ -96,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             } else if (data["method"] === "append") {
                 $el.append(data["event_data"]);
             } else if (data["method"] === "prepend") {
+                play_audio_file("computerbeep_38");
                 $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
                 $el.prepend(data["event_data"]);
                 let $entries = $el.find('tr');
@@ -105,6 +149,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             }
         }
         if (data["data_type"] === "table_row") {
+            play_audio_file("processing");
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
@@ -162,8 +207,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
             });
         }
+
         if (data["data_type"] === "status_message") {
-            console.log("received status '" + data['status'] + "' for event '" + data['event_data'][0] + "' from server");
+            play_audio_file("computerbeep_65");
+            console.log("received status from server\n\"" + data['status'] + "\"");
         }
         if (data["data_type"] === "alert_message") {
             alert(data['status']);

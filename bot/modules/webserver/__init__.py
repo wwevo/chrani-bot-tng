@@ -119,6 +119,14 @@ class Webserver(Module):
         data_type = kwargs.get("data_type", "widget_content")
         target_element = kwargs.get("target_element", None)
         clients = kwargs.get("clients", None)
+        if all([
+            not None,
+            not isinstance(clients, KeysView),
+            not isinstance(clients, list),
+        ]):
+            if re.match(r"^(\d{17})$", clients):
+                clients = [clients]
+
         method = kwargs.get("method", "update")
         status = kwargs.get("status", "")
 
@@ -136,7 +144,7 @@ class Webserver(Module):
                     "broadcast": True
                 }
                 data_packages_to_send.append([widget_options, emit_options])
-            elif isinstance(clients, KeysView) or isinstance(clients, list):
+            elif clients is not None:
                 for steamid in clients:
                     try:
                         emit_options = {
@@ -151,8 +159,6 @@ class Webserver(Module):
                         pass
 
             for data_package in data_packages_to_send:
-                # print(data_package[0]["event_data"])
-
                 self.websocket.emit(
                     'data',
                     data_package[0],
