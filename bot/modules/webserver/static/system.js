@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (audio_files[identifier].readyState === 4) { // 4 = HAVE_ENOUGH_DATA
                 if (!audio_files[identifier].ended) {
                     audio_files[identifier].currentTime = 0;
-                    console.log("replay");
+                    // console.log("replay");
                 } else {
                     audio_files[identifier].play();
-                    console.log("play");
+                    // console.log("play");
                 }
             }
         } catch(err) {
