@@ -12,8 +12,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout_start = time()
 
     player_to_be_kicked = event_data[1].get("steamid", None)
+    reason = event_data[1].get("reason", None)
 
-    command = "kick {}".format(player_to_be_kicked)
+    command = "kick {} reason {}".format(player_to_be_kicked, reason)
     module.telnet.add_telnet_command_to_queue(command)
     poll_is_finished = False
     regex = (
