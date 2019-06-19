@@ -5,7 +5,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, regex_result):
+def main_function(origin_module, module, regex_result):
     # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     datetime = regex_result.group("datetime")
     executed_trigger = False

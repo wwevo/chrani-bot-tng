@@ -34,7 +34,7 @@ class Trigger(object):
                     for trigger in trigger_group["triggers"]:
                         regex_results = re.search(trigger["regex"], telnet_line)
                         if regex_results:
-                            trigger["callback"](self, regex_results)
+                            trigger["callback"](loaded_module, self, regex_results)
                             if len(self.webserver.connected_clients) >= 1:
                                 message = "executed trigger: {}".format(trigger_name)
                                 # print(message)
