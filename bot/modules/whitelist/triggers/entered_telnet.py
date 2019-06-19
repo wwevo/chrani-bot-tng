@@ -17,7 +17,7 @@ def main_function(origin_module, module, regex_result):
         admins = module.dom.data.get("module_players", {}).get("admins", {})
         if player_dict is not None:
             player_is_on_whitelist = player_dict.get("on_whitelist")
-            if player_is_on_whitelist is True:  # or player_steamid in admins:
+            if player_is_on_whitelist is True or player_steamid in admins:
                 # player is fine and shall be allowed to play!
                 pass
             else:
