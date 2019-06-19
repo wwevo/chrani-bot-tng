@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function(event) {
+
+    // based on https://stackoverflow.com/a/56279295/8967590
     Audio.prototype.play = (function(play) {
         return function () {
             var audio = this,
@@ -6,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             promise = play.apply(audio, args);
             if (promise !== undefined) {
                 promise.catch(_ => {
-                    // Autoplay was prevented. This is optional, but add a button to start playing.
+                    // Autoplay was prevented. you can take steps here, like notifying the user.
                 });
             }
         };
