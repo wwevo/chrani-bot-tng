@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // based on https://stackoverflow.com/a/56279295/8967590
     Audio.prototype.play = (function(play) {
         return function () {
-            var audio = this,
-            args = arguments,
-            promise = play.apply(audio, args);
+            let audio = this;
+            let args = arguments;
+            let promise = play.apply(audio, args);
             if (promise !== undefined) {
                 promise.catch(_ => {
                     // Autoplay was prevented. you can take steps here, like notifying the user.
@@ -19,10 +19,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
     function load_audio_files() {
         audio_files["computer_work_beep"] = new Audio('/static/lcars/audio/computer_work_beep.mp3');
         audio_files["keyok1"] = new Audio('/static/lcars/audio/keyok1.mp3');
+        audio_files["keyok1"].volume = 0.05;
         audio_files["input_ok_2_clean"] = new Audio('/static/lcars/audio/input_ok_2_clean.mp3');
         audio_files["processing"] = new Audio('/static/lcars/audio/processing.mp3');
+        audio_files["processing"].volume = 0.25;
         audio_files["computerbeep_38"] = new Audio('/static/lcars/audio/computerbeep_38.mp3');
-        audio_files["computerbeep_38"].volume = 0.05;
+        audio_files["computerbeep_38"].volume = 0.1;
         audio_files["computerbeep_65"] = new Audio('/static/lcars/audio/computerbeep_65.mp3');
     }
 
@@ -90,7 +92,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     window.socket.on('connected', function() {
         console.log("connected...");
         window.socket.emit('ding');
-        console.log("sent 'ding' to server");
     });
 
     let start_time = (new Date).getTime();
@@ -98,10 +99,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     window.setInterval(function() {
         start_time = (new Date).getTime();
         socket.emit('ding');
+        play_audio_file("processing");
+
+        console.log("sent 'ding' to server");
     }, 10000);
 
     window.socket.on('dong', function() {
         let latency = (new Date).getTime() - start_time;
+        play_audio_file("keyok1");
+
         console.log("ding/dong took " + latency + "ms");
     });
 
