@@ -52,18 +52,13 @@ class Action(object):
     def trigger_action(self, module, event_data, dispatchers_steamid=None):
         action_identifier = event_data[0]
         if action_identifier in self.available_actions_dict:
-            status_message = "found requested action '{}'".format(action_identifier)
-
             server_is_online = self.dom.data.get("module_telnet", {}).get("server_is_online", False)
             action_requires_server_to_be_online = self.available_actions_dict[action_identifier].get(
                 "requires_telnet_connection", False
             )
             action_is_enabled = self.available_actions_dict[action_identifier]["enabled"]
-            if not action_is_enabled:
-                status_message = "found requested action '{}', but it is disabled - skipping it!".format(
-                    action_identifier
-                )
-            else:
+            if action_is_enabled:
+                event_data[1]["module"] = module.getName()
                 event_data[1]["uuid4"] = self.id_generator(22)
                 if server_is_online is True or action_requires_server_to_be_online is not True:
                     Thread(
@@ -81,11 +76,3 @@ class Action(object):
                             target=self.available_actions_dict[action_identifier]["skip_it"],
                             args=(self, event_data)
                         ).start()
-
-                    status_message = "action '{}' requires an active telnet connection!".format(action_identifier)
-
-        else:
-            status_message = "could not find requested action '{}'".format(action_identifier)
-
-        # print(status_message)
-
