@@ -22,17 +22,17 @@ def main_function(module, event_data, dispatchers_steamid=None):
         sleep(0.25)
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer):
-            telnet_datetime = match.group("datetime")
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
             return
 
-    callback_fail(module, event_data, dispatchers_steamid)
+    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match, telnet_datetime):
+def callback_success(module, event_data, dispatchers_steamid, match=None):
+    telnet_datetime = match.group("datetime")
     raw_playerdata = match.group("raw_playerdata").lstrip()
     regex = (
         r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "
@@ -113,8 +113,6 @@ def callback_success(module, event_data, dispatchers_steamid, match, telnet_date
             }
         })
 
-    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
-
 
 def callback_fail(module, event_data, dispatchers_steamid):
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
@@ -131,16 +129,12 @@ def callback_fail(module, event_data, dispatchers_steamid):
         }
     }, overwrite=True)
 
-    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
-
 
 def skip_it(module, event_data, dispatchers_steamid=None):
     all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
     for steamid, player_dict in all_players_dict.items():
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
-
-    pass
 
 
 action_meta = {

@@ -13,12 +13,12 @@ def main_function(module, event_data, dispatchers_steamid=None):
     }, overwrite=True)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
+def callback_success(module, event_data, dispatchers_steamid, match=None):
+    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
+    pass
 
 
 action_meta = {

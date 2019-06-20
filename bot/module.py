@@ -68,26 +68,33 @@ class Module(Thread, Action, Trigger, Template, Widget):
         Widget.on_socket_disconnect(self, dispatchers_steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        action_category = event_data[0]
-        status_message = "module '{}' received event '{}' from '{}'".format(
-            self.options['module_name'],
-            action_category,
-            dispatchers_steamid
-        )
-
         self.trigger_action_hook(self, event_data, dispatchers_steamid)
-        self.emit_event_status(self, event_data, dispatchers_steamid, status_message)
+        self.emit_event_status(self, event_data, dispatchers_steamid)
 
         Widget.on_socket_event(self, event_data, dispatchers_steamid)
 
-    def emit_event_status(self, module, event_data, recipient_steamid, status):
+    def emit_event_status(self, module, event_data, recipient_steamid, status=None):
         # recipient_steamid can be None, "all" or [list_of_steamid's]
-        if recipient_steamid is not None:
+        if recipient_steamid is not None and status is not None:
             recipient_steamid = [recipient_steamid]
-            print("module '{module_name}' sent status '{status}' to {recipient_steamid}".format(
+
+            print("action {action} from module '{module_name}' sent status '{status}' to {recipient_steamid}".format(
+                action=event_data[0],
                 module_name=self.options['module_name'],
                 status=status,
                 recipient_steamid=recipient_steamid
             ))
 
-        self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
+            self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
+
+    @staticmethod
+    def callback_success(callback, module, event_data, dispatchers_steamid, match=None):
+        event_data[1]["status"] = "success"
+        module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
+        callback(module, event_data, dispatchers_steamid, match)
+
+    @staticmethod
+    def callback_fail(callback, module, event_data, dispatchers_steamid):
+        event_data[1]["status"] = "fail"
+        module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
+        callback(module, event_data, dispatchers_steamid)

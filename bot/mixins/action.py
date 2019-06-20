@@ -2,6 +2,8 @@ from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
 from bot import loaded_modules_dict
+import string
+import random
 
 
 class Action(object):
@@ -20,6 +22,10 @@ class Action(object):
 
     def disable_action(self, identifier):
         self.available_actions_dict[identifier]["enabled"] = False
+
+    @staticmethod
+    def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
 
     @staticmethod
     def get_all_available_actions_dict():
@@ -57,24 +63,26 @@ class Action(object):
                 status_message = "found requested action '{}', but it is disabled - skipping it!".format(
                     action_identifier
                 )
-            elif server_is_online is True or action_requires_server_to_be_online is not True:
-                Thread(
-                    target=self.available_actions_dict[action_identifier]["main_function"],
-                    args=(self, event_data, dispatchers_steamid)
-                ).start()
             else:
-                try:
-                    skip_it_callback = self.available_actions_dict[action_identifier]["skip_it"]
-                except KeyError:
-                    skip_it_callback = None
-
-                if skip_it_callback is not None:
+                event_data[1]["uuid4"] = self.id_generator(22)
+                if server_is_online is True or action_requires_server_to_be_online is not True:
                     Thread(
-                        target=self.available_actions_dict[action_identifier]["skip_it"],
-                        args=(self, event_data)
+                        target=self.available_actions_dict[action_identifier]["main_function"],
+                        args=(self, event_data, dispatchers_steamid)
                     ).start()
+                else:
+                    try:
+                        skip_it_callback = self.available_actions_dict[action_identifier]["skip_it"]
+                    except KeyError:
+                        skip_it_callback = None
 
-                status_message = "action '{}' requires an active telnet connection!".format(action_identifier)
+                    if skip_it_callback is not None:
+                        Thread(
+                            target=self.available_actions_dict[action_identifier]["skip_it"],
+                            args=(self, event_data)
+                        ).start()
+
+                    status_message = "action '{}' requires an active telnet connection!".format(action_identifier)
 
         else:
             status_message = "could not find requested action '{}'".format(action_identifier)

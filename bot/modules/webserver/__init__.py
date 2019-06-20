@@ -120,7 +120,7 @@ class Webserver(Module):
         target_element = kwargs.get("target_element", None)
         clients = kwargs.get("clients", None)
         if all([
-            not None,
+            clients is not None,
             not isinstance(clients, KeysView),
             not isinstance(clients, list),
         ]):
@@ -129,6 +129,9 @@ class Webserver(Module):
 
         method = kwargs.get("method", "update")
         status = kwargs.get("status", "")
+
+        if clients is None:
+            clients = "all"
 
         with self.app.app_context():
             data_packages_to_send = []
@@ -165,10 +168,7 @@ class Webserver(Module):
                     **data_package[1]
                 )
 
-    def emit_event_status(self, module, event_data, recipient_steamid, status):
-        if recipient_steamid is None:
-            return False
-
+    def emit_event_status(self, module, event_data, recipient_steamid, status=None):
         clients = recipient_steamid
 
         self.send_data_to_client_hook(

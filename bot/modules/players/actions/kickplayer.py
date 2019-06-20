@@ -28,18 +28,18 @@ def main_function(module, event_data, dispatchers_steamid=None):
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
             return
 
-    callback_fail(module, event_data, dispatchers_steamid)
+    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
+def callback_success(module, event_data, dispatchers_steamid, match=None):
+    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
+    pass
 
 
 action_meta = {

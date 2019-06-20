@@ -219,7 +219,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         if (data["data_type"] === "status_message") {
             play_audio_file("computerbeep_65");
-            console.log("received status from server\n\"" + data['status'] + "\"");
+            let json = JSON.stringify(data['status'], null, 4);
+            console.log("received status from server\n\"" + json + "\"");
         }
         if (data["data_type"] === "alert_message") {
             alert(data['status']);

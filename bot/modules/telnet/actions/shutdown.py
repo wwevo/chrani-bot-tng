@@ -46,9 +46,9 @@ def main_function(module, event_data, dispatchers_steamid):
             shutdown_timeout = int(event_data[1]["timer"])
         except Exception as error:
             shutdown_timeout = 30
-            print(type(error))
 
         shutdown_canceled = False
+        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         while time() < shutdown_timeout_start + shutdown_timeout:
             if module.dom.data.get(module.get_module_identifier()).get("cancel_shutdown", False) is not False:
                 shutdown_canceled = True
@@ -87,18 +87,21 @@ def main_function(module, event_data, dispatchers_steamid):
                     poll_is_finished = True
 
                 if match:
-                    callback_success(module, event_data, dispatchers_steamid, match)
+                    module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
                     return
 
-    callback_fail(module, event_data, dispatchers_steamid)
+    if cancel_shutdown:  # we consider cancelling the action a success ^^
+        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+    else:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
+def callback_success(module, event_data, dispatchers_steamid, match=None):
+    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
+    pass
 
 
 action_meta = {

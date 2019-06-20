@@ -24,13 +24,13 @@ def main_function(module, event_data, dispatchers_steamid=None):
             poll_is_finished = True
 
         if match:
-            callback_success(module, event_data, dispatchers_steamid, match)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
             return
 
-    callback_fail(module, event_data, dispatchers_steamid)
+    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match):
+def callback_success(module, event_data, dispatchers_steamid, match=None):
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "last_recorded_gametime": {
@@ -40,11 +40,10 @@ def callback_success(module, event_data, dispatchers_steamid, match):
             }
         }
     })
-    module.emit_event_status(module, event_data, dispatchers_steamid, "success")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    module.emit_event_status(module, event_data, dispatchers_steamid, "fail")
+    pass
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
