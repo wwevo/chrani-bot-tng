@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     function load_audio_files() {
         audio_files["computer_work_beep"] = new Audio('/static/lcars/audio/computer_work_beep.mp3');
+        audio_files["computer_error"] = new Audio('/static/lcars/audio/computer_error.mp3');
         audio_files["keyok1"] = new Audio('/static/lcars/audio/keyok1.mp3');
         audio_files["keyok1"].volume = 0.05;
         audio_files["input_ok_2_clean"] = new Audio('/static/lcars/audio/input_ok_2_clean.mp3');
@@ -26,6 +27,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
         audio_files["computerbeep_38"] = new Audio('/static/lcars/audio/computerbeep_38.mp3');
         audio_files["computerbeep_38"].volume = 0.1;
         audio_files["computerbeep_65"] = new Audio('/static/lcars/audio/computerbeep_65.mp3');
+        audio_files["alarm01"] = new Audio('/static/lcars/audio/alarm01.mp3');
+        audio_files["alarm03"] = new Audio('/static/lcars/audio/alarm03.mp3');
+        audio_files["alert12"] = new Audio('/static/lcars/audio/alert12.mp3');
     }
 
     function play_audio_file(identifier) {
@@ -218,8 +222,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         if (data["data_type"] === "status_message") {
-            play_audio_file("computerbeep_65");
             let json = JSON.stringify(data['status'], null, 4);
+            let status = data['status']['status'];
+
+            if (status === "success") {
+                play_audio_file("computerbeep_65");
+            } else if (status === "fail") {
+                play_audio_file("computer_error");
+            }
+
             console.log("received status from server\n\"" + json + "\"");
         }
         if (data["data_type"] === "alert_message") {
