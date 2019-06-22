@@ -141,8 +141,8 @@ main > div #telnet_log_widget {
 
 main > div > .widget {
     color: var(--lcars-brown);
-    min-height: 12em;
-    height: calc(100vh - 5em - 5.75em);
+    min-height: 18em;
+    /* height: calc(100vh - 5em - 5.75em); */
 }
 
 main > div > .widget a,
