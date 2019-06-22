@@ -115,12 +115,20 @@ main > div {
     flex-direction: column;
 }
 
+main > div .widget {
+    order: 1;
+}
+
 main > div #player_table_widget {
     order: -1;
 }
 
-main > div #manage_whitelist_widget {
+main > div #locations_widget {
     order: 0;
+}
+
+main > div #manage_whitelist_widget {
+    order: 1;
 }
 
 main > div #webserver_status_widget {
