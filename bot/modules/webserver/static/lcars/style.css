@@ -127,6 +127,37 @@ main > div #locations_widget {
     order: 0;
 }
 
+main > div #locations_widget .box_select {
+    width: 100%;
+    margin: 0; padding: 0;
+}
+
+main > div #locations_widget .box_select th {
+    color: var(--lcars-orange);
+    background-color: var(--background);
+}
+
+main > div #locations_widget .box_select tbody td {
+    text-align: center;
+    padding: 0.25em;
+}
+
+main > div #locations_widget .box_select .box {
+    border: 1px solid indigo;
+}
+
+main > div #locations_widget .box_select .box label {
+    position: relative;
+    display: block;
+    height: calc(8em - 2px);
+}
+
+main > div #locations_widget .box_select .box span {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
 main > div #manage_whitelist_widget {
     order: 1;
 }

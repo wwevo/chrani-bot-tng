@@ -15,6 +15,8 @@ def select_view(*args, **kwargs):
 
     if current_view == "options":
         options_view(module, dispatchers_steamid)
+    elif current_view == "create_new":
+        create_new_view(module, dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid)
 
@@ -25,6 +27,10 @@ def frontend_view(module, dispatchers_steamid=None):
     template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
         'locations_widget/control_switch_options_view.html'
+    )
+
+    template_create_new_toggle_view = module.templates.get_template(
+        'locations_widget/control_switch_create_new_view.html'
     )
 
     current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
@@ -41,7 +47,13 @@ def frontend_view(module, dispatchers_steamid=None):
                 module,
                 template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view == "frontend" else False)
+                options_view_toggle=True
+            ),
+            control_switch_create_new_view=module.template_render_hook(
+                module,
+                template_create_new_toggle_view,
+                steamid=dispatchers_steamid,
+                create_new_view_toggle=True
             )
         )
     )
@@ -61,10 +73,14 @@ def frontend_view(module, dispatchers_steamid=None):
 
 def options_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('locations_widget/view_options.html')
-
     template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
+
     template_options_toggle_view = module.templates.get_template(
         'locations_widget/control_switch_options_view.html'
+    )
+
+    template_create_new_toggle_view = module.templates.get_template(
+        'locations_widget/control_switch_create_new_view.html'
     )
 
     current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
@@ -81,7 +97,66 @@ def options_view(module, dispatchers_steamid=None):
                 module,
                 template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view == "frontend" else False)
+                options_view_toggle=False,
+            ),
+            control_switch_create_new_view=module.template_render_hook(
+                module,
+                template_create_new_toggle_view,
+                steamid=dispatchers_steamid,
+                create_new_view_toggle=True,
+            )
+        ),
+        widget_options=module.options,
+        available_actions=module.all_available_actions_dict,
+        available_widgets=module.all_available_widgets_dict
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "locations_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def create_new_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('locations_widget/view_create_new.html')
+
+    template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'locations_widget/control_switch_options_view.html'
+    )
+
+    template_create_new_toggle_view = module.templates.get_template(
+        'locations_widget/control_switch_create_new_view.html'
+    )
+
+    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "frontend"
+    )
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
+        options_toggle=module.template_render_hook(
+            module,
+            template_options_toggle,
+            control_switch_options_view=module.template_render_hook(
+                module,
+                template_options_toggle_view,
+                steamid=dispatchers_steamid,
+                options_view_toggle=True
+            ),
+            control_switch_create_new_view=module.template_render_hook(
+                module,
+                template_create_new_toggle_view,
+                steamid=dispatchers_steamid,
+                create_new_view_toggle=False
             )
         ),
         widget_options=module.options,
