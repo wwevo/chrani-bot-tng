@@ -33,10 +33,6 @@ def frontend_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
-    )
-
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -81,10 +77,6 @@ def options_view(module, dispatchers_steamid=None):
 
     template_create_new_toggle_view = module.templates.get_template(
         'locations_widget/control_switch_create_new_view.html'
-    )
-
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
     )
 
     data_to_emit = module.template_render_hook(
@@ -134,10 +126,6 @@ def create_new_view(module, dispatchers_steamid=None):
 
     template_create_new_toggle_view = module.templates.get_template(
         'locations_widget/control_switch_create_new_view.html'
-    )
-
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
     )
 
     data_to_emit = module.template_render_hook(

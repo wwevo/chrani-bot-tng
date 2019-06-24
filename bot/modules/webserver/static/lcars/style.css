@@ -127,11 +127,13 @@ main > div #locations_widget {
     order: 0;
 }
 
+main > div #locations_widget .box_input,
 main > div #locations_widget .box_select {
     width: 100%;
     margin: 0; padding: 0;
 }
 
+main > div #locations_widget .box_input th,
 main > div #locations_widget .box_select th {
     color: var(--lcars-orange);
     background-color: var(--background);

@@ -1,0 +1,11 @@
+<script language="javascript">
+    function send_location_data_to_bot() {
+        let location_shape = $("input[name='location_shape']:checked").val();
+        let location_name = $("input[name='location_name']").val();
+        window.socket.emit(
+            'widget_event',
+            ['locations', ['manage_locations', {'location_shape': location_shape, 'location_name': location_name, 'action': 'create_new'}]]
+        );
+    }
+</script>
+<a href="#" onclick="send_location_data_to_bot(); return false;">create new</a>
