@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         if (data["data_type"] === "status_message") {
             let json = JSON.stringify(data['status'], null, 4);
-            let status = data['status']['status'];
+            let status = json['status'];
 
             if (status === "success") {
                 play_audio_file("computerbeep_65");
