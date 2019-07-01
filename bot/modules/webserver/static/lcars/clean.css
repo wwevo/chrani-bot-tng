@@ -178,13 +178,13 @@ main > div .widget {
     min-height: 12em;
 }
 
-@media (min-width: calc(2 * 960px)) {
+@media (min-width: 1920px) {
     main > div .widget {
         width: calc(50% - var(--main_shoulder_width) - 4em);
     }
 }
 
-@media (min-width: calc(3 * 960px)) {
+@media (min-width: 2880px) {
     main > div .widget {
         width: calc((100% / 3) - var(--main_shoulder_width) - 6em);
     }
