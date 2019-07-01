@@ -176,6 +176,7 @@ main > div .widget {
     width: calc(100% - var(--main_shoulder_width) - 2em);
     margin-left: var(--main_shoulder_width);
     min-height: 12em;
+    max-width: calc(1920px - var(--main_shoulder_width) - 2em);
 }
 
 @media (min-width: 1920px) {
@@ -191,7 +192,6 @@ main > div .widget {
 }
 /* specific layout-rules for certain modules */
 main > div > #webserver_status_widget {
-    width: 100%;
     min-height: 8em;
     order: -1; /* ensure to be placed first */
 }
@@ -201,7 +201,6 @@ main > div > #widget_handling {
 }
 
 main > div > #telnet_log_widget {
-    width: 100%;
     order: 999; /* should ensure to be placed last */
 }
 /* region main_widgets -> end */
