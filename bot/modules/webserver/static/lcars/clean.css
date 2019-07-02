@@ -134,7 +134,7 @@ header > div > hgroup > h1 {
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
     text-transform: uppercase;
     padding: 0 0.5em;
-    font-size: var(--main_bar_height); line-height: 1em;
+    font-size: var(--main_bar_height);
 }
 
 header > div > aside {
