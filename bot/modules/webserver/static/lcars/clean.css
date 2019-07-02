@@ -247,7 +247,7 @@ main > div > .widget > table .pull_out > td > div:last-child {
 main > div > .widget > table .pull_out td > div > span {
     display: block;
     background-color: var(--lcars-purple);
-    padding: 0 0.5em; margin-right: 26px;
+    padding: 0; margin-right: 26px;
     height: 1.5em; line-height: 1.5em;
 }
 
@@ -265,19 +265,21 @@ main > div > .widget > table thead tr:last-child {
     border-bottom: 0.5em solid black;
 }
 
-main > div > .widget:nth-of-type(2) .pull_out td > div > span,
-main > div > .widget:nth-of-type(2) thead tr:last-child th {
-    background-color: var(--lcars-yellow);
+main > div > .widget > table .pull_out > td > div span:before,
+main > div > .widget > table .pull_out > td > div span:after {
+    content: " ";
+    z-index: 1;
+    display: inline-block;
+    height: 1.5em;
 }
 
-main > div > .widget:nth-of-type(3) .pull_out td > div > span,
-main > div > .widget:nth-of-type(3) thead tr:last-child th {
-    background-color: var(--lcars-dark-blue);
+main > div > .widget > table .pull_out > td > div span:after {
+    width: 0.5em;
+    float: right;
 }
 
-main > div > .widget:nth-of-type(4) .pull_out td > div > span,
-main > div > .widget:nth-of-type(4) thead tr:last-child th {
-    background-color: var(--lcars-light-blue);
+main > div > .widget > table .pull_out > td > div span:before {
+    width: 1.5em;
+    float: left;
 }
-
 /* debug options -> end */
