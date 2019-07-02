@@ -69,7 +69,6 @@ main {
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
     margin: 1em 0;
     overflow: auto;
-    background: url(ui/main_vertical_bar.png) repeat-y;
 }
 
 main a,
@@ -169,6 +168,7 @@ main > div {
     flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+    margin-bottom: -0.5em;
 }
 
 main > div .widget {
@@ -177,6 +177,7 @@ main > div .widget {
     margin-left: var(--main_shoulder_width);
     min-height: 12em;
     max-width: calc(1920px - var(--main_shoulder_width) - 2em);
+    margin-bottom: 0.5em;
 }
 
 @media (min-width: 1920px) {
@@ -202,6 +203,7 @@ main > div > #widget_handling {
 
 main > div > #telnet_log_widget {
     order: 999; /* should ensure to be placed last */
+    margin-bottom: 0;
 }
 /* region main_widgets -> end */
 /* region footer_widgets -> start */
@@ -222,10 +224,16 @@ main > div > .widget > table .pull_out {
     display: block;
     width: var(--main_shoulder_width);
     text-align: right;
+    background: url(ui/main_vertical_bar.png) repeat-y;
+    height: 100%;
 }
 
 main > div > .widget > table .pull_out td {
     width: var(--main_shoulder_width);
+}
+
+main > div > .widget > table .pull_out > td > div:first-child {
+    border-top: 0;
 }
 
 main > div > .widget > table .pull_out > td > div {
@@ -254,7 +262,6 @@ main > div > .widget > table thead tr:last-child th {
 
 main > div > .widget > table thead tr:last-child {
     /* this contains the header stuff for the widget-content */
-    border-top: 0.5em solid black;
     border-bottom: 0.5em solid black;
 }
 
