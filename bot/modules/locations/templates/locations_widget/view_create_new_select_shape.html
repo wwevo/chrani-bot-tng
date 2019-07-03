@@ -1,3 +1,32 @@
+{% set checked_string = ' checked="checked"' %}
+{% set location_shape_not_found = true %}
+{% if location_shape == "circle" %}
+    {% set location_shape_circle_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape == "spherical" %}
+    {% set location_shape_spherical_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape == "square" %}
+    {% set location_shape_square_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape == "cubical" %}
+    {% set location_shape_cubical_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape == "rectangular" %}
+    {% set location_shape_rectangular_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape == "box" %}
+    {% set location_shape_box_checked = checked_string %}
+    {% set location_shape_not_found = false %}
+{% endif %}
+{% if location_shape_not_found %}
+    {% set location_shape_square_checked = checked_string %}
+{% endif %}
 <table class="box_select">
     <thead>
         <tr>
@@ -11,7 +40,7 @@
             <td>
                 <div class="box">
                     <label><span>
-                        <input type="radio" name="location_shape" value="circle" />
+                        <input type="radio" name="location_shape" value="circle" {{ location_shape_circle_checked }}/>
                         circle (2d)</span>
                     </label>
                 </div>
@@ -19,7 +48,7 @@
             <td>
                 <div class="box">
                     <label>
-                        <span><input type="radio" name="location_shape" value="spherical" />
+                        <span><input type="radio" name="location_shape" value="spherical" {{ location_shape_spherical_checked }}/>
                         spherical (3d)</span>
                     </label>
                 </div>
@@ -29,7 +58,25 @@
             <td>
                 <div class="box">
                     <label><span>
-                        <input type="radio" name="location_shape" value="square" />
+                        <input type="radio" name="location_shape" value="rectangular" {{ location_shape_rectangular_checked }}disabled="disabled" />
+                        rectangular (2d)</span>
+                    </label>
+                </div>
+            </td>
+            <td>
+                <div class="box">
+                    <label><span>
+                        <input type="radio" name="location_shape" value="box" {{ location_shape_box_checked }}disabled="disabled" />
+                        box (3d)</span>
+                    </label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="box">
+                    <label><span>
+                        <input type="radio" name="location_shape" value="square" {{ location_shape_square_checked }}/>
                         square (2d)</span>
                     </label>
                 </div>
@@ -37,7 +84,7 @@
             <td>
                 <div class="box">
                     <label><span>
-                        <input type="radio" name="location_shape" value="cubical" />
+                        <input type="radio" name="location_shape" value="cubical" {{ location_shape_cubical_checked }}/>
                         cubical (3d)</span>
                     </label>
                 </div>
@@ -48,7 +95,7 @@
         <tr>
             <td colspan="2">
                 locations can have several different shapes.<br />
-                you can have either a square or a round base, depending on your build-style<br />
+                you can have either a square (default, just like the LCB) or a round base, depending on your build-style<br />
                 You can also limit the height of your locations, so you can build, for example,
                 an underground base without affecting the ground above at all.<br />
                 It is also useful for building multi-story builds with different locations per level,

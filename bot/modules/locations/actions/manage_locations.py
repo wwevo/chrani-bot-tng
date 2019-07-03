@@ -22,6 +22,17 @@ def main_function(module, event_data, dispatchers_steamid):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
+            "visibility": {
+                dispatchers_steamid: {
+                    "current_view": "frontend",
+                    "current_view_steamid": None
+                }
+            }
+        }
+    }, dispatchers_steamid=dispatchers_steamid)
+
     pass
 
 

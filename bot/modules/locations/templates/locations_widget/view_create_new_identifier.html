@@ -1,0 +1,30 @@
+<table class="box_input">
+    <tbody>
+        <tr>
+            <td>
+                <div>
+                    <script language="javascript">
+                        $("input[name='location_name']").on('input', function() {
+                            let location_name = $("input[name='location_name']").val();
+                            let location_identifier = location_name.replace(/\s/g,'');
+                            $("input[name='location_identifier']").val(location_identifier);
+                        });
+                    </script>
+                    <label><span>
+                        <input type="text" name="location_identifier" value="{{ location_identifier_value }}" disabled="disabled" />
+                        location Identifier</span>
+                    </label>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                This is the Identifier of your location<br />
+                It is used to handle the location with in-game chat commands<br />
+                This setting can not be changed later on!
+            </td>
+        </tr>
+    </tfoot>
+</table>

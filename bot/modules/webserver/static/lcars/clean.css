@@ -191,6 +191,26 @@ main > div .widget {
         width: calc((100% / 3) - var(--main_shoulder_width) - 6em);
     }
 }
+
+.widget table.box_select,
+.widget table.box_input {
+    margin-bottom: 0.5em;
+}
+
+.widget table.box_select input[disabled],
+.widget table.box_input input[disabled] {
+    background-color: var(--lcars-red);
+}
+
+.widget table.box_select tfoot tr td,
+.widget table.box_input tfoot tr td {
+    color: var(--background);
+    background-color: var(--lcars-light-blue);
+    text-align: right;
+    padding: 0.5em;
+    /* display: none; */
+}
+
 /* specific layout-rules for certain modules */
 main > div > #webserver_status_widget {
     min-height: 8em;
