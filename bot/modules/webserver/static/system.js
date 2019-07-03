@@ -222,16 +222,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
 
         if (data["data_type"] === "status_message") {
-            let json = data['status'];
-            let status = json['status'];
 
-            if (status === "success") {
-                play_audio_file("computerbeep_65");
-            } else if (status === "fail") {
-                play_audio_file("computer_error");
+            if (data['status']) {
+                let json = data["status"];
+
+                if (json["status"]) {
+                    let status = json["status"];
+
+                    if (status === "success") {
+                        play_audio_file("computerbeep_65");
+                    } else if (status === "fail") {
+                        play_audio_file("computer_error");
+                    }
+                    console.log("received status from server\n\"" + status + ":" + json["uuid4"] + "\"");
+                }
             }
-
-            console.log("received status from server\n\"" + json + "\"");
         }
         if (data["data_type"] === "alert_message") {
             alert(data['status']);
