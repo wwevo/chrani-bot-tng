@@ -165,11 +165,18 @@ def create_new_view(module, dispatchers_steamid=None):
     )
 
 
+def update_player_location(*args, **kwargs):
+    module = args[0]
+    old_values_dict = kwargs.get("old_values_dict", None)
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
+
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
     "handlers": {
-        "module_locations/visibility/%steamid%/current_view": select_view
+        "module_locations/visibility/%steamid%/current_view": select_view,
+        "module_players/players/%steamid%/pos": update_player_location
     }
 }
 

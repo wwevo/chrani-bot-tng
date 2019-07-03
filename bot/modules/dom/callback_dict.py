@@ -1,5 +1,6 @@
 from collections import Mapping, deque
 from threading import Thread
+from copy import deepcopy
 import re
 
 
@@ -48,30 +49,34 @@ class CallbackDict(dict, object):
 
             if mode == "append":
                 if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
-                    for callback in self.registered_callbacks[full_path]:
-                        callbacks.append(Thread(
-                            target=callback["callback"],
-                            args=[callback["module"]],
-                            kwargs={
-                                "updated_values_dict": CallbackDict(updated_values_dict),
-                                "old_values_dict": dict_to_update,
+                    values_differ = dict_to_update[k] != updated_values_dict[k]
+                    if values_differ:
+                        for callback in self.registered_callbacks[full_path]:
+                            thread_kwargs = {
+                                "updated_values_dict": deepcopy(updated_values_dict),
+                                "old_values_dict": deepcopy(dict_to_update),
                                 "dispatchers_steamid": dispatchers_steamid
                             }
-                        ))
 
-                    try:
-                        dict_to_update[k].append(v)
-                    except KeyError:
-                        if maxlen is not None:
-                            dict_to_update[k] = deque(maxlen=maxlen)
-                        else:
-                            dict_to_update[k] = []
+                            callbacks.append({
+                                "target": callback["callback"],
+                                "args": [callback["module"]],
+                                "kwargs": thread_kwargs
+                            })
 
-                        dict_to_update[k].append(v)
-                    except AttributeError:
-                        pass
+                        try:
+                            dict_to_update[k].append(v)
+                        except KeyError:
+                            if maxlen is not None:
+                                dict_to_update[k] = deque(maxlen=maxlen)
+                            else:
+                                dict_to_update[k] = []
 
-                    return
+                            dict_to_update[k].append(v)
+                        except AttributeError:
+                            pass
+
+                        return
 
                 d_v = dict_to_update.get(k)
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
@@ -90,17 +95,20 @@ class CallbackDict(dict, object):
                                 continue
 
                             # print("callback {} = {} (old: {})".format(full_path, updated_values_dict[k], dict_to_update[k]))
-                            callbacks.append(
-                                Thread(
-                                    target=callback["callback"],
-                                    args=[callback["module"]],
-                                    kwargs={
-                                        "updated_values_dict": CallbackDict(updated_values_dict),
-                                        "old_values_dict": dict_to_update,
-                                        "dispatchers_steamid": dispatchers_steamid
-                                    }
-                                )
-                            )
+                            values_differ = dict_to_update[k] != updated_values_dict[k]
+                            thread_kwargs = {}
+                            if values_differ:
+                                thread_kwargs = {
+                                    "updated_values_dict": deepcopy(updated_values_dict),
+                                    "old_values_dict": deepcopy(dict_to_update),
+                                    "dispatchers_steamid": dispatchers_steamid
+                                }
+
+                                callbacks.append({
+                                    "target": callback["callback"],
+                                    "args": [callback["module"]],
+                                    "kwargs": thread_kwargs
+                                })
 
                     except KeyError:
                         # not present in the target dict, skipping
@@ -114,18 +122,20 @@ class CallbackDict(dict, object):
                         dict_to_update[k] = v
                         combined_full_path = "{}/{}".format(full_path, next(iter(v)))
                         try:
-                            for callback in self.registered_callbacks[combined_full_path]:
-                                callbacks.append(
-                                    Thread(
-                                        target=callback["callback"],
-                                        args=[callback["module"]],
-                                        kwargs={
-                                            "updated_values_dict": CallbackDict(v),
-                                            "old_values_dict": dict_to_update[k],
-                                            "dispatchers_steamid": dispatchers_steamid
-                                        }
-                                    )
-                                )
+                            values_differ = dict_to_update[k] != updated_values_dict[k]
+                            if values_differ:
+                                for callback in self.registered_callbacks[combined_full_path]:
+                                    thread_kwargs = {
+                                        "updated_values_dict": deepcopy(updated_values_dict),
+                                        "old_values_dict": deepcopy(dict_to_update),
+                                        "dispatchers_steamid": dispatchers_steamid
+                                    }
+
+                                    callbacks.append({
+                                        "target": callback["callback"],
+                                        "args": [callback["module"]],
+                                        "kwargs": thread_kwargs
+                                    })
 
                         except KeyError:
                             # not present in the target dict, skipping
@@ -136,7 +146,11 @@ class CallbackDict(dict, object):
         layer -= 1
         if layer == 0:
             for callback in callbacks:
-                callback.start()
+                Thread(
+                    target=callback["target"],
+                    args=callback["args"],
+                    kwargs=callback["kwargs"]
+                ).start()
 
     def register_callback(self, module, dict_to_monitor, callback):
         try:
