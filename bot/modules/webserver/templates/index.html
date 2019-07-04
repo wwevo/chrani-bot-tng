@@ -1,27 +1,35 @@
 {%- set not_configured_message = "You should not see this on a configured bot" -%}
 <!doctype html>
 <html>
-    <head>{%- block head -%}
+    <head>
+        <meta name="format-detection" content="telephone=no">
+        <link rel="stylesheet" type="text/css" href="/static/reset.css" />
         <link rel="shortcut icon" href="/static/favicon.ico">
         <link rel="stylesheet" type="text/css" href="/static/style.css" />
-        <!-- <link rel="stylesheet" type="text/css" href="/static/lcars/style.css" /> //-->
+        <title>{{ title }}</title>
+        <script src="/static/jquery-3.4.1.min.js"></script>
+        <script src="/static/js.cookie-2.2.0.min.js"></script>
+        {% if current_user.is_authenticated == True %}
+        <script src="/static/socket.io-2.2.0.slim.js"></script>
+        <script src="/static/system.js"></script>
+        {% endif %}
         <link rel="stylesheet" type="text/css" href="/static/lcars/clean.css" />
-        <title>{%- block title -%}{{ not_configured_message }}{%- endblock -%}</title>
-    {%- endblock -%}</head>
+        {%- if head -%}{{ head }}{%- endif -%}
+    </head>
     <body>
         <header>
             <div>
-                {% block header -%}{{ not_configured_message }}{%- endblock %}
+                {{ header }}
             </div>
         </header>
         <main>
             <div>
-                {% block main -%}{%- endblock %}
+                {{ main }}
             </div>
         </main>
         <footer>
             <div>
-                {% block footer -%}{{ not_configured_message }}{%- endblock %}
+                {{ footer }}
             </div>
         </footer>
     </body>

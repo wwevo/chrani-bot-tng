@@ -1,6 +1,5 @@
 from collections import Mapping, deque
 from threading import Thread
-from copy import deepcopy
 import re
 
 
@@ -17,17 +16,20 @@ class CallbackDict(dict, object):
 
     @staticmethod
     def get_callback_package(updated_values, old_values, dispatchers_steamid, callback):
-        callback_kwargs = {
-            "updated_values_dict": deepcopy(updated_values),
-            "old_values_dict": deepcopy(old_values),
-            "dispatchers_steamid": dispatchers_steamid
-        }
+        try:
+            callback_kwargs = {
+                "updated_values_dict": updated_values,
+                "old_values_dict": old_values,
+                "dispatchers_steamid": dispatchers_steamid
+            }
 
-        return {
-            "target": callback["callback"],
-            "args": [callback["module"]],
-            "kwargs": callback_kwargs
-        }
+            return {
+                "target": callback["callback"],
+                "args": [callback["module"]],
+                "kwargs": callback_kwargs
+            }
+        except TypeError as error:
+            print(error)
 
     @staticmethod
     def construct_full_path(current_path, new_key, current_layer):
@@ -161,11 +163,14 @@ class CallbackDict(dict, object):
 
         """ we've reached the end of all recursions """
         for callback in callbacks:
-            Thread(
-                target=callback["target"],
-                args=callback["args"],
-                kwargs=callback["kwargs"]
-            ).start()
+            try:
+                Thread(
+                    target=callback["target"],
+                    args=callback["args"],
+                    kwargs=callback["kwargs"]
+                ).start()
+            except TypeError as error:
+                print(error)
 
     def register_callback(self, module, dict_to_monitor, callback):
         try:

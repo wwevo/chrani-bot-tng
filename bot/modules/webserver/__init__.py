@@ -36,7 +36,8 @@ class Webserver(Module):
             "Flask_secret_key": "thisissecret",
             "SocketIO_asynch_mode": None,
             "SocketIO_use_reloader": False,
-            "SocketIO_debug": False
+            "SocketIO_debug": True,
+            "engineio_logger": True
         })
         setattr(self, "required_modules", [
             'module_dom'
@@ -93,6 +94,9 @@ class Webserver(Module):
         self.websocket = SocketIO(
             app,
             async_mode=self.options.get("SocketIO_asynch_mode", self.default_options.get("SocketIO_asynch_mode")),
+            debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
+            engineio_logger=self.options.get("engineio_logger", self.default_options.get("engineio_logger")),
+            use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader")),
             ping_timeout=15,
             ping_interval=5
         )
@@ -181,7 +185,7 @@ class Webserver(Module):
 
     def run(self):
         template_header = self.templates.get_template('header.html')
-        template_frontend = self.templates.get_template('template_blocks.html')
+        template_frontend = self.templates.get_template('index.html')
         template_footer = self.templates.get_template('footer.html')
 
         # region Management function and routes without any user-display or interaction
@@ -281,13 +285,15 @@ class Webserver(Module):
                 current_user=current_user,
                 title=self.options.get("title", self.default_options.get("title"))
             )
+            footer_markup = self.template_render_hook(
+                self,
+                template_footer
+            )
             template_options = {
                 'title': self.options.get("title", self.default_options.get("title")),
                 'header': header_markup,
-                'footer': self.template_render_hook(
-                    self,
-                    template_footer
-                )
+                'current_user': current_user,
+                'footer': footer_markup
             }
             if not current_user.is_authenticated:
                 main_output = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
@@ -311,28 +317,23 @@ class Webserver(Module):
             else:
                 print("webinterface-client '{}' connected and is ready to roll!".format(current_user.id))
                 self.connected_clients[current_user.id].sid = request.sid
-                emit(
-                    'connected',
-                    room=request.sid,
-                    broadcast=False
-                )
+                emit('connected', room=request.sid, broadcast=False)
                 for module in loaded_modules_dict.values():
                     module.on_socket_connect(current_user.id)
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
+            #print(current_user)
+            #print("user got disconnected")
             pass
 
         @self.websocket.on('ding')
         def ding_dong():
             current_user.last_seen = time()
             try:
-                emit(
-                    'dong',
-                    room=current_user.sid
-                )
+                emit('dong', room=current_user.sid)
                 self.connected_clients[current_user.id].sid = request.sid
-                # print("got 'ding' from client {} (SID:{}) -> sent back a 'dong'!".format(current_user.id, current_user.sid))
+
             except AttributeError as error:
                 print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
                 # user disappeared
@@ -340,7 +341,7 @@ class Webserver(Module):
 
         @self.websocket.on_error_default  # handles all namespaces without an explicit error handler
         def default_error_handler(e):
-            print("websocket error: {}".format(request.event["message"]))  # "my error event"
+            print("websocket error: {} / event: {}".format(e, request.event["message"]))  # "my error event"
 
         @self.websocket.on('widget_event')
         @self.authenticated_only
@@ -353,9 +354,7 @@ class Webserver(Module):
             args=[self.app],
             kwargs={
                 "host": self.options.get("host", self.default_options.get("host")),
-                "port": self.options.get("port", self.default_options.get("port")),
-                "debug": self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
-                "use_reloader": self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader"))
+                "port": self.options.get("port", self.default_options.get("port"))
             }
         ).start()
 
