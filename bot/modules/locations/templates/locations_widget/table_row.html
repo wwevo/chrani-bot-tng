@@ -1,0 +1,19 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{%- set location_is_enabled = location.is_enabled|default(false) -%}
+<tr id="manage_locations_table_row_{{ location.identifier }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
+    <td id="manage_locations_table_row_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
+    <td id="manage_locations_table_row_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
+    <td id="manage_locations_table_row_{{ location.identifier }}_owner" onclick="$(this).selectText();">{{ location.owner }}</td>
+    <td id="manage_locations_table_row_{{ location.identifier }}_dimensions" onclick="$(this).selectText();">{{ location.dimensions }}</td>
+    <td class="right" id="manage_locations_table_row_{{ location.identifier }}_actions">
+        {{ construct_toggle_link(
+            True,
+            "delete", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "delete_location"}]]]
+        ) }}
+        {{ construct_toggle_link(
+            location_is_enabled,
+            "disable", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "disable_location"}]]],
+            "enable", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "enable_location"}]]]
+        ) }}
+    </td>
+</tr>

@@ -290,9 +290,8 @@ class Webserver(Module):
                 template_footer
             )
             template_options = {
-                'title': self.options.get("title", self.default_options.get("title")),
-                'header': header_markup,
                 'current_user': current_user,
+                'header': header_markup,
                 'footer': footer_markup
             }
             if not current_user.is_authenticated:

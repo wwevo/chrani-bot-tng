@@ -7,12 +7,14 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
-    location_shape = event_data[1].get("location_shape", None)
     location_name = event_data[1].get("location_name", None)
+    location_identifier = event_data[1].get("location_identifier", None)
+    location_shape = event_data[1].get("location_shape", None)
+    location_dimensions = event_data[1].get("location_dimensions", {})
+
     if all([
         action is not None,
-        location_name is not None,
-        len(location_name) >= 5,
+        location_name is not None and len(location_name) >= 5,
         location_shape is not None
     ]):
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
@@ -24,6 +26,23 @@ def main_function(module, event_data, dispatchers_steamid):
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     module.dom.data.upsert({
         module.get_module_identifier(): {
+            "locations": {
+                dispatchers_steamid: {
+                    event_data[1].get("location_identifier"): {
+                        "name": event_data[1].get("location_name"),
+                        "identifier": event_data[1].get("location_identifier"),
+                        "shape": event_data[1].get("location_shape"),
+                        "dimensions": event_data[1].get("location_dimensions"),
+                        "owner": dispatchers_steamid,
+                        "is_enabled": True
+                    }
+                }
+            }
+        }
+    }, dispatchers_steamid=dispatchers_steamid)
+
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
             "visibility": {
                 dispatchers_steamid: {
                     "current_view": "frontend",
@@ -33,7 +52,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         }
     }, dispatchers_steamid=dispatchers_steamid)
 
-    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
