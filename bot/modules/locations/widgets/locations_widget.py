@@ -33,6 +33,14 @@ def frontend_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
+    control_player_location_view = module.templates.get_template(
+        'locations_widget/control_player_location.html'
+    )
+
+    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -50,6 +58,13 @@ def frontend_view(module, dispatchers_steamid=None):
                 template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True
+            ),
+            control_player_location_view=module.template_render_hook(
+                module,
+                control_player_location_view,
+                pos_x=player_position["x"],
+                pos_y=player_position["y"],
+                pos_z=player_position["z"]
             )
         )
     )
@@ -79,6 +94,14 @@ def options_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
+    control_player_location_view = module.templates.get_template(
+        'locations_widget/control_player_location.html'
+    )
+
+    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -96,6 +119,13 @@ def options_view(module, dispatchers_steamid=None):
                 template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True,
+            ),
+            control_player_location_view=module.template_render_hook(
+                module,
+                control_player_location_view,
+                pos_x=player_position["x"],
+                pos_y=player_position["y"],
+                pos_z=player_position["z"]
             )
         ),
         widget_options=module.options,
@@ -128,6 +158,14 @@ def create_new_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
+    control_player_location_view = module.templates.get_template(
+        'locations_widget/control_player_location.html'
+    )
+
+    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -145,6 +183,13 @@ def create_new_view(module, dispatchers_steamid=None):
                 template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=False
+            ),
+            control_player_location_view=module.template_render_hook(
+                module,
+                control_player_location_view,
+                pos_x=player_position["x"],
+                pos_y=player_position["y"],
+                pos_z=player_position["z"]
             )
         ),
         widget_options=module.options,
@@ -169,6 +214,35 @@ def update_player_location(*args, **kwargs):
     module = args[0]
     old_values_dict = kwargs.get("old_values_dict", None)
     updated_values_dict = kwargs.get("updated_values_dict", None)
+    dispatchers_steamid = updated_values_dict.get("steamid", None)
+    webserver_logged_in_users = module.dom.data.get("module_webserver", {}).get(
+        "webserver_logged_in_users", {}
+    ).keys()
+    if dispatchers_steamid not in webserver_logged_in_users:
+        return
+
+    player_position = updated_values_dict.get("pos", {})
+    control_player_location_view = module.templates.get_template(
+        'locations_widget/control_player_location.html'
+    )
+    data_to_emit = module.template_render_hook(
+        module,
+        control_player_location_view,
+        pos_x=player_position["x"],
+        pos_y=player_position["y"],
+        pos_z=player_position["z"]
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="element_content",
+        method="replace",
+        clients=dispatchers_steamid,
+        target_element={
+            "id": "current_player_pos"
+        }
+    )
 
 
 widget_meta = {

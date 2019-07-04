@@ -34,7 +34,8 @@ class CallbackDict(dict, object):
             path = path[0:layer-1]
 
         for k, v in updated_values_dict.items():
-            if re.match(r"\d{17}", k, re.MULTILINE):
+            any_steamid = re.search(r"(?P<steamid>\d{17})", k, re.MULTILINE)
+            if any_steamid:
                 try:
                     path[layer-1] = "%steamid%"
                 except IndexError:
@@ -81,7 +82,7 @@ class CallbackDict(dict, object):
                 d_v = dict_to_update.get(k)
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                     self.upsert(v, dict_to_update=d_v, path=path, maxlen=maxlen, layer=layer, callbacks=callbacks, mode=mode)
-            else:
+            elif mode == "upsert":
                 forced_overwrite = False
                 if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                     if overwrite is True:
