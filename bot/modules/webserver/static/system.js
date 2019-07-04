@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         audio_files["input_ok_2_clean"] = new Audio('/static/lcars/audio/input_ok_2_clean.mp3');
         audio_files["processing"] = new Audio('/static/lcars/audio/processing.mp3');
         audio_files["processing"].volume = 0.25;
+        audio_files["computerbeep_11"] = new Audio('/static/lcars/audio/computerbeep_11.mp3');
+        audio_files["computerbeep_11"].volume = 0.5;
         audio_files["computerbeep_38"] = new Audio('/static/lcars/audio/computerbeep_38.mp3');
         audio_files["computerbeep_38"].volume = 0.1;
         audio_files["computerbeep_65"] = new Audio('/static/lcars/audio/computerbeep_65.mp3');
@@ -230,7 +232,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     let status = json["status"];
 
                     if (status === "success") {
-                        play_audio_file("computerbeep_65");
+                        play_audio_file("computerbeep_11");
                     } else if (status === "fail") {
                         play_audio_file("computer_error");
                     }

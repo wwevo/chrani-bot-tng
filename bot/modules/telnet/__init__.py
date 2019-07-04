@@ -79,8 +79,8 @@ class Telnet(Module):
 
         self.last_execution_time = 0.0
 
-        self.last_connection_loss = None
-        self.recent_telnet_response = None
+        setattr(self, "last_connection_loss", None)
+        setattr(self, "recent_telnet_response", None)
     # endregion
 
     # region Handling telnet initialization and authentication
@@ -307,11 +307,11 @@ class Telnet(Module):
                         self.valid_telnet_lines.append(valid_telnet_line)
 
                         if len(self.webserver.connected_clients) >= 1:
-                            self.dom.data.upsert({
+                            self.dom.data.append({
                                 self.get_module_identifier(): {
                                     "telnet_lines": valid_telnet_line
                                 }
-                            }, maxlen=150, mode="append")
+                            }, maxlen=150)
 
                     response_count += 1
 
