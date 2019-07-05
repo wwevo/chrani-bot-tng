@@ -225,6 +225,11 @@ main > div > #telnet_log_widget {
     order: 999; /* should ensure to be placed last */
     margin-bottom: 0;
 }
+
+main > div > #telnet_log_widget .log_line {
+    /* log entries seem to be traditionally blue in LCARS ^^ */
+    color: var(--lcars-dark-blue);
+}
 /* region main_widgets -> end */
 /* region footer_widgets -> start */
 footer > div > p {
@@ -232,6 +237,9 @@ footer > div > p {
     right: 0;
 }
 /* region footer_widgets -> end */
+
+
+
 /* debug options -> start */
 main > div > .widget {
     position: relative;
