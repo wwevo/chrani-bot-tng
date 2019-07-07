@@ -290,35 +290,19 @@ main > div > .widget > table .pull_out td {
 
 main > div > .widget > table .pull_out > td > div:first-child {
     border-top: 0;
+    height: 48px;
+    background: var(--background);
 }
 
-main > div > .widget > table .pull_out > td > div {
-    border-top: 0.5em solid black;
-}
-
-main > div > .widget > table .pull_out > td > div:last-child {
-    border-bottom: 0.5em solid black;
-}
-
-main > div > .widget > table .pull_out td > div > span {
-    display: block;
-    background-color: var(--lcars-purple);
-    padding: 0; margin-right: 26px;
-    height: 1.5em; line-height: 1.5em;
-}
-
-main > div > .widget > table tbody tr td[id$='_actions'] {
-    width: 6em;
-}
-
-main > div > .widget > table thead tr:last-child th {
-    background-color: var(--lcars-purple);
-    height: 1.5em; line-height: 1.5em;
-}
-
-main > div > .widget > table thead tr:last-child {
-    /* this contains the header stuff for the widget-content */
-    border-bottom: 0.5em solid black;
+main > div > .widget > table .pull_out > td > div:first-child span {
+    color: var(--lcars-yellow);
+    font-size: 2em; line-height: 48px;
+    /* background: #939598 url(ui/main_vertical_bar_head.png) no-repeat; */
+    border-top-left-radius: 24px;
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    text-transform: uppercase;
+    margin-right: 0;
+    padding-right: 16px;
 }
 
 main > div > .widget > table .pull_out > td > div span:before,
@@ -337,5 +321,77 @@ main > div > .widget > table .pull_out > td > div span:after {
 main > div > .widget > table .pull_out > td > div span:before {
     width: 1.5em;
     float: left;
+}
+
+main > div > .widget > table .pull_out > td > div {
+    border-top: 0.5em solid black;
+}
+
+main > div > .widget > table .pull_out > td > div:last-child {
+    border-bottom: 0.5em solid black;
+}
+
+main > div > .widget > table .pull_out td > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    padding: 0; margin-right: 26px;
+    line-height: 1.5em;
+}
+
+main > div > .widget > table > tbody tr td[id$='_actions'] {
+    min-width: 4em;
+    white-space: nowrap;
+}
+
+main > div > .widget > table > thead tr:last-child {
+    /* this contains the header stuff for the widget-content */
+    background: var(--background);
+}
+
+main > div > .widget > table > thead tr:last-child th {
+    height: 48px; line-height: 48px;
+    background-color: var(--lcars-purple);
+}
+
+main > div > .widget > table thead tr:last-child th:last-child {
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
+}
+
+main > div > .widget tr:not(.pull_out) a:before,
+main > div > .widget tr:not(.pull_out) a:after {
+    content: " ";
+    z-index: -1;
+    display: inline-block;
+    width: 1em; height: 1em;
+}
+
+main > div > .widget tr:not(.pull_out) a:before {
+    width: 1em;
+}
+
+main > div > .widget tr:not(.pull_out) a {
+    font-size: 90%;
+    border-radius: 0.5em;
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+}
+
+main > div > .widget tr:not(.pull_out) a,
+main > div > .widget tr:not(.pull_out) a:visited {
+    background-color: var(--lcars-light-blue);
+    color: black;
+}
+main > div > .widget tr:not(.pull_out) a:hover {
+    text-decoration: none;
+}
+
+main > div > .widget tr:not(.pull_out) span.inactive a:hover,
+main > div > .widget tr:not(.pull_out) span.active a {
+    background-color: var(--lcars-yellow);
+}
+
+main > div > .widget tr:not(.pull_out) span.active:hover a,
+main > div > .widget tr:not(.pull_out) span.inactive a {
+    background-color: var(--lcars-red);
 }
 /* debug options -> end */
