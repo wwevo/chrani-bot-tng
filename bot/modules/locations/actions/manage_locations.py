@@ -1,3 +1,5 @@
+from builtins import int
+
 from bot import loaded_modules_dict
 from os import path, pardir
 
@@ -10,12 +12,18 @@ def main_function(module, event_data, dispatchers_steamid):
     location_name = event_data[1].get("location_name", None)
     location_identifier = event_data[1].get("location_identifier", None)
     location_shape = event_data[1].get("location_shape", None)
+    location_coordinates = event_data[1].get("location_coordinates", {})
     location_dimensions = event_data[1].get("location_dimensions", {})
 
     if all([
         action is not None,
         location_name is not None and len(location_name) >= 5,
-        location_shape is not None
+        location_shape is not None,
+        all([
+            int(location_coordinates["x"]) != 0,
+            int(location_coordinates["y"]) != 0,
+            int(location_coordinates["z"]) != 0
+        ])
     ]):
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
@@ -32,6 +40,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                         "name": event_data[1].get("location_name"),
                         "identifier": event_data[1].get("location_identifier"),
                         "shape": event_data[1].get("location_shape"),
+                        "coordinates": event_data[1].get("location_coordinates"),
                         "dimensions": event_data[1].get("location_dimensions"),
                         "owner": dispatchers_steamid,
                         "is_enabled": True

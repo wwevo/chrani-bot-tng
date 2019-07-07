@@ -230,6 +230,34 @@ main > div > #telnet_log_widget .log_line {
     /* log entries seem to be traditionally blue in LCARS ^^ */
     color: var(--lcars-dark-blue);
 }
+
+main > div > #locations_widget #current_player_pos > span {
+    display: flex;
+    justify-content: flex-end;
+}
+
+main > div > #locations_widget #current_player_pos > span > label {
+    flex: 0;
+    white-space: nowrap;
+    margin-right: 0.5em;
+}
+
+main > div > #locations_widget #current_player_pos > span > label:last-child {
+    margin-right: 0;
+}
+
+main > div > #locations_widget #current_player_pos > span > label input {
+    border: 0;
+    display: inline-block;
+    margin: 0; padding: 0;
+    width: 2.5em;
+    text-align: right;
+    background-color: transparent;
+}
+
+main > div > #locations_widget #current_player_pos > span > label:nth-child(2) input {
+    width: 2em;
+}
 /* region main_widgets -> end */
 /* region footer_widgets -> start */
 footer > div > p {

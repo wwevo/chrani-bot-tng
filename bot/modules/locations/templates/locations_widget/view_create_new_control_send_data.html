@@ -2,6 +2,14 @@
 <script language="javascript">
     function send_location_data_to_bot() {
         let location_shape = $("input[name='location_shape']:checked").val();
+        let location_coordinates_x = $("input[name='location_coordinates_x']").val();
+        let location_coordinates_y = $("input[name='location_coordinates_y']").val();
+        let location_coordinates_z = $("input[name='location_coordinates_z']").val();
+        let location_coordinates = {
+            'x': location_coordinates_x,
+            'y': location_coordinates_y,
+            'z': location_coordinates_z
+        };
         let location_dimensions_radius = $("input[name='location_dimensions_radius']").val();
         let location_dimensions_width = $("input[name='location_dimensions_width']").val();
         let location_dimensions_length = $("input[name='location_dimensions_length']").val();
@@ -19,6 +27,7 @@
             ['locations', ['manage_locations', {
                 'location_identifier': location_identifier,
                 'location_shape': location_shape,
+                'location_coordinates': location_coordinates,
                 'location_dimensions': location_dimensions,
                 'location_name': location_name,
                 'action': 'create_new'}]]
