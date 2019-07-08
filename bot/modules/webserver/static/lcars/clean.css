@@ -175,7 +175,7 @@ main > div .widget {
     flex: 1 1 auto;
     width: calc(100% - var(--main_shoulder_width) - 2em);
     margin-left: var(--main_shoulder_width);
-    min-height: 12em;
+    min-height: 20em;
     max-width: calc(1920px - var(--main_shoulder_width) - 2em);
     margin-bottom: 0.5em;
 }
@@ -335,6 +335,11 @@ main > div > .widget > table .pull_out td > div > span {
     display: block;
     background-color: var(--lcars-purple);
     padding: 0; margin-right: 26px;
+    line-height: 2.5em;
+}
+
+main > div > .widget > table .pull_out td > div > span.info {
+    color: var(--background);
     line-height: 1.5em;
 }
 
@@ -387,12 +392,12 @@ main > div > .widget tr:not(.pull_out) a:hover {
 
 main > div > .widget tr:not(.pull_out) span.inactive a:hover,
 main > div > .widget tr:not(.pull_out) span.active a {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-red);
 }
 
 main > div > .widget tr:not(.pull_out) span.active:hover a,
 main > div > .widget tr:not(.pull_out) span.inactive a {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-yellow);
 }
 
 main > div > .widget .pull_out td > div > span.active {
