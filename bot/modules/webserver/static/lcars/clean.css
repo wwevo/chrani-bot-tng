@@ -231,37 +231,39 @@ body > main > div {
 body > main > div .widget {
     flex: 1 1 auto;
     width: calc(100% - var(--main_shoulder_width) - 2em);
-    margin-left: var(--main_shoulder_width);
-    min-height: 20em;
-    max-width: calc(1920px - var(--main_shoulder_width) - 2em);
+    /* margin-left: var(--main_shoulder_width); */
+    max-width: calc(1920px - 2em);
     margin-bottom: 0.5em;
 }
 
 @media (min-width: 1920px) {
     body > main > div .widget {
-        width: calc(50% - var(--main_shoulder_width) - 4em);
+        width: calc(50% - 4em);
     }
 }
 
 @media (min-width: 2880px) {
     body > main > div .widget {
-        width: calc((100% / 3) - var(--main_shoulder_width) - 6em);
+        width: calc((100% / 3) - 6em);
     }
 }
 
-/* body > main > div .widget */
-.widget table.box_select,
-.widget table.box_input {
+.widget > main > table {
+    margin-top: 0.5em;
+}
+
+.widget > main > table.box_select,
+.widget > main > table.box_input {
     margin-bottom: 0.5em;
 }
 
-.widget table.box_select input[disabled],
-.widget table.box_input input[disabled] {
+.widget > main > table.box_select input[disabled],
+.widget > main > table.box_input input[disabled] {
     background-color: var(--lcars-red);
 }
 
-.widget table.box_select tfoot tr td,
-.widget table.box_input tfoot tr td {
+.widget > main > table.box_select tfoot tr td,
+.widget > main > table.box_input tfoot tr td {
     color: var(--background);
     background-color: var(--lcars-light-blue);
     text-align: right;
@@ -271,7 +273,6 @@ body > main > div .widget {
 
 /* specific layout-rules for certain modules */
 main > div > #webserver_status_widget {
-    min-height: 8em;
     order: -1; /* ensure to be placed first */
 }
 
@@ -331,77 +332,75 @@ footer > div > p {
 }
 
 .widget > header {
-    position: absolute;
-    left: calc(var(--main_shoulder_width) - (2 * var(--main_shoulder_width)));
     display: block;
-    width: var(--main_shoulder_width);
-    text-align: right;
-    background: url(ui/main_vertical_bar.png) repeat-y;
-    height: 100%;
-}
-
-.widget > header div {
-    width: var(--main_shoulder_width);
-}
-
-.widget > header > div > div:first-child {
-    border-top: 0;
     height: 48px;
-    background: var(--background);
-}
-
-.widget > header > div > div:first-child span {
-    color: var(--lcars-yellow);
-    font-size: 2em; line-height: 48px;
-    /* background: #939598 url(ui/main_vertical_bar_head.png) no-repeat; */
+    width: 100%;
+    clear: both;
+    background-color: var(--lcars-purple);
     border-top-left-radius: 24px;
-    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
-    text-transform: uppercase;
-    margin-right: 0;
-    padding-right: 16px;
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
 }
 
-.widget > header > div > div span:before,
-.widget > header > div > div span:after {
+.widget > header > div > span {
+    font-size: 48px; line-height: 1em;
+    color: var(--background);
+    margin-left: 24px;
+}
+
+
+.widget > aside {
+    float: left;
+    width: var(--main_shoulder_width);
+    background: url(ui/main_vertical_bar.png) repeat-y;
+    height: calc(100% - 48px);
+    margin-bottom: 2em;
+}
+
+.widget > main {
+    float: right; width: calc(100% - var(--main_shoulder_width))
+}
+
+.widget > aside > div {
+    width: var(--main_shoulder_width);
+}
+
+.widget > aside > div > div span:before,
+.widget > aside > div > div span:after {
     content: " ";
     z-index: 1;
     display: inline-block;
     height: 1.5em;
 }
 
-.widget > header > div > div span:after {
+.widget > aside > div > div span:after {
     width: 0.5em;
     float: right;
 }
 
-.widget > header > div > div span:before {
+.widget > aside > div > div span:before {
     width: 1.5em;
     float: left;
 }
 
-.widget > header > div > div {
+.widget > aside > div > div {
     border-top: 0.5em solid black;
 }
 
-.widget > header > div > div:last-child {
+.widget > aside > div > div:last-child {
     border-bottom: 0.5em solid black;
 }
 
-.widget > header > div > div > span {
+.widget > aside > div > div > span {
     display: block;
     background-color: var(--lcars-purple);
     padding: 0; margin-right: 26px;
     line-height: 2.5em;
 }
 
-.widget > header > div > div > span.info {
+.widget > aside > div > div > span.info {
     color: var(--background);
     line-height: 1.5em;
-}
-
-.widget > main > table > tbody tr td[id$='_actions'] {
-    min-width: 4em;
-    white-space: nowrap;
 }
 
 .widget > main > table > thead tr:last-child {
@@ -409,14 +408,9 @@ footer > div > p {
     background: var(--background);
 }
 
-.widget > main > table > thead tr:last-child th {
-    height: 48px; line-height: 48px;
-    background-color: var(--lcars-purple);
-}
-
-.widget > main > table > thead tr:last-child th:last-child {
-    border-top-right-radius: 24px;
-    border-bottom-right-radius: 24px;
+.widget > main > table > tbody tr td[id$='_actions'] {
+    min-width: 4em;
+    white-space: nowrap;
 }
 
 /* */

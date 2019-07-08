@@ -1,5 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {%- set player_is_on_whitelist = player.on_whitelist|default(false) -%}
+{%- set whitelist_entry_selected = false -%}
 <tr id="manage_whitelist_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="manage_whitelist_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
     <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
@@ -14,8 +15,9 @@
         </span>
         <span id="manage_whitelist_table_row_{{ player.steamid }}_control_delete_link">
         {{ construct_toggle_link(
-            True,
-            "delete", ['widget_event', ['whitelist', ['manage_whitelist', {'steamid': player.steamid, 'action': 'delete_player'}]]]
+            not whitelist_entry_selected,
+            "select", ['widget_event', ['whitelist', ['manage_whitelist', {'steamid': player.steamid, 'action': 'select_whitelist_entry'}]]],
+            "selected", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "deselect_whitelist_entry"}]]]
         ) }}
         </span>
     </td>

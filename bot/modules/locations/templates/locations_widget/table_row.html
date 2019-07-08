@@ -1,5 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {%- set location_is_enabled = location.is_enabled|default(false) -%}
+{%- set location_entry_selected = false -%}
 <tr id="manage_locations_table_row_{{ location.identifier }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="manage_locations_table_row_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="manage_locations_table_row_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
@@ -17,8 +18,9 @@
         </span>
         <span id="locations_table_row_{{ location.identifier }}_control_delete_link">
         {{ construct_toggle_link(
-            True,
-            "delete", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "delete_location"}]]]
+            not location_entry_selected,
+            "select", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, 'action': 'select_location_entry'}]]],
+            "selected", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "deselect_location_entry"}]]]
         ) }}
         </span>
     </td>

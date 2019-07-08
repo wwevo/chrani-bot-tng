@@ -1,4 +1,5 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{%- set player_entry_selected = false -%}
 <tr id="player_table_row_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td id="player_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
     <td id="player_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
@@ -21,8 +22,9 @@
         <span id="player_table_row_{{ player.steamid }}_control_kick_link">{{ control_kick_link }}</span>
         <span id="player_table_row_{{ player.steamid }}_control_delete_link">
         {{ construct_toggle_link(
-            True,
-            "delete", ['widget_event', ['players', ['manage_players', {'steamid': player.steamid, 'action': 'delete_player'}]]]
+            not player_entry_selected,
+            "select", ['widget_event', ['players', ['manage_players', {'steamid': player.steamid, 'action': 'select_player_entry'}]]],
+            "selected", ['widget_event', ['players', ['manage_players', {"steamid": player.steamid, "action": "deselect_player_entry"}]]]
         ) }}
         </span>
     </td>
