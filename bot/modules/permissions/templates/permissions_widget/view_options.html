@@ -1,70 +1,22 @@
-<table>
-    <thead>
-        {{ options_toggle }}
-        <tr>
-            <th colspan="2">permissions widget options</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <th colspan="2"><span>widget-options</span></th>
-        </tr>
-        {% for key, value in widget_options.items() %}
-        <tr>
-            <td><span>{{key}}</span></td><td>{{value}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-<!--
-    <tbody>
-        <tr>
-            <th colspan="2"><span>available actions</span></th>
-        </tr>
-        {% for key, value in available_actions.items() %}
-        <tr>
-            <td>
-                <table>
-                    {% for action_name, action_value in value.items() %}
-                    <tr>
-                        <td>{{ action_name }}</td>
-                        <td>{{ action_value.description }}</td>
-                        <td class="right">
-                            <span id="widget_permission_{{ action_name }}">
-                                <input type="number" class="dial" value="{{ permission }}" onclick="window.socket.emit('widget_event', ['permissions', ['change_permission', {'id': '{{ action_name }}'}]]); return false;" />
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </td>
-            <td><span>{{ key }}</span></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tbody>
-        <tr>
-            <th colspan="2"><span>available widgets</span></th>
-        </tr>
-        {% for key, value in available_widgets.items() %}
-        <tr>
-            <td>
-                <table>
-                    {% for widget_name, widget_value in value.items() %}
-                    <tr>
-                        <td>{{ widget_name }}</td>
-                        <td>{{ widget_value.description }}</td>
-                        <td class="right">
-                            <span id="widget_permission_{{ widget_name }}">
-                                <input type="number" class="dial" value="{{ permission }}" onclick="window.socket.emit('widget_event', ['permissions', ['change_permission', {'id': '{{ widget_name }}'}]]); return false;" />
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </td>
-            <td><span>{{ key }}</span></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-//-->
-</table>
+<header>
+{{ options_toggle }}
+</header>
+<main>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">permissions widget options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th colspan="2"><span>widget-options</span></th>
+            </tr>
+            {% for key, value in widget_options.items() %}
+            <tr>
+                <td><span>{{key}}</span></td><td>{{value}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>

@@ -50,20 +50,20 @@ body {
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
 }
 
-header {
+body > header {
     background:
             url(ui/main_horizontal_bar_end.png) no-repeat top right,
             url(ui/main_shoulder.png) no-repeat top left;
 }
 
-header > div {
+body > header > div {
     position: relative;
     height: var(--main_shoulder_height);
     margin: 0 var(--main_bar_terminator_width) 0 var(--main_shoulder_width);
     background: url(ui/main_horizontal_bar.png) repeat-x;
 }
 
-main {
+body > main {
     position: relative;
     color: var(--lcars-orange);
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
@@ -71,30 +71,30 @@ main {
     overflow: auto;
 }
 
-main a,
-main a:visited {
+body > main a,
+body > main a:visited {
     color: var(--lcars-light-blue);
     text-decoration: none;
 }
 
-main a:hover {
+body > main a:hover {
     text-decoration: underline;
 }
 
-footer,
-footer > div,
-footer > div:before {
+body > footer,
+body > footer > div,
+body > footer > div:before {
     height: var(--main_shoulder_height);
     transform: scaleY(-1);
 }
 
-footer {
+body > footer {
     background:
             url(ui/main_shoulder.png) no-repeat top left,
             url(ui/main_horizontal_bar_end.png) no-repeat top right;
 }
 
-footer > div:before {
+body > footer > div:before {
     width: 100%;
     content: "";
     z-index: -1;
@@ -102,7 +102,7 @@ footer > div:before {
     background: url(ui/main_horizontal_bar.png) repeat-x;
 }
 
-footer > div {
+body > footer > div {
     display: flex;
     align-items: flex-end;
     margin: 0 var(--main_bar_terminator_width) 0 var(--main_shoulder_width);
@@ -112,23 +112,49 @@ footer > div {
 /* region main_settings -> end */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
-header #gametime_widget {
-    position: absolute;
+body > header > div > #gametime_widget {
+    position: relative;
+    height: var(--main_shoulder_height);
     font-size: 1.5em;
     line-height: 1em;
     color: black;
-    margin-left: 0.5em;
-    bottom: 0; left: calc(var(--main_shoulder_width) - (2 * var(--main_shoulder_width)));
+    padding-right: 0;
 }
 
-header > div > hgroup {
+body > header > div > #gametime_widget > div {
     position: absolute;
-    right: 0;
+    left: -18px; bottom: 0;
+    background-color: var(--lcars-orange);
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+body > header > div > #gametime_widget > div:before,
+body > header > div > #gametime_widget > div:after {
+    content: " ";
+    z-index: 1;
+    display: inline-block;
+    height: 1em;
+}
+
+body > header > div > #gametime_widget > div:after {
+    width: 1em;
+    float: right;
+}
+
+body > header > div > #gametime_widget > div:before {
+    width: 1em;
+    float: left;
+}
+
+body > header > div > hgroup {
+    position: absolute;
+    right: 0; top: 0;
     background-color: var(--background);
     height: var(--main_bar_height);
 }
 
-header > div > hgroup > h1 {
+body > header > div > hgroup > h1 {
     color: var(--lcars-yellow);
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
     text-transform: uppercase;
@@ -136,7 +162,7 @@ header > div > hgroup > h1 {
     font-size: var(--main_bar_height);
 }
 
-header > div > aside {
+body > header > div > aside {
     position: absolute;
     bottom: 0; right: calc(var(--main_bar_terminator_width) - (2 * var(--main_bar_terminator_width)));
     margin-right: 0.5em;
@@ -144,26 +170,57 @@ header > div > aside {
     background-color: var(--background);
 }
 
-header > div > aside a,
-header > div > aside a:visited {
+body > header > div > aside a,
+body > header > div > aside a:visited {
     color: var(--lcars-light-blue);
 }
 
-header #gameserver_status_widget {
+body > header > div > #gameserver_status_widget {
     position: absolute;
-    bottom: 0;
-    color: var(--lcars-orange);
-    background-color: var(--background);
+    bottom: 0; left: 200px;
 }
 
-header #gameserver_status_widget a,
-header #gameserver_status_widget a:visited {
-    color: var(--lcars-light-blue);
+body > header > div > #gameserver_status_widget > div {
+    color: var(--background);
+    border-radius: 12px;
+    height: 1.5em; line-height: 1.5em;
+    white-space: nowrap;
+}
+
+body > header > div > #gameserver_status_widget > div.active {
+    background-color: var(--lcars-yellow);
+}
+
+body > header > div > #gameserver_status_widget > div.inactive {
+    background-color: var(--lcars-red);
+}
+
+body > header > div > #gameserver_status_widget > div:before,
+body > header > div > #gameserver_status_widget > div:after {
+    content: " ";
+    z-index: 1;
+    display: inline-block;
+    height: 1em;
+}
+
+body > header > div > #gameserver_status_widget > div:after {
+    width: 1em;
+    float: right;
+}
+
+body > header > div > #gameserver_status_widget > div:before {
+    width: 1em;
+    float: left;
+}
+
+body > header > div #gameserver_status_widget a,
+body > header > div #gameserver_status_widget a:visited {
+    color: var(--lcars-dark-blue);
 }
 /* region header_widgets -> end */
 /* region main_widgets -> start */
 /* main rules, widgets will share the available space between them, creating columns as needed, up to 3 for now */
-main > div {
+body > main > div {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -171,7 +228,7 @@ main > div {
     margin-bottom: -0.5em;
 }
 
-main > div .widget {
+body > main > div .widget {
     flex: 1 1 auto;
     width: calc(100% - var(--main_shoulder_width) - 2em);
     margin-left: var(--main_shoulder_width);
@@ -181,17 +238,18 @@ main > div .widget {
 }
 
 @media (min-width: 1920px) {
-    main > div .widget {
+    body > main > div .widget {
         width: calc(50% - var(--main_shoulder_width) - 4em);
     }
 }
 
 @media (min-width: 2880px) {
-    main > div .widget {
+    body > main > div .widget {
         width: calc((100% / 3) - var(--main_shoulder_width) - 6em);
     }
 }
 
+/* body > main > div .widget */
 .widget table.box_select,
 .widget table.box_input {
     margin-bottom: 0.5em;
@@ -266,15 +324,13 @@ footer > div > p {
 }
 /* region footer_widgets -> end */
 
-
-
 /* debug options -> start */
-main > div > .widget {
+.widget {
     position: relative;
     padding-right: 2em;
 }
 
-main > div > .widget > table .pull_out {
+.widget > header {
     position: absolute;
     left: calc(var(--main_shoulder_width) - (2 * var(--main_shoulder_width)));
     display: block;
@@ -284,17 +340,17 @@ main > div > .widget > table .pull_out {
     height: 100%;
 }
 
-main > div > .widget > table .pull_out td {
+.widget > header div {
     width: var(--main_shoulder_width);
 }
 
-main > div > .widget > table .pull_out > td > div:first-child {
+.widget > header > div > div:first-child {
     border-top: 0;
     height: 48px;
     background: var(--background);
 }
 
-main > div > .widget > table .pull_out > td > div:first-child span {
+.widget > header > div > div:first-child span {
     color: var(--lcars-yellow);
     font-size: 2em; line-height: 48px;
     /* background: #939598 url(ui/main_vertical_bar_head.png) no-repeat; */
@@ -305,114 +361,118 @@ main > div > .widget > table .pull_out > td > div:first-child span {
     padding-right: 16px;
 }
 
-main > div > .widget > table .pull_out > td > div span:before,
-main > div > .widget > table .pull_out > td > div span:after {
+.widget > header > div > div span:before,
+.widget > header > div > div span:after {
     content: " ";
     z-index: 1;
     display: inline-block;
     height: 1.5em;
 }
 
-main > div > .widget > table .pull_out > td > div span:after {
+.widget > header > div > div span:after {
     width: 0.5em;
     float: right;
 }
 
-main > div > .widget > table .pull_out > td > div span:before {
+.widget > header > div > div span:before {
     width: 1.5em;
     float: left;
 }
 
-main > div > .widget > table .pull_out > td > div {
+.widget > header > div > div {
     border-top: 0.5em solid black;
 }
 
-main > div > .widget > table .pull_out > td > div:last-child {
+.widget > header > div > div:last-child {
     border-bottom: 0.5em solid black;
 }
 
-main > div > .widget > table .pull_out td > div > span {
+.widget > header > div > div > span {
     display: block;
     background-color: var(--lcars-purple);
     padding: 0; margin-right: 26px;
     line-height: 2.5em;
 }
 
-main > div > .widget > table .pull_out td > div > span.info {
+.widget > header > div > div > span.info {
     color: var(--background);
     line-height: 1.5em;
 }
 
-main > div > .widget > table > tbody tr td[id$='_actions'] {
+.widget > main > table > tbody tr td[id$='_actions'] {
     min-width: 4em;
     white-space: nowrap;
 }
 
-main > div > .widget > table > thead tr:last-child {
+.widget > main > table > thead tr:last-child {
     /* this contains the header stuff for the widget-content */
     background: var(--background);
 }
 
-main > div > .widget > table > thead tr:last-child th {
+.widget > main > table > thead tr:last-child th {
     height: 48px; line-height: 48px;
     background-color: var(--lcars-purple);
 }
 
-main > div > .widget > table thead tr:last-child th:last-child {
+.widget > main > table > thead tr:last-child th:last-child {
     border-top-right-radius: 24px;
     border-bottom-right-radius: 24px;
 }
 
-main > div > .widget tr:not(.pull_out) a:before,
-main > div > .widget tr:not(.pull_out) a:after {
+/* */
+.widget .pull_out > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+.widget .pull_out > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+.widget .pull_out > div > span.info {
+    background-color: var(--lcars-yellow);
+}
+
+.widget .pull_out span a,
+.widget .pull_out span a:visited {
+    color: var(--background);
+}
+
+/* */
+.widget main a:before,
+.widget main a:after {
     content: " ";
     z-index: -1;
     display: inline-block;
     width: 1em; height: 1em;
 }
 
-main > div > .widget tr:not(.pull_out) a:before {
+.widget main a:before {
     width: 1em;
 }
 
-main > div > .widget tr:not(.pull_out) a {
+.widget main a {
     font-size: 90%;
     border-radius: 0.5em;
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
 }
 
-main > div > .widget tr:not(.pull_out) a,
-main > div > .widget tr:not(.pull_out) a:visited {
+.widget main a,
+.widget main a:visited {
     background-color: var(--lcars-light-blue);
     color: black;
 }
-main > div > .widget tr:not(.pull_out) a:hover {
+
+.widget main a:hover {
     text-decoration: none;
 }
 
-main > div > .widget tr:not(.pull_out) span.inactive a:hover,
-main > div > .widget tr:not(.pull_out) span.active a {
+.widget main span.inactive a:hover,
+.widget main span.active a {
     background-color: var(--lcars-red);
 }
 
-main > div > .widget tr:not(.pull_out) span.active:hover a,
-main > div > .widget tr:not(.pull_out) span.inactive a {
+.widget main span.active:hover a,
+.widget main span.inactive a {
     background-color: var(--lcars-yellow);
 }
-
-main > div > .widget .pull_out td > div > span.active {
-    background-color: var(--lcars-lilac);
-}
-
-main > div > .widget .pull_out td > div > span.inactive {
-    background-color: var(--lcars-purple);
-}
-
-main > div > .widget .pull_out td > div > span.info {
-    background-color: var(--lcars-yellow);
-}
-
-main > div > .widget .pull_out span a,
-main > div > .widget .pull_out span a:visited {
-    color: var(--background);
-}/* debug options -> end */
+/* debug options -> end */

@@ -1,15 +1,19 @@
-<table>
-    <caption>
-        <span>offline</span>
-        <span class="in_limbo">offline and dead</span>
-        <span class="is_online">logging in / online</span>
-        <span class="in_limbo is_online is_initialized">online and dead</span>
-    </caption>
-    <thead>
-        {{ options_toggle }}
-        {{ table_header }}
-    </thead>
-    <tbody>
-        {{ table_rows }}
-    </tbody>
-</table>
+<header>
+{{ options_toggle }}
+</header>
+<main>
+    <table>
+        <caption>
+            <span>offline</span>
+            <span class="in_limbo">offline and dead</span>
+            <span class="is_online">logging in / online</span>
+            <span class="in_limbo is_online is_initialized">online and dead</span>
+        </caption>
+        <thead>
+            {{ table_header }}
+        </thead>
+        <tbody>
+            {{ table_rows }}
+        </tbody>
+    </table>
+</main>

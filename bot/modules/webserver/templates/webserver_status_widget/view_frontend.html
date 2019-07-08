@@ -1,11 +1,15 @@
-<table>
-    <thead>
-        {{ options_toggle }}
-        <tr>
-            <th>Webserver Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{ component_logged_in_users }}
-    </tbody>
-</table>
+<header>
+{{ options_toggle }}
+</header>
+<main>
+    <table>
+        <thead>
+            <tr>
+                <th>Webserver Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ component_logged_in_users }}
+        </tbody>
+    </table>
+</main>

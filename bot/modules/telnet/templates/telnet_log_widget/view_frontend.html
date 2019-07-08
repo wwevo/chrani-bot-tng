@@ -1,15 +1,18 @@
-<table>
-    <thead>
-        <tr id="telnet_log_widget_status" class="pull_out">
-            <td class="right">
-                <div>
-                    <span>Telnet Log</span>
-                </div>
-            </td>
-        </tr>
-        {{ table_header }}
-    </thead>
-    <tbody>
-        <tr>{{ log_lines }}</tr>
-    </tbody>
-</table>
+<header>
+    <div id="telnet_log_widget_status" class="pull_out right">
+        <div>
+            <span>Telnet Log</span>
+        </div>
+        <div><span>Options</span></div>
+    </div>
+</header>
+<main>
+    <table>
+        <thead>
+            {{ table_header }}
+        </thead>
+        <tbody>
+            <tr>{{ log_lines }}</tr>
+        </tbody>
+    </table>
+</main>
