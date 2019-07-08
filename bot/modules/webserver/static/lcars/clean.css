@@ -394,4 +394,20 @@ main > div > .widget tr:not(.pull_out) span.active:hover a,
 main > div > .widget tr:not(.pull_out) span.inactive a {
     background-color: var(--lcars-red);
 }
-/* debug options -> end */
+
+main > div > .widget .pull_out td > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+main > div > .widget .pull_out td > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+main > div > .widget .pull_out td > div > span.info {
+    background-color: var(--lcars-yellow);
+}
+
+main > div > .widget .pull_out span a,
+main > div > .widget .pull_out span a:visited {
+    color: var(--background);
+}/* debug options -> end */

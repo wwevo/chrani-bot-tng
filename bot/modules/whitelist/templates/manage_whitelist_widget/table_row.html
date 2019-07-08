@@ -5,10 +5,18 @@
     <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
     <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
     <td class="right" id="manage_whitelist_table_row_{{ player.steamid }}_actions">
+        <span id="manage_whitelist_table_row_{{ player.steamid }}_control_toggle_active_link">
         {{ construct_toggle_link(
             player_is_on_whitelist,
             "remove", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "remove_from_whitelist"}]]],
             "add", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "add_to_whitelist"}]]]
         ) }}
+        </span>
+        <span id="manage_whitelist_table_row_{{ player.steamid }}_control_delete_link">
+        {{ construct_toggle_link(
+            True,
+            "delete", ['widget_event', ['whitelist', ['manage_whitelist', {'steamid': player.steamid, 'action': 'delete_player'}]]]
+        ) }}
+        </span>
     </td>
 </tr>

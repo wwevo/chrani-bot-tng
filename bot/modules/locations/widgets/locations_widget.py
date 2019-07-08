@@ -51,7 +51,8 @@ def frontend_view(module, dispatchers_steamid=None):
         table_rows += module.template_render_hook(
             module,
             template_table_rows,
-            location=location
+            location=location,
+            steamid=dispatchers_steamid
         )
 
     data_to_emit = module.template_render_hook(

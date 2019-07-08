@@ -1,7 +1,6 @@
-from builtins import int
-
 from bot import loaded_modules_dict
 from os import path, pardir
+from builtins import int
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
@@ -12,18 +11,19 @@ def main_function(module, event_data, dispatchers_steamid):
     location_name = event_data[1].get("location_name", None)
     location_identifier = event_data[1].get("location_identifier", None)
     location_shape = event_data[1].get("location_shape", None)
-    location_coordinates = event_data[1].get("location_coordinates", {})
-    location_dimensions = event_data[1].get("location_dimensions", {})
+    location_coordinates = event_data[1].get("location_coordinates", None)
+    location_dimensions = event_data[1].get("location_dimensions", None)
 
     if all([
         action is not None,
         location_name is not None and len(location_name) >= 5,
         location_shape is not None,
-        all([
-            int(location_coordinates["x"]) != 0,
-            int(location_coordinates["y"]) != 0,
-            int(location_coordinates["z"]) != 0
-        ])
+        location_coordinates is not None,
+        location_dimensions is not None,
+    ]) and all([
+        int(location_coordinates["x"]) != 0,
+        int(location_coordinates["y"]) != 0,
+        int(location_coordinates["z"]) != 0
     ]):
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return

@@ -8,14 +8,18 @@
     <td id="manage_locations_table_row_{{ location.identifier }}_coordinates" onclick="$(this).selectText();">{{ location.coordinates }}</td>
     <td id="manage_locations_table_row_{{ location.identifier }}_dimensions" onclick="$(this).selectText();">{{ location.dimensions }}</td>
     <td class="right" id="manage_locations_table_row_{{ location.identifier }}_actions">
-        {{ construct_toggle_link(
-            True,
-            "delete", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "delete_location"}]]]
-        ) }}
+        <span id="locations_table_row_{{ location.identifier }}_control_toggle_active_link">
         {{ construct_toggle_link(
             location_is_enabled,
             "disable", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "disable_location"}]]],
             "enable", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "enable_location"}]]]
         ) }}
+        </span>
+        <span id="locations_table_row_{{ location.identifier }}_control_delete_link">
+        {{ construct_toggle_link(
+            True,
+            "delete", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "delete_location"}]]]
+        ) }}
+        </span>
     </td>
 </tr>

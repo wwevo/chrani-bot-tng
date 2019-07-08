@@ -19,5 +19,11 @@
     <td class="nobr right" id="player_table_row_{{ player.steamid }}_actions">
         <span id="player_table_row_{{ player.steamid }}_control_info_link">{{ control_info_link }}</span>
         <span id="player_table_row_{{ player.steamid }}_control_kick_link">{{ control_kick_link }}</span>
+        <span id="player_table_row_{{ player.steamid }}_control_delete_link">
+        {{ construct_toggle_link(
+            True,
+            "delete", ['widget_event', ['players', ['manage_players', {'steamid': player.steamid, 'action': 'delete_player'}]]]
+        ) }}
+        </span>
     </td>
 </tr>
