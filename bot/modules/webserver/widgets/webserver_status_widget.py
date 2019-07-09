@@ -128,7 +128,7 @@ def options_view(module, dispatchers_steamid=None):
     )
 
 
-def update_servertime(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+def update_servertime(module, updated_values_dict=None, old_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
     servertime_view = module.template_render_hook(
         module,
@@ -148,7 +148,7 @@ def update_servertime(module, updated_values_dict=None, old_values_dict=None, di
     )
 
 
-def update_logged_in_users(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+def update_logged_in_users(module, updated_values_dict=None, old_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
     webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
     old_webserver_logged_in_users = old_values_dict.get("webserver_logged_in_users", {})
 

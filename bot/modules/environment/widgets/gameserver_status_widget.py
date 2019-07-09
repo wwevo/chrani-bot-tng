@@ -32,7 +32,7 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     telnet_data_transfer_is_enabled = module.dom.get_updated_or_default_value(

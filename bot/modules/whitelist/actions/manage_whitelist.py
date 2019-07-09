@@ -8,8 +8,28 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("steamid", None)
+
+    selected_players = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(dispatchers_steamid, []).copy()
     if action is not None and player_steamid is not None:
         if len(player_steamid) == 17 and player_steamid.isdigit():
+            if action == "select_whitelist_entry":
+                selected_players.append(player_steamid)
+                module.dom.data.upsert({
+                    "module_whitelist": {
+                        "selected": {
+                            dispatchers_steamid: selected_players
+                        }
+                    }
+                }, dispatchers_steamid=dispatchers_steamid)
+            if action == "deselect_whitelist_entry":
+                selected_players.remove(player_steamid)
+                module.dom.data.upsert({
+                    "module_whitelist": {
+                        "selected": {
+                            dispatchers_steamid: selected_players
+                        }
+                    }
+                }, dispatchers_steamid=dispatchers_steamid)
             if action == "add_to_whitelist":
                 module.dom.data.upsert({
                     "module_whitelist": {

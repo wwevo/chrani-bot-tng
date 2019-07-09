@@ -254,7 +254,7 @@ body > header > div > #gametime_widget > div:before {
 
 body > header > div > #gameserver_status_widget {
     position: absolute;
-    bottom: 0; left: 200px;
+    bottom: 0; left: 210px;
 }
 
 body > header > div > #gameserver_status_widget > div {

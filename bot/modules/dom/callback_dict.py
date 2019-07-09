@@ -1,6 +1,7 @@
 from collections import Mapping, deque
 from threading import Thread
 import re
+from copy import deepcopy
 
 
 class CallbackDict(dict, object):
@@ -15,11 +16,12 @@ class CallbackDict(dict, object):
         super().__setitem__(key, value)
 
     @staticmethod
-    def get_callback_package(updated_values, old_values, dispatchers_steamid, callback):
+    def get_callback_package(updated_values=dict, old_values=dict, original_values_dict=dict, dispatchers_steamid=None, callback=None):
         try:
             callback_kwargs = {
                 "updated_values_dict": updated_values,
                 "old_values_dict": old_values,
+                "original_values_dict": original_values_dict,
                 "dispatchers_steamid": dispatchers_steamid
             }
 
@@ -51,6 +53,10 @@ class CallbackDict(dict, object):
     def append(self, *args, **kwargs):
         updated_values_dict = args[0]
         dict_to_update = kwargs.get("dict_to_update", self)
+        original_values_dict = kwargs.get("original_values_dict", {})
+        if len(original_values_dict) <= 0:
+            original_values_dict = deepcopy(dict(dict_to_update))
+
         path = kwargs.get("path", [])
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
         layer = kwargs.get("layer", 0)
@@ -69,7 +75,13 @@ class CallbackDict(dict, object):
             if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
                 for callback in self.registered_callbacks[full_path]:
                     callbacks.append(
-                        self.get_callback_package(updated_values_dict, dict_to_update, dispatchers_steamid, callback))
+                        self.get_callback_package(
+                            updated_values=updated_values_dict,
+                            old_values=dict_to_update,
+                            original_values_dict=original_values_dict,
+                            dispatchers_steamid=dispatchers_steamid,
+                            callback=callback
+                        ))
 
                 try:
                     dict_to_update[k].append(v)
@@ -88,7 +100,8 @@ class CallbackDict(dict, object):
 
             d_v = dict_to_update.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.append(v, dict_to_update=d_v, path=path, layer=layer + 1, callbacks=callbacks, maxlen=maxlen)
+                self.append(v, dict_to_update=d_v, original_values_dict=original_values_dict[k], path=path,
+                            layer=layer + 1, callbacks=callbacks, maxlen=maxlen)
 
         if layer != 0:
             return
@@ -104,6 +117,10 @@ class CallbackDict(dict, object):
     def upsert(self, *args, **kwargs):
         updated_values_dict = args[0]
         dict_to_update = kwargs.get("dict_to_update", self)
+        original_values_dict = kwargs.get("original_values_dict", {})
+        if len(original_values_dict) <= 0:
+            original_values_dict = deepcopy(dict(dict_to_update))
+
         overwrite = kwargs.get("overwrite", False)
         path = kwargs.get("path", [])
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
@@ -132,7 +149,13 @@ class CallbackDict(dict, object):
 
                     for callback in self.registered_callbacks[full_path]:
                         callbacks.append(
-                            self.get_callback_package(updated_values_dict, dict_to_update, dispatchers_steamid, callback))
+                            self.get_callback_package(
+                                updated_values=updated_values_dict,
+                                old_values=dict_to_update,
+                                original_values_dict=original_values_dict,
+                                dispatchers_steamid=dispatchers_steamid,
+                                callback=callback
+                            ))
 
                 except KeyError:
                     # print("not present #1")
@@ -141,15 +164,22 @@ class CallbackDict(dict, object):
             d_v = dict_to_update.get(k)
             if not forced_overwrite:
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                    self.upsert(v, dict_to_update=d_v, path=path, layer=layer + 1, callbacks=callbacks,
-                                overwrite=overwrite, dispatchers_steamid=dispatchers_steamid)
+                    self.upsert(v, dict_to_update=d_v, original_values_dict=original_values_dict[k], path=path,
+                                layer=layer + 1, callbacks=callbacks, overwrite=overwrite,
+                                dispatchers_steamid=dispatchers_steamid)
                 elif isinstance(v, Mapping) and len(v) >= 1:
                     dict_to_update[k] = v
                     combined_full_path = "{}/{}".format(full_path, next(iter(v)))
                     try:
                         for callback in self.registered_callbacks[combined_full_path]:
                             callbacks.append(
-                                self.get_callback_package(updated_values_dict, dict_to_update, dispatchers_steamid, callback))
+                                self.get_callback_package(
+                                    updated_values=updated_values_dict,
+                                    old_values=dict_to_update,
+                                    original_values_dict=original_values_dict,
+                                    dispatchers_steamid=dispatchers_steamid,
+                                    callback=callback
+                                ))
 
                     except KeyError:
                         # print("not present #2")

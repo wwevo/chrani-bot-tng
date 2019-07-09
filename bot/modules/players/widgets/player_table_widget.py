@@ -54,16 +54,23 @@ def frontend_view(module, dispatchers_steamid=None):
 
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
 
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
     all_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    selected_player_entries = module.dom.data.get("module_players", {}).get("selected", {}).get(dispatchers_steamid, [])
+
     table_rows = ""
     for steamid, player_dict in all_player_dicts.items():
 
         if steamid == 'last_updated_servertime':
             continue
+
+        player_entry_selected = False
+        if steamid in selected_player_entries:
+            player_entry_selected = True
 
         table_rows += module.template_render_hook(
             module,
@@ -78,6 +85,12 @@ def frontend_view(module, dispatchers_steamid=None):
             control_kick_link=module.template_render_hook(
                 module,
                 control_kick_link,
+                player=player_dict,
+            ),
+            control_select_link=module.template_render_hook(
+                module,
+                control_select_link,
+                player_entry_selected=player_entry_selected,
                 player=player_dict,
             )
         )
@@ -222,7 +235,7 @@ def component_widget(module, event_data, dispatchers_steamid=None):
                 "id": "player_table_widget",
                 "type": "tr",
                 "class": get_player_table_row_css_class(player_dict),
-                "selector": "body > main > div > div#player_table_widget > table > tbody"
+                "selector": "body > main > div > div#player_table_widget"
             }
         )
 
@@ -252,7 +265,7 @@ def update_widget(*args, **kwargs):
                             "module": "players",
                             "type": "tr",
                             "class": get_player_table_row_css_class(player_dict),
-                            "selector": "body > main > div > div > table > tbody"
+                            "selector": "body > main > div > div#player_table_widget"
                         }
                     )
                 elif current_view == "info":
@@ -267,7 +280,7 @@ def update_widget(*args, **kwargs):
                             "parent_id": "player_table_widget",
                             "module": "players",
                             "type": "tr",
-                            "selector": "body > main > div > div > table > tbody"
+                            "selector": "body > main > div > div#player_table_widget"
                         }
                     )
         except AttributeError as error:
@@ -281,6 +294,31 @@ def update_component(*args, **kwargs):
     module = args[0]
     player_steamid = kwargs.get("updated_values_dict").get("steamid", None)
     player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(player_steamid, None)
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
+    control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
+    selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
+    original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
+
+    for steamid in original_selected_player_entries + selected_player_entries:
+        player_entry_selected = True if steamid in selected_player_entries else False
+        data_to_emit = module.template_render_hook(
+            module,
+            control_select_link,
+            player=module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(steamid, None),
+            player_entry_selected=player_entry_selected
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            event_data=data_to_emit,
+            data_type="element_content",
+            clients=[dispatchers_steamid],
+            method="update",
+            target_element={
+                "id": "player_table_row_{}_control_select_link".format(str(steamid)),
+            }
+        )
 
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     data_to_emit = module.template_render_hook(
@@ -325,6 +363,7 @@ widget_meta = {
     "component_widget": component_widget,
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
+        "module_players/selected/%steamid%": update_component,
         "module_players/players/%steamid%/is_online": update_component,
         "module_players/players/%steamid%": update_widget,
     }

@@ -44,7 +44,7 @@ def main_widget(module, dispatchers_steamid=None):
         )
 
 
-def update_widget(module, updated_values_dict=None, old_values_dict=None, dispatchers_steamid=None):
+def update_widget(module, updated_values_dict=None, old_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
     telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
     data_to_emit = module.template_render_hook(
