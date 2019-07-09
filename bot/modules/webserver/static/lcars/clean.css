@@ -110,6 +110,111 @@ body > footer > div {
     overflow: hidden;
 }
 /* region main_settings -> end */
+
+body > header > div > hgroup {
+    position: absolute;
+    right: 0; top: 0;
+    background-color: var(--background);
+    height: var(--main_bar_height);
+}
+
+body > header > div > hgroup > h1 {
+    color: var(--lcars-yellow);
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    text-transform: uppercase;
+    padding: 0 0.5em;
+    font-size: var(--main_bar_height);
+}
+
+body > header > div > aside {
+    position: absolute;
+    bottom: 0; right: calc(var(--main_bar_terminator_width) - (2 * var(--main_bar_terminator_width)));
+    margin-right: 0.5em;
+    color: var(--lcars-orange);
+    background-color: var(--background);
+}
+
+body > header > div > aside a,
+body > header > div > aside a:visited {
+    color: var(--lcars-light-blue);
+}
+
+/* main rules, widgets will share the available space between them, creating columns as needed, up to 3 for now */
+body > main > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-bottom: -0.5em;
+}
+
+body > main > div .widget {
+    flex: 1 1 auto;
+    width: calc(100% - var(--main_shoulder_width) - 2em);
+    /* margin-left: var(--main_shoulder_width); */
+    max-width: calc(1920px - 2em);
+    margin-bottom: 0.5em;
+}
+
+@media (min-width: 1920px) {
+    body > main > div .widget {
+        width: calc(50% - 4em);
+    }
+}
+
+@media (min-width: 2880px) {
+    body > main > div .widget {
+        width: calc((100% / 3) - 6em);
+    }
+}
+
+.widget > main > table {
+    margin-top: 0.5em;
+}
+
+.widget > main table.box_select,
+.widget > main table.box_input {
+    margin-bottom: 0.5em;
+}
+
+.widget > main table.box_select input[disabled],
+.widget > main table.box_input input[disabled] {
+    background-color: var(--lcars-red);
+}
+
+.widget > main table.box_select tfoot tr td,
+.widget > main table.box_input tfoot tr td {
+    color: var(--background);
+    background-color: var(--lcars-light-blue);
+    text-align: right;
+    padding: 0.5em;
+    /* display: none; */
+}
+
+.widget > main caption {
+    border-top: 0.5em solid black;
+    border-bottom: 0.5em solid black;
+}
+
+.widget > main caption span {
+    border-radius: 0.5em;
+    color: var(--background);
+    background-color: var(--lcars-yellow);
+}
+
+.widget > main caption span:before,
+.widget > main caption span:after {
+    content: " ";
+    z-index: -1;
+    display: inline-block;
+    width: 1em; height: 1em;
+}
+
+.widget > main caption span:before {
+    width: 1em;
+}
+
+/* specific layout-rules for certain modules/widgets */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
 body > header > div > #gametime_widget {
@@ -145,34 +250,6 @@ body > header > div > #gametime_widget > div:after {
 body > header > div > #gametime_widget > div:before {
     width: 1em;
     float: left;
-}
-
-body > header > div > hgroup {
-    position: absolute;
-    right: 0; top: 0;
-    background-color: var(--background);
-    height: var(--main_bar_height);
-}
-
-body > header > div > hgroup > h1 {
-    color: var(--lcars-yellow);
-    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
-    text-transform: uppercase;
-    padding: 0 0.5em;
-    font-size: var(--main_bar_height);
-}
-
-body > header > div > aside {
-    position: absolute;
-    bottom: 0; right: calc(var(--main_bar_terminator_width) - (2 * var(--main_bar_terminator_width)));
-    margin-right: 0.5em;
-    color: var(--lcars-orange);
-    background-color: var(--background);
-}
-
-body > header > div > aside a,
-body > header > div > aside a:visited {
-    color: var(--lcars-light-blue);
 }
 
 body > header > div > #gameserver_status_widget {
@@ -219,67 +296,68 @@ body > header > div #gameserver_status_widget a:visited {
 }
 /* region header_widgets -> end */
 /* region main_widgets -> start */
-/* main rules, widgets will share the available space between them, creating columns as needed, up to 3 for now */
-body > main > div {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-bottom: -0.5em;
+
+/* player_table_widget - captions */
+#player_table_widget caption span:not([class]) {
+    /* offline */
+    background-color: var(--lcars-orange);
 }
 
-body > main > div .widget {
-    flex: 1 1 auto;
-    width: calc(100% - var(--main_shoulder_width) - 2em);
-    /* margin-left: var(--main_shoulder_width); */
-    max-width: calc(1920px - 2em);
-    margin-bottom: 0.5em;
+#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized) {
+    /* offline and dead */
+    background-color: var(--lcars-brown);
 }
 
-@media (min-width: 1920px) {
-    body > main > div .widget {
-        width: calc(50% - 4em);
-    }
+#player_table_widget caption span.is_online:not(.is_initialized):not(.in_limbo),
+#player_table_widget caption span.is_online.is_initialized:not(.in_limbo) {
+    /* logging in or online */
+    background-color: var(--lcars-yellow);
 }
 
-@media (min-width: 2880px) {
-    body > main > div .widget {
-        width: calc((100% / 3) - 6em);
-    }
-}
-
-.widget > main > table {
-    margin-top: 0.5em;
-}
-
-.widget > main > table.box_select,
-.widget > main > table.box_input {
-    margin-bottom: 0.5em;
-}
-
-.widget > main > table.box_select input[disabled],
-.widget > main > table.box_input input[disabled] {
+#player_table_widget caption span.is_online.is_initialized.in_limbo {
+    /* online and dead */
     background-color: var(--lcars-red);
 }
 
-.widget > main > table.box_select tfoot tr td,
-.widget > main > table.box_input tfoot tr td {
-    color: var(--background);
-    background-color: var(--lcars-light-blue);
-    text-align: right;
-    padding: 0.5em;
-    /* display: none; */
+/* player status */
+/* offline */
+#player_table_widget tbody span:not([class]),
+#player_table_widget tbody tr:not([class]) {
+    color: var(--lcars-orange);
 }
 
-/* specific layout-rules for certain modules */
+/* offline and dead */
+#player_table_widget tbody span.in_limbo:not(.is_online):not(.is_initialized),
+#player_table_widget tbody tr.in_limbo:not(.is_online):not(.is_initialized) {
+    color: var(--lcars-brown);
+}
+/* online and logging in */
+#player_table_widget tbody span.is_online:not(.is_initialized):not(.in_limbo),
+#player_table_widget tbody tr.is_online:not(.is_initialized):not(.in_limbo) {
+    color: var(--lcars-yellow);
+}
+/* online */
+#player_table_widget tbody span.is_online.is_initialized:not(.in_limbo),
+#player_table_widget tbody tr.is_online.is_initialized:not(.in_limbo) {
+    color: var(--lcars-yellow);
+}
+/* online and dead */
+#player_table_widget tbody span.is_online.is_initialized.in_limbo,
+#player_table_widget tbody tr.is_online.is_initialized.in_limbo {
+    color: var(--lcars-red);
+}
+
+/* webserver status widget */
 main > div > #webserver_status_widget {
     order: -1; /* ensure to be placed first */
 }
 
+/* widget handling widget */
 main > div > #widget_handling {
     order: 998;
 }
 
+/* telnet log widget */
 main > div > #telnet_log_widget {
     order: 999; /* should ensure to be placed last */
     margin-bottom: 0;
@@ -290,6 +368,7 @@ main > div > #telnet_log_widget .log_line {
     color: var(--lcars-dark-blue);
 }
 
+/* locations widget */
 main > div > #locations_widget #current_player_pos > span {
     display: flex;
     justify-content: flex-end;
