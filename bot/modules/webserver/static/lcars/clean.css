@@ -275,24 +275,39 @@ body > header > div > #gameserver_status_widget > div.inactive {
 body > header > div > #gameserver_status_widget > div:before,
 body > header > div > #gameserver_status_widget > div:after {
     content: " ";
-    z-index: 1;
-    display: inline-block;
-    height: 1em;
+    height: 1.5em;
+    width: 1em;
 }
 
 body > header > div > #gameserver_status_widget > div:after {
-    width: 1em;
     float: right;
 }
 
 body > header > div > #gameserver_status_widget > div:before {
-    width: 1em;
     float: left;
 }
 
-body > header > div #gameserver_status_widget a,
-body > header > div #gameserver_status_widget a:visited {
+body > header > div #gameserver_status_widget span > a,
+body > header > div #gameserver_status_widget span > a:visited {
     color: var(--lcars-dark-blue);
+}
+
+body > header > div #gameserver_status_widget span > a {
+    display: inline-block;
+    height: 1.5em; line-height: 1.5em;
+    padding: 0 0.5em;
+    border-left: 0.5em solid var(--background);
+    color: var(--background);
+    background-color: var(--lcars-lilac);
+}
+body > header > div #gameserver_status_widget span > a:hover,
+body > header > div #gameserver_status_widget span > a:visited {
+    color: var(--background);
+    text-decoration: none;
+}
+
+body > header > div #gameserver_status_widget span:hover > a {
+    background-color: var(--lcars-red);
 }
 /* region header_widgets -> end */
 /* region main_widgets -> start */

@@ -2,19 +2,20 @@
 {# set this to 'false' for debug purposes, to see the offline state, set it to 'server_is_online' for regular use #}
 {%- set server_is_online = server_is_online -%}
 <div class="{%- if server_is_online == true -%}active{%- else -%}inactive{%- endif -%}">
-<span>The server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}({{ construct_toggle_link(
+<span>The server is currently <strong>{%- if server_is_online == true -%}online{%- else -%}offline{%- endif -%}</strong> {% if shutdown_in_seconds == none %}{{ construct_toggle_link(
         server_is_online,
         "shutdown", ['widget_event', ['telnet', ['shutdown', {"timer": '30', "action": "trigger_shutdown"}]]],
         "contact admin", ['widget_event', ['telnet', ['shutdown', {"alert_admin": 1, "action": "contact_admin"}]]]
-)}}){%- else %} ({{ construct_toggle_link(
+)}}{%- else %} {{ construct_toggle_link(
         server_is_online,
         "cancel", ['widget_event', ['telnet', ['shutdown', {"cancel": 1, "action": "cancel_shutdown"}]]]
-)}}, {{ shutdown_in_seconds }} seconds to {{ construct_toggle_link(
+)}} {{ shutdown_in_seconds }} seconds to {{ construct_toggle_link(
         server_is_online,
         "shutdown", ['widget_event', ['telnet', ['shutdown', {"force": 1, "action": "forced_shutdown"}]]]
-)}}){%- endif -%}<!-- ({{ construct_toggle_link(
+)}}{%- endif -%}</span>
+</div>
+<!-- ({{ construct_toggle_link(
         data_transfer_enabled,
         "disable telnet", ['widget_event', ['telnet', ['switch_data_transfer', {"action": "disable_telnet_data_transfer"}]]],
         "enable telnet", ['widget_event', ['telnet', ['switch_data_transfer', {"action": "enable_telnet_data_transfer"}]]]
-)}}) //--></span>
-</div>
+)}}) //-->
