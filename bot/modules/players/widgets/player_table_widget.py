@@ -251,7 +251,7 @@ def update_widget(*args, **kwargs):
         try:
             module_players = module.dom.data.get("module_players", {})
             for steamid, player_dict in player_entries_to_update.items():
-                current_view = module_players.get("visibility", {}).get(steamid, {}).get("current_view", None)
+                current_view = module_players.get("visibility", {}).get(clientid, {}).get("current_view", None)
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
