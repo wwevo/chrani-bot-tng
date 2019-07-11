@@ -44,7 +44,7 @@ def frontend_view(module, dispatchers_steamid=None):
     template_add_steamid_form = module.templates.get_template('manage_whitelist_widget/add_steamid_form.html')
     control_toggle_active_link = module.templates.get_template('manage_whitelist_widget/control_toggle_active_link.html')
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
-
+    template_action_delete_button = module.templates.get_template('manage_whitelist_widget/action_delete_button.html')
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
     whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
     for steamid, player_dict in whitelisted_players.items():
@@ -120,6 +120,12 @@ def frontend_view(module, dispatchers_steamid=None):
             template_enable_disable_toggle,
             whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
+        ),
+        action_delete_button=module.template_render_hook(
+            module,
+            template_action_delete_button,
+            count=len(selected_whitelist_entries),
+            delete_selected_entries_active=True if len(selected_whitelist_entries) >= 1 else False
         )
     )
 
@@ -325,6 +331,7 @@ def update_component(*args, **kwargs):
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
     selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
     original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
+    template_action_delete_button = module.templates.get_template('manage_whitelist_widget/action_delete_button.html')
 
     for steamid in original_selected_player_entries + selected_player_entries:
         player_entry_selected = True if steamid in selected_player_entries else False
@@ -345,6 +352,24 @@ def update_component(*args, **kwargs):
             method="update",
             target_element={
                 "id": "manage_whitelist_table_row_{}_control_select_link".format(str(steamid)),
+            }
+        )
+
+        data_to_emit = module.template_render_hook(
+            module,
+            template_action_delete_button,
+            count=len(selected_player_entries),
+            delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            event_data=data_to_emit,
+            data_type="element_content",
+            clients=[dispatchers_steamid],
+            method="replace",
+            target_element={
+                "id": "manage_whitelist_widget_action_delete_button"
             }
         )
 

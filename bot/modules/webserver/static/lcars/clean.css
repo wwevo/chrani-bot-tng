@@ -213,7 +213,6 @@ body > main > div .widget {
 .widget > main caption span:before {
     width: 1em;
 }
-
 /* specific layout-rules for certain modules/widgets */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
@@ -525,6 +524,14 @@ footer > div > p {
     color: var(--background);
 }
 
+#manage_whitelist_widget_action_delete_button span.active {
+    background-color: var(--lcars-red);
+}
+
+#manage_whitelist_widget_action_delete_button span.inactive {
+    color: var(--lcars-dark-blue);
+    background-color: var(--lcars-yellow);
+}
 /* */
 .widget main a:before,
 .widget main a:after {
