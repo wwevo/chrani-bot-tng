@@ -550,10 +550,12 @@ footer > div > p {
     color: var(--background);
 }
 
+#player_table_widget_action_delete_button span.active,
 #manage_whitelist_widget_action_delete_button span.active {
     background-color: var(--lcars-red);
 }
 
+#player_table_widget_action_delete_button span.inactive,
 #manage_whitelist_widget_action_delete_button span.inactive {
     color: var(--lcars-dark-blue);
     background-color: var(--lcars-yellow);

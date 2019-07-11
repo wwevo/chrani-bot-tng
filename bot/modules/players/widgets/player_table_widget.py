@@ -55,6 +55,9 @@ def frontend_view(module, dispatchers_steamid=None):
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
     control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
+    template_action_delete_button = module.templates.get_template(
+        'player_table_widget/control_action_delete_button.html'
+    )
 
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
@@ -105,6 +108,12 @@ def frontend_view(module, dispatchers_steamid=None):
             template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
+        ),
+        action_delete_button=module.template_render_hook(
+            module,
+            template_action_delete_button,
+            count=len(selected_player_entries),
+            delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
         )
     )
 
@@ -297,6 +306,10 @@ def update_component(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
     control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
+    template_action_delete_button = module.templates.get_template(
+        'player_table_widget/control_action_delete_button.html'
+    )
+
     selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
     original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
 
@@ -356,6 +369,23 @@ def update_component(*args, **kwargs):
         }
     )
 
+    data_to_emit = module.template_render_hook(
+        module,
+        template_action_delete_button,
+        count=len(selected_player_entries),
+        delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="element_content",
+        clients=[dispatchers_steamid],
+        method="replace",
+        target_element={
+            "id": "player_table_widget_action_delete_button"
+        }
+    )
 
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
