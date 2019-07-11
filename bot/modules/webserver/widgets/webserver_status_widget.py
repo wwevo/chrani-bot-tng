@@ -178,7 +178,8 @@ widget_meta = {
         "module_webserver/visibility/%steamid%/current_view": select_view,
         "module_webserver/webserver_logged_in_users": update_logged_in_users,
         "module_telnet/last_recorded_servertime": update_servertime
-    }
+    },
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

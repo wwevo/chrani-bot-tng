@@ -395,7 +395,8 @@ widget_meta = {
         "module_whitelist/players": update_widget,
         "module_players/online_players": update_widget,
         "module_whitelist/is_active": update_widget_status
-    }
+    },
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

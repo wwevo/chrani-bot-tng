@@ -115,7 +115,8 @@ widget_meta = {
     "main_widget": select_view,
     "handlers": {
         "module_webserver/visibility/%steamid%/widget_handling/current_view": select_view,
-    }
+    },
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

@@ -396,7 +396,8 @@ widget_meta = {
         "module_players/selected/%steamid%": update_component,
         "module_players/players/%steamid%/is_online": update_component,
         "module_players/players/%steamid%": update_widget,
-    }
+    },
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

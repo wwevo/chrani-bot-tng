@@ -19,7 +19,8 @@ widget_meta = {
     "main_widget": main_widget,
     "handlers": {
         "module_players/admins": update_widget
-    }
+    },
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

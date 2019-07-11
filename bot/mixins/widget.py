@@ -52,7 +52,8 @@ class Widget(object):
                     # print(trigger, handler)
 
     def register_widget(self, identifier, widget_dict):
-        self.available_widgets_dict[identifier] = widget_dict
+        if widget_dict.get("enabled", True):
+            self.available_widgets_dict[identifier] = widget_dict
 
     def import_widgets(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
