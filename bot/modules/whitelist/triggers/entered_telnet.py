@@ -11,23 +11,40 @@ def main_function(origin_module, module, regex_result):
 
     whitelist_is_active = module.dom.data.get("module_whitelist", {}).get("is_active", False)
     player_is_online = player_steamid in module.dom.data.get("module_players", {}).get("online_players", [])
+    player_is_initialized = module.dom.data.get("module_players", {}).get("players", {}).get(
+        player_steamid, {}
+    ).get(
+        "is_initialized", False
+    )
 
-    if whitelist_is_active is True and player_is_online is True:
+    if whitelist_is_active is True and player_is_initialized is True:
         player_dict = module.dom.data.get("module_whitelist", {}).get("players", {}).get(player_steamid)
         admins = module.dom.data.get("module_players", {}).get("admins", {})
         if player_dict is not None:
             player_is_on_whitelist = player_dict.get("on_whitelist")
-            if player_is_on_whitelist is True or player_steamid in admins:
+            if player_is_on_whitelist is True:  # or player_steamid in admins:
                 # player is fine and shall be allowed to play!
                 pass
             else:
-                # player is not on the whitelist and is not an admin or mod.
+                # update player_dict so this one here won't be triggered multiple times
+                module.dom.data.upsert({
+                    "module_players": {
+                        "players": {
+                            player_steamid: {
+                                "is_online": False,
+                                "is_initialized": False
+                            }
+                        }
+                    }
+                })
+                # player is not on the whitelist # and is not an admin or mod.
                 event_data = ['kickplayer', {
                     'steamid': player_steamid,
-                    'reason': 'you are not on our whitelist. visit [eeffee]https://notjustfor.me/chrani-bot-tng[-] for more information'
+                    'reason': "you are not on our whitelist. visit"
+                              "[eeffee]https://notjustfor.me/chrani-bot-tng[-] for more information"
                 }]
                 print("kicked player {} for not being on the whitelist".format(player_steamid))
-                print(event_data)
+                # print(event_data)
                 module.trigger_action_hook(origin_module.players, event_data)
     else:
         return False
