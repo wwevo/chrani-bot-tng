@@ -8,12 +8,12 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
-    player_steamid = event_data[1].get("steamid", None)
 
-    if all([
-        player_steamid is not None,
-        action == "select_player_entry" or action == "deselect_player_entry"
-    ]):
+    if action in [
+        "select_player_entry",
+        "deselect_player_entry",
+        "delete_selected_entries"
+    ]:
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
 
@@ -43,6 +43,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 }
             }
         }, dispatchers_steamid=dispatchers_steamid)
+    elif action == "delete_selected_entries":
+        print("delete player entries", selected_players)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

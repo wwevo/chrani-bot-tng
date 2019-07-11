@@ -21,7 +21,7 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }, dispatchers_steamid=dispatchers_steamid)
-            if action == "deselect_whitelist_entry":
+            elif action == "deselect_whitelist_entry":
                 selected_players.remove(player_steamid)
                 module.dom.data.upsert({
                     "module_whitelist": {
@@ -30,26 +30,19 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }, dispatchers_steamid=dispatchers_steamid)
-            if action == "add_to_whitelist":
+            elif action == "add_to_whitelist" or action == "remove_from_whitelist":
                 module.dom.data.upsert({
                     "module_whitelist": {
                         "players": {
                             player_steamid: {
-                                "on_whitelist": True
+                                "on_whitelist": True if action == "add_to_whitelist" else False
                             }
                         }
                     }
                 })
-            if action == "remove_from_whitelist":
-                module.dom.data.upsert({
-                    "module_whitelist": {
-                        "players": {
-                            player_steamid: {
-                                "on_whitelist": False
-                            }
-                        }
-                    }
-                })
+            else:
+                module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+                return
 
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
@@ -60,12 +53,17 @@ def main_function(module, event_data, dispatchers_steamid):
                     "is_active": True
                 }
             })
-        if action == "deactivate_whitelist":
+        elif action == "deactivate_whitelist":
             module.dom.data.upsert({
                 "module_whitelist": {
                     "is_active": False
                 }
             })
+        elif action == "delete_selected_entries":
+            print("delete whitelist entries", selected_players)
+        else:
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
 
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
