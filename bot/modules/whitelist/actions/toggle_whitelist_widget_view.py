@@ -13,6 +13,9 @@ def main_function(module, event_data, dispatchers_steamid):
         if action == "show_options":
             current_view = "options"
             current_view_steamid = None
+        elif action == "show_create_new":
+            current_view = "create_new"
+            current_view_steamid = None
         elif action == "show_frontend":
             current_view = "frontend"
             current_view_steamid = None

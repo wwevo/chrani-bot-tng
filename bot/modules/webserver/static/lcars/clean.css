@@ -528,7 +528,6 @@ footer > div > p {
 }
 
 .widget > main > table > tbody tr td[id$='_actions'] {
-    min-width: 4em;
     white-space: nowrap;
 }
 
@@ -552,13 +551,13 @@ footer > div > p {
 
 #player_table_widget_action_delete_button span.active,
 #manage_whitelist_widget_action_delete_button span.active {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-yellow);
 }
 
 #player_table_widget_action_delete_button span.inactive,
 #manage_whitelist_widget_action_delete_button span.inactive {
     color: var(--lcars-dark-blue);
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-red);
 }
 /* */
 .widget main a:before,

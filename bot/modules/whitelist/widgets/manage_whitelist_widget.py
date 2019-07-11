@@ -32,6 +32,8 @@ def select_view(*args, **kwargs):
 
     if current_view == "options":
         options_view(module, dispatchers_steamid)
+    elif current_view == "create_new":
+        create_new_view(module, dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid)
 
@@ -41,13 +43,16 @@ def frontend_view(module, dispatchers_steamid=None):
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
     template_table_header = module.templates.get_template('manage_whitelist_widget/table_header.html')
 
-    template_add_steamid_form = module.templates.get_template('manage_whitelist_widget/add_steamid_form.html')
     control_toggle_active_link = module.templates.get_template(
         'manage_whitelist_widget/control_toggle_active_link.html'
     )
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
     template_action_delete_button = module.templates.get_template(
         'manage_whitelist_widget/control_action_delete_button.html'
+    )
+
+    control_create_new_view = module.templates.get_template(
+        'manage_whitelist_widget/control_create_new_view.html'
     )
 
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
@@ -133,6 +138,11 @@ def frontend_view(module, dispatchers_steamid=None):
             template_action_delete_button,
             count=len(selected_whitelist_entries),
             delete_selected_entries_active=True if len(selected_whitelist_entries) >= 1 else False
+        ),
+        control_create_new_view=module.template_render_hook(
+            module,
+            control_create_new_view,
+            create_new_toggle=(True if current_view == "frontend" else False),
         )
     )
 
@@ -144,11 +154,7 @@ def frontend_view(module, dispatchers_steamid=None):
             module,
             template_table_header
         ),
-        table_rows=table_rows,
-        table_form=module.template_render_hook(
-            module,
-            template_add_steamid_form
-        )
+        table_rows=table_rows
     )
 
     module.webserver.send_data_to_client_hook(
@@ -176,7 +182,11 @@ def options_view(module, dispatchers_steamid=None):
     )
 
     current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+        "current_view", "options"
+    )
+
+    control_create_new_view = module.templates.get_template(
+        'manage_whitelist_widget/control_create_new_view.html'
     )
 
     if module.dom.data.get("module_whitelist", {}).get("is_active", False):
@@ -193,12 +203,6 @@ def options_view(module, dispatchers_steamid=None):
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         ),
-        enable_disable_toggle=module.template_render_hook(
-            module,
-            template_enable_disable_toggle,
-            whitelist_status=whitelist_status,
-            enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
-        )
     )
 
     data_to_emit = module.template_render_hook(
@@ -221,6 +225,59 @@ def options_view(module, dispatchers_steamid=None):
         }
     )
 
+
+def create_new_view(module, dispatchers_steamid=None):
+    template_frontend = module.templates.get_template('manage_whitelist_widget/view_create_new.html')
+    template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_whitelist_widget/control_switch_options_view.html'
+    )
+    template_enable_disable_toggle = module.templates.get_template(
+        'manage_whitelist_widget/control_enable_disable.html'
+    )
+
+    current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+        "current_view", "create_new"
+    )
+
+    control_create_new_view = module.templates.get_template(
+        'manage_whitelist_widget/control_create_new_view.html'
+    )
+
+    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
+        whitelist_status = "whitelist is active"
+    else:
+        whitelist_status = "whitelist is deactivated"
+
+    options_toggle = module.template_render_hook(
+        module,
+        template_options_toggle,
+        control_create_new_view=module.template_render_hook(
+            module,
+            control_create_new_view,
+            create_new_toggle=(False if current_view == "create_new" else True),
+        )
+    )
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template_frontend,
+        options_toggle=options_toggle,
+        widget_options=module.options
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "manage_whitelist_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
 
 def update_widget(*args, **kwargs):
     """ send updated information to each active client of the webinterface
