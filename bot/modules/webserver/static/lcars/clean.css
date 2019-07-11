@@ -410,7 +410,33 @@ main > div > #locations_widget #current_player_pos > span > label input {
 main > div > #locations_widget #current_player_pos > span > label:nth-child(2) input {
     width: 2em;
 }
+
+/* manage_whitelist_widget - captions */
+#manage_whitelist_widget caption span:not([class]) {
+    /* not on whitelist */
+    background-color: var(--lcars-red);
+}
+
+#manage_whitelist_widget caption span.on_whitelist {
+    /* on whitelist */
+    background-color: var(--lcars-yellow);
+}
+
+/* players whitelist status */
+/* not on whitelist */
+#manage_whitelist_widget tbody span:not([class]),
+#manage_whitelist_widget tbody tr:not([class]) {
+    color: var(--lcars-red);
+}
+
+/* on whitelist */
+#manage_whitelist_widget tbody span.on_whitelist,
+#manage_whitelist_widget tbody tr.on_whitelist {
+    color: var(--lcars-yellow);
+}
+/* manage_whitelist_widget - captions -> end*/
 /* region main_widgets -> end */
+
 /* region footer_widgets -> start */
 footer > div > p {
     position: absolute;
