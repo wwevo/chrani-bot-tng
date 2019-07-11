@@ -42,9 +42,14 @@ def frontend_view(module, dispatchers_steamid=None):
     template_table_header = module.templates.get_template('manage_whitelist_widget/table_header.html')
 
     template_add_steamid_form = module.templates.get_template('manage_whitelist_widget/add_steamid_form.html')
-    control_toggle_active_link = module.templates.get_template('manage_whitelist_widget/control_toggle_active_link.html')
+    control_toggle_active_link = module.templates.get_template(
+        'manage_whitelist_widget/control_toggle_active_link.html'
+    )
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
-    template_action_delete_button = module.templates.get_template('manage_whitelist_widget/action_delete_button.html')
+    template_action_delete_button = module.templates.get_template(
+        'manage_whitelist_widget/control_action_delete_button.html'
+    )
+
     all_player_dicts = deepcopy(module.dom.data.get("module_players", {}).get("players", {}))
     whitelisted_players = module.dom.data.get("module_whitelist", {}).get("players", {})
     for steamid, player_dict in whitelisted_players.items():
@@ -52,7 +57,9 @@ def frontend_view(module, dispatchers_steamid=None):
             all_player_dicts[steamid] = player_dict
             all_player_dicts[steamid]["steamid"] = steamid
 
-    selected_whitelist_entries = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(dispatchers_steamid, [])
+    selected_whitelist_entries = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(
+        dispatchers_steamid, []
+    )
 
     table_rows = ""
     for steamid, player_dict in all_player_dicts.items():
@@ -222,12 +229,12 @@ def update_widget(*args, **kwargs):
             whenever a new player is added to the player-table
     """
     module = args[0]
-
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
-    control_toggle_active_link = module.templates.get_template('manage_whitelist_widget/control_toggle_active_link.html')
+    control_toggle_active_link = module.templates.get_template(
+        'manage_whitelist_widget/control_toggle_active_link.html'
+    )
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
 
     for clientid in module.webserver.connected_clients.keys():
@@ -290,7 +297,9 @@ def update_widget(*args, **kwargs):
             )
 
 
-def update_widget_status(module, updated_values_dict=None, old_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_widget_status(*args, **kwargs):
+    module = args[0]
+
     template_enable_disable_toggle = module.templates.get_template(
         'manage_whitelist_widget/control_enable_disable.html'
     )
@@ -331,7 +340,9 @@ def update_component(*args, **kwargs):
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
     selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
     original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
-    template_action_delete_button = module.templates.get_template('manage_whitelist_widget/action_delete_button.html')
+    template_action_delete_button = module.templates.get_template(
+        'manage_whitelist_widget/control_action_delete_button.html'
+    )
 
     for steamid in original_selected_player_entries + selected_player_entries:
         player_entry_selected = True if steamid in selected_player_entries else False
