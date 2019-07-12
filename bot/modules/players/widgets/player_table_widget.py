@@ -51,6 +51,7 @@ def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
     template_table_header = module.templates.get_template('player_table_widget/table_header.html')
+    template_table_footer = module.templates.get_template('player_table_widget/table_footer.html')
 
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
@@ -108,12 +109,6 @@ def frontend_view(module, dispatchers_steamid=None):
             template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
-        ),
-        action_delete_button=module.template_render_hook(
-            module,
-            template_action_delete_button,
-            count=len(selected_player_entries),
-            delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
         )
     )
 
@@ -121,10 +116,20 @@ def frontend_view(module, dispatchers_steamid=None):
         module,
         template_frontend,
         options_toggle=options_toggle,
-        table_rows=table_rows,
         table_header=module.template_render_hook(
             module,
             template_table_header
+        ),
+        table_rows=table_rows,
+        table_footer=module.template_render_hook(
+            module,
+            template_table_footer,
+            action_delete_button=module.template_render_hook(
+                module,
+                template_action_delete_button,
+                count=len(selected_player_entries),
+                delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
+            )
         )
     )
 

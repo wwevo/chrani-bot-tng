@@ -42,6 +42,7 @@ def frontend_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
     template_table_header = module.templates.get_template('manage_whitelist_widget/table_header.html')
+    template_table_footer = module.templates.get_template('manage_whitelist_widget/table_footer.html')
 
     control_toggle_active_link = module.templates.get_template(
         'manage_whitelist_widget/control_toggle_active_link.html'
@@ -133,12 +134,6 @@ def frontend_view(module, dispatchers_steamid=None):
             whitelist_status=whitelist_status,
             enable_disable_toggle=module.dom.data.get("module_whitelist", {}).get("is_active", False)
         ),
-        action_delete_button=module.template_render_hook(
-            module,
-            template_action_delete_button,
-            count=len(selected_whitelist_entries),
-            delete_selected_entries_active=True if len(selected_whitelist_entries) >= 1 else False
-        ),
         control_create_new_view=module.template_render_hook(
             module,
             control_create_new_view,
@@ -154,7 +149,17 @@ def frontend_view(module, dispatchers_steamid=None):
             module,
             template_table_header
         ),
-        table_rows=table_rows
+        table_rows=table_rows,
+        table_footer=module.template_render_hook(
+            module,
+            template_table_footer,
+            action_delete_button=module.template_render_hook(
+                module,
+                template_action_delete_button,
+                count=len(selected_whitelist_entries),
+                delete_selected_entries_active=True if len(selected_whitelist_entries) >= 1 else False
+            ),
+        )
     )
 
     module.webserver.send_data_to_client_hook(

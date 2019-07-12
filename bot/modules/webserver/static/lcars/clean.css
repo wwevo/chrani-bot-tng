@@ -172,9 +172,18 @@ body > main > div .widget {
     margin-top: 0.5em;
 }
 
+.widget > main > table > thead {
+    display: none;
+}
+
 .widget > main table.box_select,
 .widget > main table.box_input {
     margin-bottom: 0.5em;
+}
+
+.widget > main table.box_select tfoot td,
+.widget > main table.box_input tfoot td {
+    white-space: normal;
 }
 
 .widget > main table.box_select input[disabled],
@@ -192,6 +201,7 @@ body > main > div .widget {
 }
 
 .widget > main caption {
+    display: none;
     border-top: 0.5em solid black;
     border-bottom: 0.5em solid black;
 }
@@ -299,6 +309,7 @@ body > header > div #gameserver_status_widget span > a {
     color: var(--background);
     background-color: var(--lcars-lilac);
 }
+
 body > header > div #gameserver_status_widget span > a:hover,
 body > header > div #gameserver_status_widget span > a:visited {
     color: var(--background);
@@ -383,22 +394,22 @@ main > div > #telnet_log_widget .log_line {
 }
 
 /* locations widget */
-main > div > #locations_widget #current_player_pos > span {
+main > div > #locations_widget #current_player_pos > span > div {
     display: flex;
     justify-content: flex-end;
 }
 
-main > div > #locations_widget #current_player_pos > span > label {
+main > div > #locations_widget #current_player_pos > span > div > label {
     flex: 0;
     white-space: nowrap;
     margin-right: 0.5em;
 }
 
-main > div > #locations_widget #current_player_pos > span > label:last-child {
+main > div > #locations_widget #current_player_pos > span > div > label:last-child {
     margin-right: 0;
 }
 
-main > div > #locations_widget #current_player_pos > span > label input {
+main > div > #locations_widget #current_player_pos > span > div > label input {
     border: 0;
     display: inline-block;
     margin: 0; padding: 0;
@@ -407,7 +418,7 @@ main > div > #locations_widget #current_player_pos > span > label input {
     background-color: transparent;
 }
 
-main > div > #locations_widget #current_player_pos > span > label:nth-child(2) input {
+main > div > #locations_widget #current_player_pos > span > div > label:nth-child(2) input {
     width: 2em;
 }
 
@@ -484,24 +495,6 @@ footer > div > p {
     width: var(--main_shoulder_width);
 }
 
-.widget > aside > div > div span:before,
-.widget > aside > div > div span:after {
-    content: " ";
-    z-index: 1;
-    display: inline-block;
-    height: 1.5em;
-}
-
-.widget > aside > div > div span:after {
-    width: 0.5em;
-    float: right;
-}
-
-.widget > aside > div > div span:before {
-    width: 1.5em;
-    float: left;
-}
-
 .widget > aside > div > div {
     border-top: 0.5em solid black;
 }
@@ -527,15 +520,35 @@ footer > div > p {
     background: var(--background);
 }
 
-.widget > main > table > tbody tr td[id$='_actions'] {
+.widget > main > table > tbody tr td {
     white-space: nowrap;
+    padding: 0 0.25em;
+}
+
+.widget > main > table > tbody tr td[id$='_name'] {
+    width: 100%;
+}
+
+.widget > main > table > tbody tr td[id$='_actions'] {
+    display: flex;
+}
+
+.widget > main > table > tbody tr td[id$='_actions'] > span {
+    flex: 0 0 auto;
+}
+
+.widget > main > table > tfoot > tr > td {
+    height: 2.5em; line-height: 1.25em;
+    vertical-align: bottom;
 }
 
 /* */
+.widget > main > table > tfoot > tr > td > div > span.active,
 .widget .pull_out > div > span.active {
     background-color: var(--lcars-lilac);
 }
 
+.widget > main > table > tfoot > tr > td > span.inactive,
 .widget .pull_out > div > span.inactive {
     background-color: var(--lcars-purple);
 }
@@ -545,16 +558,21 @@ footer > div > p {
 }
 
 .widget .pull_out span a,
-.widget .pull_out span a:visited {
+.widget .pull_out span a:visited,
+.widget .pull_out span > div {
+    text-decoration: none;
+    display: block; margin-right: 0.5em;
     color: var(--background);
 }
 
 #player_table_widget_action_delete_button span.active,
+#locations_widget_action_delete_button span.active,
 #manage_whitelist_widget_action_delete_button span.active {
     background-color: var(--lcars-yellow);
 }
 
 #player_table_widget_action_delete_button span.inactive,
+#locations_widget_action_delete_button span.inactive,
 #manage_whitelist_widget_action_delete_button span.inactive {
     color: var(--lcars-dark-blue);
     background-color: var(--lcars-red);
@@ -588,13 +606,11 @@ footer > div > p {
     text-decoration: none;
 }
 
-.widget main span.inactive a:hover,
 .widget main span.active a {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-yellow);
 }
 
-.widget main span.active:hover a,
 .widget main span.inactive a {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-red);
 }
 /* debug options -> end */

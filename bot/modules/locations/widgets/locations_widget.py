@@ -37,13 +37,12 @@ def frontend_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
-    control_player_location_view = module.templates.get_template(
-        'locations_widget/control_player_location.html'
+    template_action_delete_button = module.templates.get_template(
+        'locations_widget/control_action_delete_button.html'
     )
+    template_table_footer = module.templates.get_template('locations_widget/table_footer.html')
 
-    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
-        "pos", {"x": 0, "y": 0, "z": 0}
-    )
+    selected_player_entries = module.dom.data.get("module_locations", {}).get("selected", {}).get(dispatchers_steamid, [])
 
     table_rows = ""
     player_locations = module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {})
@@ -72,13 +71,6 @@ def frontend_view(module, dispatchers_steamid=None):
                 template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True
-            ),
-            control_player_location_view=module.template_render_hook(
-                module,
-                control_player_location_view,
-                pos_x=player_position["x"],
-                pos_y=player_position["y"],
-                pos_z=player_position["z"]
             )
         ),
         table_header=module.template_render_hook(
@@ -86,6 +78,16 @@ def frontend_view(module, dispatchers_steamid=None):
             template_table_header
         ),
         table_rows=table_rows,
+        table_footer=module.template_render_hook(
+            module,
+            template_table_footer,
+            action_delete_button=module.template_render_hook(
+                module,
+                template_action_delete_button,
+                count=len(selected_player_entries),
+                delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
+            )
+        )
 
     )
 
@@ -114,14 +116,6 @@ def options_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
-    control_player_location_view = module.templates.get_template(
-        'locations_widget/control_player_location.html'
-    )
-
-    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
-        "pos", {"x": 0, "y": 0, "z": 0}
-    )
-
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -139,13 +133,6 @@ def options_view(module, dispatchers_steamid=None):
                 template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True,
-            ),
-            control_player_location_view=module.template_render_hook(
-                module,
-                control_player_location_view,
-                pos_x=player_position["x"],
-                pos_y=player_position["y"],
-                pos_z=player_position["z"]
             )
         ),
         widget_options=module.options,

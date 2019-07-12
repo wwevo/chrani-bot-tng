@@ -1,6 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {{ construct_toggle_link(
-    not whitelist_entry_selected,
-    "selected", ['widget_event', ['whitelist', ['manage_whitelist', {'steamid': player.steamid, 'action': 'select_whitelist_entry'}]]],
-    "selected", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "deselect_whitelist_entry"}]]]
+    whitelist_entry_selected,
+    "*", ['widget_event', ['whitelist', ['manage_whitelist', {'steamid': player.steamid, 'action': 'deselect_whitelist_entry'}]]],
+    "*", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "select_whitelist_entry"}]]]
 ) }}

@@ -1,6 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {{ construct_toggle_link(
-    not player_entry_selected,
-    "selected", ['widget_event', ['players', ['manage_players', {'steamid': player.steamid, 'action': 'select_player_entry'}]]],
-    "selected", ['widget_event', ['players', ['manage_players', {"steamid": player.steamid, "action": "deselect_player_entry"}]]]
+    player_entry_selected,
+    "*", ['widget_event', ['players', ['manage_players', {'steamid': player.steamid, 'action': 'deselect_player_entry'}]]],
+    "*", ['widget_event', ['players', ['manage_players', {"steamid": player.steamid, "action": "select_player_entry"}]]]
 ) }}
