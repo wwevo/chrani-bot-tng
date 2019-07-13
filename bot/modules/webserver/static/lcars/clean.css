@@ -71,16 +71,6 @@ body > main {
     overflow: auto;
 }
 
-body > main a,
-body > main a:visited {
-    color: var(--lcars-light-blue);
-    text-decoration: none;
-}
-
-body > main a:hover {
-    text-decoration: underline;
-}
-
 body > footer,
 body > footer > div,
 body > footer > div:before {
@@ -228,27 +218,11 @@ body > header > div > #gametime_widget > div {
     position: absolute;
     left: -18px; bottom: 0;
     background-color: var(--lcars-orange);
-    border-radius: 12px;
+    border-radius: 12px; padding: 0 1em;
     white-space: nowrap;
 }
 
-body > header > div > #gametime_widget > div:before,
-body > header > div > #gametime_widget > div:after {
-    content: " ";
-    z-index: 1;
-    display: inline-block;
-    height: 1em;
-}
 
-body > header > div > #gametime_widget > div:after {
-    width: 1em;
-    float: right;
-}
-
-body > header > div > #gametime_widget > div:before {
-    width: 1em;
-    float: left;
-}
 
 body > header > div > #gameserver_status_widget {
     position: absolute;
@@ -260,6 +234,7 @@ body > header > div > #gameserver_status_widget > div {
     border-radius: 12px;
     height: 1.5em; line-height: 1.5em;
     white-space: nowrap;
+    padding: 0 1em;
 }
 
 body > header > div > #gameserver_status_widget > div.active {
@@ -270,20 +245,6 @@ body > header > div > #gameserver_status_widget > div.inactive {
     background-color: var(--lcars-red);
 }
 
-body > header > div > #gameserver_status_widget > div:before,
-body > header > div > #gameserver_status_widget > div:after {
-    content: " ";
-    height: 1.5em;
-    width: 1em;
-}
-
-body > header > div > #gameserver_status_widget > div:after {
-    float: right;
-}
-
-body > header > div > #gameserver_status_widget > div:before {
-    float: left;
-}
 
 body > header > div #gameserver_status_widget span > a,
 body > header > div #gameserver_status_widget span > a:visited {
@@ -440,13 +401,11 @@ footer > div > p {
     margin-left: 24px;
 }
 
-
 .widget > aside {
     float: left;
     width: var(--main_shoulder_width);
     background: url(ui/main_vertical_bar.png) repeat-y;
     height: calc(100% - 48px);
-    margin-bottom: 2em;
 }
 
 .widget > main {
@@ -482,26 +441,37 @@ footer > div > p {
     background: var(--background);
 }
 
-.widget > main > table > tbody tr td {
+.widget > main > table > tbody > tr > td {
+    height: 24px; line-height: 16px;
     white-space: nowrap;
     padding: 0 0.25em;
 }
 
-.widget > main > table > tbody tr td[id$='_name'] {
+.widget > main > table > tbody > tr > td[id$='_name'] {
     width: 100%;
 }
 
-.widget > main > table > tbody tr td[id$='_actions'] {
+.widget > main > table > tbody > tr > td[id$='_actions'] {
     display: flex;
 }
 
-.widget > main > table > tbody tr td[id$='_actions'] > span {
+.widget > main > table > tbody > tr > td[id$='_actions'] > span {
     flex: 0 0 auto;
 }
 
-.widget > main > table > tfoot > tr > td {
+.widget > main > table > tfoot > tr {
     height: 2.5em; line-height: 1.25em;
+}
+
+.widget > main > table > tfoot > tr > td {
     vertical-align: bottom;
+}
+
+.widget > main > table > tfoot > tr > td > div {
+    background-color: var(--lcars-yellow); margin: 0 0.25em 0 0.25em;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+    border-bottom-left-radius: 3em 2em;
 }
 
 /* */
@@ -530,6 +500,8 @@ footer > div > p {
 .delete_button {
     display: inline-block;
     margin-left: 10em;
+    border-left: 0.5em solid black;
+    border-right: 0.5em solid black;
 }
 
 .delete_button span.active {
@@ -543,19 +515,13 @@ footer > div > p {
 
 .widget main .select_button a {
     border-radius: 0;
+    padding: 0 0.75em;
 }
 /* */
-.widget main a:before,
-.widget main a:after {
-    content: " ";
-    z-index: -1;
-    display: inline-block;
-    width: 1em; height: 1em;
-}
-
 .widget main a {
     border-radius: 0.5em;
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    padding: 0 0.5em;
 }
 
 .widget main a,
