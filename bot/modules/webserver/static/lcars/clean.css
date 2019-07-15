@@ -195,6 +195,7 @@ body > main > div .widget {
     border-top: 0.5em solid black;
     border-bottom: 0.5em solid black;
     color: var(--lcars-light-blue);
+    margin-right: 1em;
 }
 /*
 .widget > main > table > tfoot > tr {
@@ -271,6 +272,15 @@ body > header > div #gameserver_status_widget span:hover > a {
 }
 /* region header_widgets -> end */
 /* region main_widgets -> start */
+/* Widget positions -> start */
+.widget { order: 500 } /* making the standard order the middle instead of 0 */
+
+main > div > #player_table_widget { order: -1 }
+main > div > #manage_whitelist_widget { order: 0 }
+main > div > #widget_handling { order: 998 }
+main > div > #telnet_log_widget { order: 999 }
+/* Widget positions -> end */
+
 /* player status */
 /* offline */
 #player_table_widget caption span:not([class]),
@@ -304,19 +314,8 @@ body > header > div #gameserver_status_widget span:hover > a {
     color: var(--lcars-orange);
 }
 
-/* webserver status widget */
-main > div > #webserver_status_widget {
-    order: -1; /* ensure to be placed first */
-}
-
-/* widget handling widget */
-main > div > #widget_handling {
-    order: 998;
-}
-
 /* telnet log widget */
 main > div > #telnet_log_widget {
-    order: 999; /* should ensure to be placed last */
     margin-bottom: 0;
 }
 
@@ -497,20 +496,21 @@ footer > div > p {
     color: var(--background);
 }
 
-.delete_button {
+.widget main .delete_button {
     display: inline-block;
     margin-left: 10em;
     border-left: 0.5em solid black;
     border-right: 0.5em solid black;
 }
 
-.delete_button span.active {
-    background-color: var(--lcars-yellow);
+.widget main .delete_button span.active a,
+.widget main .delete_button span.active {
+    background-color: var(--lcars-red);
 }
 
-.delete_button span.inactive {
-    color: var(--lcars-dark-blue);
-    background-color: var(--lcars-red);
+.widget main .delete_button span.inactive a,
+.widget .delete_button span.inactive {
+    background-color: var(--lcars-yellow);
 }
 
 .widget main .select_button a {
