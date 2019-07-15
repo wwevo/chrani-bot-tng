@@ -49,7 +49,7 @@ class Players(Module):
             profile_start = time()
 
             self.trigger_action_hook(self, ["listadmins", {
-                "execute_only_once": True
+                "disable_after_success": True
             }])
             self.trigger_action_hook(self, ["listplayers", {}])
 

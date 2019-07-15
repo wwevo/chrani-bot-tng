@@ -41,10 +41,10 @@ class Environment(Module):
             profile_start = time()
 
             self.trigger_action_hook(self, ["getgamestats", {
-                "execute_only_once": True
+                "disable_after_success": True
             }])
             self.trigger_action_hook(self, ["getgameprefs", {
-                "execute_only_once": True
+                "disable_after_success": True
             }])
             self.trigger_action_hook(self, ["gettime", {}])
 

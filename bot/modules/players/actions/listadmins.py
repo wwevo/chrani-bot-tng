@@ -46,8 +46,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         }
     }, overwrite=True)
 
-    execute_only_once = event_data[1]["execute_only_once"]
-    if execute_only_once:
+    disable_after_success = event_data[1]["disable_after_success"]
+    if disable_after_success:
         module.disable_action(action_name)
 
 
