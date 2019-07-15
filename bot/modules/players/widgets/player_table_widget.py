@@ -392,6 +392,7 @@ def update_component(*args, **kwargs):
         }
     )
 
+
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": select_view,

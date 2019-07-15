@@ -10,6 +10,18 @@ class Trigger(object):
     def __init__(self):
         self.available_triggers_dict = {}
 
+    def start(self):
+        try:
+            for name, triggers in self.available_triggers_dict.items():
+                try:
+                    for trigger, handler in triggers["handlers"].items():
+                        self.dom.data.register_callback(self, trigger, handler)
+                        print(trigger, handler)
+                except KeyError:
+                    pass
+        except KeyError as error:
+            pass
+
     def register_trigger(self, identifier, trigger_dict):
         self.available_triggers_dict[identifier] = trigger_dict
 
@@ -31,11 +43,14 @@ class Trigger(object):
         for telnet_line in telnet_lines_to_process:
             for loaded_module in loaded_modules_dict.values():
                 for trigger_name, trigger_group in loaded_module.available_triggers_dict.items():
-                    for trigger in trigger_group["triggers"]:
-                        regex_results = re.search(trigger["regex"], telnet_line)
-                        if regex_results:
-                            trigger["callback"](loaded_module, self, regex_results)
-                            if len(self.webserver.connected_clients) >= 1:
-                                message = "executed trigger: {}".format(trigger_name)
-                                # print(message)
-                                # TODO: add method to append log, or create a new one
+                    try:
+                        for trigger in trigger_group["triggers"]:
+                            regex_results = re.search(trigger["regex"], telnet_line)
+                            if regex_results:
+                                trigger["callback"](loaded_module, self, regex_results)
+                                if len(self.webserver.connected_clients) >= 1:
+                                    message = "executed trigger: {}".format(trigger_name)
+                                    # print(message)
+                                    # TODO: add method to append log, or create a new one
+                    except KeyError:
+                        pass

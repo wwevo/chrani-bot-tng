@@ -52,6 +52,7 @@ class Module(Thread, Action, Trigger, Template, Widget):
         self.setDaemon(daemonic=True)
         Thread.start(self)
         Widget.start(self)
+        Trigger.start(self)
 
         return self
 
