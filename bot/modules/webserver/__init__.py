@@ -97,6 +97,7 @@ class Webserver(Module):
             debug=self.options.get("SocketIO_debug", self.default_options.get("SocketIO_debug")),
             engineio_logger=self.options.get("engineio_logger", self.default_options.get("engineio_logger")),
             use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader")),
+            passthrough_errors=True,
             ping_timeout=15,
             ping_interval=5
         )
