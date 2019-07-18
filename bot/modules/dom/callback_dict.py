@@ -116,8 +116,13 @@ class CallbackDict(dict, object):
 
     def upsert(self, *args, **kwargs):
         updated_values_dict = args[0]
+        if isinstance(updated_values_dict, Mapping) and len(updated_values_dict) < 1:
+            # early exit: nothing to update!
+            return
+
         working_copy_dict = kwargs.get("dict_to_update", self)
         original_values_dict = kwargs.get("original_values_dict", {})
+
         if len(original_values_dict) <= 0:
             original_values_dict = deepcopy(dict(working_copy_dict))
 
@@ -142,10 +147,6 @@ class CallbackDict(dict, object):
                 if overwrite is True:
                     forced_overwrite = True
                     working_copy_dict[k] = v
-
-                if isinstance(updated_values_dict[k], Mapping) and len(updated_values_dict[k]) < 1:
-                    print("##### EMPTY?? {}:{}".format(updated_values_dict[k], working_copy_dict[k]))
-                    continue
 
                 working_path = full_path
 
