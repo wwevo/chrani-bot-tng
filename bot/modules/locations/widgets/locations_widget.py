@@ -219,7 +219,6 @@ def create_new_view(module, dispatchers_steamid=None):
 
 def update_player_location(*args, **kwargs):
     module = args[0]
-    old_values_dict = kwargs.get("old_values_dict", None)
     updated_values_dict = kwargs.get("updated_values_dict", None)
     dispatchers_steamid = updated_values_dict.get("steamid", None)
     webserver_logged_in_users = module.dom.data.get("module_webserver", {}).get(

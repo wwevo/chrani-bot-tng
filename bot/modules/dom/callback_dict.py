@@ -16,11 +16,10 @@ class CallbackDict(dict, object):
         super().__setitem__(key, value)
 
     @staticmethod
-    def get_callback_package(updated_values=dict, old_values=dict, original_values_dict=dict, dispatchers_steamid=None, callback=None):
+    def get_callback_package(updated_values=dict, original_values_dict=dict, dispatchers_steamid=None, callback=None):
         try:
             callback_kwargs = {
                 "updated_values_dict": updated_values,
-                "old_values_dict": old_values,
                 "original_values_dict": original_values_dict,
                 "dispatchers_steamid": dispatchers_steamid
             }
@@ -77,7 +76,6 @@ class CallbackDict(dict, object):
                     callbacks.append(
                         self.get_callback_package(
                             updated_values=updated_values_dict,
-                            old_values=working_copy_dict,
                             original_values_dict=original_values_dict,
                             dispatchers_steamid=dispatchers_steamid,
                             callback=callback
@@ -167,7 +165,6 @@ class CallbackDict(dict, object):
                         callbacks.append(
                             self.get_callback_package(
                                 updated_values=updated_values_dict,
-                                old_values=working_copy_dict,
                                 original_values_dict=original_values_dict,
                                 dispatchers_steamid=dispatchers_steamid,
                                 callback=callback
