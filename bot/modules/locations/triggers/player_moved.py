@@ -9,7 +9,6 @@ def main_function(*args, **kwargs):
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
     if original_values_dict["pos"] != updated_values_dict["pos"]:
-        print("moved!")
         # do stuff!
         return
 
