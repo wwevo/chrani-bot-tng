@@ -19,6 +19,12 @@
             "enable", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "enable_location"}]]]
         ) }}
         </span>
+        <span id="locations_table_row_{{ location.identifier }}_control_edit_link" class="edit_button">
+        {{ construct_toggle_link(
+            True,
+            "edit", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "edit_location"}]]]
+        ) }}
+        </span>
     </td>
     <td id="manage_locations_table_row_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="manage_locations_table_row_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
