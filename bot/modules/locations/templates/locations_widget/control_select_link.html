@@ -1,0 +1,6 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{{ construct_toggle_link(
+    location_entry_selected,
+    "*", ['widget_event', ['locations', ['manage_locations', {"location_identifier": location.identifier, 'action': 'deselect_location_entry'}]]],
+    "*", ['widget_event', ['locations', ['manage_locations', {"location_identifier": location.identifier, "action": "select_location_entry"}]]]
+) }}

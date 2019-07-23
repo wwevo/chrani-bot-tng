@@ -4,8 +4,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Audio.prototype.play = (function(play) {
         return function () {
             let audio = this;
-            let args = arguments;
-            let promise = play.apply(audio, args);
+            let promise = play.apply(audio, arguments);
             if (promise !== undefined) {
                 promise.catch(_ => {
                     // Autoplay was prevented. you can take steps here, like notifying the user.

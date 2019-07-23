@@ -37,21 +37,32 @@ def frontend_view(module, dispatchers_steamid=None):
         'locations_widget/control_switch_create_new_view.html'
     )
 
+    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
     template_action_delete_button = module.templates.get_template(
         'locations_widget/control_action_delete_button.html'
     )
     template_table_footer = module.templates.get_template('locations_widget/table_footer.html')
 
-    selected_player_entries = module.dom.data.get("module_locations", {}).get("selected", {}).get(dispatchers_steamid, [])
+    selected_location_entries = module.dom.data.get("module_locations", {}).get("selected", {}).get(dispatchers_steamid, [])
 
     table_rows = ""
     player_locations = module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {})
-    for identifier, location in player_locations.items():
+    for identifier, location_dict in player_locations.items():
+        location_entry_selected = False
+        if identifier in selected_location_entries:
+            location_entry_selected = True
+
         table_rows += module.template_render_hook(
             module,
             template_table_rows,
-            location=location,
-            steamid=dispatchers_steamid
+            location=location_dict,
+            steamid=dispatchers_steamid,
+            control_select_link=module.template_render_hook(
+                module,
+                control_select_link,
+                location_entry_selected=location_entry_selected,
+                location=location_dict,
+            )
         )
 
     data_to_emit = module.template_render_hook(
@@ -84,8 +95,8 @@ def frontend_view(module, dispatchers_steamid=None):
             action_delete_button=module.template_render_hook(
                 module,
                 template_action_delete_button,
-                count=len(selected_player_entries),
-                delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
+                count=len(selected_location_entries),
+                delete_selected_entries_active=True if len(selected_location_entries) >= 1 else False
             )
         )
 
@@ -251,10 +262,64 @@ def update_player_location(*args, **kwargs):
     )
 
 
+def update_component(*args, **kwargs):
+    module = args[0]
+    locations_identifier = kwargs.get("updated_values_dict").get("identifier", None)
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
+    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
+    selected_locations_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
+    original_selected_locations_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
+    template_action_delete_button = module.templates.get_template(
+        'locations_widget/control_action_delete_button.html'
+    )
+
+    for identifier in original_selected_locations_entries + selected_locations_entries:
+        location_entry_selected = True if identifier in selected_locations_entries else False
+        data_to_emit = module.template_render_hook(
+            module,
+            control_select_link,
+            location=module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {}).get(
+                identifier, None
+            ),
+            location_entry_selected=location_entry_selected
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            event_data=data_to_emit,
+            data_type="element_content",
+            clients=[dispatchers_steamid],
+            method="update",
+            target_element={
+                "id": "locations_table_row_{}_control_select_link".format(str(identifier)),
+            }
+        )
+
+        data_to_emit = module.template_render_hook(
+            module,
+            template_action_delete_button,
+            count=len(selected_locations_entries),
+            delete_selected_entries_active=True if len(selected_locations_entries) >= 1 else False
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            event_data=data_to_emit,
+            data_type="element_content",
+            clients=[dispatchers_steamid],
+            method="replace",
+            target_element={
+                "id": "locations_widget_action_delete_button"
+            }
+        )
+
+
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
     "handlers": {
+        "module_locations/selected/%steamid%": update_component,
         "module_locations/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/pos": update_player_location
     },
