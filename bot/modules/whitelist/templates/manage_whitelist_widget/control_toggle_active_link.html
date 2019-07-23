@@ -2,6 +2,6 @@
 {%- set player_is_on_whitelist = player.on_whitelist|default(false) -%}
 {{ construct_toggle_link(
     player_is_on_whitelist,
-    "disable", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "remove_from_whitelist"}]]],
-    "enable", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "add_to_whitelist"}]]]
+    "enabled", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "remove_from_whitelist"}]]],
+    "enabled", ['widget_event', ['whitelist', ['manage_whitelist', {"steamid": player.steamid, "action": "add_to_whitelist"}]]]
 ) }}

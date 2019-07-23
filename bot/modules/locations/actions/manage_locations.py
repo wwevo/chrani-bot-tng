@@ -13,13 +13,16 @@ def main_function(module, event_data, dispatchers_steamid):
     location_shape = event_data[1].get("location_shape", None)
     location_coordinates = event_data[1].get("location_coordinates", None)
     location_dimensions = event_data[1].get("location_dimensions", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
     if all([
         action is not None,
         location_name is not None and len(location_name) >= 5,
+        location_identifier is not None,
         location_shape is not None,
         location_coordinates is not None,
         location_dimensions is not None,
+        current_map_identifier is not None,
     ]) and all([
         int(location_coordinates["x"]) != 0,
         int(location_coordinates["y"]) != 0,
@@ -39,6 +42,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     event_data[1].get("location_identifier"): {
                         "name": event_data[1].get("location_name"),
                         "identifier": event_data[1].get("location_identifier"),
+                        "origin": module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName"),
                         "shape": event_data[1].get("location_shape"),
                         "coordinates": event_data[1].get("location_coordinates"),
                         "dimensions": event_data[1].get("location_dimensions"),
@@ -60,7 +64,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
         }
     }, dispatchers_steamid=dispatchers_steamid)
-
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
