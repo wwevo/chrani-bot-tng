@@ -182,22 +182,10 @@ def options_view(module, dispatchers_steamid=None):
     template_options_toggle_view = module.templates.get_template(
         'manage_whitelist_widget/control_switch_options_view.html'
     )
-    template_enable_disable_toggle = module.templates.get_template(
-        'manage_whitelist_widget/control_enable_disable.html'
-    )
 
     current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "options"
     )
-
-    control_create_new_view = module.templates.get_template(
-        'manage_whitelist_widget/control_create_new_view.html'
-    )
-
-    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
-        whitelist_status = "whitelist is active"
-    else:
-        whitelist_status = "whitelist is deactivated"
 
     options_toggle = module.template_render_hook(
         module,
@@ -234,12 +222,6 @@ def options_view(module, dispatchers_steamid=None):
 def create_new_view(module, dispatchers_steamid=None):
     template_frontend = module.templates.get_template('manage_whitelist_widget/view_create_new.html')
     template_options_toggle = module.templates.get_template('manage_whitelist_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template(
-        'manage_whitelist_widget/control_switch_options_view.html'
-    )
-    template_enable_disable_toggle = module.templates.get_template(
-        'manage_whitelist_widget/control_enable_disable.html'
-    )
 
     current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "create_new"
@@ -248,11 +230,6 @@ def create_new_view(module, dispatchers_steamid=None):
     control_create_new_view = module.templates.get_template(
         'manage_whitelist_widget/control_create_new_view.html'
     )
-
-    if module.dom.data.get("module_whitelist", {}).get("is_active", False):
-        whitelist_status = "whitelist is active"
-    else:
-        whitelist_status = "whitelist is deactivated"
 
     options_toggle = module.template_render_hook(
         module,
@@ -283,6 +260,7 @@ def create_new_view(module, dispatchers_steamid=None):
             "selector": "body > main > div"
         }
     )
+
 
 def update_widget(*args, **kwargs):
     """ send updated information to each active client of the webinterface
@@ -354,7 +332,7 @@ def update_widget(*args, **kwargs):
                     "module": "whitelist",
                     "type": "tr",
                     "class": get_css_class(player_dict),
-                    "selector": "body > main > div > div#manage_whitelist_widget"
+                    "selector": "body > main > div > div#manage_whitelist_widget > main > table > tbody"
                 }
             )
 
@@ -389,7 +367,7 @@ def update_widget_status(*args, **kwargs):
             "parent_id": "manage_whitelist_widget",
             "module": "whitelist",
             "type": "tr",
-            "selector": "body > main > div > div#manage_whitelist_widget"
+            "selector": "body > main > div > div#manage_whitelist_widget > main > table > tbody"
         }
     )
 

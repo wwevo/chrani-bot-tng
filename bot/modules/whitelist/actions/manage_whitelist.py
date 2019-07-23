@@ -40,6 +40,17 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 })
+                module.dom.data.upsert({
+                    "module_whitelist": {
+                        "visibility": {
+                            dispatchers_steamid: {
+                                "current_view": "frontend",
+                                "current_view_steamid": None
+                            }
+                        }
+                    }
+                }, dispatchers_steamid=dispatchers_steamid)
+
             else:
                 module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
                 return
