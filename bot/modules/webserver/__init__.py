@@ -264,7 +264,6 @@ class Webserver(Module):
         @login_required
         def logout():
             del self.connected_clients[current_user.id]
-            print("webinterface-client '{}' disconnected from the webinterface.".format(current_user.id))
             for module in loaded_modules_dict.values():
                 module.on_socket_disconnect(current_user.id)
             logout_user()
@@ -323,9 +322,7 @@ class Webserver(Module):
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
-            #print(current_user)
-            #print("user got disconnected")
-            pass
+            print("client {} disconnected".format(current_user.id))
 
         @self.websocket.on('ding')
         def ding_dong():
@@ -335,9 +332,8 @@ class Webserver(Module):
                 self.connected_clients[current_user.id].sid = request.sid
 
             except AttributeError as error:
-                print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
                 # user disappeared
-                pass
+                print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
 
         @self.websocket.on_error_default  # handles all namespaces without an explicit error handler
         def default_error_handler(e):
