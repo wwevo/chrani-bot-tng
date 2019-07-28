@@ -380,7 +380,7 @@ footer > div > p {
 /* debug options -> start */
 .widget {
     position: relative;
-    padding-right: 2em;
+    padding-right: 1em;
 }
 
 .widget > header {
