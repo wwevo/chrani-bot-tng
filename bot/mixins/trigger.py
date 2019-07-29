@@ -16,7 +16,7 @@ class Trigger(object):
                 try:
                     for trigger, handler in triggers["handlers"].items():
                         self.dom.data.register_callback(self, trigger, handler)
-                        print(trigger, handler)
+                        # print(trigger, handler)
                 except KeyError:
                     pass
         except KeyError as error:

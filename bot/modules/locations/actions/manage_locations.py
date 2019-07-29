@@ -85,17 +85,26 @@ def main_function(module, event_data, dispatchers_steamid):
 
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
-    elif action == "delete_selected_entries" and len(selected_locations) >= 1:
-        print(selected_locations)
-        module.dom.data.upsert({
-            "module_locations": {
-                "selected": {
-                    dispatchers_steamid: []
+    elif action == "delete_selected_entries":
+        if len(selected_locations) >= 1:
+            for location_identifier in selected_locations:
+                module.dom.data.remove({
+                    "module_locations": {
+                        "locations": {
+                            dispatchers_steamid: location_identifier
+                        }
+                    }
+                }, dispatchers_steamid=dispatchers_steamid)
+
+            module.dom.data.upsert({
+                "module_locations": {
+                    "selected": {
+                        dispatchers_steamid: []
+                    }
                 }
-            }
-        }, dispatchers_steamid=dispatchers_steamid)
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-        return
+            }, dispatchers_steamid=dispatchers_steamid)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 

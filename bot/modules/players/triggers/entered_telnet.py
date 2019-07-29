@@ -52,7 +52,7 @@ def main_function(origin_module, module, regex_result):
                 }
             }
         })
-        print(player_dict)
+        # print(player_dict)
 
 
 trigger_meta = {

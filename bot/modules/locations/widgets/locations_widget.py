@@ -315,10 +315,34 @@ def update_component(*args, **kwargs):
         )
 
 
+def remove_component(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    original_values_dict = kwargs.get("original_values_dict", None)
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
+    for steamid, identifier in updated_values_dict.items():
+        try:
+            if identifier in original_values_dict[steamid]:
+                module.webserver.send_data_to_client_hook(
+                    module,
+                    data_type="remove_table_row",
+                    clients=[dispatchers_steamid],
+                    target_element={
+                        "id": "manage_locations_table_row_{}".format(identifier)
+                    }
+                )
+
+        except TypeError:
+            # we are not deleting, so we are skipping any actions
+            pass
+
+
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
     "handlers": {
+        "module_locations/locations/%steamid%": remove_component,
         "module_locations/selected/%steamid%": update_component,
         "module_locations/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/pos": update_player_location

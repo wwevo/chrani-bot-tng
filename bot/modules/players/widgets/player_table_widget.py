@@ -249,7 +249,7 @@ def component_widget(module, event_data, dispatchers_steamid=None):
                 "id": "player_table_widget",
                 "type": "tr",
                 "class": get_player_table_row_css_class(player_dict),
-                "selector": "body > main > div > div#player_table_widget"
+                "selector": "body > main > div > div#player_table_widget > main > table > tbody"
             }
         )
 

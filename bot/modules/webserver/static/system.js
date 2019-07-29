@@ -162,6 +162,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
             }
         }
+        if (data["data_type"] === "remove_table_row") {
+            let elem = document.getElementById(data["target_element"]["id"]);
+            elem.parentElement.removeChild(elem);
+        }
         if (data["data_type"] === "table_row") {
             play_audio_file("processing");
             let target_element_id = data["target_element"]["id"];

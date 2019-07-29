@@ -5,7 +5,7 @@
     <td>
         <span id="locations_table_row_{{ location.identifier }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
-    <td class="right" id="manage_locations_table_row_{{ location.identifier }}_actions">
+    <!-- <td class="right" id="manage_locations_table_row_{{ location.identifier }}_actions">
         <span id="locations_table_row_{{ location.identifier }}_control_toggle_active_link" class="toggle_button">
         {{ construct_toggle_link(
             location_is_enabled,
@@ -19,7 +19,7 @@
             "edit", ['widget_event', ['locations', ['manage_locations', {"identifier": location.identifier, "action": "edit_location"}]]]
         ) }}
         </span>
-    </td>
+    </td> //-->
     <td id="manage_locations_table_row_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="manage_locations_table_row_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
     <td id="manage_locations_table_row_{{ location.identifier }}_origin" onclick="$(this).selectText();">{{ location.origin }}</td>

@@ -49,6 +49,62 @@ class CallbackDict(dict, object):
 
         return "/".join(current_path)
 
+    def remove(self, *args, **kwargs):
+        updated_values_dict = args[0]
+        working_copy_dict = kwargs.get("dict_to_update", self)
+        original_values_dict = kwargs.get("original_values_dict", {})
+        if len(original_values_dict) <= 0:
+            original_values_dict = deepcopy(dict(working_copy_dict))
+
+        path = kwargs.get("path", [])
+        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+        layer = kwargs.get("layer", 0)
+        callbacks = kwargs.get("callbacks", None)
+        maxlen = kwargs.get("maxlen", None)
+
+        if layer == 0 and callbacks is None:
+            callbacks = []
+
+        path = path[0:layer]
+
+        """" recursion happens in this section """
+        for k, v in updated_values_dict.items():
+            full_path = self.construct_full_path(path, k, layer)
+            if len(self.registered_callbacks) >= 1 and full_path in self.registered_callbacks.keys():
+                for callback in self.registered_callbacks[full_path]:
+                    callbacks.append(
+                        self.get_callback_package(
+                            updated_values=updated_values_dict,
+                            original_values_dict=original_values_dict,
+                            dispatchers_steamid=dispatchers_steamid,
+                            callback=callback
+                        ))
+
+            if isinstance(v, Mapping) and isinstance(working_copy_dict[k], Mapping):
+                self.remove(
+                    v,
+                    dict_to_update=working_copy_dict[k],
+                    original_values_dict=original_values_dict[k],
+                    path=path,
+                    layer=layer + 1,
+                    callbacks=callbacks,
+                    maxlen=maxlen,
+                    dispatchers_steamid=dispatchers_steamid
+                )
+            else:
+                del working_copy_dict[k][v]
+
+        if layer != 0:
+            return
+
+        """ we've reached the end of all recursions """
+        for callback in callbacks:
+            Thread(
+                target=callback["target"],
+                args=callback["args"],
+                kwargs=callback["kwargs"]
+            ).start()
+
     def append(self, *args, **kwargs):
         updated_values_dict = args[0]
         working_copy_dict = kwargs.get("dict_to_update", self)
@@ -99,7 +155,7 @@ class CallbackDict(dict, object):
             d_v = working_copy_dict.get(k)
             if isinstance(v, Mapping) and isinstance(d_v, Mapping):
                 self.append(v, dict_to_update=d_v, original_values_dict=original_values_dict[k], path=path,
-                            layer=layer + 1, callbacks=callbacks, maxlen=maxlen)
+                            layer=layer + 1, callbacks=callbacks, maxlen=maxlen, dispatchers_steamid=dispatchers_steamid)
 
         if layer != 0:
             return

@@ -71,7 +71,7 @@ def main_function(module, event_data, dispatchers_steamid):
                 }
             })
         elif action == "delete_selected_entries":
-            print("delete whitelist entries", selected_players)
+            pass
         else:
             module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
             return

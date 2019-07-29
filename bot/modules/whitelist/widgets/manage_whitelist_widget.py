@@ -389,8 +389,8 @@ def update_component(*args, **kwargs):
         data_to_emit = module.template_render_hook(
             module,
             control_select_link,
-            player=module.dom.data.get("module_players", {}).get("players", {}).get(steamid,
-                module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
+            player=module.dom.data.get("module_players", {}).get("players", {}).get(
+                steamid, module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
             ),
             whitelist_entry_selected=player_entry_selected
         )
