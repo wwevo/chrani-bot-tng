@@ -65,7 +65,7 @@ widget_meta = {
     "handlers": {
         "module_environment/last_recorded_gametime": update_widget
     },
-    "enabled": True
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

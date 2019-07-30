@@ -44,7 +44,18 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
         }, dispatchers_steamid=dispatchers_steamid)
     elif action == "delete_selected_entries":
-        print("delete player entries", selected_players)
+        if len(selected_players) >= 1:
+            """ deletion stuff will go here! """
+
+            module.dom.data.upsert({
+                "module_players": {
+                    "selected": {
+                        dispatchers_steamid: []
+                    }
+                }
+            }, dispatchers_steamid=dispatchers_steamid)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            return
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

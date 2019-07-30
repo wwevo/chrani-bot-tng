@@ -9,6 +9,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     location_identifier = event_data[1].get("location_identifier", None)
+    location_owner = event_data[1].get("location_owner", None)
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
     selected_locations = module.dom.data.get("module_locations", {}).get("selected", {}).get(dispatchers_steamid, []).copy()
@@ -65,7 +66,7 @@ def main_function(module, event_data, dispatchers_steamid):
             return
     elif action == "select_location_entry" or action == "deselect_location_entry":
         if action == "select_location_entry":
-            selected_locations.append(location_identifier)
+            selected_locations.append((location_owner, location_identifier))
             module.dom.data.upsert({
                 "module_locations": {
                     "selected": {
@@ -74,7 +75,7 @@ def main_function(module, event_data, dispatchers_steamid):
                 }
             }, dispatchers_steamid=dispatchers_steamid)
         elif action == "deselect_location_entry":
-            selected_locations.remove(location_identifier)
+            selected_locations.remove((location_owner, location_identifier))
             module.dom.data.upsert({
                 "module_locations": {
                     "selected": {
@@ -87,14 +88,14 @@ def main_function(module, event_data, dispatchers_steamid):
         return
     elif action == "delete_selected_entries":
         if len(selected_locations) >= 1:
-            for location_identifier in selected_locations:
-                module.dom.data.remove({
-                    "module_locations": {
-                        "locations": {
-                            dispatchers_steamid: location_identifier
-                        }
-                    }
-                }, dispatchers_steamid=dispatchers_steamid)
+            # for location_identifier in selected_locations:
+            #     module.dom.data.remove({
+            #         "module_locations": {
+            #             "locations": {
+            #                 dispatchers_steamid: location_identifier[1]
+            #             }
+            #         }
+            #     }, dispatchers_steamid=dispatchers_steamid)
 
             module.dom.data.upsert({
                 "module_locations": {

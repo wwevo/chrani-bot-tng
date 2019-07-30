@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         console.log("ding/dong took " + latency + "ms");
     });
 
-    function request_player_table_widget_row(module, widget, widget_id, row_id) {
+    function request_widget_row(module, widget, widget_id, row_id) {
         window.socket.emit('widget_event', [module, ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
     }
 
@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             let parent_element = $('#' + target_element_id + '_' + target_player_steamid);
             if (parent_element.length === 0) {
                 /* seems like the container we want ain't here- let's request it */
-                request_player_table_widget_row(
+                request_widget_row(
                     data["target_element"]["module"],
                     data["target_element"]["parent_id"],
                     target_element_id,

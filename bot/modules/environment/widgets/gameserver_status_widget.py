@@ -78,7 +78,7 @@ widget_meta = {
         "module_telnet/cancel_shutdown": update_widget,
         "module_telnet/force_shutdown": update_widget
     },
-    "enabled": True
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

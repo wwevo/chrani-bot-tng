@@ -5,6 +5,17 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
+def get_table_row_css_class(location_dict):
+    is_enabled = location_dict.get("is_banned", False)
+
+    if is_enabled:
+        css_class = "is_enabled"
+    else:
+        css_class = ""
+
+    return css_class
+
+
 def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
@@ -46,24 +57,25 @@ def frontend_view(module, dispatchers_steamid=None):
     selected_location_entries = module.dom.data.get("module_locations", {}).get("selected", {}).get(dispatchers_steamid, [])
 
     table_rows = ""
-    player_locations = module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {})
-    for identifier, location_dict in player_locations.items():
-        location_entry_selected = False
-        if identifier in selected_location_entries:
-            location_entry_selected = True
+    players_with_locations = module.dom.data.get("module_locations", {}).get("locations", {})
+    for owner_steamid, player_locations in players_with_locations.items():
+        for identifier, location_dict in player_locations.items():
+            location_entry_selected = False
+            if (location_dict["owner"], identifier) in selected_location_entries:
+                location_entry_selected = True
 
-        table_rows += module.template_render_hook(
-            module,
-            template_table_rows,
-            location=location_dict,
-            steamid=dispatchers_steamid,
-            control_select_link=module.template_render_hook(
+            table_rows += module.template_render_hook(
                 module,
-                control_select_link,
-                location_entry_selected=location_entry_selected,
+                template_table_rows,
                 location=location_dict,
+                steamid=dispatchers_steamid,
+                control_select_link=module.template_render_hook(
+                    module,
+                    control_select_link,
+                    location_entry_selected=location_entry_selected,
+                    location=location_dict,
+                )
             )
-        )
 
     data_to_emit = module.template_render_hook(
         module,
@@ -113,6 +125,34 @@ def frontend_view(module, dispatchers_steamid=None):
             "selector": "body > main > div"
         }
     )
+
+
+def component_widget(module, event_data, dispatchers_steamid=None):
+    current_view = module.dom.data.get("module_locations", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
+    if current_view == "frontend":
+        template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
+
+        location_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(event_data[1]["row_id"])
+        table_row = module.template_render_hook(
+            module,
+            template_table_rows,
+            location=location_dict,
+            css_class=get_table_row_css_class(location_dict)
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            event_data=table_row,
+            data_type="table_row",
+            clients=[dispatchers_steamid],
+            method="append",
+            target_element={
+                "id": "manage_locations_widget",
+                "type": "tr",
+                "class": get_table_row_css_class(location_dict),
+                "selector": "body > main > div > div#manage_locations_widget > main > table > tbody"
+            }
+        )
 
 
 def options_view(module, dispatchers_steamid=None):
@@ -264,7 +304,6 @@ def update_player_location(*args, **kwargs):
 
 def update_component(*args, **kwargs):
     module = args[0]
-    locations_identifier = kwargs.get("updated_values_dict").get("identifier", None)
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
     control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
@@ -275,13 +314,15 @@ def update_component(*args, **kwargs):
     )
 
     for identifier in original_selected_locations_entries + selected_locations_entries:
-        location_entry_selected = True if identifier in selected_locations_entries else False
+        location = module.dom.data.get("module_locations", {}).get("locations", {}).get(identifier[0], {}).get(identifier[1], None)
+        location_entry_selected = True if (location["owner"], location["identifier"]) in selected_locations_entries else False
+        if location is None:
+            continue  # location no longer exists, was probably just deleted
+
         data_to_emit = module.template_render_hook(
             module,
             control_select_link,
-            location=module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {}).get(
-                identifier, None
-            ),
+            location=location,
             location_entry_selected=location_entry_selected
         )
 
@@ -292,7 +333,10 @@ def update_component(*args, **kwargs):
             clients=[dispatchers_steamid],
             method="update",
             target_element={
-                "id": "locations_table_row_{}_control_select_link".format(str(identifier)),
+                "id": "locations_table_row_{}_{}_control_select_link".format(
+                    str(location.get("owner", None)),
+                    str(location.get("identifier", None))
+                ),
             }
         )
 
@@ -327,9 +371,12 @@ def remove_component(*args, **kwargs):
                 module.webserver.send_data_to_client_hook(
                     module,
                     data_type="remove_table_row",
-                    clients=[dispatchers_steamid],
+                    clients="all",
                     target_element={
-                        "id": "manage_locations_table_row_{}".format(identifier)
+                        "id": "locations_table_row_{}_{}".format(
+                            str(steamid),
+                            str(identifier)
+                        ),
                     }
                 )
 
@@ -341,10 +388,11 @@ def remove_component(*args, **kwargs):
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
+    "component_widget": component_widget,
     "handlers": {
+        "module_locations/visibility/%steamid%/current_view": select_view,
         "module_locations/locations/%steamid%": remove_component,
         "module_locations/selected/%steamid%": update_component,
-        "module_locations/visibility/%steamid%/current_view": select_view,
         "module_players/players/%steamid%/pos": update_player_location
     },
     "enabled": True
