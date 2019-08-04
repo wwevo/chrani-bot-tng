@@ -312,7 +312,7 @@ def table_row(*args, **kwargs):
                             clients="all",
                             target_element={
                                 "id": "manage_locations_table_row_{}_{}_{}".format(
-                                    str(steamid),
+                                    str(original_values_dict[steamid][identifier]["origin"]),
                                     str(steamid),
                                     str(identifier)
                                 ),
@@ -322,6 +322,8 @@ def table_row(*args, **kwargs):
                 except TypeError:
                     # we are not deleting, so we are skipping any actions
                     pass
+
+            update_delete_button_status(module)
 
 
 def update_player_location(*args, **kwargs):
@@ -360,75 +362,81 @@ def update_player_location(*args, **kwargs):
 
 def update_selection_status(*args, **kwargs):
     module = args[0]
-    method = kwargs.get("method", None)
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-    updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    if updated_values_dict is not None and original_values_dict is not None:
-        control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
-        template_action_delete_button = module.templates.get_template(
-            'locations_widget/control_action_delete_button.html'
-        )
+    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
 
-        location_origin = original_values_dict["origin"]
-        location_owner = original_values_dict["owner"]
-        location_identifier = original_values_dict["identifier"]
+    location_origin = original_values_dict["origin"]
+    location_owner = original_values_dict["owner"]
+    location_identifier = original_values_dict["identifier"]
 
-        location_dict = module.dom.data.get("module_locations", {}).get("elements", {}).get(location_origin, {}).get(location_owner, {}).get(location_identifier, None)
+    location_dict = (
+        module.dom.data.get("module_locations", {})
+        .get("elements", {})
+        .get(location_origin, {})
+        .get(location_owner, {})
+        .get(location_identifier, None)
+    )
 
-        location_entry_selected = False
-        if dispatchers_steamid in location_dict.get("selected_by"):
-            location_entry_selected = True
+    location_entry_selected = False
+    if dispatchers_steamid in location_dict.get("selected_by"):
+        location_entry_selected = True
+
+    data_to_emit = module.template_render_hook(
+        module,
+        control_select_link,
+        location=location_dict,
+        location_entry_selected=location_entry_selected
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="element_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
+                location_origin,
+                location_owner,
+                location_identifier
+            ),
+        }
+    )
+
+    update_delete_button_status(module)
+
+
+def update_delete_button_status(module):
+    template_action_delete_button = module.templates.get_template('locations_widget/control_action_delete_button.html')
+
+    for clientid in module.webserver.connected_clients.keys():
+        all_available_elements = module.dom.data.get("module_locations", {}).get("elements", {})
+        all_selected_elements = 0
+        for map_identifier, location_owner in all_available_elements.items():
+            for owner_steamid, player_locations in location_owner.items():
+                for identifier, location_dict in player_locations.items():
+                    if clientid in location_dict.get("selected_by"):
+                        all_selected_elements += 1
 
         data_to_emit = module.template_render_hook(
             module,
-            control_select_link,
-            location=location_dict,
-            location_entry_selected=location_entry_selected
+            template_action_delete_button,
+            count=all_selected_elements,
+            delete_selected_entries_active=True if all_selected_elements >= 1 else False
         )
 
         module.webserver.send_data_to_client_hook(
             module,
             event_data=data_to_emit,
             data_type="element_content",
-            clients=[dispatchers_steamid],
-            method="update",
+            clients=[clientid],
+            method="replace",
             target_element={
-                "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
-                    location_origin,
-                    location_owner,
-                    location_identifier
-                ),
+                "id": "locations_widget_action_delete_button"
             }
         )
-
-        for clientid in module.webserver.connected_clients.keys():
-            all_available_elements = module.dom.data.get("module_locations", {}).get("elements", {})
-            all_selected_elements = 0
-            for map_identifier, location_owner in all_available_elements.items():
-                for owner_steamid, player_locations in location_owner.items():
-                    for identifier, location_dict in player_locations.items():
-                        if clientid in location_dict.get("selected_by"):
-                            all_selected_elements += 1
-
-            data_to_emit = module.template_render_hook(
-                module,
-                template_action_delete_button,
-                count=all_selected_elements,
-                delete_selected_entries_active=True if all_selected_elements >= 1 else False
-            )
-
-            module.webserver.send_data_to_client_hook(
-                module,
-                event_data=data_to_emit,
-                data_type="element_content",
-                clients=[clientid],
-                method="replace",
-                target_element={
-                    "id": "locations_widget_action_delete_button"
-                }
-            )
 
 
 widget_meta = {
@@ -436,10 +444,20 @@ widget_meta = {
     "main_widget": select_view,
     "component_widget": table_row,
     "handlers": {
-        "module_locations/visibility/%steamid%/current_view": select_view,
-        "module_locations/elements/%map_identifier%/%steamid%": table_row,
-        "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by": update_selection_status,
-        "module_players/players/%steamid%/pos": update_player_location
+        # the %abc% placeholders can contain any text at all, it has no effect on anything but code-readability
+        # the third line could just as well read
+        #     "module_locations/elements/%x%/%x%/%x%/selected_by": update_selection_status
+        # and would still function the same as
+        #     "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
+        #         update_selection_status
+        "module_locations/visibility/%steamid%/current_view":
+            select_view,
+        "module_locations/elements/%map_identifier%/%steamid%":
+            table_row,
+        "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
+            update_selection_status,
+        "module_players/players/%steamid%/pos":
+            update_player_location
     },
     "enabled": True
 }

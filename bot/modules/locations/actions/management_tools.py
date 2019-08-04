@@ -11,7 +11,14 @@ def main_function(module, event_data, dispatchers_steamid):
     location_owner = event_data[1].get("location_owner", None)
     location_identifier = event_data[1].get("location_identifier", None)
 
-    element_is_selected_by = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(location_origin, {}).get(location_owner, {}).get(location_identifier, {}).get("selected_by", [])
+    element_is_selected_by = (
+        module.dom.data.get(module.get_module_identifier(), {})
+        .get("elements", {})
+        .get(location_origin, {})
+        .get(location_owner, {})
+        .get(location_identifier, {})
+        .get("selected_by", [])
+    )
 
     if all([
         location_origin is not None,

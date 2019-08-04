@@ -6,7 +6,7 @@
                     <script language="javascript">
                         $("input[name='location_name']").on('input', function() {
                             let location_name = $("input[name='location_name']").val();
-                            let location_identifier = location_name.replace(/\s/g,'');
+                            let location_identifier = location_name.replace(/[^a-zA-Z0-9]/g, '');
                             $("input[name='location_identifier']").val(location_identifier);
                         });
                     </script>
@@ -23,7 +23,8 @@
             <td>
                 This is the Identifier of your location<br />
                 It is used to handle the location with in-game chat commands<br />
-                This setting can not be changed later on!
+                It has to be unique for each users locations.<br />
+                This setting can not be changed later on!<br />
             </td>
         </tr>
     </tfoot>
