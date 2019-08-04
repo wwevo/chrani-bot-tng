@@ -19,91 +19,58 @@ def main_function(module, event_data, dispatchers_steamid):
         location_shape = event_data[1].get("location_shape", None)
         location_coordinates = event_data[1].get("location_coordinates", None)
         location_dimensions = event_data[1].get("location_dimensions", None)
+        players_current_locations = module.dom.data.get("module_locations", {}).get("locations", {}).get(dispatchers_steamid, {})
 
         if all([
             action is not None,
-            location_name is not None and len(location_name) >= 5,
-            location_identifier is not None,
+            location_name is not None and len(location_name) >= 4,
+            location_identifier is not None and location_identifier not in players_current_locations,
             location_shape is not None,
             location_coordinates is not None,
             location_dimensions is not None,
             current_map_identifier is not None,
-        ]) and all([
+        ]) and any([
             int(location_coordinates["x"]) != 0,
             int(location_coordinates["y"]) != 0,
             int(location_coordinates["z"]) != 0
         ]):
             module.dom.data.upsert({
                 module.get_module_identifier(): {
-                    "locations": {
-                        dispatchers_steamid: {
-                            location_identifier: {
-                                "name": location_name,
-                                "identifier": location_identifier,
-                                "origin": current_map_identifier,
-                                "shape": location_shape,
-                                "coordinates": location_coordinates,
-                                "dimensions": location_dimensions,
-                                "owner": dispatchers_steamid,
-                                "is_enabled": True
+                    "elements": {
+                        current_map_identifier: {
+                            dispatchers_steamid: {
+                                location_identifier: {
+                                    "name": location_name,
+                                    "identifier": location_identifier,
+                                    "origin": current_map_identifier,
+                                    "shape": location_shape,
+                                    "coordinates": location_coordinates,
+                                    "dimensions": location_dimensions,
+                                    "owner": dispatchers_steamid,
+                                    "is_enabled": True,
+                                    "selected_by": []
+                                }
                             }
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid)
-
-            module.dom.data.upsert({
-                module.get_module_identifier(): {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": "frontend",
-                            "current_view_steamid": None
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
+            }, dispatchers_steamid=dispatchers_steamid, depth=4)
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
-    elif action == "select_location_entry" or action == "deselect_location_entry":
-        if action == "select_location_entry":
-            selected_locations.append((location_owner, location_identifier))
-            module.dom.data.upsert({
-                "module_locations": {
-                    "selected": {
-                        dispatchers_steamid: selected_locations
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-        elif action == "deselect_location_entry":
-            selected_locations.remove((location_owner, location_identifier))
-            module.dom.data.upsert({
-                "module_locations": {
-                    "selected": {
-                        dispatchers_steamid: selected_locations
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-        return
     elif action == "delete_selected_entries":
         if len(selected_locations) >= 1:
-            # for location_identifier in selected_locations:
-            #     module.dom.data.remove({
-            #         "module_locations": {
-            #             "locations": {
-            #                 dispatchers_steamid: location_identifier[1]
-            #             }
-            #         }
-            #     }, dispatchers_steamid=dispatchers_steamid)
-
-            module.dom.data.upsert({
-                "module_locations": {
-                    "selected": {
-                        dispatchers_steamid: []
+            """ remove all locations selected by the current user """
+            for location_identifier in selected_locations:
+                module.dom.data.remove({
+                    "module_locations": {
+                        "elements": {
+                            current_map_identifier: {
+                                dispatchers_steamid: location_identifier
+                            }
+                        }
                     }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
+                }, dispatchers_steamid=dispatchers_steamid)
+
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 

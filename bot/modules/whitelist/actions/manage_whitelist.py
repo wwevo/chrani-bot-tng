@@ -72,15 +72,23 @@ def main_function(module, event_data, dispatchers_steamid):
             })
         elif action == "delete_selected_entries":
             if len(selected_players) >= 1:
-                """ deletion stuff will go here! """
-
-                module.dom.data.upsert({
-                    "module_whitelist": {
-                        "selected": {
-                            dispatchers_steamid: []
+                """ remove all locations selected by the current user """
+                for steamid in selected_players:
+                    module.dom.data.remove({
+                        "module_whitelist": {
+                            "players": steamid
                         }
-                    }
-                }, dispatchers_steamid=dispatchers_steamid)
+                    }, dispatchers_steamid=dispatchers_steamid)
+                    """ remove all deleted locations from all user-selections """
+                    all_selected_players = module.dom.data.get("module_whitelist", {}).get("selected", {})
+                    for player in all_selected_players:
+                        module.dom.data.remove({
+                            "module_whitelist": {
+                                "selected": {
+                                    player: steamid
+                                }
+                            }
+                        }, dispatchers_steamid=dispatchers_steamid)
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid)
                 return
         else:

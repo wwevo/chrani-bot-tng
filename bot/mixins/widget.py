@@ -24,12 +24,7 @@ class Widget(object):
                     widget["main_widget"](self, dispatchers_steamid=steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        if event_data[0] == 'request_table_row':
-            """ if the JS-frontend receives an update request for an element not yet present (player-table-row,
-            whitelist-table-row, such things) it will request the row """
-            widget = self.available_widgets_dict[event_data[1]["widget"]]
-            if widget["component_widget"] is not None:
-                widget["component_widget"](self, event_data, dispatchers_steamid=dispatchers_steamid)
+        pass
 
     def template_render(self, module, template, **kwargs):
         rendered_template = template.render(**kwargs)

@@ -5,7 +5,10 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, dispatchers_steamid=None):
+def main_widget(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_frontend.html')
     template_table_header = module.templates.get_template('telnet_log_widget/table_header.html')
     log_line = module.templates.get_template('telnet_log_widget/log_line.html')
@@ -44,7 +47,10 @@ def main_widget(module, dispatchers_steamid=None):
         )
 
 
-def update_widget(module, updated_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_widget(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
     telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
     data_to_emit = module.template_render_hook(

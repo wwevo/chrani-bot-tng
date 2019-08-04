@@ -226,7 +226,7 @@ def show_info_view(module, dispatchers_steamid=None):
     )
 
 
-def component_widget(module, event_data, dispatchers_steamid=None):
+def table_row(module, event_data, dispatchers_steamid=None):
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
     if current_view == "frontend":
         template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
@@ -396,14 +396,13 @@ def update_component(*args, **kwargs):
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": select_view,
-    "component_widget": component_widget,
     "handlers": {
         "module_players/visibility/%steamid%/current_view": select_view,
-        "module_players/selected/%steamid%": update_component,
-        "module_players/players/%steamid%/is_online": update_component,
-        "module_players/players/%steamid%": update_widget,
+#        "module_players/selected/%steamid%": update_component,
+#        "module_players/players/%steamid%/is_online": update_component,
+#        "module_players/players/%steamid%": update_widget,
     },
-    "enabled": True
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

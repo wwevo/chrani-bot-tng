@@ -1,6 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {{ construct_toggle_link(
     location_entry_selected,
-    "&#9745;", ['widget_event', ['locations', ['manage_locations', {"location_owner": location.owner, "location_identifier": location.identifier, 'action': 'deselect_location_entry'}]]],
-    "&#9744;", ['widget_event', ['locations', ['manage_locations', {"location_owner": location.owner, "location_identifier": location.identifier, "action": "select_location_entry"}]]]
+    "&#9745;", ['widget_event', ['locations', ['management_tools', {"location_owner": location.owner, "location_identifier": location.identifier, "location_origin": location.origin, 'action': 'deselect_location_entry'}]]],
+    "&#9744;", ['widget_event', ['locations', ['management_tools', {"location_owner": location.owner, "location_identifier": location.identifier, "location_origin": location.origin, "action": "select_location_entry"}]]]
 ) }}

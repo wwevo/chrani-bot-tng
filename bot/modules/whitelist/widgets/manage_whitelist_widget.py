@@ -81,8 +81,11 @@ def frontend_view(module, dispatchers_steamid=None):
         player_dict_to_add.update(player_dict)
         player_is_whitelisted = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
         if player_is_whitelisted is not None:
+            enabled = player_is_whitelisted["on_whitelist"]
             for key, value in player_is_whitelisted.items():
                 player_dict_to_add[key] = value
+        else:
+            enabled = False
 
         table_rows += module.template_render_hook(
             module,
@@ -98,6 +101,7 @@ def frontend_view(module, dispatchers_steamid=None):
             control_toggle_active_link=module.template_render_hook(
                 module,
                 control_toggle_active_link,
+                player_is_on_whitelist=enabled,
                 player=player_dict
             )
         )
@@ -262,13 +266,14 @@ def create_new_view(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(*args, **kwargs):
+def table_row(*args, **kwargs):
     """ send updated information to each active client of the webinterface
         widget will update
             whenever the whitelist status of any player changes or
             whenever a new player is added to the player-table
     """
     module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
     template_table_rows = module.templates.get_template('manage_whitelist_widget/table_row.html')
@@ -278,63 +283,67 @@ def update_widget(*args, **kwargs):
     control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
 
     for clientid in module.webserver.connected_clients.keys():
-        selected_whitelist_entries = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(clientid, [])
+        current_view = module.dom.data.get("module_whitelist", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
+            "current_view", "frontend"
+        )
+        if current_view == "frontend":
+            selected_whitelist_entries = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(clientid, [])
 
-        players_to_update = {}
-        for steamid, player_dict_to_update in updated_values_dict.get("players", {}).items():
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
-                steamid, {"steamid": steamid}
-            )
-            player_dict.update(player_dict_to_update)
-            players_to_update[steamid] = player_dict
-
-        for steamid in updated_values_dict.get("online_players", []):
-            player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
-                steamid, {"steamid": steamid}
-            )
-            player_is_whitelisted = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
-            players_to_update[steamid] = player_dict
-            if player_is_whitelisted is not None:
-                for key, value in player_is_whitelisted.items():
-                    players_to_update[steamid][key] = value
-
-        for steamid, player_dict in players_to_update.items():
-            whitelist_entry_selected = False
-            if steamid in selected_whitelist_entries:
-                whitelist_entry_selected = True
-
-            table_row = module.template_render_hook(
-                module,
-                template_table_rows,
-                player=player_dict,
-                css_class=get_css_class(player_dict),
-                control_select_link=module.template_render_hook(
-                    module,
-                    control_select_link,
-                    whitelist_entry_selected=whitelist_entry_selected,
-                    player=player_dict,
-                ),
-                control_toggle_active_link=module.template_render_hook(
-                    module,
-                    control_toggle_active_link,
-                    player=player_dict
+            players_to_update = {}
+            for steamid, player_dict_to_update in updated_values_dict.get("players", {}).items():
+                player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
+                    steamid, {"steamid": steamid}
                 )
-            )
-            module.webserver.send_data_to_client_hook(
-                module,
-                event_data=table_row,
-                data_type="table_row",
-                clients=[clientid],
-                method="update",
-                target_element={
-                    "id": "manage_whitelist_table_row_{}".format(player_dict["steamid"]),
-                    "parent_id": "manage_whitelist_widget",
-                    "module": "whitelist",
-                    "type": "tr",
-                    "class": get_css_class(player_dict),
-                    "selector": "body > main > div > div#manage_whitelist_widget > main > table > tbody"
-                }
-            )
+                player_dict.update(player_dict_to_update)
+                players_to_update[steamid] = player_dict
+
+            for steamid in updated_values_dict.get("online_players", []):
+                player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(
+                    steamid, {"steamid": steamid}
+                )
+                player_is_whitelisted = module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
+                players_to_update[steamid] = player_dict
+                if player_is_whitelisted is not None:
+                    for key, value in player_is_whitelisted.items():
+                        players_to_update[steamid][key] = value
+
+            for steamid, player_dict in players_to_update.items():
+                whitelist_entry_selected = False
+                if steamid in selected_whitelist_entries:
+                    whitelist_entry_selected = True
+
+                table_row = module.template_render_hook(
+                    module,
+                    template_table_rows,
+                    player=player_dict,
+                    css_class=get_css_class(player_dict),
+                    control_select_link=module.template_render_hook(
+                        module,
+                        control_select_link,
+                        whitelist_entry_selected=whitelist_entry_selected,
+                        player=player_dict,
+                    ),
+                    control_toggle_active_link=module.template_render_hook(
+                        module,
+                        control_toggle_active_link,
+                        player=player_dict
+                    )
+                )
+                module.webserver.send_data_to_client_hook(
+                    module,
+                    event_data=table_row,
+                    data_type="table_row",
+                    clients=[clientid],
+                    method="update",
+                    target_element={
+                        "id": "manage_whitelist_table_row_{}".format(player_dict["steamid"]),
+                        "parent_id": "manage_whitelist_widget",
+                        "module": "whitelist",
+                        "type": "tr",
+                        "class": get_css_class(player_dict),
+                        "selector": "body > main > div > div#manage_whitelist_widget > main > table > tbody"
+                    }
+                )
 
 
 def update_widget_status(*args, **kwargs):
@@ -372,71 +381,79 @@ def update_widget_status(*args, **kwargs):
     )
 
 
-def update_component(*args, **kwargs):
+def update_selection_status(*args, **kwargs):
     module = args[0]
-    player_steamid = kwargs.get("updated_values_dict").get("steamid", None)
+    method = kwargs.get("method", None)
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
-    selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
-    original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
-    template_action_delete_button = module.templates.get_template(
-        'manage_whitelist_widget/control_action_delete_button.html'
-    )
-
-    for steamid in original_selected_player_entries + selected_player_entries:
-        player_entry_selected = True if steamid in selected_player_entries else False
-        data_to_emit = module.template_render_hook(
-            module,
-            control_select_link,
-            player=module.dom.data.get("module_players", {}).get("players", {}).get(
-                steamid, module.dom.data.get("module_whitelist", {}).get("players", {}).get(steamid, None)
-            ),
-            whitelist_entry_selected=player_entry_selected
+    if updated_values_dict is not None:
+        control_select_link = module.templates.get_template('manage_whitelist_widget/control_select_link.html')
+        selected_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
+        original_selected_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
+        template_action_delete_button = module.templates.get_template(
+            'manage_whitelist_widget/control_action_delete_button.html'
         )
 
-        module.webserver.send_data_to_client_hook(
-            module,
-            event_data=data_to_emit,
-            data_type="element_content",
-            clients=[dispatchers_steamid],
-            method="update",
-            target_element={
-                "id": "manage_whitelist_table_row_{}_control_select_link".format(str(steamid)),
-            }
-        )
+        if isinstance(selected_entries, str):
+            selected_entries = [selected_entries]
 
-        data_to_emit = module.template_render_hook(
-            module,
-            template_action_delete_button,
-            count=len(selected_player_entries),
-            delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
-        )
+        for identifier in original_selected_entries + selected_entries:
+            player = module.dom.data.get("module_whitelist", {}).get("players", {}).get(identifier, None)
+            if player is None:
+                continue  # location no longer exists, was probably just deleted
+            whitelist_entry_selected = True if identifier in selected_entries else False
 
-        module.webserver.send_data_to_client_hook(
-            module,
-            event_data=data_to_emit,
-            data_type="element_content",
-            clients=[dispatchers_steamid],
-            method="replace",
-            target_element={
-                "id": "manage_whitelist_widget_action_delete_button"
-            }
-        )
+            data_to_emit = module.template_render_hook(
+                module,
+                control_select_link,
+                player=player,
+                whitelist_entry_selected=whitelist_entry_selected
+            )
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                event_data=data_to_emit,
+                data_type="element_content",
+                clients=[dispatchers_steamid],
+                method="update",
+                target_element={
+                    "id": "manage_whitelist_table_row_{}_control_select_link".format(identifier),
+                }
+            )
+
+        for clientid in module.webserver.connected_clients.keys():
+            current_selected_entries = module.dom.data.get("module_whitelist", {}).get("selected", {}).get(clientid, [])
+            data_to_emit = module.template_render_hook(
+                module,
+                template_action_delete_button,
+                count=len(current_selected_entries),
+                delete_selected_entries_active=True if len(current_selected_entries) >= 1 else False
+            )
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                event_data=data_to_emit,
+                data_type="element_content",
+                clients=[clientid],
+                method="replace",
+                target_element={
+                    "id": "manage_whitelist_widget_action_delete_button"
+                }
+            )
 
 
 widget_meta = {
     "description": "manages whitelist entries",
     "main_widget": select_view,
-    "component_widget": update_widget,
     "handlers": {
         "module_whitelist/visibility/%steamid%/current_view": select_view,
-        "module_whitelist/selected/%steamid%": update_component,
-        "module_whitelist/players": update_widget,
-        "module_players/online_players": update_widget,
-        "module_whitelist/is_active": update_widget_status
+        "module_whitelist/players/%steamid%": table_row,
+        "module_whitelist/selected/%steamid%": update_selection_status,
+        "module_whitelist/is_active": update_widget_status,
+        "module_players/players/%steamid%": table_row
     },
-    "enabled": True
+    "enabled": False
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)
