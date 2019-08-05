@@ -202,7 +202,7 @@ def create_new_view(*args, **kwargs):
         'locations_widget/control_player_location.html'
     )
 
-    player_position = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+    player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
         "pos", {"x": 0, "y": 0, "z": 0}
     )
 
@@ -227,9 +227,9 @@ def create_new_view(*args, **kwargs):
             control_player_location_view=module.template_render_hook(
                 module,
                 control_player_location_view,
-                pos_x=player_position["x"],
-                pos_y=player_position["y"],
-                pos_z=player_position["z"]
+                pos_x=player_coordinates["x"],
+                pos_y=player_coordinates["y"],
+                pos_z=player_coordinates["z"]
             )
         ),
         widget_options=module.options,
@@ -253,7 +253,6 @@ def create_new_view(*args, **kwargs):
 def table_row(*args, **kwargs):
     module = args[0]
     method = kwargs.get("method", None)
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
@@ -336,16 +335,18 @@ def update_player_location(*args, **kwargs):
     if dispatchers_steamid not in webserver_logged_in_users:
         return
 
-    player_position = updated_values_dict.get("pos", {})
     control_player_location_view = module.templates.get_template(
         'locations_widget/control_player_location.html'
     )
+
+    player_coordinates = updated_values_dict.get("pos", {})
+
     data_to_emit = module.template_render_hook(
         module,
         control_player_location_view,
-        pos_x=player_position["x"],
-        pos_y=player_position["y"],
-        pos_z=player_position["z"]
+        pos_x=player_coordinates["x"],
+        pos_y=player_coordinates["y"],
+        pos_z=player_coordinates["z"]
     )
 
     module.webserver.send_data_to_client_hook(
