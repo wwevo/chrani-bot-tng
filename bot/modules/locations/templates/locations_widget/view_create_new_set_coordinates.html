@@ -1,0 +1,39 @@
+<table class="box_input">
+    <thead>
+        <tr>
+            <th>
+                Choose the coordinates of your location
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="flex_row">
+                <div class="flex_item">
+                    <label>x: <input name="location_coordinates_x" type="text" value="{{ pos_x }}" /></label>
+                    <label>y: <input name="location_coordinates_y" type="text" value="{{ pos_y }}" /></label>
+                    <label>z: <input name="location_coordinates_z" type="text" value="{{ pos_z }}" /></label>
+                </div>
+                <div class="flex_item">
+                    <a href="#" onclick="use_current_coordinates(); return false;">use current position</a>
+                </div>
+                <script language="javascript">
+                    function use_current_coordinates() {
+                        $("input[name='location_coordinates_x']").val($("#location_coordinates_x").text());
+                        $("input[name='location_coordinates_y']").val($("#location_coordinates_y").text());
+                        $("input[name='location_coordinates_z']").val($("#location_coordinates_z").text());
+                    }
+                </script>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                Sets the coordinates of your location<br />
+                This will be the S/E corner of your location area. For round shapes, imagine a rectangle wrapped around
+                it and use it's S/E corner
+            </td>
+        </tr>
+    </tfoot>
+</table>

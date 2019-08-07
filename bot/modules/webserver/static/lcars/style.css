@@ -35,6 +35,15 @@ html {
     background: var(--background);
 }
 
+.flex_row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex_item {
+    flex: 0;
+}
+
 a,
 a:visited {
     color: var(--background);
@@ -166,9 +175,9 @@ body > main > div .widget {
     display: none;
 }
 
-.widget > main table.box_select,
-.widget > main table.box_input {
-    margin-bottom: 0.5em;
+.widget > main table.box_input,
+.widget > main table.box_select {
+    margin-bottom: 1.5em;
 }
 
 .widget > main table.box_select tfoot td,
@@ -328,6 +337,14 @@ main > div > #telnet_log_widget .log_line {
 main > div > #locations_widget #current_player_pos > span > div {
     display: flex;
     justify-content: flex-end;
+}
+
+main > div > #locations_widget #current_player_pos > span > div > div {
+    margin-right: 0.5em;
+}
+
+main > div > #locations_widget #current_player_pos > span > div > div:last-child {
+    margin-right: 0;
 }
 
 main > div > #locations_widget #current_player_pos > span > div > label {
