@@ -426,8 +426,9 @@ footer > div > p {
 
 .widget > main {
     float: right;
-    width: calc(100% - var(--main_shoulder_width));
+    width: calc(100% - var(--main_shoulder_width) - 1em);
     min-height: calc(176px + 1.5em);
+    padding-right: 1em;
 }
 
 .widget > aside > div {
