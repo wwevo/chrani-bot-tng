@@ -52,6 +52,7 @@ def frontend_view(*args, **kwargs):
     )
 
     control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
+    control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
     template_action_delete_button = module.templates.get_template(
         'locations_widget/control_action_delete_button.html'
     )
@@ -77,6 +78,11 @@ def frontend_view(*args, **kwargs):
                         module,
                         control_select_link,
                         location_entry_selected=location_entry_selected,
+                        location=location_dict,
+                    ),
+                    control_enabled_link=module.template_render_hook(
+                        module,
+                        control_enabled_link,
                         location=location_dict,
                     )
                 )
@@ -257,6 +263,7 @@ def table_row(*args, **kwargs):
     original_values_dict = kwargs.get("original_values_dict", None)
 
     control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
+    control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
 
     if updated_values_dict is not None:
@@ -281,6 +288,11 @@ def table_row(*args, **kwargs):
                                     module,
                                     control_select_link,
                                     location_entry_selected=False,
+                                    location=location_dict,
+                                ),
+                                control_enabled_link=module.template_render_hook(
+                                    module,
+                                    control_enabled_link,
                                     location=location_dict,
                                 ),
                                 css_class=get_table_row_css_class(location_dict)
@@ -409,6 +421,47 @@ def update_selection_status(*args, **kwargs):
     update_delete_button_status(module)
 
 
+def update_enabled_flag(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    original_values_dict = kwargs.get("original_values_dict", None)
+
+    control_enable_link = module.templates.get_template('locations_widget/control_enabled_link.html')
+
+    location_origin = original_values_dict["origin"]
+    location_owner = original_values_dict["owner"]
+    location_identifier = original_values_dict["identifier"]
+
+    location_dict = (
+        module.dom.data.get("module_locations", {})
+        .get("elements", {})
+        .get(location_origin, {})
+        .get(location_owner, {})
+        .get(location_identifier, None)
+    )
+
+    data_to_emit = module.template_render_hook(
+        module,
+        control_enable_link,
+        location=location_dict,
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        event_data=data_to_emit,
+        data_type="element_content",
+        clients="all",
+        method="update",
+        target_element={
+            "id": "manage_locations_table_row_{}_{}_{}_control_enabled_link".format(
+                location_origin,
+                location_owner,
+                location_identifier
+            ),
+        }
+    )
+
+
 def update_delete_button_status(module):
     template_action_delete_button = module.templates.get_template('locations_widget/control_action_delete_button.html')
 
@@ -457,6 +510,8 @@ widget_meta = {
             table_row,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
             update_selection_status,
+        "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
+            update_enabled_flag,
         "module_players/players/%steamid%/pos":
             update_player_location
     },

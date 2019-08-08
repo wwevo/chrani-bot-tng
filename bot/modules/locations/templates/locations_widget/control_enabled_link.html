@@ -1,0 +1,16 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{{ construct_toggle_link(
+        location.is_enabled,
+        "enabled", ['widget_event', ['locations', ['management_tools', {
+            "location_owner": location.owner,
+            "location_identifier": location.identifier,
+            "location_origin": location.origin,
+            "action": "disable_location_entry"
+        }]]],
+        "enabled", ['widget_event', ['locations', ['management_tools', {
+            "location_owner": location.owner,
+            "location_identifier": location.identifier,
+            "location_origin": location.origin,
+            "action": "enable_location_entry"
+        }]]]
+    ) }}

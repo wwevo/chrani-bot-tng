@@ -6,13 +6,7 @@
         <span id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
     <td class="right" id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_actions">
-        <span id="locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_control_toggle_active_link" class="toggle_button">
-        {{ construct_toggle_link(
-            location_is_enabled,
-            "enabled", ['widget_event', ['locations', ['management_tools', {"identifier": location.identifier, "action": "disable_location"}]]],
-            "enabled", ['widget_event', ['locations', ['management_tools', {"identifier": location.identifier, "action": "enable_location"}]]]
-        ) }}
-        </span>
+        <span id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_control_enabled_link" class="toggle_button">{{ control_enabled_link }}</span>
     <!-- <span id="locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_control_edit_link" class="edit_button">
         {{ construct_toggle_link(
             True,
