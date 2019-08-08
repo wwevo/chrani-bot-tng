@@ -462,9 +462,10 @@ footer > div > p {
 }
 
 .widget > main > table > tbody > tr > td {
-    height: 24px; line-height: 16px;
+    font-size: 1.25em;
+    height: 28px; line-height: 24px;
     white-space: nowrap;
-    padding: 0 0.25em;
+    padding: 0 4px;
 }
 
 .widget > main > table > tbody > tr > td[id$='_name'] {
