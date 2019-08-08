@@ -193,16 +193,23 @@ body > main > div .widget {
 .widget > main table.box_select tfoot tr td,
 .widget > main table.box_input tfoot tr td {
     color: var(--background);
-    background-color: var(--lcars-light-blue);
+    padding: 0.5em 0;
+}
+
+.widget > main table.box_select tfoot tr td > div,
+.widget > main table.box_input tfoot tr td > div {
+    background-image: linear-gradient(to right, var(--background),  var(--lcars-light-blue), var(--lcars-light-blue), var(--lcars-light-blue));
     text-align: right;
-    padding: 0.5em;
+    line-height: 1em;
+    font-size: 0.9em;
+    padding: 0.8em;
     /* display: none; */
 }
 
 .widget > main > table > caption {
     /* display: none; */
-    border-top: 0.5em solid black;
-    border-bottom: 0.5em solid black;
+    border-top: 0.5em solid var(--background);
+    border-bottom: 0.5em solid var(--background);
     color: var(--lcars-light-blue);
     margin-right: 1em;
 }

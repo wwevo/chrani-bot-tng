@@ -1,38 +1,50 @@
 <table class="box_input">
     <thead>
         <tr>
-            <th>
+            <th colspan="4">
                 Choose the coordinates of your location
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td class="flex_row">
-                <div class="flex_item">
-                    <label>x: <input name="location_coordinates_x" type="text" value="{{ pos_x }}" /></label>
-                    <label>y: <input name="location_coordinates_y" type="text" value="{{ pos_y }}" /></label>
-                    <label>z: <input name="location_coordinates_z" type="text" value="{{ pos_z }}" /></label>
+            <td>
+                <div>
+                    <label>x: <input size="6" name="location_coordinates_x" type="text" value="{{ pos_x }}" /></label>
                 </div>
-                <div class="flex_item">
+            </td>
+            <td>
+                <div>
+                    <label>y: <input size="6" name="location_coordinates_y" type="text" value="{{ pos_y }}" /></label>
+                </div>
+            </td>
+            <td>
+                <div>
+                    <label>z: <input size="6" name="location_coordinates_z" type="text" value="{{ pos_z }}" /></label>
+                </div>
+            </td>
+            <td>
+                <div>
                     <a href="#" onclick="use_current_coordinates(); return false;">use current position</a>
                 </div>
-                <script language="javascript">
-                    function use_current_coordinates() {
-                        $("input[name='location_coordinates_x']").val($("#location_coordinates_x").text());
-                        $("input[name='location_coordinates_y']").val($("#location_coordinates_y").text());
-                        $("input[name='location_coordinates_z']").val($("#location_coordinates_z").text());
-                    }
-                </script>
             </td>
+            <script language="javascript">
+                function use_current_coordinates() {
+                    $("input[name='location_coordinates_x']").val($("#location_coordinates_x").text());
+                    $("input[name='location_coordinates_y']").val($("#location_coordinates_y").text());
+                    $("input[name='location_coordinates_z']").val($("#location_coordinates_z").text());
+                }
+            </script>
         </tr>
     </tbody>
     <tfoot>
         <tr>
-            <td>
-                Sets the coordinates of your location<br />
-                This will be the S/E corner of your location area. For round shapes, imagine a rectangle wrapped around
-                it and use it's S/E corner
+            <td colspan="4">
+                <div>
+                    Sets the coordinates of your location<br />
+                    This will be the S/E corner of your location area. For round shapes, imagine a rectangle wrapped around
+                    it and use it's S/E corner
+                </div>
             </td>
         </tr>
     </tfoot>
