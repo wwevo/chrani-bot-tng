@@ -1,3 +1,4 @@
+{% set is_edit = location_to_edit_dict|length > 1 %}
 <header>
     <div>
         <span>Locations</span>
@@ -16,12 +17,18 @@
         <tbody>
             <tr>
                 <td>
+                    {% with location_dict=location_to_edit_dict %}
                     {% include "locations_widget/view_create_new_set_name.html" %}
+                    {% if not is_edit %}
                     {% include "locations_widget/view_create_new_identifier.html" %}
+                    {% endif %}
                     {% include "locations_widget/view_create_new_set_coordinates.html" %}
                     {% include "locations_widget/view_create_new_select_shape.html" %}
                     {% include "locations_widget/view_create_new_set_dimensions.html" %}
+                    {% if not is_edit %}
                     {% include "locations_widget/view_create_new_control_send_data.html" %}
+                    {% endif %}
+                    {% endwith %}
                 </td>
             </tr>
         </tbody>

@@ -7,20 +7,22 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
-    player_steamid = event_data[1].get("steamid", None)
+    location_owner = event_data[1].get("location_owner", None)
+    location_identifier = event_data[1].get("location_identifier", None)
+    location_origin = event_data[1].get("location_origin", None)
 
     if action is not None:
         either_true = True
         if action == "show_options":
             current_view = "options"
-            current_view_steamid = None
         elif action == "show_frontend":
             current_view = "frontend"
-            current_view_steamid = None
         elif action == "show_create_new":
             current_view = "create_new"
-            current_view_steamid = None
+        elif action == "edit_location_entry":
+            current_view = "edit_location_entry"
         else:
+            current_view = "frontend"
             either_true = False
 
         if either_true:
@@ -29,7 +31,9 @@ def main_function(module, event_data, dispatchers_steamid):
                     "visibility": {
                         dispatchers_steamid: {
                             "current_view": current_view,
-                            "current_view_steamid": current_view_steamid
+                            "location_owner": location_owner,
+                            "location_identifier": location_identifier,
+                            "location_origin": location_origin
                         }
                     }
                 }

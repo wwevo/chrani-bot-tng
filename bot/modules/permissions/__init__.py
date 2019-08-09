@@ -44,6 +44,7 @@ class Permissions(Module):
         permission_denied = False
 
         if any([
+                event_data[0] == "toggle_locations_view",
                 event_data[0] == "toggle_player_table_widget_view",
                 event_data[0] == "toggle_whitelist_widget_view",
                 event_data[0] == "toggle_webserver_status_view",
@@ -53,24 +54,42 @@ class Permissions(Module):
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
-        if any([
-                event_data[0] == "manage_whitelist",
-        ]):
+        if module.get_module_identifier() == "module_locations":
+            print(event_data[0], event_data[1]["action"])
             if any([
-                event_data[1]["action"] == "activate_whitelist",
-                event_data[1]["action"] == "deactivate_whitelist",
-                event_data[1]["action"] == "remove_from_whitelist",
-                event_data[1]["action"] == "add_to_whitelist"
+                    event_data[0] == "management_tools",
+                    event_data[0] == "toggle_locations_view"
+            ]):
+                if any([
+                    event_data[1]["action"] == "edit_location_entry",
+                    event_data[1]["action"] == "select_location_entry",
+                    event_data[1]["action"] == "deselect_location_entry",
+                    event_data[1]["action"] == "enable_location_entry",
+                    event_data[1]["action"] == "disable_location_entry"
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                        permission_denied = True
+                    if str(dispatchers_id) == event_data[1]["location_owner"]:
+                        permission_denied = False
+
+        if module.get_module_identifier() == "module_whitelist":
+            if any([
+                    event_data[0] == "manage_whitelist",
+            ]):
+                if any([
+                    event_data[1]["action"] == "activate_whitelist",
+                    event_data[1]["action"] == "deactivate_whitelist",
+                    event_data[1]["action"] == "remove_from_whitelist",
+                    event_data[1]["action"] == "add_to_whitelist"
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                        permission_denied = True
+        if module.get_module_identifier() == "module_environment":
+            if any([
+                    event_data[0] == "shutdown"
             ]):
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
-
-        if any([
-                event_data[0] == "shutdown",
-                event_data[0] == "switch_data_transfer"
-        ]):
-            if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
-                permission_denied = True
 
         if not permission_denied:
             return module.trigger_action(module, event_data, dispatchers_id)

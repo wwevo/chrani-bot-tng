@@ -1,3 +1,8 @@
+{% set dimensions = location_dict.dimensions|default({}) %}
+{% set location_dimensions_radius_value = dimensions.radius|default("0") %}
+{% set location_dimensions_width_value = dimensions.width|default("0") %}
+{% set location_dimensions_length_value = dimensions.length|default("0") %}
+{% set location_dimensions_height_value = dimensions.height|default("0") %}
 <table class="box_input">
     <thead>
         <tr>

@@ -198,7 +198,8 @@ body > main > div .widget {
 
 .widget > main table.box_select tfoot tr td > div,
 .widget > main table.box_input tfoot tr td > div {
-    background-image: linear-gradient(to right, var(--background),  var(--lcars-light-blue), var(--lcars-light-blue), var(--lcars-light-blue));
+     /* background-image: linear-gradient(to right, var(--background),  var(--lcars-light-blue), var(--lcars-light-blue), var(--lcars-light-blue)); */
+    background-color: var(--lcars-light-blue);
     text-align: right;
     line-height: 1em;
     font-size: 0.9em;
@@ -481,10 +482,13 @@ footer > div > p {
 
 .widget > main > table > tbody > tr > td[id$='_actions'] {
     display: flex;
+    margin-right: -5px;
 }
 
 .widget > main > table > tbody > tr > td[id$='_actions'] > span {
     flex: 0 0 auto;
+    margin-right: 5px;
+
 }
 
 .widget > main > table > tfoot > tr {

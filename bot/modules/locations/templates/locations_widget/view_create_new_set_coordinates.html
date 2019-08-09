@@ -1,3 +1,7 @@
+{% set coordinates = location_dict.coordinates|default({}) %}
+{% set pos_x = coordinates.x|default("0") %}
+{% set pos_y = coordinates.y|default("0") %}
+{% set pos_z = coordinates.z|default("0") %}
 <table class="box_input">
     <thead>
         <tr>

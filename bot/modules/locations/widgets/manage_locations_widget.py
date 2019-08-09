@@ -27,9 +27,30 @@ def select_view(*args, **kwargs):
     )
 
     if current_view == "options":
-        options_view(module, dispatchers_steamid=dispatchers_steamid)
+        options_view(
+            module,
+            dispatchers_steamid=dispatchers_steamid,
+            current_view=current_view
+        )
     elif current_view == "create_new":
-        create_new_view(module, dispatchers_steamid=dispatchers_steamid)
+        edit_view(
+            module,
+            dispatchers_steamid=dispatchers_steamid,
+            current_view=current_view
+        )
+    elif current_view == "edit_location_entry":
+        location_owner = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_owner", None)
+        location_identifier = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_identifier", None)
+        location_origin = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_origin", None)
+
+        edit_view(
+            module,
+            dispatchers_steamid=dispatchers_steamid,
+            location_owner=location_owner,
+            location_identifier=location_identifier,
+            location_origin=location_origin,
+            current_view=current_view
+        )
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
@@ -51,6 +72,7 @@ def frontend_view(*args, **kwargs):
         'locations_widget/control_switch_create_new_view.html'
     )
 
+    control_edit_link = module.templates.get_template('locations_widget/control_edit_link.html')
     control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
     control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
     template_action_delete_button = module.templates.get_template(
@@ -83,6 +105,12 @@ def frontend_view(*args, **kwargs):
                     control_enabled_link=module.template_render_hook(
                         module,
                         control_enabled_link,
+                        location=location_dict,
+                    ),
+                    control_edit_link=module.template_render_hook(
+                        module,
+                        control_edit_link,
+                        dispatchers_steamid=dispatchers_steamid,
                         location=location_dict,
                     )
                 )
@@ -189,9 +217,23 @@ def options_view(*args, **kwargs):
     )
 
 
-def create_new_view(*args, **kwargs):
+def edit_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    edit_mode = kwargs.get("current_view", None)
+
+    if edit_mode == "edit_location_entry":
+        location_owner = kwargs.get("location_owner", None)
+        location_identifier = kwargs.get("location_identifier", None)
+        location_origin = kwargs.get("location_origin", None)
+        if all([
+            location_owner is not None,
+            location_identifier is not None,
+            location_origin is not None
+        ]):
+            location_to_edit_dict = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(location_origin).get(location_owner).get(location_identifier)
+    else:
+        location_to_edit_dict = {}
 
     template_frontend = module.templates.get_template('locations_widget/view_create_new.html')
 
@@ -239,8 +281,7 @@ def create_new_view(*args, **kwargs):
             )
         ),
         widget_options=module.options,
-        available_actions=module.all_available_actions_dict,
-        available_widgets=module.all_available_widgets_dict
+        location_to_edit_dict=location_to_edit_dict
     )
 
     module.webserver.send_data_to_client_hook(
@@ -263,6 +304,7 @@ def table_row(*args, **kwargs):
     original_values_dict = kwargs.get("original_values_dict", None)
 
     control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
+    control_edit_link = module.templates.get_template('locations_widget/control_edit_link.html')
     control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
 
@@ -293,6 +335,11 @@ def table_row(*args, **kwargs):
                                 control_enabled_link=module.template_render_hook(
                                     module,
                                     control_enabled_link,
+                                    location=location_dict,
+                                ),
+                                control_edit_link=module.template_render_hook(
+                                    module,
+                                    control_edit_link,
                                     location=location_dict,
                                 ),
                                 css_class=get_table_row_css_class(location_dict)
