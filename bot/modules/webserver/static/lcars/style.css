@@ -437,6 +437,7 @@ footer > div > p {
     width: calc(100% - var(--main_shoulder_width) - 1em);
     min-height: calc(176px + 1.5em);
     padding-right: 1em;
+    overflow-y: auto;
 }
 
 .widget > aside > div {
@@ -470,7 +471,7 @@ footer > div > p {
 }
 
 .widget > main > table > tbody > tr > td {
-    font-size: 1.25em;
+    font-size: 1.125em;
     height: 28px; line-height: 24px;
     white-space: nowrap;
     padding: 0 4px;
@@ -500,7 +501,10 @@ footer > div > p {
 }
 
 .widget > main > table > tfoot > tr > td > div {
-    background-color: var(--lcars-yellow); margin: 0 0.25em 0 0.25em;
+    background-color: var(--lcars-yellow);
+    margin: 0 0.25em;
+    padding-left: 10em;
+    height: 20px; line-height: 20px;
     border-top-right-radius: 1em;
     border-bottom-right-radius: 1em;
     border-bottom-left-radius: 3em 2em;
@@ -531,9 +535,14 @@ footer > div > p {
 
 .widget main .delete_button {
     display: inline-block;
-    margin-left: 10em;
+    height: 20px; line-height: 20px;
     border-left: 0.5em solid black;
     border-right: 0.5em solid black;
+}
+
+.widget main .delete_button span a,
+.widget main .delete_button span {
+    display: inline-block;
 }
 
 .widget main .delete_button span.active a,
