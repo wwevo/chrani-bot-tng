@@ -57,6 +57,7 @@ class Permissions(Module):
         if module.get_module_identifier() == "module_locations":
             print(event_data[0], event_data[1]["action"])
             if any([
+                    event_data[0] == "manage_locations",
                     event_data[0] == "management_tools",
                     event_data[0] == "toggle_locations_view"
             ]):
@@ -71,6 +72,11 @@ class Permissions(Module):
                         permission_denied = True
                     if str(dispatchers_id) == event_data[1]["location_owner"]:
                         permission_denied = False
+                if any([
+                    event_data[1]["action"] == "show_create_new",
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 4:
+                        permission_denied = True
 
         if module.get_module_identifier() == "module_whitelist":
             if any([
