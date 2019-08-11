@@ -14,12 +14,15 @@ def select_view(*args, **kwargs):
     )
 
     if current_view == "options":
-        options_view(module, dispatchers_steamid)
+        options_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
-        frontend_view(module, dispatchers_steamid)
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
 
-def frontend_view(module, dispatchers_steamid=None):
+def frontend_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('webserver_status_widget/view_frontend.html')
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
 
@@ -62,7 +65,7 @@ def frontend_view(module, dispatchers_steamid=None):
             control_servertime=module.template_render_hook(
                 module,
                 template_servertime,
-                time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
+                time=module.dom.data.get("module_telnet", {}).get("last_recorded_servertime", None),
             )
         ),
         server_is_online=server_is_online
@@ -81,7 +84,10 @@ def frontend_view(module, dispatchers_steamid=None):
     )
 
 
-def options_view(module, dispatchers_steamid=None):
+def options_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('webserver_status_widget/view_options.html')
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
 
@@ -128,7 +134,9 @@ def options_view(module, dispatchers_steamid=None):
     )
 
 
-def update_servertime(module, updated_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_servertime(*args, **kwargs):
+    module = args[0]
+
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
     servertime_view = module.template_render_hook(
         module,
@@ -148,9 +156,12 @@ def update_servertime(module, updated_values_dict=None, original_values_dict=Non
     )
 
 
-def update_logged_in_users(module, updated_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_logged_in_users(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    original_values_dict = kwargs.get("original_values_dict", None)
+
     webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
-    old_webserver_logged_in_users = original_values_dict.get("webserver_logged_in_users", {})
 
     component_logged_in_users = module.templates.get_template('webserver_status_widget/component_logged_in_users.html')
     component_logged_in_users_view = module.template_render_hook(
@@ -179,7 +190,7 @@ widget_meta = {
         "module_webserver/webserver_logged_in_users": update_logged_in_users,
         "module_telnet/last_recorded_servertime": update_servertime
     },
-    "enabled": False
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

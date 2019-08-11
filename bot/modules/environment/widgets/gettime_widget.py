@@ -5,9 +5,16 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, dispatchers_steamid=None):
+def main_widget(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
-    gametime = module.dom.data.get("module_environment").get("last_recorded_gametime", True)
+    gametime = module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {
+        "day": "00",
+        "hour": "00",
+        "minute": "00",
+    })
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -27,7 +34,11 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_widget(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    original_values_dict = kwargs.get("original_values_dict", None)
+
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = original_values_dict.get("last_recorded_gametime", None)
     if gametime is None:
@@ -65,7 +76,7 @@ widget_meta = {
     "handlers": {
         "module_environment/last_recorded_gametime": update_widget
     },
-    "enabled": False
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

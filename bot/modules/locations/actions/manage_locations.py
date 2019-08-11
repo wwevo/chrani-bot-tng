@@ -54,7 +54,7 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, depth=4)
+            }, dispatchers_steamid=dispatchers_steamid, depth=3)
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
     elif action == "delete_selected_entries":

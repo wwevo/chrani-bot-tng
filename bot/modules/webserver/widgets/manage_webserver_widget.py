@@ -18,12 +18,15 @@ def select_view(*args, **kwargs):
     )
 
     if current_view == "options":
-        options_view(module, dispatchers_steamid)
+        options_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
-        frontend_view(module, dispatchers_steamid)
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
 
-def frontend_view(module, dispatchers_steamid=None):
+def frontend_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('widget_handling/view_frontend.html')
     template_options_toggle = module.templates.get_template('widget_handling/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
@@ -66,7 +69,10 @@ def frontend_view(module, dispatchers_steamid=None):
     )
 
 
-def options_view(module, dispatchers_steamid=None):
+def options_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('widget_handling/view_options.html')
 
     template_options_toggle = module.templates.get_template('widget_handling/control_switch_view.html')

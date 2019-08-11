@@ -269,11 +269,20 @@ class CallbackDict(dict, object):
                 working_paths_list = matching_callback_path
 
             if not forced_overwrite:
-                d_v = working_copy_dict.get(k)
+                d_v = working_copy_dict.get(k, None)
+                if isinstance(v, Mapping) and d_v is None:
+                    # doesn't exist in working copy
+                    working_copy_dict[k] = v
+                    d_v = working_copy_dict.get(k)
                 if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                    self.upsert(v, dict_to_update=d_v, original_values_dict=original_values_dict[k], path=path,
-                                layer=layer + 1, callbacks=callbacks, overwrite=overwrite,
-                                dispatchers_steamid=dispatchers_steamid, depth=depth)
+                    try:
+                        self.upsert(v, dict_to_update=d_v, original_values_dict=original_values_dict[k], path=path,
+                                    layer=layer + 1, callbacks=callbacks, overwrite=overwrite,
+                                    dispatchers_steamid=dispatchers_steamid, depth=depth)
+                    except KeyError:
+                        self.upsert(v, dict_to_update=d_v, original_values_dict=original_values_dict, path=path,
+                                    layer=layer + 1, callbacks=callbacks, overwrite=overwrite,
+                                    dispatchers_steamid=dispatchers_steamid, depth=depth)
                 else:
                     working_copy_dict[k] = v
                     if isinstance(v, Mapping) and len(v) >= 1:
@@ -286,7 +295,7 @@ class CallbackDict(dict, object):
                 try:
                     for working_path in working_paths_list:
                         for callback in self.registered_callbacks[working_path]:
-                            if depth == len(working_path.split("/")):
+                            if depth == len(working_path.split("/")) or depth == layer:
                                 callbacks.append(
                                     self.get_callback_package(
                                         updated_values=updated_values_dict,

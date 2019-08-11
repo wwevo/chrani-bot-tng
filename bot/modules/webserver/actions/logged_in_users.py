@@ -10,7 +10,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
         module.get_module_identifier(): {
             "webserver_logged_in_users": module.connected_clients
         }
-    }, overwrite=True)
+    }, overwrite=True, depth=1)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):

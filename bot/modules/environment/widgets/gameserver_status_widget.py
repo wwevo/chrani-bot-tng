@@ -5,7 +5,10 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, dispatchers_steamid=None):
+def main_widget(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
@@ -32,7 +35,10 @@ def main_widget(module, dispatchers_steamid=None):
     )
 
 
-def update_widget(module, updated_values_dict=None, original_values_dict=None, dispatchers_steamid=None):
+def update_widget(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
     template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
 
     telnet_data_transfer_is_enabled = module.dom.get_updated_or_default_value(
@@ -78,7 +84,7 @@ widget_meta = {
         "module_telnet/cancel_shutdown": update_widget,
         "module_telnet/force_shutdown": update_widget
     },
-    "enabled": False
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

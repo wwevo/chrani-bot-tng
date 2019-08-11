@@ -335,10 +335,6 @@ class Webserver(Module):
                 # user disappeared
                 print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
 
-        @self.websocket.on_error_default  # handles all namespaces without an explicit error handler
-        def default_error_handler(e):
-            print("websocket error: {} / event: {}".format(e, request.event["message"]))  # "my error event"
-
         @self.websocket.on('widget_event')
         @self.authenticated_only
         def widget_event(data):
