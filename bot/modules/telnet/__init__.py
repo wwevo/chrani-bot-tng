@@ -253,7 +253,7 @@ class Telnet(Module):
 
             if len(self.telnet_response) > 0:
                 self.telnet_buffer += self.telnet_response.lstrip()
-                self.telnet_buffer = self.telnet_buffer[-4096:]
+                self.telnet_buffer = self.telnet_buffer[-8144:]
 
                 # module_dom needs to be in the required modules list!!
                 # let's expose the telnet_buffer to the general module population via our DOM!
@@ -304,6 +304,9 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None:
+                        if not any(exclude_element in valid_telnet_line for exclude_element in ["'lp'", "'gettime'"]):
+                            print(valid_telnet_line)
+
                         self.valid_telnet_lines.append(valid_telnet_line)
 
                         if len(self.webserver.connected_clients) >= 1:

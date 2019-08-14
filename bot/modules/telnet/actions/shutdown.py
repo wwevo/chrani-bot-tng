@@ -32,7 +32,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
     if alert_admin == 1:
         module.webserver.send_data_to_client_hook(
-        module,
+            module,
             event_data=event_data,
             status="admin contacted! (well, not really)",
             data_type="alert_message",
