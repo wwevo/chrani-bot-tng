@@ -104,7 +104,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         module.get_module_identifier(): {
             "players": players_to_update_dict
         }
-    }, depth=4)
+    }, min_callback_level=2)
 
     if online_players_list != module.dom.data.get(module.get_module_identifier()).get("online_players"):
         module.dom.data.upsert({

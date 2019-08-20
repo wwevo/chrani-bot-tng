@@ -55,7 +55,7 @@ class Permissions(Module):
                     permission_denied = True
 
         if module.get_module_identifier() == "module_locations":
-            print(event_data[0], event_data[1]["action"])
+            # print(event_data[0], event_data[1]["action"])
             if any([
                     event_data[0] == "manage_locations",
                     event_data[0] == "management_tools",
@@ -90,7 +90,7 @@ class Permissions(Module):
                 ]):
                     if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                         permission_denied = True
-        if module.get_module_identifier() == "module_environment":
+        if module.get_module_identifier() == "module_telnet":
             if any([
                     event_data[0] == "shutdown"
             ]):

@@ -387,10 +387,11 @@ def table_row(*args, **kwargs):
 def update_player_location(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    dispatchers_steamid = updated_values_dict.get("steamid", None)
     webserver_logged_in_users = module.dom.data.get("module_webserver", {}).get(
         "webserver_logged_in_users", {}
     ).keys()
+
+    dispatchers_steamid = updated_values_dict.get("steamid")
     if dispatchers_steamid not in webserver_logged_in_users:
         return
 
@@ -461,7 +462,7 @@ def update_selection_status(*args, **kwargs):
                 location_origin,
                 location_owner,
                 location_identifier
-            ),
+            )
         }
     )
 
@@ -470,14 +471,14 @@ def update_selection_status(*args, **kwargs):
 
 def update_enabled_flag(*args, **kwargs):
     module = args[0]
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
     control_enable_link = module.templates.get_template('locations_widget/control_enabled_link.html')
 
-    location_origin = original_values_dict["origin"]
-    location_owner = original_values_dict["owner"]
-    location_identifier = original_values_dict["identifier"]
+    location_origin = original_values_dict.get("origin", None)
+    location_owner = original_values_dict.get("owner", None)
+    location_identifier = original_values_dict.get("identifier", None)
 
     location_dict = (
         module.dom.data.get("module_locations", {})

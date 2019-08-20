@@ -271,7 +271,7 @@ def update_widget(*args, **kwargs):
                         module,
                         event_data=player_dict,
                         data_type="table_row_content",
-                        clients=[clientid],
+                        clients="all",
                         method="update",
                         target_element={
                             "id": "player_table_row",
@@ -400,7 +400,7 @@ widget_meta = {
         "module_players/visibility/%steamid%/current_view": select_view,
 #        "module_players/selected/%steamid%": update_component,
 #        "module_players/players/%steamid%/is_online": update_component,
-#        "module_players/players/%steamid%": update_widget,
+        "module_players/players/%steamid%": update_widget,
     },
     "enabled": False
 }

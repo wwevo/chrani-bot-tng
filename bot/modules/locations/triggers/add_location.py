@@ -10,6 +10,26 @@ def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
     player_name = regex_result.group("player_name")
     entity_id = regex_result.group("entity_id")
+    steamid = regex_result.group("player_steamid")
+    room = regex_result.group("target_room")
+    event_data = ['manage_locations', {
+                    'location_identifier': "Test",
+                    'location_shape': "rectangular",
+                    'location_coordinates': {
+                        "x": 33,
+                        "y": 66,
+                        "z": 99
+                    },
+                    'location_dimensions': {
+                        'radius': None,
+                        'width': 10,
+                        'length': 10,
+                        'height': None,
+                    },
+                    'location_name': "Test",
+                    'action': 'create_new'}
+                ]
+    module.trigger_action_hook(origin_module, event_data, steamid)
     print(player_name, ":", entity_id, ":", command)
 
 
@@ -20,7 +40,9 @@ trigger_meta = {
         {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"\(BCM\)\sGlobal\:(?P<player_name>.*)\:(?P<entity_id>.*)\:\s(?P<command>.*)"
+                r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
+                r"to \'(?P<target_room>.*)\'\)\:\s"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
             ),
             "callback": main_function
         }

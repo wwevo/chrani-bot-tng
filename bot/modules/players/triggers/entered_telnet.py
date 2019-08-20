@@ -6,9 +6,8 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-    # print(command)
+
     executed_trigger = False
     if command == "Authenticating":
         player_steamid = regex_result.group("player_steamid")
@@ -23,6 +22,11 @@ def main_function(origin_module, module, regex_result):
         player_dict["is_online"] = True
         player_dict["in_limbo"] = True
         player_dict["is_initialized"] = False
+        player_dict["pos"] = {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+        }
 
         executed_trigger = True
 
@@ -41,6 +45,11 @@ def main_function(origin_module, module, regex_result):
         player_dict["is_online"] = True
         player_dict["in_limbo"] = True
         player_dict["is_initialized"] = False
+        player_dict["pos"] = {
+            "x": 0,
+            "y": 0,
+            "z": 0,
+        }
 
         executed_trigger = True
 

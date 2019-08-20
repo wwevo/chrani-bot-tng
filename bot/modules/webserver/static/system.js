@@ -225,15 +225,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
             });
         }
-
         if (data["data_type"] === "status_message") {
-
             if (data['status']) {
                 let json = data["status"];
-
                 if (json["status"]) {
                     let status = json["status"];
-
                     if (status === "success") {
                         play_audio_file("computerbeep_11");
                     } else if (status === "fail") {
@@ -243,9 +239,5 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
             }
         }
-        if (data["data_type"] === "alert_message") {
-            alert(data['status']);
-        }
     });
-
 });
