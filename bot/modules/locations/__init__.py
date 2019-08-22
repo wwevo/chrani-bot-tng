@@ -7,7 +7,9 @@ class Locations(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "default_max_locations": 3,
+            "standard_location_shape": "rectangular"
         })
 
         setattr(self, "required_modules", [

@@ -15,7 +15,9 @@ def main_function(module, event_data, dispatchers_steamid):
 
     if action == "create_new":
         location_name = event_data[1].get("location_name", None)
-        location_shape = event_data[1].get("location_shape", None)
+        if location_identifier is None:
+            location_identifier = ''.join(e for e in location_name if e.isalnum())
+        location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
         location_coordinates = event_data[1].get("location_coordinates", None)
         location_dimensions = event_data[1].get("location_dimensions", None)
         players_current_locations = (
@@ -30,8 +32,6 @@ def main_function(module, event_data, dispatchers_steamid):
             location_name is not None and len(location_name) >= 4,
             location_identifier is not None and location_identifier not in players_current_locations,
             location_shape is not None,
-            location_coordinates is not None,
-            location_dimensions is not None,
             current_map_identifier is not None,
         ]):
             module.dom.data.upsert({
@@ -47,7 +47,7 @@ def main_function(module, event_data, dispatchers_steamid):
                                     "coordinates": location_coordinates,
                                     "dimensions": location_dimensions,
                                     "owner": dispatchers_steamid,
-                                    "is_enabled": True,
+                                    "is_enabled": False,
                                     "selected_by": []
                                 }
                             }
