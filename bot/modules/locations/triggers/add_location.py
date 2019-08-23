@@ -28,7 +28,6 @@ def main_function(origin_module, module, regex_result):
                         'action': 'create_new'
                     }]
         module.trigger_action_hook(origin_module, event_data, steamid)
-        print(player_name, ":", entity_id, ":", command)
 
 
 trigger_meta = {

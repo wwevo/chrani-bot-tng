@@ -13,24 +13,27 @@ def main_function(module, event_data, dispatchers_steamid):
         .get("GameName", None)
     )
 
-    if action == "create_new":
+    if action == "create_new" or action == "edit":
         location_name = event_data[1].get("location_name", None)
         if location_identifier is None:
             location_identifier = ''.join(e for e in location_name if e.isalnum())
         location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
         location_coordinates = event_data[1].get("location_coordinates", None)
         location_dimensions = event_data[1].get("location_dimensions", None)
+        location_enabled = event_data[1].get("location_enabled", False)
         players_current_locations = (
             module.dom.data.get("module_locations", {})
             .get("elements", {})
             .get(current_map_identifier, {})
             .get(dispatchers_steamid, {})
         )
+        if location_identifier in players_current_locations:
+            pass
 
         if all([
             action is not None,
             location_name is not None and len(location_name) >= 4,
-            location_identifier is not None and location_identifier not in players_current_locations,
+            location_identifier is not None,
             location_shape is not None,
             current_map_identifier is not None,
         ]):
@@ -47,7 +50,7 @@ def main_function(module, event_data, dispatchers_steamid):
                                     "coordinates": location_coordinates,
                                     "dimensions": location_dimensions,
                                     "owner": dispatchers_steamid,
-                                    "is_enabled": False,
+                                    "is_enabled": location_enabled,
                                     "selected_by": []
                                 }
                             }

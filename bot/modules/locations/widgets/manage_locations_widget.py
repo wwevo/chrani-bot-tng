@@ -309,7 +309,7 @@ def table_row(*args, **kwargs):
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
 
     if updated_values_dict is not None:
-        if method == "upsert":  # callback_dict sent us here with an upsert notification!
+        if method == "upsert" or method == "edit":
             for clientid in module.webserver.connected_clients.keys():
                 current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(clientid, {}).get(
                     "current_view", "frontend"
@@ -318,10 +318,18 @@ def table_row(*args, **kwargs):
                     current_view == "frontend"
                 ]
                 table_is_visible = True if any(visibility_conditions) else False
-
                 if table_is_visible:  # only relevant if the table is shown
                     for ownerid, locations in updated_values_dict.items():
                         for identifier, location_dict in locations.items():
+                            try:
+                                table_row_id = "manage_locations_table_row_{}_{}_{}".format(
+                                    str(original_values_dict[ownerid][identifier]["origin"]),
+                                    str(ownerid),
+                                    str(identifier)
+                                )
+                            except KeyError:
+                                table_row_id = "locations_widget"
+
                             rendered_table_row = module.template_render_hook(
                                 module,
                                 template_table_rows,
@@ -350,9 +358,8 @@ def table_row(*args, **kwargs):
                                 event_data=rendered_table_row,
                                 data_type="table_row",
                                 clients=[clientid],
-                                method="append",
                                 target_element={
-                                    "id": "manage_locations_widget",
+                                    "id": table_row_id,
                                     "type": "tr",
                                     "class": get_table_row_css_class(location_dict),
                                     "selector": "body > main > div > div#locations_widget > main > table > tbody"
@@ -471,7 +478,6 @@ def update_selection_status(*args, **kwargs):
 
 def update_enabled_flag(*args, **kwargs):
     module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
     control_enable_link = module.templates.get_template('locations_widget/control_enabled_link.html')
