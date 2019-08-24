@@ -20,8 +20,6 @@ class Locations(Module):
 
         self.next_cycle = 0
         self.run_observer_interval = 5
-        self.all_available_actions_dict = {}
-        self.all_available_widgets_dict = {}
         Module.__init__(self)
 
     @staticmethod

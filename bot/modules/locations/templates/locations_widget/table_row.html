@@ -11,9 +11,7 @@
     </td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
-    <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_origin" onclick="$(this).selectText();">{{ location.origin }}</td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_owner" onclick="$(this).selectText();">{{ location.owner }}</td>
-    <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_shape">{{ location.shape }}</td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_coordinates" onclick="$(this).selectText();">
         {{ ((location | default({})).coordinates | default({}) ).x | default('0') }}
         {{ ((location | default({})).coordinates | default({}) ).y | default('0') }}

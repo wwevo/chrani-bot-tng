@@ -32,7 +32,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
         if all([
             action is not None,
-            location_name is not None and len(location_name) >= 4,
+            location_name is not None and len(location_name) >= 3,
             location_identifier is not None,
             location_shape is not None,
             current_map_identifier is not None,

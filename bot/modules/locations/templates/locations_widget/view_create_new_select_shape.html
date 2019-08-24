@@ -1,23 +1,23 @@
 {% set checked_string = ' checked="checked"' %}
 {% set location_shape_not_found = true %}
-{% if location_shape == "circle" %}
+{% if location_dict["shape"] == "circle" %}
     {% set location_shape_circle_checked = checked_string %}
     {% set location_shape_not_found = false %}
 {% endif %}
-{% if location_shape == "spherical" %}
+{% if location_dict["shape"] == "spherical" %}
     {% set location_shape_spherical_checked = checked_string %}
     {% set location_shape_not_found = false %}
 {% endif %}
-{% if location_shape == "rectangular" %}
+{% if location_dict["shape"] == "rectangular" %}
     {% set location_shape_rectangular_checked = checked_string %}
     {% set location_shape_not_found = false %}
 {% endif %}
-{% if location_shape == "box" %}
+{% if location_dict["shape"] == "box" %}
     {% set location_shape_box_checked = checked_string %}
     {% set location_shape_not_found = false %}
 {% endif %}
 {% if location_shape_not_found %}
-    {% set location_shape_square_checked = checked_string %}
+    {% set location_shape_rectangular_checked = checked_string %}
 {% endif %}
 <table class="box_select">
     <thead>

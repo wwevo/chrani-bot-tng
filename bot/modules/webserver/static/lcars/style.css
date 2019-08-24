@@ -271,11 +271,11 @@ body > header > div #gameserver_status_widget span > a:visited {
 
 body > header > div #gameserver_status_widget span > a {
     display: inline-block;
-    height: 1.5em; line-height: 1.5em;
-    padding: 0 0.5em;
+    padding: 0 0.25em;
     border-left: 0.5em solid var(--background);
-    color: var(--background);
-    background-color: var(--lcars-lilac);
+    border-right: 0.5em solid var(--background);
+    color: var(--background); /* Edge seems to require this */
+    background-color: var(--lcars-red);
 }
 
 body > header > div #gameserver_status_widget span > a:hover,
