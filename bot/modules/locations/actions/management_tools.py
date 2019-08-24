@@ -11,21 +11,22 @@ def main_function(module, event_data, dispatchers_steamid):
     location_owner = event_data[1].get("location_owner", None)
     location_identifier = event_data[1].get("location_identifier", None)
 
-    element_is_selected_by = (
-        module.dom.data.get(module.get_module_identifier(), {})
-        .get("elements", {})
-        .get(location_origin, {})
-        .get(location_owner, {})
-        .get(location_identifier, {})
-        .get("selected_by", [])
-    )
-
     if all([
-        location_origin is not None,
-        location_owner is not None,
-        location_identifier is not None,
+        action is not None
     ]):
+        if action == "teleport":
+            location_coordinates = event_data[1].get("location_coordinates", {})
+            print(location_coordinates)
         if action == "select_location_entry" or action == "deselect_location_entry":
+            element_is_selected_by = (
+                module.dom.data.get(module.get_module_identifier(), {})
+                    .get("elements", {})
+                    .get(location_origin, {})
+                    .get(location_owner, {})
+                    .get(location_identifier, {})
+                    .get("selected_by", [])
+            )
+
             if action == "select_location_entry":
                 element_is_selected_by.append(dispatchers_steamid)
             elif action == "deselect_location_entry":

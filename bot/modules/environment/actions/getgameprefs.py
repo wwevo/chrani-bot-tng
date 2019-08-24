@@ -61,7 +61,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    print("active world:", module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None))
+    print("working with the \"{}\" dataset".format(module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)))
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
