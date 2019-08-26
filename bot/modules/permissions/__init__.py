@@ -100,6 +100,7 @@ class Permissions(Module):
         if not permission_denied:
             return module.trigger_action(module, event_data, dispatchers_id)
         else:
+            print("permission denied for {} ({})".format(event_data[0], dispatchers_id))
             return False
 
     def template_render_hook_with_permission(self, module, template, **kwargs):

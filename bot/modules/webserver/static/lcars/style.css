@@ -214,12 +214,7 @@ body > main > div .widget {
     color: var(--lcars-light-blue);
     margin-right: 1em;
 }
-/*
-.widget > main > table > tfoot > tr {
-    background:
-            url(ui/main_shoulder.png) no-repeat top left / auto 40px,
-            url(ui/main_horizontal_bar_end.png) no-repeat top right / 22px;
-}
+
 /* specific layout-rules for certain modules/widgets */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
@@ -263,7 +258,6 @@ body > header > div > #gameserver_status_widget > div.inactive {
     background-color: var(--lcars-red);
 }
 
-
 body > header > div #gameserver_status_widget span > a,
 body > header > div #gameserver_status_widget span > a:visited {
     color: var(--lcars-dark-blue);
@@ -272,8 +266,8 @@ body > header > div #gameserver_status_widget span > a:visited {
 body > header > div #gameserver_status_widget span > a {
     display: inline-block;
     padding: 0 0.25em;
-    border-left: 0.5em solid var(--background);
-    border-right: 0.5em solid var(--background);
+    border-left: 0.25em solid var(--background);
+    border-right: 0.25em solid var(--background);
     color: var(--background); /* Edge seems to require this */
     background-color: var(--lcars-red);
 }
@@ -406,7 +400,7 @@ footer > div > p {
 /* debug options -> start */
 .widget {
     position: relative;
-    padding-right: 1em;
+    padding-right: var(--main_bar_terminator_width);
 }
 
 .widget > header {
@@ -435,9 +429,9 @@ footer > div > p {
 
 .widget > main {
     float: right;
-    width: calc(100% - var(--main_shoulder_width) - 1em);
+    width: calc(100% - var(--main_shoulder_width) - var(--main_bar_terminator_width));
     min-height: calc(176px + 1.5em);
-    padding-right: 1em;
+    padding-right: var(--main_bar_terminator_width);
     overflow-y: auto;
 }
 
@@ -503,7 +497,7 @@ footer > div > p {
 
 .widget > main > table > tfoot > tr > td > div {
     background-color: var(--lcars-yellow);
-    margin: 0 0.25em;
+    margin: 0 0 0 0.25em ;
     padding-left: 10em;
     height: 20px; line-height: 20px;
     border-top-right-radius: 1em;
@@ -537,8 +531,8 @@ footer > div > p {
 .widget main .delete_button {
     display: inline-block;
     height: 20px; line-height: 20px;
-    border-left: 0.5em solid black;
-    border-right: 0.5em solid black;
+    border-left: 0.25em solid var(--background);
+    border-right: 0.25em solid var(--background);
 }
 
 .widget main .delete_button span a,
@@ -552,7 +546,7 @@ footer > div > p {
 }
 
 .widget main .delete_button span.inactive a,
-.widget .delete_button span.inactive {
+.widget main .delete_button span.inactive {
     background-color: var(--lcars-yellow);
 }
 

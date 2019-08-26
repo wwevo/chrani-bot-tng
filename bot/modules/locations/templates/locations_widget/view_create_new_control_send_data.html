@@ -1,3 +1,4 @@
+{% set action = "edit" if is_edit else "create_new" %}
 <!-- This logic is for the UX experience only, all values are checked for validity in the bots backend //-->
 <script language="javascript">
     function send_location_data_to_bot() {
@@ -30,9 +31,10 @@
                 'location_coordinates': location_coordinates,
                 'location_dimensions': location_dimensions,
                 'location_name': location_name,
-                'action': 'create_new'}]
-            ]
+                'location_owner': "{{ location_dict.owner }}",
+                'action': "{{ action }}"
+            }]]
         );
     }
 </script>
-<a href="#" onclick="send_location_data_to_bot(); return false;">create new</a>
+<a href="#" onclick="send_location_data_to_bot(); return false;">save</a>

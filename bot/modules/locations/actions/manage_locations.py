@@ -14,6 +14,7 @@ def main_function(module, event_data, dispatchers_steamid):
     )
 
     if action == "create_new" or action == "edit":
+        location_owner = dispatchers_steamid if action == "create_new" else event_data[1].get("location_owner", None)
         location_name = event_data[1].get("location_name", None)
         if location_identifier is None:
             location_identifier = ''.join(e for e in location_name if e.isalnum())
@@ -21,17 +22,10 @@ def main_function(module, event_data, dispatchers_steamid):
         location_coordinates = event_data[1].get("location_coordinates", None)
         location_dimensions = event_data[1].get("location_dimensions", None)
         location_enabled = event_data[1].get("location_enabled", False)
-        players_current_locations = (
-            module.dom.data.get("module_locations", {})
-            .get("elements", {})
-            .get(current_map_identifier, {})
-            .get(dispatchers_steamid, {})
-        )
-        if location_identifier in players_current_locations:
-            pass
 
         if all([
             action is not None,
+            location_owner is not None,
             location_name is not None and len(location_name) >= 3,
             location_identifier is not None,
             location_shape is not None,
@@ -41,7 +35,7 @@ def main_function(module, event_data, dispatchers_steamid):
                 module.get_module_identifier(): {
                     "elements": {
                         current_map_identifier: {
-                            dispatchers_steamid: {
+                            str(location_owner): {
                                 location_identifier: {
                                     "name": location_name,
                                     "identifier": location_identifier,
@@ -49,7 +43,7 @@ def main_function(module, event_data, dispatchers_steamid):
                                     "shape": location_shape,
                                     "coordinates": location_coordinates,
                                     "dimensions": location_dimensions,
-                                    "owner": dispatchers_steamid,
+                                    "owner": str(location_owner),
                                     "is_enabled": location_enabled,
                                     "selected_by": []
                                 }
