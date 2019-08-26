@@ -14,7 +14,7 @@ def main_function(module, event_data, dispatchers_steamid):
     )
 
     if action == "create_new" or action == "edit":
-        location_owner = dispatchers_steamid if action == "create_new" else event_data[1].get("location_owner", None)
+        location_owner = dispatchers_steamid if action == "create_new" else event_data[1].get("location_owner", dispatchers_steamid)
         location_name = event_data[1].get("location_name", None)
         if location_identifier is None:
             location_identifier = ''.join(e for e in location_name if e.isalnum())
