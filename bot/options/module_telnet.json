@@ -1,9 +1,9 @@
 {
-    "host": "entertelnetip",
-    "port": "entertelnetport",
-    "password": "entertelnetpassword",
+    "host": "195.201.59.180",
+    "port": 27002,
+    "password": "adminlFHSCDBM",
     "max_queue_length": 150,
-	"run_observer_interval": 1,
+    "run_observer_interval": 1,
     "run_observer_interval_idle": 5,
-	"data_transfer_enabled": true
+    "data_transfer_enabled": true
 }
