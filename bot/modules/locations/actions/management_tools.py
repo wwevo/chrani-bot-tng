@@ -16,7 +16,13 @@ def main_function(module, event_data, dispatchers_steamid):
     ]):
         if action == "teleport":
             location_coordinates = event_data[1].get("location_coordinates", {})
-            print(location_coordinates)
+            print("tele {} {} {} {}".format(dispatchers_steamid, location_coordinates["x"], location_coordinates["y"], location_coordinates["z"]))
+            module.trigger_action_hook(module.players, ["teleport_player", {
+                "steamid": dispatchers_steamid,
+                "coordinates": location_coordinates
+            }], dispatchers_steamid)
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            return
         if action == "select_location_entry" or action == "deselect_location_entry":
             element_is_selected_by = (
                 module.dom.data.get(module.get_module_identifier(), {})
