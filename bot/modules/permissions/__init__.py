@@ -90,6 +90,7 @@ class Permissions(Module):
                 ]):
                     if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                         permission_denied = True
+
         if module.get_module_identifier() == "module_telnet":
             if any([
                     event_data[0] == "shutdown"

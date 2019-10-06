@@ -83,37 +83,39 @@ def frontend_view(*args, **kwargs):
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements = 0
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
     for map_identifier, location_owner in all_available_locations.items():
-        for owner_steamid, player_locations in location_owner.items():
-            for identifier, location_dict in player_locations.items():
-                location_entry_selected = False
-                if dispatchers_steamid in location_dict.get("selected_by"):
-                    location_entry_selected = True
-                    all_selected_elements += 1
+        if current_map_identifier == map_identifier:
+            for owner_steamid, player_locations in location_owner.items():
+                for identifier, location_dict in player_locations.items():
+                    location_entry_selected = False
+                    if dispatchers_steamid in location_dict.get("selected_by"):
+                        location_entry_selected = True
+                        all_selected_elements += 1
 
-                table_rows += module.template_render_hook(
-                    module,
-                    template_table_rows,
-                    location=location_dict,
-                    steamid=dispatchers_steamid,
-                    control_select_link=module.template_render_hook(
+                    table_rows += module.template_render_hook(
                         module,
-                        control_select_link,
-                        location_entry_selected=location_entry_selected,
+                        template_table_rows,
                         location=location_dict,
-                    ),
-                    control_enabled_link=module.template_render_hook(
-                        module,
-                        control_enabled_link,
-                        location=location_dict,
-                    ),
-                    control_edit_link=module.template_render_hook(
-                        module,
-                        control_edit_link,
-                        dispatchers_steamid=dispatchers_steamid,
-                        location=location_dict,
+                        steamid=dispatchers_steamid,
+                        control_select_link=module.template_render_hook(
+                            module,
+                            control_select_link,
+                            location_entry_selected=location_entry_selected,
+                            location=location_dict,
+                        ),
+                        control_enabled_link=module.template_render_hook(
+                            module,
+                            control_enabled_link,
+                            location=location_dict,
+                        ),
+                        control_edit_link=module.template_render_hook(
+                            module,
+                            control_edit_link,
+                            dispatchers_steamid=dispatchers_steamid,
+                            location=location_dict,
+                        )
                     )
-                )
 
     data_to_emit = module.template_render_hook(
         module,

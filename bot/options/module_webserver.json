@@ -1,9 +1,0 @@
-{
-    "host": "127.0.0.1",
-    "port": 27005,
-    "Flask_secret_key": "thisissecret",
-    "SocketIO_debug": false,
-    "SocketIO_use_reloader": null,
-    "SocketIO_asynch_mode": "gevent",
-    "engineio_logger": false
-}
