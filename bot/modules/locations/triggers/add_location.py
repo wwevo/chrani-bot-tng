@@ -35,11 +35,22 @@ trigger_meta = {
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "add location",
+            "identifier": "add location (Alloc)",
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
                 r"to \'(?P<target_room>.*)\'\)\:\s"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
+            ),
+            "callback": main_function
+        },
+        {
+            "identifier": "add location (BCM)",
+            "regex": (
+
+                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+                r"to\s\'(?P<target_room>.*)\'\)\:\s"
                 r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
             ),
             "callback": main_function
