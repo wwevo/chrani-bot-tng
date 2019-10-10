@@ -7,15 +7,21 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    location_identifier = "MyHome"
+    command = regex_result.group("command")
+    player_name = regex_result.group("player_name")
+    entity_id = regex_result.group("entity_id")
+    steamid = regex_result.group("player_steamid")
+
+    result = re.match(r"^.*send\sme\sto\slocation\s(?P<location_identifier>.*)", command)
+    if result:
+        location_identifier = result.group("location_identifier")
+
     current_map_identifier = (
         module.dom.data.get("module_environment", {})
         .get("gameprefs", {})
         .get("GameName", None)
     )
 
-    steamid = regex_result.group("player_steamid")
-    player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {})
     location_dict = (
         module.dom.data.get("module_locations", {})
             .get("elements", {})
@@ -24,6 +30,7 @@ def main_function(origin_module, module, regex_result):
             .get(location_identifier, {})
     )
 
+    player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {})
     if len(player_dict) >= 1 and len(location_dict) >= 1:
         event_data = ['management_tools', {
                         'location_coordinates': {
@@ -37,26 +44,27 @@ def main_function(origin_module, module, regex_result):
 
 
 trigger_meta = {
-    "description": "sends the player to his home, if available",
+    "description": "sends player to the location of their choosing",
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "send me home",
+            "identifier": "add location (Alloc)",
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
                 r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\sto\slocation.*)"
             ),
             "callback": main_function
         },
         {
-            "identifier": "send me home",
+            "identifier": "add location (BCM)",
             "regex": (
+
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
                 r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\sto\slocation.*)"
             ),
             "callback": main_function
         }
