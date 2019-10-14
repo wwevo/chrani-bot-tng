@@ -15,11 +15,13 @@ def main_function(origin_module, module, regex_result):
     result = re.match(r"^.*send\sme\sto\slocation\s(?P<location_identifier>.*)", command)
     if result:
         location_identifier = result.group("location_identifier")
+    else:
+        return
 
     current_map_identifier = (
         module.dom.data.get("module_environment", {})
-        .get("gameprefs", {})
-        .get("GameName", None)
+            .get("gameprefs", {})
+            .get("GameName", None)
     )
 
     location_dict = (
@@ -30,16 +32,22 @@ def main_function(origin_module, module, regex_result):
             .get(location_identifier, {})
     )
 
-    player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {})
+    player_dict = (
+        module.dom.data.get("module_players", {})
+            .get("elements", {})
+            .get(current_map_identifier, {})
+            .get(steamid, {})
+    )
+
     if len(player_dict) >= 1 and len(location_dict) >= 1:
         event_data = ['management_tools', {
-                        'location_coordinates': {
-                            "x": location_dict["coordinates"]["x"],
-                            "y": location_dict["coordinates"]["y"],
-                            "z": location_dict["coordinates"]["z"]
-                        },
-                        'action': 'teleport'
-                    }]
+            'location_coordinates': {
+                "x": location_dict["coordinates"]["x"],
+                "y": location_dict["coordinates"]["y"],
+                "z": location_dict["coordinates"]["z"]
+            },
+            'action': 'teleport'
+        }]
         module.trigger_action_hook(origin_module, event_data, steamid)
 
 

@@ -86,7 +86,8 @@ def frontend_view(*args, **kwargs):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
     for map_identifier, location_owner in all_available_locations.items():
         if current_map_identifier == map_identifier:
-            for owner_steamid, player_locations in location_owner.items():
+            for player_steamid, player_locations in location_owner.items():
+                player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(player_steamid, {})
                 for identifier, location_dict in player_locations.items():
                     location_entry_selected = False
                     if dispatchers_steamid in location_dict.get("selected_by"):
@@ -97,7 +98,7 @@ def frontend_view(*args, **kwargs):
                         module,
                         template_table_rows,
                         location=location_dict,
-                        steamid=dispatchers_steamid,
+                        player_dict=player_dict,
                         control_select_link=module.template_render_hook(
                             module,
                             control_select_link,
@@ -321,12 +322,13 @@ def table_row(*args, **kwargs):
                 ]
                 table_is_visible = True if any(visibility_conditions) else False
                 if table_is_visible:  # only relevant if the table is shown
-                    for ownerid, locations in updated_values_dict.items():
+                    for player_steamid, locations in updated_values_dict.items():
+                        player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(player_steamid, {})
                         for identifier, location_dict in locations.items():
                             try:
                                 table_row_id = "manage_locations_table_row_{}_{}_{}".format(
-                                    str(original_values_dict[ownerid][identifier]["origin"]),
-                                    str(ownerid),
+                                    str(updated_values_dict[player_steamid][identifier]["origin"]),
+                                    str(player_steamid),
                                     str(identifier)
                                 )
                             except KeyError:
@@ -336,6 +338,7 @@ def table_row(*args, **kwargs):
                                 module,
                                 template_table_rows,
                                 location=location_dict,
+                                player_dict=player_dict,
                                 control_select_link=module.template_render_hook(
                                     module,
                                     control_select_link,
@@ -552,7 +555,6 @@ def update_delete_button_status(module):
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
-    "component_widget": table_row,
     "handlers": {
         # the %abc% placeholders can contain any text at all, it has no effect on anything but code-readability
         # the third line could just as well read
@@ -568,7 +570,7 @@ widget_meta = {
             update_selection_status,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
             update_enabled_flag,
-        "module_players/players/%steamid%/pos":
+        "module_players/elements/%map_identifier%/%steamid%/pos":
             update_player_location
     },
     "enabled": True

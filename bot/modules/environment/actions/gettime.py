@@ -39,7 +39,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "minute": match.group("minute")
             }
         }
-    }, min_callback_level=1)
+    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

@@ -36,12 +36,13 @@ def main_function(module, event_data, dispatchers_steamid=None):
         gamestats_dict = {}
         all_required_settings_are_available = False
         for m in re.finditer(regex, raw_gamestats, re.MULTILINE):
+            stripped_gameprefs = m.group("gamepref_value").rstrip()
             if all([
-                m.group("gamepref_name") == "GameName" and len(m.group("gamepref_value").rstrip()) >= 1
+                m.group("gamepref_name") == "GameName" and len(stripped_gameprefs) >= 1
             ]):
                 all_required_settings_are_available = True
 
-            gamestats_dict[m.group("gamepref_name")] = m.group("gamepref_value").rstrip()
+            gamestats_dict[m.group("gamepref_name")] = stripped_gameprefs
 
         module.dom.data.upsert({
             module.get_module_identifier(): {

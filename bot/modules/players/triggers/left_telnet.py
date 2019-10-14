@@ -9,10 +9,12 @@ def main_function(origin_module, module, regex_result):
     # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
     executed_trigger = False
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
 
-        player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(player_steamid)
+        player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(player_steamid, {})
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
 

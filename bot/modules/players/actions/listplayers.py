@@ -51,6 +51,11 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         r"\r\n"
     )
     players_to_update_dict = {}
+
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    if current_map_identifier is None:
+        return
+
     for m in re.finditer(regex, raw_playerdata):
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
             day=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("day", {}),
@@ -100,11 +105,14 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             player_dict["is_initialized"] = False
             players_to_update_dict.update({steamid: player_dict})
 
-    module.dom.data.upsert({
-        module.get_module_identifier(): {
-            "players": players_to_update_dict
-        }
-    }, min_callback_level=2)
+    if len(players_to_update_dict) >= 1:
+        module.dom.data.upsert({
+            module.get_module_identifier(): {
+                "elements": {
+                    current_map_identifier: players_to_update_dict
+                }
+            }
+        })
 
     if online_players_list != module.dom.data.get(module.get_module_identifier()).get("online_players"):
         module.dom.data.upsert({

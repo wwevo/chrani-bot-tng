@@ -16,7 +16,9 @@ def main_function(origin_module, module, regex_result):
     if result:
         location_name = result.group("location_name")
 
-    player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(steamid, {})
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+
+    player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(steamid, {})
     if len(player_dict) >= 1 and result:
         event_data = ['manage_locations', {
                         'location_coordinates': {
