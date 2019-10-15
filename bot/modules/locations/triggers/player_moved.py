@@ -8,13 +8,16 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(*args, **kwargs):
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
-    if any([
-        original_values_dict.get("x") != updated_values_dict.get("x"),
-        original_values_dict.get("y") != updated_values_dict.get("y"),
-        original_values_dict.get("z") != updated_values_dict.get("z")
-    ]):
-        # do stuff!
-        return
+    try:
+        if any([
+            original_values_dict.get("x") != updated_values_dict.get("x"),
+            original_values_dict.get("y") != updated_values_dict.get("y"),
+            original_values_dict.get("z") != updated_values_dict.get("z")
+        ]):
+            # do stuff!
+            return
+    except AttributeError:
+        pass
 
 
 trigger_meta = {

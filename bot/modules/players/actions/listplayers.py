@@ -94,7 +94,11 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         }
         players_to_update_dict[m.group("steamid")] = player_dict
 
-    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    all_players_dict = (
+        module.dom.data.get(module.get_module_identifier(), {})
+            .get("elements", {})
+            .get(current_map_identifier, {})
+    )
     online_players_list = list(players_to_update_dict.keys())
     for steamid, player_dict in all_players_dict.items():
         if steamid == 'last_updated_servertime' or player_dict["is_initialized"] is False:
