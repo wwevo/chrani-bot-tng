@@ -10,7 +10,15 @@ def main_function(origin_module, module, regex_result):
     player_name = regex_result.group("player_name")
     command = regex_result.group("command")
     executed_trigger = False
-    all_players_dict = module.dom.data.get("module_players", {}).get("players", {})
+
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    all_players_dict = (
+        module.dom.data
+        .get("module_players", {})
+        .get("elements", {})
+        .get(current_map_identifier)
+    )
+
     steamid = None
     for player_steamid, player_dict in all_players_dict.items():
         if player_dict["name"] == player_name:
