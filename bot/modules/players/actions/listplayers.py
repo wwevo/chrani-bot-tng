@@ -127,27 +127,56 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    all_players_dict = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("elements", {})
+        .get(current_map_identifier)
+    )
+
     for steamid, player_dict in all_players_dict.items():
         if steamid == 'last_updated_servertime':
             continue
+
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "players": all_players_dict,
+            "elements": {
+                current_map_identifier: all_players_dict
+            }
+        }
+    })
+
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
             "online_players": []
         }
-    }, overwrite=True)
+    })
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
-    all_players_dict = module.dom.data.get(module.get_module_identifier(), {}).get("players", {})
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    all_players_dict = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("elements", {})
+        .get(current_map_identifier)
+    )
+
     for steamid, player_dict in all_players_dict.items():
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
 
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
+            "elements": {
+                current_map_identifier: all_players_dict
+            }
+        }
+    })
 
 action_meta = {
     "description": "gets a list of all currently logged in players",

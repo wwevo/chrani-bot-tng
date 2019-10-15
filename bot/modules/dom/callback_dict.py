@@ -49,8 +49,14 @@ class CallbackDict(dict, object):
 
         return "/".join(current_path)
 
-    def get_matching_callback_path(self, path):
+    def get_matching_callback_path(self, path, **kwargs):
         exploded_path = path.split("/")
+        max_callback_level = kwargs.get("max_callback_level")
+        min_callback_level = kwargs.get("min_callback_level")
+        layer = kwargs.get("layer")
+        if not (max_callback_level >= layer >= min_callback_level):
+            return None
+
         matching_callbacks = []
         try:
             for callback in self.registered_callbacks[len(exploded_path) - 1]:
@@ -107,11 +113,12 @@ class CallbackDict(dict, object):
 
         """" recursion happens in this section """
         for k, v in updated_values_dict.items():
-            full_path = self.construct_full_path(path, k, layer)
-            if max_callback_level >= layer >= min_callback_level:
-                matching_callback_path = self.get_matching_callback_path(full_path)
-            else:
-                matching_callback_path = None
+            matching_callback_path = self.get_matching_callback_path(
+                self.construct_full_path(path, k, layer),
+                min_callback_level=min_callback_level,
+                max_callback_level=max_callback_level,
+                layer=layer
+            )
 
             if matching_callback_path is not None:
                 for working_path in matching_callback_path:
@@ -183,11 +190,12 @@ class CallbackDict(dict, object):
 
         """" recursion happens in this section """
         for k, v in updated_values_dict.items():
-            full_path = self.construct_full_path(path, k, layer)
-            if max_callback_level >= layer >= min_callback_level:
-                matching_callback_path = self.get_matching_callback_path(full_path)
-            else:
-                matching_callback_path = None
+            matching_callback_path = self.get_matching_callback_path(
+                self.construct_full_path(path, k, layer),
+                min_callback_level=min_callback_level,
+                max_callback_level=max_callback_level,
+                layer=layer
+            )
 
             if matching_callback_path is not None:
                 for working_path in matching_callback_path:
@@ -268,76 +276,74 @@ class CallbackDict(dict, object):
         path = path[0:layer]
 
         """" recursion happens in this section """
-        for k, value_to_update in updated_values_dict.items():
-            if max_callback_level >= layer >= min_callback_level:
-                full_path = self.construct_full_path(path, k, layer)
-                matching_callback_path = self.get_matching_callback_path(full_path)
-            else:
-                matching_callback_path = None
+        for key_to_update, value_to_update in updated_values_dict.items():
+            working_paths_list = self.get_matching_callback_path(
+                self.construct_full_path(path, key_to_update, layer),
+                min_callback_level=min_callback_level,
+                max_callback_level=max_callback_level,
+                layer=layer
+            )
 
-            working_paths_list = None
-            if matching_callback_path is not None:
-                working_paths_list = matching_callback_path
-
-            if k in working_copy_dict:
+            if key_to_update in working_copy_dict:
                 # the key exists in the current dom
-                if isinstance(working_copy_dict[k], Mapping) and isinstance(updated_values_dict[k], Mapping):
+                if isinstance(working_copy_dict[key_to_update], Mapping) and isinstance(updated_values_dict[key_to_update], Mapping):
                     # both the updated values and the original ones are Mappings . Let's dive in
                     if isinstance(original_values_dict, Mapping):
                         self.upsert(
-                            updated_values_dict[k], dict_to_update=working_copy_dict[k], original_values_dict=original_values_dict[k],
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict[key_to_update],
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
                     else:
                         self.upsert(
-                            updated_values_dict[k], dict_to_update=working_copy_dict[k], original_values_dict=original_values_dict,
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict,
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
 
-                elif not isinstance(working_copy_dict[k], Mapping) and isinstance(updated_values_dict[k], Mapping):
-                    # the new value is a mapping, the old one is not. Shouldn't happen really, but there we go, just in case
+                elif not isinstance(working_copy_dict[key_to_update], Mapping) and isinstance(updated_values_dict[key_to_update], Mapping):
+                    # the new value is a mapping, the old one is not. Shouldn't happen
+                    # really, but there we go, just in case
                     # copy it over and then iterate through it
                     # print("### Overwriting Value with Mapping")
-                    working_copy_dict[k] = updated_values_dict[k]
+                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     if isinstance(original_values_dict, Mapping):
                         self.upsert(
-                            updated_values_dict[k], dict_to_update=working_copy_dict[k], original_values_dict=original_values_dict[k],
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict[key_to_update],
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
                     else:
                         self.upsert(
-                            updated_values_dict[k], dict_to_update=working_copy_dict,
-                            original_values_dict=original_values_dict[k],
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict,
+                            original_values_dict=original_values_dict[key_to_update],
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
-                elif not isinstance(working_copy_dict[k], Mapping) and not isinstance(updated_values_dict[k], Mapping):
+                elif not isinstance(working_copy_dict[key_to_update], Mapping) and not isinstance(updated_values_dict[key_to_update], Mapping):
                     # both keys are Values, we'll update and continue the loop
-                    if working_copy_dict[k] != updated_values_dict[k]:
-                        # print("Value updated with another Value {} --> {}".format(working_copy_dict[k], updated_values_dict[k]))
-                        working_copy_dict[k] = updated_values_dict[k]
+                    if working_copy_dict[key_to_update] != updated_values_dict[key_to_update]:
+                        # print("Value updated with another Value {} --> {}".format(working_copy_dict[key_to_update], updated_values_dict[key_to_update]))
+                        working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     else:
-                        # print("Value unchanged Value {} == {}".format(working_copy_dict[k], updated_values_dict[k]))
+                        # print("Value unchanged Value {} == {}".format(working_copy_dict[key_to_update], updated_values_dict[key_to_update]))
                         pass
             else:
                 # the key is not in our current dom
-                if isinstance(updated_values_dict[k], Mapping):
+                if isinstance(updated_values_dict[key_to_update], Mapping):
                     # it's a mapping, it's not present in the current dom. Copy it over and go through it
                     # there will be no original values.
-                    # print("Insert new mapping into {} --> {}".format(k, updated_values_dict[k]))
-                    working_copy_dict[k] = updated_values_dict[k]
+                    # print("Insert new mapping into {} --> {}".format(k, updated_values_dict[key_to_update]))
+                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     self.upsert(
-                        updated_values_dict[k], dict_to_update=working_copy_dict[k], original_values_dict=None,
+                        updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=None,
                         path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                         max_callback_level=max_callback_level, min_callback_level=min_callback_level
                     )
                 else:
                     # it's a Value and is not present in the current dom. Insert it
-                    # print("Value inserted into {} --> {}".format(k, updated_values_dict[k]))
-                    working_copy_dict[k] = updated_values_dict[k]
+                    # print("Value inserted into {} --> {}".format(k, updated_values_dict[key_to_update]))
+                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
 
             if working_paths_list is not None:
                 try:

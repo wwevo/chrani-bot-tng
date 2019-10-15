@@ -247,20 +247,12 @@ def table_rows(*args, ** kwargs):
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
         "current_view", "frontend"
     )
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
     if current_view == "frontend":
         template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
         control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
         control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
         control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
-        template_action_delete_button = module.templates.get_template(
-            'player_table_widget/control_action_delete_button.html'
-        )
-
-        template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-        template_options_toggle_view = module.templates.get_template(
-            'player_table_widget/control_switch_options_view.html')
 
         selected_player_entries = module.dom.data.get("module_players", {}).get("selected", {}).get(dispatchers_steamid, [])
         for player_steamid, player_dict in updated_values_dict.items():
@@ -280,17 +272,17 @@ def table_rows(*args, ** kwargs):
                 template_table_rows,
                 player=player_dict,
                 css_class=get_player_table_row_css_class(player_dict),
-                control_info_link = module.template_render_hook(
+                control_info_link=module.template_render_hook(
                     module,
                     control_info_link,
                     player=player_dict
                 ),
-                control_kick_link = module.template_render_hook(
+                control_kick_link=module.template_render_hook(
                     module,
                     control_kick_link,
                     player=player_dict,
                 ),
-                control_select_link = module.template_render_hook(
+                control_select_link=module.template_render_hook(
                     module,
                     control_select_link,
                     player_entry_selected=player_entry_selected,
@@ -472,8 +464,6 @@ widget_meta = {
         #     update_selection_status,
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
         #     update_enabled_flag,
-        # "module_players/elements/%map_identifier%/%steamid%/pos":
-        #     table_rows
     },
     "enabled": True
 }

@@ -13,8 +13,13 @@ def main_function(origin_module, module, regex_result):
 
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
-
-        player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(player_steamid, {})
+        player_dict = (
+            module.dom.data
+            .get("module_players", {})
+            .get("elements", {})
+            .get(current_map_identifier, {})
+            .get(player_steamid, {})
+        )
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
 
@@ -23,8 +28,10 @@ def main_function(origin_module, module, regex_result):
     if executed_trigger is True:
         module.dom.data.upsert({
             "module_players": {
-                "players": {
-                    player_steamid: player_dict
+                "elements": {
+                    current_map_identifier: {
+                        player_steamid: player_dict
+                    }
                 }
             }
         })
