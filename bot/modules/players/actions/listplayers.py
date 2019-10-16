@@ -128,6 +128,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 def callback_fail(module, event_data, dispatchers_steamid):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    if current_map_identifier is None:
+         return
+
     all_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
@@ -159,11 +162,14 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 def skip_it(module, event_data, dispatchers_steamid=None):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    if current_map_identifier is None:
+        return
+
     all_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
-        .get(current_map_identifier)
+        .get(current_map_identifier, {})
     )
 
     for steamid, player_dict in all_players_dict.items():
@@ -177,6 +183,7 @@ def skip_it(module, event_data, dispatchers_steamid=None):
             }
         }
     })
+
 
 action_meta = {
     "description": "gets a list of all currently logged in players",

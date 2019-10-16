@@ -47,7 +47,12 @@ class CallbackDict(dict, object):
         except IndexError:
             current_path.append(new_key)
 
-        return "/".join(current_path)
+        try:
+            current_path_string = "/".join(current_path)
+        except TypeError:
+            pass
+
+        return current_path_string
 
     def get_matching_callback_path(self, path, **kwargs):
         exploded_path = path.split("/")
