@@ -314,7 +314,8 @@ class CallbackDict(dict, object):
                     working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     if isinstance(original_values_dict, Mapping):
                         self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict[key_to_update],
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                            original_values_dict=original_values_dict[key_to_update],
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
@@ -325,7 +326,10 @@ class CallbackDict(dict, object):
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
-                elif not isinstance(working_copy_dict[key_to_update], Mapping) and not isinstance(updated_values_dict[key_to_update], Mapping):
+                elif all([
+                    not isinstance(working_copy_dict[key_to_update], Mapping),
+                    not isinstance(updated_values_dict[key_to_update], Mapping)
+                ]):
                     # both keys are Values, we'll update and continue the loop
                     if working_copy_dict[key_to_update] != updated_values_dict[key_to_update]:
                         # print("Value updated with another Value {} --> {}".format(working_copy_dict[key_to_update], updated_values_dict[key_to_update]))

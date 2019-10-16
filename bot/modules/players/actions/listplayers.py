@@ -96,8 +96,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
     all_players_dict = (
         module.dom.data.get(module.get_module_identifier(), {})
-            .get("elements", {})
-            .get(current_map_identifier, {})
+        .get("elements", {})
+        .get(current_map_identifier, {})
     )
     online_players_list = list(players_to_update_dict.keys())
     for steamid, player_dict in all_players_dict.items():
@@ -116,7 +116,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     current_map_identifier: players_to_update_dict
                 }
             }
-        })
+        }, dispatchers_steamid=dispatchers_steamid)
 
     if online_players_list != module.dom.data.get(module.get_module_identifier()).get("online_players"):
         module.dom.data.upsert({
@@ -151,7 +151,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
                 current_map_identifier: all_players_dict
             }
         }
-    })
+    }, dispatchers_steamid=dispatchers_steamid)
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
