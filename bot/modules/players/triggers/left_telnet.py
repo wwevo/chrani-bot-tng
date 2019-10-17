@@ -7,16 +7,18 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-
-    #print(command, regex_result.re.groupindex)
-
     executed_trigger = False
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+
+    current_map_identifier = (
+        module.dom.data.get("module_environment", {})
+        .get("gameprefs", {})
+        .get("GameName", None)
+    )
 
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
+
         player_dict = (
             module.dom.data
             .get("module_players", {})
@@ -27,8 +29,9 @@ def main_function(origin_module, module, regex_result):
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
 
-        player_name = regex_result.group("player_name")
-        payload = '{} left the server'.format(player_name)
+        player_name = player_dict.get("name", regex_result.group("player_name"))
+        servertime_player_left = player_dict.get("last_seen_gametime", "n/A")
+        payload = '{} left the a18 test-server at {}'.format(player_name, servertime_player_left)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
         webhook = DiscordWebhook(
