@@ -1,3 +1,4 @@
+from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from os import path, pardir
 
@@ -8,7 +9,20 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(origin_module, module, regex_result):
     # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
-    # print(command)
+
+    if command == "joined the game":
+        # print(command, regex_result.re.groupindex)
+        player_name = regex_result.group("player_name")
+        payload = '{} entered the server'.format(player_name)
+
+        discord_payload_url = origin_module.options.get("discord_webhook", None)
+        print(discord_payload_url)
+        webhook = DiscordWebhook(
+            url=discord_payload_url,
+            content=payload
+        )
+        webhook.execute()
+
 
 
 trigger_meta = {

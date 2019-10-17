@@ -1,3 +1,4 @@
+from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from os import path, pardir
 
@@ -8,6 +9,9 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(origin_module, module, regex_result):
     # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
+
+    #print(command, regex_result.re.groupindex)
+
     executed_trigger = False
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
@@ -22,6 +26,16 @@ def main_function(origin_module, module, regex_result):
         )
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
+
+        player_name = regex_result.group("player_name")
+        payload = '{} left the server'.format(player_name)
+
+        discord_payload_url = origin_module.options.get("discord_webhook", None)
+        webhook = DiscordWebhook(
+            url=discord_payload_url,
+            content=payload
+        )
+        webhook.execute()
 
         executed_trigger = True
 
@@ -44,7 +58,7 @@ trigger_meta = {
         {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Player (?P<command>.*): "
+                r"Player\s(?P<command>.*):\s"
                 r"EntityID=(?P<entity_id>[-1]\d+), "
                 r"PlayerID='(?P<player_steamid>\d{17})', "
                 r"OwnerID='(?P<owner_id>\d{17})', "
