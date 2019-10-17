@@ -16,7 +16,6 @@ def main_function(origin_module, module, regex_result):
         payload = '{} entered the server'.format(player_name)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
-        print(discord_payload_url)
         webhook = DiscordWebhook(
             url=discord_payload_url,
             content=payload

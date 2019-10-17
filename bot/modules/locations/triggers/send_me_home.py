@@ -54,7 +54,8 @@ trigger_meta = {
             "identifier": "send me home",
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
+                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
                 r"to\s\'(?P<target_room>.*)\'\)\:\s"
                 r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
             ),
