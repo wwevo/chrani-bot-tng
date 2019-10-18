@@ -23,38 +23,6 @@ def main_function(module, event_data, dispatchers_steamid):
             }], dispatchers_steamid)
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
-        if action == "select_location_entry" or action == "deselect_location_entry":
-            element_is_selected_by = (
-                module.dom.data.get(module.get_module_identifier(), {})
-                    .get("elements", {})
-                    .get(location_origin, {})
-                    .get(location_owner, {})
-                    .get(location_identifier, {})
-                    .get("selected_by", [])
-            )
-
-            if action == "select_location_entry":
-                element_is_selected_by.append(dispatchers_steamid)
-            elif action == "deselect_location_entry":
-                element_is_selected_by.remove(dispatchers_steamid)
-
-            module.dom.data.upsert({
-                "module_locations": {
-                    "elements": {
-                        location_origin: {
-                            location_owner: {
-                                location_identifier: {
-                                    "selected_by": element_is_selected_by
-                                }
-                            }
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=5)
-
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-            return
-
         if action == "enable_location_entry" or action == "disable_location_entry":
             element_is_enabled = True if action == "enable_location_entry" else False
 

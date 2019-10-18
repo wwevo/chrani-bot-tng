@@ -1,0 +1,20 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{{ construct_toggle_link(
+    dom_element_entry_selected,
+    "&#9745;", ['widget_event', ['dom_management', ['sed', {
+        "dom_element_select_root": dom_element_select_root,
+        "target_module": target_module,
+        "dom_element_owner": dom_element.owner,
+        "dom_element_identifier": dom_element.identifier,
+        "dom_element_origin": dom_element.origin,
+        'action': dom_action_active
+    }]]],
+    "&#9744;", ['widget_event', ['dom_management', ['sed', {
+        "dom_element_select_root": dom_element_select_root,
+        "target_module": target_module,
+        "dom_element_owner": dom_element.owner,
+        "dom_element_identifier": dom_element.identifier,
+        "dom_element_origin": dom_element.origin,
+        "action": dom_action_inactive
+    }]]]
+) }}

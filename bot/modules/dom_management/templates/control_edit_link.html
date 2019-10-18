@@ -1,0 +1,10 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+{{ construct_toggle_link(
+    True,
+    "edit", ['widget_event', ['locations', ['toggle_locations_view', {
+        "location_owner": location.owner,
+        "location_identifier": location.identifier,
+        "location_origin": location.origin,
+        "action": "edit_location_entry"
+    }]]]
+) }}

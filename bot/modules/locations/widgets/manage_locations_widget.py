@@ -20,10 +20,12 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(
-        dispatchers_steamid, {}
-    ).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     if current_view == "options":
@@ -39,9 +41,27 @@ def select_view(*args, **kwargs):
             current_view=current_view
         )
     elif current_view == "edit_location_entry":
-        location_owner = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_owner", None)
-        location_identifier = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_identifier", None)
-        location_origin = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get("location_origin", None)
+        location_owner = (
+            module.dom.data
+            .get(module.get_module_identifier(), {})
+            .get("visibility", {})
+            .get(dispatchers_steamid, {})
+            .get("location_owner", None)
+        )
+        location_identifier = (
+            module.dom.data
+            .get(module.get_module_identifier(), {})
+            .get("visibility", {})
+            .get(dispatchers_steamid, {})
+            .get("location_identifier", None)
+        )
+        location_origin = (
+            module.dom.data
+            .get(module.get_module_identifier(), {})
+            .get("visibility", {})
+            .get(dispatchers_steamid, {})
+            .get("location_origin", None)
+        )
 
         edit_view(
             module,
@@ -60,8 +80,6 @@ def frontend_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
     template_frontend = module.templates.get_template('locations_widget/view_frontend.html')
-    template_table_rows = module.templates.get_template('locations_widget/table_row.html')
-    template_table_header = module.templates.get_template('locations_widget/table_header.html')
 
     template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
@@ -72,12 +90,15 @@ def frontend_view(*args, **kwargs):
         'locations_widget/control_switch_create_new_view.html'
     )
 
-    control_edit_link = module.templates.get_template('locations_widget/control_edit_link.html')
-    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
-    control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
-    template_action_delete_button = module.templates.get_template(
-        'locations_widget/control_action_delete_button.html'
+    control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
+    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
+    control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
+    template_action_delete_button = module.dom_management.templates.get_template(
+        'control_action_delete_button.html'
     )
+
+    template_table_header = module.templates.get_template('locations_widget/table_header.html')
+    template_table_rows = module.templates.get_template('locations_widget/table_row.html')
     template_table_footer = module.templates.get_template('locations_widget/table_footer.html')
 
     table_rows = ""
@@ -87,10 +108,26 @@ def frontend_view(*args, **kwargs):
     for map_identifier, location_owner in all_available_locations.items():
         if current_map_identifier == map_identifier:
             for player_steamid, player_locations in location_owner.items():
-                player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(player_steamid, {})
+                player_dict = (
+                    module.dom.data
+                    .get("module_players", {})
+                    .get("elements", {})
+                    .get(current_map_identifier, {})
+                    .get(player_steamid, {})
+                )
                 for identifier, location_dict in player_locations.items():
+                    location_is_selected_by = (
+                        module.dom.data
+                        .get("module_dom", {})
+                        .get("module_locations", {})
+                        .get(current_map_identifier, {})
+                        .get(player_steamid, {})
+                        .get(identifier, {})
+                        .get("selected_by", [])
+                    )
+
                     location_entry_selected = False
-                    if dispatchers_steamid in location_dict.get("selected_by"):
+                    if dispatchers_steamid in location_is_selected_by:
                         location_entry_selected = True
                         all_selected_elements += 1
 
@@ -102,8 +139,12 @@ def frontend_view(*args, **kwargs):
                         control_select_link=module.template_render_hook(
                             module,
                             control_select_link,
-                            location_entry_selected=location_entry_selected,
-                            location=location_dict,
+                            dom_element_select_root=[identifier, "selected_by"],
+                            target_module="module_locations",
+                            dom_element_entry_selected=location_entry_selected,
+                            dom_element=location_dict,
+                            dom_action_inactive="select_entry",
+                            dom_action_active="deselect_entry"
                         ),
                         control_enabled_link=module.template_render_hook(
                             module,
@@ -174,7 +215,6 @@ def options_view(*args, **kwargs):
 
     template_frontend = module.templates.get_template('locations_widget/view_options.html')
     template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
-
     template_options_toggle_view = module.templates.get_template(
         'locations_widget/control_switch_options_view.html'
     )
@@ -225,6 +265,7 @@ def edit_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     edit_mode = kwargs.get("current_view", None)
 
+    location_to_edit_dict = {}
     if edit_mode == "edit_location_entry":
         location_owner = kwargs.get("location_owner", None)
         location_identifier = kwargs.get("location_identifier", None)
@@ -235,8 +276,6 @@ def edit_view(*args, **kwargs):
             location_origin is not None
         ]):
             location_to_edit_dict = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(location_origin).get(location_owner).get(location_identifier)
-    else:
-        location_to_edit_dict = {}
 
     template_frontend = module.templates.get_template('locations_widget/view_create_new.html')
 
@@ -306,16 +345,27 @@ def table_row(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
-    control_edit_link = module.templates.get_template('locations_widget/control_edit_link.html')
-    control_enabled_link = module.templates.get_template('locations_widget/control_enabled_link.html')
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
+
+    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
+    control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
+    control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
 
     if updated_values_dict is not None:
         if method == "upsert" or method == "edit":
+            current_map_identifier = (
+                module.dom.data
+                .get("module_environment", {})
+                .get("gameprefs", {})
+                .get("GameName", None)
+            )
             for clientid in module.webserver.connected_clients.keys():
-                current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(clientid, {}).get(
-                    "current_view", "frontend"
+                current_view = (
+                    module.dom.data
+                    .get(module.get_module_identifier(), {})
+                    .get("visibility", {})
+                    .get(clientid, {})
+                    .get("current_view", "frontend")
                 )
                 visibility_conditions = [
                     current_view == "frontend"
@@ -323,8 +373,27 @@ def table_row(*args, **kwargs):
                 table_is_visible = True if any(visibility_conditions) else False
                 if table_is_visible:  # only relevant if the table is shown
                     for player_steamid, locations in updated_values_dict.items():
-                        player_dict = module.dom.data.get("module_players", {}).get("players", {}).get(player_steamid, {})
+                        player_dict = (
+                            module.dom.data
+                            .get("module_players", {})
+                            .get("elements", {})
+                            .get(current_map_identifier, {})
+                            .get(player_steamid, {})
+                        )
                         for identifier, location_dict in locations.items():
+                            location_is_selected_by = (
+                                module.dom.data
+                                .get("module_dom", {})
+                                .get("module_locations", {})
+                                .get(current_map_identifier, {})
+                                .get(player_steamid, {})
+                                .get(identifier, {})
+                                .get("selected_by", [])
+                            )
+                            location_entry_selected = False
+                            if clientid in location_is_selected_by:
+                                location_entry_selected = True
+
                             try:
                                 table_row_id = "manage_locations_table_row_{}_{}_{}".format(
                                     str(updated_values_dict[player_steamid][identifier]["origin"]),
@@ -342,8 +411,12 @@ def table_row(*args, **kwargs):
                                 control_select_link=module.template_render_hook(
                                     module,
                                     control_select_link,
-                                    location_entry_selected=False,
-                                    location=location_dict,
+                                    dom_element_select_root=[identifier, "selected_by"],
+                                    target_module="module_locations",
+                                    dom_element_entry_selected=location_entry_selected,
+                                    dom_element=location_dict,
+                                    dom_action_inactive="select_entry",
+                                    dom_action_active="deselect_entry"
                                 ),
                                 control_enabled_link=module.template_render_hook(
                                     module,
@@ -437,12 +510,13 @@ def update_selection_status(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     original_values_dict = kwargs.get("original_values_dict", None)
+    updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    control_select_link = module.templates.get_template('locations_widget/control_select_link.html')
+    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
 
-    location_origin = original_values_dict["origin"]
-    location_owner = original_values_dict["owner"]
-    location_identifier = original_values_dict["identifier"]
+    location_origin = updated_values_dict["origin"]
+    location_owner = updated_values_dict["owner"]
+    location_identifier = updated_values_dict["identifier"]
 
     location_dict = (
         module.dom.data.get("module_locations", {})
@@ -452,15 +526,28 @@ def update_selection_status(*args, **kwargs):
         .get(location_identifier, None)
     )
 
+    location_is_selected_by = (
+        module.dom.data
+        .get("module_dom", {})
+        .get("module_locations", {})
+        .get(location_origin, {})
+        .get(location_owner, {})
+        .get(location_identifier, {})
+        .get("selected_by", [])
+    )
     location_entry_selected = False
-    if dispatchers_steamid in location_dict.get("selected_by"):
+    if dispatchers_steamid in location_is_selected_by:
         location_entry_selected = True
 
     data_to_emit = module.template_render_hook(
         module,
         control_select_link,
-        location=location_dict,
-        location_entry_selected=location_entry_selected
+        dom_element_select_root=[location_identifier, "selected_by"],
+        target_module="module_locations",
+        dom_element_entry_selected=location_entry_selected,
+        dom_element=location_dict,
+        dom_action_inactive="select_entry",
+        dom_action_active="deselect_entry"
     )
 
     module.webserver.send_data_to_client_hook(
@@ -522,7 +609,7 @@ def update_enabled_flag(*args, **kwargs):
 
 
 def update_delete_button_status(module):
-    template_action_delete_button = module.templates.get_template('locations_widget/control_action_delete_button.html')
+    template_action_delete_button = module.dom_management.templates.get_template('control_action_delete_button.html')
 
     for clientid in module.webserver.connected_clients.keys():
         all_available_elements = module.dom.data.get("module_locations", {}).get("elements", {})
@@ -530,7 +617,17 @@ def update_delete_button_status(module):
         for map_identifier, location_owner in all_available_elements.items():
             for owner_steamid, player_locations in location_owner.items():
                 for identifier, location_dict in player_locations.items():
-                    if clientid in location_dict.get("selected_by"):
+                    location_is_selected_by = (
+                        module.dom.data
+                        .get("module_dom", {})
+                        .get("module_locations", {})
+                        .get(map_identifier, {})
+                        .get(owner_steamid, {})
+                        .get(identifier, {})
+                        .get("selected_by", [])
+                    )
+
+                    if clientid in location_is_selected_by:
                         all_selected_elements += 1
 
         data_to_emit = module.template_render_hook(
@@ -566,7 +663,7 @@ widget_meta = {
             select_view,
         "module_locations/elements/%map_identifier%/%steamid%":
             table_row,
-        "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
+        "module_dom/module_locations/%map_identifier%/%steamid%/%element_identifier%/selected_by":
             update_selection_status,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
             update_enabled_flag,
