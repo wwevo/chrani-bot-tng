@@ -62,26 +62,6 @@ def main_function(module, event_data, dispatchers_steamid):
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 
-        if action == "enable_location_entry" or action == "disable_location_entry":
-            element_is_enabled = True if action == "enable_location_entry" else False
-
-            module.dom.data.upsert({
-                "module_locations": {
-                    "elements": {
-                        dom_element_origin: {
-                            dom_element_owner: {
-                                dom_element_identifier: {
-                                    "is_enabled": element_is_enabled
-                                }
-                            }
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=5)
-
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-            return
-
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
     return
 

@@ -91,7 +91,6 @@ def frontend_view(*args, **kwargs):
     )
 
     control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
-    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
     control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
     template_action_delete_button = module.dom_management.templates.get_template(
         'control_action_delete_button.html'
@@ -131,21 +130,22 @@ def frontend_view(*args, **kwargs):
                         location_entry_selected = True
                         all_selected_elements += 1
 
+                    control_select_link = module.dom_management.get_selection_dom_element(
+                        module,
+                        target_module="module_locations",
+                        dom_element_select_root=[identifier, "selected_by"],
+                        dom_element=location_dict,
+                        dom_element_entry_selected=location_entry_selected,
+                        dom_action_inactive="select_entry",
+                        dom_action_active="deselect_entry"
+                    )
+
                     table_rows += module.template_render_hook(
                         module,
                         template_table_rows,
                         location=location_dict,
                         player_dict=player_dict,
-                        control_select_link=module.template_render_hook(
-                            module,
-                            control_select_link,
-                            dom_element_select_root=[identifier, "selected_by"],
-                            target_module="module_locations",
-                            dom_element_entry_selected=location_entry_selected,
-                            dom_element=location_dict,
-                            dom_action_inactive="select_entry",
-                            dom_action_active="deselect_entry"
-                        ),
+                        control_select_link=control_select_link,
                         control_enabled_link=module.template_render_hook(
                             module,
                             control_enabled_link,
@@ -347,7 +347,6 @@ def table_row(*args, **kwargs):
 
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
 
-    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
     control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
     control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
 
@@ -403,21 +402,21 @@ def table_row(*args, **kwargs):
                             except KeyError:
                                 table_row_id = "locations_widget"
 
+                            control_select_link = module.dom_management.get_selection_dom_element(
+                                module,
+                                target_module="module_locations",
+                                dom_element_select_root=[identifier, "selected_by"],
+                                dom_element=location_dict,
+                                dom_element_entry_selected=location_entry_selected,
+                                dom_action_inactive="select_entry",
+                                dom_action_active="deselect_entry"
+                            )
                             rendered_table_row = module.template_render_hook(
                                 module,
                                 template_table_rows,
                                 location=location_dict,
                                 player_dict=player_dict,
-                                control_select_link=module.template_render_hook(
-                                    module,
-                                    control_select_link,
-                                    dom_element_select_root=[identifier, "selected_by"],
-                                    target_module="module_locations",
-                                    dom_element_entry_selected=location_entry_selected,
-                                    dom_element=location_dict,
-                                    dom_action_inactive="select_entry",
-                                    dom_action_active="deselect_entry"
-                                ),
+                                control_select_link=control_select_link,
                                 control_enabled_link=module.template_render_hook(
                                     module,
                                     control_enabled_link,
@@ -508,59 +507,21 @@ def update_player_location(*args, **kwargs):
 
 def update_selection_status(*args, **kwargs):
     module = args[0]
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-    original_values_dict = kwargs.get("original_values_dict", None)
     updated_values_dict = kwargs.get("updated_values_dict", None)
-
-    control_select_link = module.dom_management.templates.get_template('control_select_link.html')
-
-    location_origin = updated_values_dict["origin"]
-    location_owner = updated_values_dict["owner"]
     location_identifier = updated_values_dict["identifier"]
 
-    location_dict = (
-        module.dom.data.get("module_locations", {})
-        .get("elements", {})
-        .get(location_origin, {})
-        .get(location_owner, {})
-        .get(location_identifier, None)
-    )
-
-    location_is_selected_by = (
-        module.dom.data
-        .get("module_dom", {})
-        .get("module_locations", {})
-        .get(location_origin, {})
-        .get(location_owner, {})
-        .get(location_identifier, {})
-        .get("selected_by", [])
-    )
-    location_entry_selected = False
-    if dispatchers_steamid in location_is_selected_by:
-        location_entry_selected = True
-
-    data_to_emit = module.template_render_hook(
-        module,
-        control_select_link,
+    module.dom_management.update_selection_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=[location_identifier],
         dom_element_select_root=[location_identifier, "selected_by"],
-        target_module="module_locations",
-        dom_element_entry_selected=location_entry_selected,
-        dom_element=location_dict,
+        dom_action_active="deselect_entry",
         dom_action_inactive="select_entry",
-        dom_action_active="deselect_entry"
-    )
-
-    module.webserver.send_data_to_client_hook(
-        module,
-        event_data=data_to_emit,
-        data_type="element_content",
-        clients=[dispatchers_steamid],
-        method="update",
-        target_element={
+        dom_element_id={
             "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
-                location_origin,
-                location_owner,
-                location_identifier
+                updated_values_dict["origin"],
+                updated_values_dict["owner"],
+                updated_values_dict["identifier"]
             )
         }
     )
