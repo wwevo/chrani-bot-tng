@@ -18,7 +18,7 @@ def main_function(origin_module, module, regex_result):
         .get("module_players", {})
         .get("elements", {})
         .get(current_map_identifier, {})
-        .get(player_steamid, {})
+        .get(player_steamid, None)
     )
 
     executed_trigger = False
