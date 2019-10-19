@@ -244,8 +244,12 @@ def table_rows(*args, ** kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     method = kwargs.get("method", None)
 
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     if current_view == "frontend":
@@ -254,7 +258,12 @@ def table_rows(*args, ** kwargs):
         control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
         control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
 
-        selected_player_entries = module.dom.data.get("module_players", {}).get("selected", {}).get(dispatchers_steamid, [])
+        selected_player_entries = (
+            module.dom.data
+            .get("module_players", {})
+            .get("selected", {})
+            .get(dispatchers_steamid, [])
+        )
         for player_steamid, player_dict in updated_values_dict.items():
             try:
                 table_row_id = "player_table_row_{}".format(
