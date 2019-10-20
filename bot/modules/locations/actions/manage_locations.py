@@ -22,6 +22,7 @@ def main_function(module, event_data, dispatchers_steamid):
         location_coordinates = event_data[1].get("location_coordinates", None)
         location_dimensions = event_data[1].get("location_dimensions", None)
         location_enabled = event_data[1].get("location_enabled", False)
+        last_changed = event_data[1].get("last_changed", False)
 
         if all([
             action is not None,
@@ -45,7 +46,8 @@ def main_function(module, event_data, dispatchers_steamid):
                                     "dimensions": location_dimensions,
                                     "owner": str(location_owner),
                                     "is_enabled": location_enabled,
-                                    "selected_by": []
+                                    "selected_by": [],
+                                    "last_changed": last_changed
                                 }
                             }
                         }

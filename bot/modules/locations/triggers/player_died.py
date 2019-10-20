@@ -6,10 +6,8 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     player_name = regex_result.group("player_name")
     command = regex_result.group("command")
-    executed_trigger = False
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
     all_players_dict = (
@@ -20,9 +18,11 @@ def main_function(origin_module, module, regex_result):
     )
 
     steamid = None
+    servertime_player_died = "n/A"
     for player_steamid, player_dict in all_players_dict.items():
         if player_dict["name"] == player_name:
             steamid = player_steamid
+            servertime_player_died = player_dict.get("last_seen_gametime", servertime_player_died)
             break
 
     if steamid is None:
@@ -37,10 +37,10 @@ def main_function(origin_module, module, regex_result):
             },
             'location_name': "Place of Death",
             'action': 'edit',
-            'location_enabled': True
+            'location_enabled': True,
+            'last_changed': servertime_player_died
         }]
         module.trigger_action_hook(origin_module, event_data, steamid)
-        executed_trigger = True
 
 
 trigger_meta = {

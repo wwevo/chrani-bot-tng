@@ -8,8 +8,6 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    player_name = regex_result.group("player_name")
-    entity_id = regex_result.group("entity_id")
     steamid = regex_result.group("player_steamid")
 
     result = re.match(r"^.*add\slocation\s(?P<location_name>.*)", command)
@@ -27,7 +25,8 @@ def main_function(origin_module, module, regex_result):
                             "z": player_dict["pos"]["z"]
                         },
                         'location_name': location_name,
-                        'action': 'create_new'
+                        'action': 'create_new',
+                        'last_changed': "n/A"
                     }]
         module.trigger_action_hook(origin_module, event_data, steamid)
 
