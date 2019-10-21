@@ -585,6 +585,8 @@ footer > div > p {
     td[id^="player_table_row_"][id$="_ping"],
     td[id^="player_table_row_"][id$="_last_updated_servertime"],
     td[id^="player_table_row_"][id$="_last_seen_gametime"],
+    td[id^="manage_locations_table_row_"][id$="_last_changed"],
+    td[id^="manage_locations_table_row_"][id$="_coordinates"],
     td[id^="manage_locations_table_row_"][id$="_owner"] {
         font-size: 0.75em !important;
         vertical-align: middle !important;

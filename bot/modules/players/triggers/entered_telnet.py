@@ -1,3 +1,4 @@
+from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from os import path, pardir
 
@@ -40,6 +41,19 @@ def main_function(origin_module, module, regex_result):
         if command == "connected":
             player_dict["id"] = regex_result.group("entity_id")
             player_dict["ip"] = regex_result.group("player_ip")
+
+        player_name = player_dict.get("name", regex_result.group("player_name"))
+        servertime_player_left = player_dict.get("last_seen_gametime", "n/A")
+        payload = '{} is trying to join the a18 test-server at {}'.format(player_name, servertime_player_left)
+
+        print(payload)
+
+        discord_payload_url = origin_module.options.get("discord_webhook", None)
+        webhook = DiscordWebhook(
+            url=discord_payload_url,
+            content=payload
+        )
+        webhook.execute()
 
         executed_trigger = True
 
