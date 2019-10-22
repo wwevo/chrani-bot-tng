@@ -5,12 +5,11 @@
     </td>
     <td class="nobr" id="player_table_row_{{ player.steamid }}_actions">
         <span id="player_table_row_{{ player.steamid }}_control_info_link" class="info">{{ control_info_link }}</span>
-        <span id="player_table_row_{{ player.steamid }}_control_kick_link">{{ control_kick_link }}</span>
     </td>
     <td id="player_table_row_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
     <td id="player_table_row_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
     <td id="player_table_row_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
-    <td class="position" onclick="$(this).selectText();">
+    <td class="position right" onclick="$(this).selectText();">
         <span id="player_table_row_{{ player.steamid }}_pos_x">{{ ((player | default({})).pos | default({}) ).x | default('0') }}</span>
         <span id="player_table_row_{{ player.steamid }}_pos_y">{{ ((player | default({})).pos | default({}) ).y | default('0') }}</span>
         <span id="player_table_row_{{ player.steamid }}_pos_z">{{ ((player | default({})).pos | default({}) ).z | default('0') }}</span>
@@ -18,7 +17,7 @@
     <td class="center" id="player_table_row_{{ player.steamid }}_level">{{ player.level }}</td>
     <td class="center" id="player_table_row_{{ player.steamid }}_ping">{{ player.zombies }}</td>
     <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_updated_servertime">
-        {{ player.last_updated_servertime }}
+        {{ player.last_updated_servertime | truncate(10, end="") }}
     </td>
     <td class="nobr right" id="player_table_row_{{ player.steamid }}_last_seen_gametime">
         {{ player.last_seen_gametime }}

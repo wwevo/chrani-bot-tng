@@ -13,8 +13,8 @@
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_owner_name" onclick="$(this).selectText();">{{ player_dict.name }}</td>
     <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_owner" onclick="$(this).selectText();">{{ location.owner }}</td>
-    <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_last_changed">{{ location.last_changed }}</td>
-    <td id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_coordinates" onclick="$(this).selectText();">
+    <td class="right" id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_last_changed">{{ location.last_changed }}</td>
+    <td class="right" id="manage_locations_table_row_{{ location.origin }}_{{ location.owner}}_{{ location.identifier }}_coordinates" onclick="$(this).selectText();">
         {{ ((location | default({})).coordinates | default({}) ).x }}
         {{ ((location | default({})).coordinates | default({}) ).y }}
         {{ ((location | default({})).coordinates | default({}) ).z }}

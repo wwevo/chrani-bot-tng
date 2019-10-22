@@ -1,5 +1,12 @@
 <tr>
     <td colspan="10">
-        <div>{{ action_delete_button }}</div>
+        <div>
+            {{ action_delete_button }}
+            <div id="player_table_widget_action_kick_button" class="delete_button">
+                <span class="active">
+                    <a href="#" onclick="window.socket.emit('widget_event', ['players', ['manage_players', {'action': 'kick_selected_entries'}]]); return false;">kick (0)</a>
+                </span>
+            </div>
+        </div>
     </td>
 </tr>
