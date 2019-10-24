@@ -579,7 +579,7 @@ footer > div > p {
 }
 /* debug options -> end */
 
-@media only screen and (max-width: 960px) {
+@media only screen {
     td[id^="player_table_row_"][id$="_id"],
     tr[id^="player_table_row_"] td[class="position"],
     td[id^="player_table_row_"][id$="_ping"],
