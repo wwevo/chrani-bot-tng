@@ -127,7 +127,7 @@ class Webserver(Module):
         if all([
             clients is not None,
             not isinstance(clients, KeysView),
-            not isinstance(clients, list),
+            not isinstance(clients, list)
         ]):
             if re.match(r"^(\d{17})$", clients):
                 clients = [clients]
