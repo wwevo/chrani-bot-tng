@@ -92,9 +92,6 @@ def frontend_view(*args, **kwargs):
 
     control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
     control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
-    template_action_delete_button = module.dom_management.templates.get_template(
-        'control_action_delete_button.html'
-    )
 
     template_table_header = module.templates.get_template('locations_widget/table_header.html')
     template_table_rows = module.templates.get_template('locations_widget/table_row.html')
@@ -102,7 +99,7 @@ def frontend_view(*args, **kwargs):
 
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
-    all_selected_elements = 0
+    all_selected_elements_count = 0
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
     for map_identifier, location_owner in all_available_locations.items():
         if current_map_identifier == map_identifier:
@@ -128,7 +125,7 @@ def frontend_view(*args, **kwargs):
                     location_entry_selected = False
                     if dispatchers_steamid in location_is_selected_by:
                         location_entry_selected = True
-                        all_selected_elements += 1
+                        all_selected_elements_count += 1
 
                     control_select_link = module.dom_management.get_selection_dom_element(
                         module,
@@ -159,6 +156,13 @@ def frontend_view(*args, **kwargs):
                         )
                     )
 
+    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+        module,
+        count=all_selected_elements_count,
+        dom_element_id="manage_locations_control_action_delete_link",
+        dom_action="delete_selected"
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -186,12 +190,7 @@ def frontend_view(*args, **kwargs):
         table_footer=module.template_render_hook(
             module,
             template_table_footer,
-            action_delete_button=module.template_render_hook(
-                module,
-                template_action_delete_button,
-                count=all_selected_elements,
-                delete_selected_entries_active=True if all_selected_elements >= 1 else False
-            )
+            action_delete_button=dom_element_delete_button
         )
 
     )
@@ -465,7 +464,7 @@ def table_row(*args, **kwargs):
                     # we are not deleting, so we are skipping any actions
                     pass
 
-            update_delete_button_status(module)
+            update_delete_button_status(module, *args, **kwargs)
 
 
 def update_player_location(*args, **kwargs):
@@ -526,7 +525,7 @@ def update_selection_status(*args, **kwargs):
         }
     )
 
-    update_delete_button_status(module)
+    update_delete_button_status(module, *args, **kwargs)
 
 
 def update_enabled_flag(*args, **kwargs):
@@ -569,45 +568,21 @@ def update_enabled_flag(*args, **kwargs):
     )
 
 
-def update_delete_button_status(module):
-    template_action_delete_button = module.dom_management.templates.get_template('control_action_delete_button.html')
+def update_delete_button_status(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    location_identifier = updated_values_dict["identifier"]
 
-    for clientid in module.webserver.connected_clients.keys():
-        all_available_elements = module.dom.data.get("module_locations", {}).get("elements", {})
-        all_selected_elements = 0
-        for map_identifier, location_owner in all_available_elements.items():
-            for owner_steamid, player_locations in location_owner.items():
-                for identifier, location_dict in player_locations.items():
-                    location_is_selected_by = (
-                        module.dom.data
-                        .get("module_dom", {})
-                        .get("module_locations", {})
-                        .get(map_identifier, {})
-                        .get(owner_steamid, {})
-                        .get(identifier, {})
-                        .get("selected_by", [])
-                    )
-
-                    if clientid in location_is_selected_by:
-                        all_selected_elements += 1
-
-        data_to_emit = module.template_render_hook(
-            module,
-            template_action_delete_button,
-            count=all_selected_elements,
-            delete_selected_entries_active=True if all_selected_elements >= 1 else False
-        )
-
-        module.webserver.send_data_to_client_hook(
-            module,
-            event_data=data_to_emit,
-            data_type="element_content",
-            clients=[clientid],
-            method="replace",
-            target_element={
-                "id": "locations_widget_action_delete_button"
-            }
-        )
+    module.dom_management.update_delete_button_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=[location_identifier],
+        dom_element_select_root=[location_identifier, "selected_by"],
+        dom_action="delete_selected",
+        dom_element_id={
+            "id": "manage_locations_control_action_delete_link"
+        }
+    )
 
 
 widget_meta = {

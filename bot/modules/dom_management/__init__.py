@@ -39,6 +39,17 @@ class DomManagement(Module):
             dom_action_active=kwargs.get("dom_action_active")
         )
 
+    def get_delete_button_dom_element(self, *args, **kwargs):
+        module = args[0]
+        return module.template_render_hook(
+            module,
+            module.dom_management.templates.get_template('control_action_delete_button.html'),
+            count=kwargs.get("count"),
+            dom_action=kwargs.get("dom_action"),
+            delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
+            dom_element_id=kwargs.get("dom_element_id")
+        )
+
     @staticmethod
     def update_selection_status(*args, **kwargs):
         module = args[0]
@@ -98,6 +109,61 @@ class DomManagement(Module):
             method="update",
             target_element=dom_element_id
         )
+
+    @staticmethod
+    def update_delete_button_status(*args, **kwargs):
+        def occurrences_of_key_in_nested_mapping(key, value):
+            for k, v in value.items():
+                if k == key:
+                    yield v
+                elif isinstance(v, dict):
+                    for result in occurrences_of_key_in_nested_mapping(key, v):
+                        yield result
+                elif isinstance(v, list):
+                    for d in v:
+                        for result in occurrences_of_key_in_nested_mapping(key, d):
+                            yield result
+
+        module = args[0]
+        updated_values_dict = kwargs.get("updated_values_dict", None)
+        target_module = kwargs.get("target_module", None)
+        dom_action = kwargs.get("dom_action", None)
+
+        dom_element_origin = updated_values_dict["origin"]
+        dom_element_id = kwargs.get("dom_element_id", None)
+
+        template_action_delete_button = module.dom_management.templates.get_template('control_action_delete_button.html')
+
+        all_available_elements = (
+            module.dom.data
+            .get("module_dom", {})
+            .get(target_module.get_module_identifier(), {})
+            .get(dom_element_origin, {})
+        )
+
+        for clientid in module.webserver.connected_clients.keys():
+            all_selected_elements = 0
+            for dom_element_is_selected_by in occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
+                if clientid in dom_element_is_selected_by:
+                    all_selected_elements += 1
+
+            data_to_emit = module.template_render_hook(
+                module,
+                template_action_delete_button,
+                dom_action=dom_action,
+                count=all_selected_elements,
+                delete_selected_entries_active=True if all_selected_elements >= 1 else False,
+                dom_element_id=dom_element_id["id"]
+            )
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                event_data=data_to_emit,
+                data_type="element_content",
+                clients=[clientid],
+                method="replace",
+                target_element=dom_element_id
+            )
 
 
 loaded_modules_dict[DomManagement().get_module_identifier()] = DomManagement()
