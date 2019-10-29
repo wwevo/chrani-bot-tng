@@ -19,6 +19,8 @@ def main_function(module, event_data, dispatchers_steamid):
     dom_element_owner = event_data[1].get("dom_element_owner", None)
     dom_element_identifier = event_data[1].get("dom_element_identifier", None)
 
+    print(target_module, "shall", action, "for", dispatchers_steamid)
+
     if all([
         action is not None
     ]):

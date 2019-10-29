@@ -50,7 +50,7 @@ class CallbackDict(dict, object):
         try:
             current_path_string = "/".join(current_path)
         except TypeError:
-            pass
+            current_path_string = None
 
         return current_path_string
 
