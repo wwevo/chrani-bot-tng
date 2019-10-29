@@ -3,6 +3,7 @@
 {{ construct_toggle_link(
     delete_selected_entries_active,
     "delete (" + count|string + ")", ['widget_event', ['dom_management', ['sed', {
+        "target_module": target_module,
         'action': dom_action
     }]]]
 ) }}

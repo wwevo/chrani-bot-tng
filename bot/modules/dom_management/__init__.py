@@ -45,6 +45,7 @@ class DomManagement(Module):
             module,
             module.dom_management.templates.get_template('control_action_delete_button.html'),
             count=kwargs.get("count"),
+            target_module=kwargs.get("target_module"),
             dom_action=kwargs.get("dom_action"),
             delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
             dom_element_id=kwargs.get("dom_element_id")
@@ -152,6 +153,7 @@ class DomManagement(Module):
                 module,
                 template_action_delete_button,
                 dom_action=dom_action,
+                target_module=target_module.get_module_identifier(),
                 count=all_selected_elements,
                 delete_selected_entries_active=True if all_selected_elements >= 1 else False,
                 dom_element_id=dom_element_id["id"]

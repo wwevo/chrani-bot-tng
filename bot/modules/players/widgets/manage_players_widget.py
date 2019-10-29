@@ -131,6 +131,7 @@ def frontend_view(module, dispatchers_steamid=None):
     dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
         module,
         count=all_selected_elements_count,
+        target_module="module_players",
         dom_element_id="player_table_widget_action_delete_button",
         dom_action="delete_selected"
     )
