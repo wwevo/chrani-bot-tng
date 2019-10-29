@@ -42,7 +42,6 @@ class Permissions(Module):
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ Manually for now, this will be handled by a permissions widget. """
         permission_denied = False
-
         if any([
                 event_data[0] == "toggle_locations_view",
                 event_data[0] == "toggle_player_table_widget_view",
@@ -54,23 +53,41 @@ class Permissions(Module):
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
-        if module.get_module_identifier() == "module_locations":
+        if module.get_module_identifier() == "module_dom_management":
             # print(event_data[0], event_data[1]["action"])
             if any([
-                    event_data[0] == "manage_locations",
-                    event_data[0] == "management_tools",
-                    event_data[0] == "toggle_locations_view"
+                    event_data[0] == "sed",
             ]):
                 if any([
                     event_data[1]["action"] == "edit_location_entry",
-                    event_data[1]["action"] == "select_location_entry",
-                    event_data[1]["action"] == "deselect_location_entry",
+                    event_data[1]["action"] == "select_entry",
+                    event_data[1]["action"] == "deselect_entry",
                     event_data[1]["action"] == "enable_location_entry",
                     event_data[1]["action"] == "disable_location_entry"
                 ]):
                     if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                         permission_denied = True
-                    if str(dispatchers_id) == event_data[1]["location_owner"]:
+                    if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
+                        permission_denied = False
+
+        if module.get_module_identifier() == "module_locations":
+            # print(event_data[0], event_data[1]["action"])
+            if any([
+                    event_data[0] == "manage_locations",
+                    event_data[0] == "management_tools",
+                    event_data[0] == "sed",
+                    event_data[0] == "toggle_locations_view"
+            ]):
+                if any([
+                    event_data[1]["action"] == "edit_location_entry",
+                    event_data[1]["action"] == "select_entry",
+                    event_data[1]["action"] == "deselect_entry",
+                    event_data[1]["action"] == "enable_location_entry",
+                    event_data[1]["action"] == "disable_location_entry"
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                        permission_denied = True
+                    if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
                         permission_denied = False
                 if any([
                     event_data[1]["action"] == "show_create_new",

@@ -81,7 +81,7 @@ def frontend_view(module, dispatchers_steamid=None):
                 )
 
                 player_entry_selected = False
-                if player_steamid in player_is_selected_by:
+                if dispatchers_steamid in player_is_selected_by:
                     player_entry_selected = True
                     all_selected_elements_count += 1
 
@@ -272,68 +272,69 @@ def table_rows(*args, ** kwargs):
         control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
         control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
-        for player_steamid, player_dict in updated_values_dict.items():
-            try:
-                table_row_id = "player_table_row_{}_{}".format(
-                    str(player_dict["origin"]),
-                    str(player_steamid)
+        for clientid in module.webserver.connected_clients.keys():
+            for player_steamid, player_dict in updated_values_dict.items():
+                try:
+                    table_row_id = "player_table_row_{}_{}".format(
+                        str(player_dict["origin"]),
+                        str(player_steamid)
+                    )
+                except KeyError:
+                    table_row_id = "player_table_widget"
+
+                selected_player_entries = (
+                    module.dom.data
+                    .get("module_dom", {})
+                    .get("module_players", {})
+                    .get(current_map_identifier, {})
+                    .get(player_steamid, {})
+                    .get("selected_by", [])
                 )
-            except KeyError:
-                table_row_id = "player_table_widget"
 
-            selected_player_entries = (
-                module.dom.data
-                .get("module_dom", {})
-                .get("module_players", {})
-                .get(current_map_identifier, {})
-                .get(player_steamid, {})
-                .get("selected_by", [])
-            )
+                player_entry_selected = False
+                if clientid in selected_player_entries:
+                    player_entry_selected = True
 
-            player_entry_selected = False
-            if player_steamid in selected_player_entries:
-                player_entry_selected = True
-
-            control_select_link = module.dom_management.get_selection_dom_element(
-                module,
-                target_module="module_players",
-                dom_element_select_root=["selected_by"],
-                dom_element=player_dict,
-                dom_element_entry_selected=player_entry_selected,
-                dom_action_inactive="select_entry",
-                dom_action_active="deselect_entry"
-            )
-
-            table_row = module.template_render_hook(
-                module,
-                template_table_rows,
-                player=player_dict,
-                css_class=get_player_table_row_css_class(player_dict),
-                control_info_link=module.template_render_hook(
+                control_select_link = module.dom_management.get_selection_dom_element(
                     module,
-                    control_info_link,
-                    player=player_dict
-                ),
-                control_kick_link=module.template_render_hook(
+                    target_module="module_players",
+                    dom_element_select_root=["selected_by"],
+                    dom_element=player_dict,
+                    dom_element_entry_selected=player_entry_selected,
+                    dom_action_inactive="select_entry",
+                    dom_action_active="deselect_entry"
+                )
+
+                table_row = module.template_render_hook(
                     module,
-                    control_kick_link,
+                    template_table_rows,
                     player=player_dict,
-                ),
-                control_select_link=control_select_link
-            )
+                    css_class=get_player_table_row_css_class(player_dict),
+                    control_info_link=module.template_render_hook(
+                        module,
+                        control_info_link,
+                        player=player_dict
+                    ),
+                    control_kick_link=module.template_render_hook(
+                        module,
+                        control_kick_link,
+                        player=player_dict,
+                    ),
+                    control_select_link=control_select_link
+                )
 
-            module.webserver.send_data_to_client_hook(
-                module,
-                event_data=table_row,
-                data_type="table_row",
-                clients="all",
-                target_element={
-                    "id": table_row_id,
-                    "type": "tr",
-                    "class": get_player_table_row_css_class(player_dict),
-                    "selector": "body > main > div > div#player_table_widget > main > table > tbody"
-                }
-            )
+                module.webserver.send_data_to_client_hook(
+                    module,
+                    event_data=table_row,
+                    data_type="table_row",
+                    clients=[clientid],
+                    target_element={
+                        "id": table_row_id,
+                        "type": "tr",
+                        "class": get_player_table_row_css_class(player_dict),
+                        "selector": "body > main > div > div#player_table_widget > main > table > tbody"
+                    }
+                )
 
 
 def update_widget(*args, **kwargs):
