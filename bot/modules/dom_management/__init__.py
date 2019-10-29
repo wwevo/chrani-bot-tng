@@ -73,6 +73,7 @@ class DomManagement(Module):
             .get(dom_element_origin, {})
             .get(dom_element_owner, {})
         )
+
         for sub_dict in dom_element_root:
             dom_element = dom_element.get(sub_dict)
 

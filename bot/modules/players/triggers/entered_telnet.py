@@ -32,7 +32,9 @@ def main_function(origin_module, module, regex_result):
                     "x": 0,
                     "y": 0,
                     "z": 0,
-                }
+                },
+                "origin": current_map_identifier,
+                "owner": player_steamid
             }
         player_dict["is_online"] = True
         player_dict["in_limbo"] = True

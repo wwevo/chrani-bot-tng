@@ -55,10 +55,6 @@ def frontend_view(module, dispatchers_steamid=None):
 
     control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
     control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
-    control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
-    template_action_delete_button = module.templates.get_template(
-        'player_table_widget/control_action_delete_button.html'
-    )
 
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
@@ -66,18 +62,38 @@ def frontend_view(module, dispatchers_steamid=None):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
-    selected_player_entries = module.dom.data.get("module_players", {}).get("selected", {}).get(dispatchers_steamid, [])
 
     table_rows = ""
+    all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if current_map_identifier == map_identifier:
-            for steamid, player_dict in player_dicts.items():
-                if steamid == 'last_updated_servertime':
+            for player_steamid, player_dict in player_dicts.items():
+                if player_steamid == 'last_updated_servertime':
                     continue
 
+                player_is_selected_by = (
+                    module.dom.data
+                    .get("module_dom", {})
+                    .get("module_players", {})
+                    .get(current_map_identifier, {})
+                    .get(player_steamid, {})
+                    .get("selected_by", [])
+                )
+
                 player_entry_selected = False
-                if steamid in selected_player_entries:
+                if player_steamid in player_is_selected_by:
                     player_entry_selected = True
+                    all_selected_elements_count += 1
+
+                control_select_link = module.dom_management.get_selection_dom_element(
+                    module,
+                    target_module="module_players",
+                    dom_element_select_root=["selected_by"],
+                    dom_element=player_dict,
+                    dom_element_entry_selected=player_entry_selected,
+                    dom_action_inactive="select_entry",
+                    dom_action_active="deselect_entry"
+                )
 
                 table_rows += module.template_render_hook(
                     module,
@@ -94,12 +110,7 @@ def frontend_view(module, dispatchers_steamid=None):
                         control_kick_link,
                         player=player_dict,
                     ),
-                    control_select_link=module.template_render_hook(
-                        module,
-                        control_select_link,
-                        player_entry_selected=player_entry_selected,
-                        player=player_dict,
-                    )
+                    control_select_link=control_select_link
                 )
 
     current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
@@ -117,6 +128,13 @@ def frontend_view(module, dispatchers_steamid=None):
         )
     )
 
+    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+        module,
+        count=all_selected_elements_count,
+        dom_element_id="player_table_widget_action_delete_button",
+        dom_action="delete_selected"
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -129,12 +147,7 @@ def frontend_view(module, dispatchers_steamid=None):
         table_footer=module.template_render_hook(
             module,
             template_table_footer,
-            action_delete_button=module.template_render_hook(
-                module,
-                template_action_delete_button,
-                count=len(selected_player_entries),
-                delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
-            )
+            action_delete_button=dom_element_delete_button
         )
     )
 
@@ -244,6 +257,8 @@ def table_rows(*args, ** kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     method = kwargs.get("method", None)
 
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+
     current_view = (
         module.dom.data
         .get("module_players", {})
@@ -256,25 +271,38 @@ def table_rows(*args, ** kwargs):
         template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
         control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
         control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
-        control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
 
-        selected_player_entries = (
-            module.dom.data
-            .get("module_players", {})
-            .get("selected", {})
-            .get(dispatchers_steamid, [])
-        )
         for player_steamid, player_dict in updated_values_dict.items():
             try:
-                table_row_id = "player_table_row_{}".format(
+                table_row_id = "player_table_row_{}_{}".format(
+                    str(player_dict["origin"]),
                     str(player_steamid)
                 )
             except KeyError:
                 table_row_id = "player_table_widget"
 
+            selected_player_entries = (
+                module.dom.data
+                .get("module_dom", {})
+                .get("module_players", {})
+                .get(current_map_identifier, {})
+                .get(player_steamid, {})
+                .get("selected_by", [])
+            )
+
             player_entry_selected = False
             if player_steamid in selected_player_entries:
                 player_entry_selected = True
+
+            control_select_link = module.dom_management.get_selection_dom_element(
+                module,
+                target_module="module_players",
+                dom_element_select_root=["selected_by"],
+                dom_element=player_dict,
+                dom_element_entry_selected=player_entry_selected,
+                dom_action_inactive="select_entry",
+                dom_action_active="deselect_entry"
+            )
 
             table_row = module.template_render_hook(
                 module,
@@ -291,12 +319,7 @@ def table_rows(*args, ** kwargs):
                     control_kick_link,
                     player=player_dict,
                 ),
-                control_select_link=module.template_render_hook(
-                    module,
-                    control_select_link,
-                    player_entry_selected=player_entry_selected,
-                    player=player_dict,
-                )
+                control_select_link=control_select_link
             )
 
             module.webserver.send_data_to_client_hook(
@@ -455,6 +478,46 @@ def update_component(*args, **kwargs):
     )
 
 
+def update_selection_status(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    location_identifier = updated_values_dict["identifier"]
+
+    module.dom_management.update_selection_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=[],
+        dom_element_select_root=["selected_by"],
+        dom_action_active="deselect_entry",
+        dom_action_inactive="select_entry",
+        dom_element_id={
+            "id": "player_table_row_{}_{}_control_select_link".format(
+                updated_values_dict["origin"],
+                updated_values_dict["owner"]
+            )
+        }
+    )
+
+    update_delete_button_status(module, *args, **kwargs)
+
+
+def update_delete_button_status(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    location_identifier = updated_values_dict["identifier"]
+
+    module.dom_management.update_delete_button_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=[location_identifier],
+        dom_element_select_root=["selected_by"],
+        dom_action="delete_selected",
+        dom_element_id={
+            "id": "player_table_widget_action_delete_button"
+        }
+    )
+
+
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": select_view,
@@ -469,8 +532,8 @@ widget_meta = {
             select_view,
         "module_players/elements/%map_identifier%/%steamid%":
             table_rows,
-        # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
-        #     update_selection_status,
+        "module_dom/module_players/%map_identifier%/%steamid%/selected_by":
+            update_selection_status,
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
         #     update_enabled_flag,
     },

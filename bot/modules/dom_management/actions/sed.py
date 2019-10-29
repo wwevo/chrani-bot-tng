@@ -28,10 +28,15 @@ def main_function(module, event_data, dispatchers_steamid):
 
             selected_by_dict_element = get(module.dom.data, full_root)
 
-            if action == "select_entry":
-                selected_by_dict_element.append(dispatchers_steamid)
-            elif action == "deselect_entry":
-                selected_by_dict_element.remove(dispatchers_steamid)
+            try:
+                if action == "select_entry":
+                    if dispatchers_steamid not in selected_by_dict_element:
+                        selected_by_dict_element.append(dispatchers_steamid)
+                elif action == "deselect_entry":
+                    if dispatchers_steamid in selected_by_dict_element:
+                        selected_by_dict_element.remove(dispatchers_steamid)
+            except ValueError as error:
+                print(error)
 
             current_level = 0
             selected_by_dict = {}
@@ -57,7 +62,7 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=4)
+            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + current_level)
 
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
