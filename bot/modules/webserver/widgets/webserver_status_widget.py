@@ -43,7 +43,7 @@ def frontend_view(*args, **kwargs):
     )
 
     webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get(
-        "webserver_logged_in_users", {}
+        "webserver_logged_in_users", []
     )
     data_to_emit = module.template_render_hook(
         module,
@@ -161,7 +161,7 @@ def update_logged_in_users(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", {})
+    webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", [])
 
     component_logged_in_users = module.templates.get_template('webserver_status_widget/component_logged_in_users.html')
     component_logged_in_users_view = module.template_render_hook(
@@ -190,7 +190,7 @@ widget_meta = {
         "module_webserver/webserver_logged_in_users": update_logged_in_users,
         "module_telnet/last_recorded_servertime": update_servertime
     },
-    "enabled": False
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)

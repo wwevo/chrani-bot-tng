@@ -35,8 +35,12 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     if current_view == "options":
@@ -91,8 +95,8 @@ def frontend_view(module, dispatchers_steamid=None):
                     dom_element_select_root=["selected_by"],
                     dom_element=player_dict,
                     dom_element_entry_selected=player_entry_selected,
-                    dom_action_inactive="select_entry",
-                    dom_action_active="deselect_entry"
+                    dom_action_inactive="select_dom_element",
+                    dom_action_active="deselect_dom_element"
                 )
 
                 table_rows += module.template_render_hook(
@@ -113,8 +117,12 @@ def frontend_view(module, dispatchers_steamid=None):
                     control_select_link=control_select_link
                 )
 
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     options_toggle = module.template_render_hook(
@@ -133,7 +141,7 @@ def frontend_view(module, dispatchers_steamid=None):
         count=all_selected_elements_count,
         target_module="module_players",
         dom_element_id="player_table_widget_action_delete_button",
-        dom_action="delete_selected"
+        dom_action="delete_selected_dom_elements"
     )
 
     data_to_emit = module.template_render_hook(
@@ -171,9 +179,14 @@ def options_view(module, dispatchers_steamid=None):
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
+
     options_toggle = module.template_render_hook(
         module,
         template_options_toggle,
@@ -211,8 +224,22 @@ def show_info_view(module, dispatchers_steamid=None):
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
-    current_view = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view", "frontend")
-    current_view_steamid = module.dom.data.get("module_players", {}).get("visibility", {}).get(dispatchers_steamid, {}).get("current_view_steamid", None)
+    current_view = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
+    )
+
+    current_view_steamid = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view_steamid", "frontend")
+    )
+
     options_toggle = module.template_render_hook(
         module,
         template_options_toggle,
@@ -225,8 +252,12 @@ def show_info_view(module, dispatchers_steamid=None):
     )
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
-    player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(
-        current_view_steamid, None
+    player_dict = (
+        module.dom.data
+        .get("module_players", {})
+        .get("elements", {})
+        .get(current_map_identifier, {})
+        .get(current_view_steamid, None)
     )
 
     data_to_emit = module.template_render_hook(
@@ -253,27 +284,22 @@ def show_info_view(module, dispatchers_steamid=None):
 def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    original_values_dict = kwargs.get("original_values_dict", None)
-
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-    method = kwargs.get("method", None)
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
 
-    current_view = (
-        module.dom.data
-        .get("module_players", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
+    for clientid in module.webserver.connected_clients.keys():
+        current_view = (
+            module.dom.data
+            .get("module_players", {})
+            .get("visibility", {})
+            .get(clientid, {})
+            .get("current_view", "frontend")
+        )
+        if current_view == "frontend":
+            template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
+            control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+            control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
-    if current_view == "frontend":
-        template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
-        control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-        control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
-
-        for clientid in module.webserver.connected_clients.keys():
             for player_steamid, player_dict in updated_values_dict.items():
                 try:
                     table_row_id = "player_table_row_{}_{}".format(
@@ -302,8 +328,8 @@ def table_rows(*args, ** kwargs):
                     dom_element_select_root=["selected_by"],
                     dom_element=player_dict,
                     dom_element_entry_selected=player_entry_selected,
-                    dom_action_inactive="select_entry",
-                    dom_action_active="deselect_entry"
+                    dom_action_inactive="select_dom_element",
+                    dom_action_active="deselect_dom_element"
                 )
 
                 table_row = module.template_render_hook(
@@ -345,13 +371,16 @@ def update_widget(*args, **kwargs):
     player_entries_to_update = updated_values_dict
     player_clients_to_update = list(module.webserver.connected_clients.keys())
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
-
     for clientid in player_clients_to_update:
         try:
             module_players = module.dom.data.get("module_players", {})
             for steamid, player_dict in player_entries_to_update.items():
-                current_view = module_players.get("visibility", {}).get(clientid, {}).get("current_view", None)
+                current_view = (
+                    module_players
+                    .get("visibility", {})
+                    .get(clientid, {})
+                    .get("current_view", None)
+                )
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
@@ -390,108 +419,18 @@ def update_widget(*args, **kwargs):
             pass
 
 
-def update_component(*args, **kwargs):
-    module = args[0]
-    player_steamid = kwargs.get("updated_values_dict").get("steamid", None)
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
-    player_dict = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(current_map_identifier, {}).get(player_steamid, None)
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-
-    control_select_link = module.templates.get_template('player_table_widget/control_select_link.html')
-    template_action_delete_button = module.templates.get_template(
-        'player_table_widget/control_action_delete_button.html'
-    )
-
-    selected_player_entries = kwargs.get("updated_values_dict").get(dispatchers_steamid, [])
-    original_selected_player_entries = kwargs.get("original_values_dict").get(dispatchers_steamid, [])
-
-    for steamid in original_selected_player_entries + selected_player_entries:
-        player_entry_selected = True if steamid in selected_player_entries else False
-        data_to_emit = module.template_render_hook(
-            module,
-            control_select_link,
-            player=module.dom.data.get(module.get_module_identifier(), {}).get("players", {}).get(steamid, None),
-            player_entry_selected=player_entry_selected
-        )
-
-        module.webserver.send_data_to_client_hook(
-            module,
-            event_data=data_to_emit,
-            data_type="element_content",
-            clients=[dispatchers_steamid],
-            method="update",
-            target_element={
-                "id": "player_table_row_{}_control_select_link".format(str(steamid)),
-            }
-        )
-
-    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-    data_to_emit = module.template_render_hook(
-        module,
-        control_info_link,
-        player=player_dict
-    )
-
-    module.webserver.send_data_to_client_hook(
-        module,
-        event_data=data_to_emit,
-        data_type="element_content",
-        clients="all",
-        method="update",
-        target_element={
-            "id": "player_table_row_{}_control_info_link".format(str(player_steamid)),
-        }
-    )
-
-    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
-    data_to_emit = module.template_render_hook(
-        module,
-        control_kick_link,
-        player=player_dict
-    )
-
-    module.webserver.send_data_to_client_hook(
-        module,
-        event_data=data_to_emit,
-        data_type="element_content",
-        clients="all",
-        method="update",
-        target_element={
-            "id": "player_table_row_{}_control_kick_link".format(str(player_steamid)),
-        }
-    )
-
-    data_to_emit = module.template_render_hook(
-        module,
-        template_action_delete_button,
-        count=len(selected_player_entries),
-        delete_selected_entries_active=True if len(selected_player_entries) >= 1 else False
-    )
-
-    module.webserver.send_data_to_client_hook(
-        module,
-        event_data=data_to_emit,
-        data_type="element_content",
-        clients=[dispatchers_steamid],
-        method="replace",
-        target_element={
-            "id": "player_table_widget_action_delete_button"
-        }
-    )
-
-
 def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    location_identifier = updated_values_dict["identifier"]
+    location_identifier = updated_values_dict.get("identifier")
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
         dom_element_root=[],
         dom_element_select_root=["selected_by"],
-        dom_action_active="deselect_entry",
-        dom_action_inactive="select_entry",
+        dom_action_active="deselect_dom_element",
+        dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "player_table_row_{}_{}_control_select_link".format(
                 updated_values_dict["origin"],
@@ -513,7 +452,7 @@ def update_delete_button_status(*args, **kwargs):
         target_module=module,
         dom_element_root=[location_identifier],
         dom_element_select_root=["selected_by"],
-        dom_action="delete_selected",
+        dom_action="delete_selected_dom_elements",
         dom_element_id={
             "id": "player_table_widget_action_delete_button"
         }

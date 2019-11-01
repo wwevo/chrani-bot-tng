@@ -9,11 +9,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
 
-    if action in [
-        "select_player_entry",
-        "deselect_player_entry",
-        "delete_selected_entries"
-    ]:
+    if action in []:
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
 
@@ -21,41 +17,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    action = event_data[1].get("action", None)
-    player_steamid = event_data[1].get("steamid", None)
-
-    selected_players = module.dom.data.get("module_players", {}).get("selected", {}).get(dispatchers_steamid, []).copy()
-    if action == "select_player_entry":
-        selected_players.append(player_steamid)
-        module.dom.data.upsert({
-            "module_players": {
-                "selected": {
-                    dispatchers_steamid: selected_players
-                }
-            }
-        }, dispatchers_steamid=dispatchers_steamid)
-    elif action == "deselect_player_entry":
-        selected_players.remove(player_steamid)
-        module.dom.data.upsert({
-            "module_players": {
-                "selected": {
-                    dispatchers_steamid: selected_players
-                }
-            }
-        }, dispatchers_steamid=dispatchers_steamid)
-    elif action == "delete_selected_entries":
-        if len(selected_players) >= 1:
-            """ deletion stuff will go here! """
-
-            module.dom.data.upsert({
-                "module_players": {
-                    "selected": {
-                        dispatchers_steamid: []
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-            return
+    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

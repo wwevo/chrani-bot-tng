@@ -316,7 +316,7 @@ class Webserver(Module):
             else:
                 print("webinterface-client '{}' connected and is ready to roll!".format(current_user.id))
                 self.connected_clients[current_user.id].sid = request.sid
-                emit('connected', room=request.sid, broadcast=False)
+                # emit('connected', room=request.sid, broadcast=False)
                 for module in loaded_modules_dict.values():
                     module.on_socket_connect(current_user.id)
 
@@ -329,7 +329,7 @@ class Webserver(Module):
             current_user.last_seen = time()
             try:
                 emit('dong', room=current_user.sid)
-                self.connected_clients[current_user.id].sid = request.sid
+                # self.connected_clients[current_user.id].sid = request.sid
 
             except AttributeError as error:
                 # user disappeared

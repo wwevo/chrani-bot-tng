@@ -133,8 +133,8 @@ def frontend_view(*args, **kwargs):
                         dom_element_select_root=[identifier, "selected_by"],
                         dom_element=location_dict,
                         dom_element_entry_selected=location_entry_selected,
-                        dom_action_inactive="select_entry",
-                        dom_action_active="deselect_entry"
+                        dom_action_inactive="select_dom_element",
+                        dom_action_active="deselect_dom_element"
                     )
 
                     table_rows += module.template_render_hook(
@@ -161,7 +161,7 @@ def frontend_view(*args, **kwargs):
         count=all_selected_elements_count,
         target_module="module_locations",
         dom_element_id="manage_locations_control_action_delete_link",
-        dom_action="delete_selected"
+        dom_action="delete_selected_dom_elements"
     )
 
     data_to_emit = module.template_render_hook(
@@ -408,8 +408,8 @@ def table_row(*args, **kwargs):
                                 dom_element_select_root=[identifier, "selected_by"],
                                 dom_element=location_dict,
                                 dom_element_entry_selected=location_entry_selected,
-                                dom_action_inactive="select_entry",
-                                dom_action_active="deselect_entry"
+                                dom_action_inactive="select_dom_element",
+                                dom_action_active="deselect_dom_element"
                             )
                             rendered_table_row = module.template_render_hook(
                                 module,
@@ -472,8 +472,8 @@ def update_player_location(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     webserver_logged_in_users = module.dom.data.get("module_webserver", {}).get(
-        "webserver_logged_in_users", {}
-    ).keys()
+        "webserver_logged_in_users", []
+    )
 
     dispatchers_steamid = updated_values_dict.get("steamid")
     if dispatchers_steamid not in webserver_logged_in_users:
@@ -515,8 +515,8 @@ def update_selection_status(*args, **kwargs):
         target_module=module,
         dom_element_root=[location_identifier],
         dom_element_select_root=[location_identifier, "selected_by"],
-        dom_action_active="deselect_entry",
-        dom_action_inactive="select_entry",
+        dom_action_active="deselect_dom_element",
+        dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
                 updated_values_dict["origin"],
@@ -533,7 +533,7 @@ def update_enabled_flag(*args, **kwargs):
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    control_enable_link = module.templates.get_template('locations_widget/control_enabled_link.html')
+    control_enable_link = module.dom_management.templates.get_template('control_enabled_link.html')
 
     location_origin = original_values_dict.get("origin", None)
     location_owner = original_values_dict.get("owner", None)
@@ -579,7 +579,7 @@ def update_delete_button_status(*args, **kwargs):
         target_module=module,
         dom_element_root=[location_identifier],
         dom_element_select_root=[location_identifier, "selected_by"],
-        dom_action="delete_selected",
+        dom_action="delete_selected_dom_elements",
         dom_element_id={
             "id": "manage_locations_control_action_delete_link"
         }

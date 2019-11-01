@@ -5,12 +5,6 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def get(d, l):
-    if len(l) == 1:
-        return d.get(l[0], [])
-    return get(d.get(l[0], {}), l[1:])
-
-
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     target_module = event_data[1].get("target_module", None)
@@ -24,17 +18,17 @@ def main_function(module, event_data, dispatchers_steamid):
     if all([
         action is not None
     ]):
-        general_root = ["module_dom", target_module, dom_element_origin, dom_element_owner]
-        if action == "select_entry" or action == "deselect_entry":
-            full_root = general_root + dom_element_select_root
-
-            selected_by_dict_element = get(module.dom.data, full_root)
+        general_root = ["module_dom", target_module]
+        owner_root = [dom_element_origin, dom_element_owner]
+        if action == "select_dom_element" or action == "deselect_dom_element":
+            full_root = general_root + owner_root + dom_element_select_root
+            selected_by_dict_element = module.dom_management.get_dict_element_by_path(module.dom.data, full_root)
 
             try:
-                if action == "select_entry":
+                if action == "select_dom_element":
                     if dispatchers_steamid not in selected_by_dict_element:
                         selected_by_dict_element.append(dispatchers_steamid)
-                elif action == "deselect_entry":
+                elif action == "deselect_dom_element":
                     if dispatchers_steamid in selected_by_dict_element:
                         selected_by_dict_element.remove(dispatchers_steamid)
             except ValueError as error:
@@ -65,6 +59,18 @@ def main_function(module, event_data, dispatchers_steamid):
                     }
                 }
             }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + current_level)
+
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            return
+        elif action == "delete_selected_dom_elements":
+            all_available_elements = (
+                module.dom.data
+                .get("module_dom", {})
+                .get(target_module, {})
+            )
+
+            for selected_by_dict_element in module.dom_management.occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
+                print(selected_by_dict_element)
 
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return

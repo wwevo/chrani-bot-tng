@@ -60,8 +60,8 @@ class Permissions(Module):
             ]):
                 if any([
                     event_data[1]["action"] == "edit_location_entry",
-                    event_data[1]["action"] == "select_entry",
-                    event_data[1]["action"] == "deselect_entry",
+                    event_data[1]["action"] == "select_dom_element",
+                    event_data[1]["action"] == "deselect_dom_element",
                     event_data[1]["action"] == "enable_location_entry",
                     event_data[1]["action"] == "disable_location_entry"
                 ]):
@@ -80,8 +80,8 @@ class Permissions(Module):
             ]):
                 if any([
                     event_data[1]["action"] == "edit_location_entry",
-                    event_data[1]["action"] == "select_entry",
-                    event_data[1]["action"] == "deselect_entry",
+                    event_data[1]["action"] == "select_dom_element",
+                    event_data[1]["action"] == "deselect_dom_element",
                     event_data[1]["action"] == "enable_location_entry",
                     event_data[1]["action"] == "disable_location_entry"
                 ]):

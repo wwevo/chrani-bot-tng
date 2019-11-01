@@ -292,27 +292,32 @@ class CallbackDict(dict, object):
             if key_to_update in working_copy_dict:
                 # the key exists in the current dom
                 if isinstance(working_copy_dict[key_to_update], Mapping) and isinstance(updated_values_dict[key_to_update], Mapping):
-                    # both the updated values and the original ones are Mappings . Let's dive in
-                    if isinstance(original_values_dict, Mapping):
+                    # both the updated values and the original ones are Mappings. Let's dive in
+                    if isinstance(original_values_dict.get(key_to_update, None), Mapping):
                         self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict[key_to_update],
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                            original_values_dict=original_values_dict[key_to_update],
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
                     else:
                         self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=original_values_dict,
+                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                            original_values_dict=original_values_dict,
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
 
-                elif not isinstance(working_copy_dict[key_to_update], Mapping) and isinstance(updated_values_dict[key_to_update], Mapping):
+                elif all([
+                    not isinstance(working_copy_dict[key_to_update], Mapping),
+                    isinstance(updated_values_dict[key_to_update], Mapping)
+                ]):
                     # the new value is a mapping, the old one is not. Shouldn't happen
                     # really, but there we go, just in case
                     # copy it over and then iterate through it
-                    # print("### Overwriting Value with Mapping")
+                    print("### Overwriting Value with Mapping ### AAALEEEEEEERT, this should never happen!!!")
                     working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
-                    if isinstance(original_values_dict, Mapping):
+                    if isinstance(original_values_dict.get(key_to_update, None), Mapping):
                         self.upsert(
                             updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
                             original_values_dict=original_values_dict[key_to_update],
@@ -345,7 +350,8 @@ class CallbackDict(dict, object):
                     # print("Insert new mapping into {} --> {}".format(k, updated_values_dict[key_to_update]))
                     working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     self.upsert(
-                        updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update], original_values_dict=None,
+                        updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                        original_values_dict={},
                         path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                         max_callback_level=max_callback_level, min_callback_level=min_callback_level
                     )

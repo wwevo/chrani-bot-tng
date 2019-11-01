@@ -112,20 +112,19 @@ class DomManagement(Module):
             target_element=dom_element_id
         )
 
-    @staticmethod
-    def update_delete_button_status(*args, **kwargs):
-        def occurrences_of_key_in_nested_mapping(key, value):
-            for k, v in value.items():
-                if k == key:
-                    yield v
-                elif isinstance(v, dict):
-                    for result in occurrences_of_key_in_nested_mapping(key, v):
+    def occurrences_of_key_in_nested_mapping(self, key, value):
+        for k, v in value.items():
+            if k == key:
+                yield v
+            elif isinstance(v, dict):
+                for result in self.occurrences_of_key_in_nested_mapping(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in self.occurrences_of_key_in_nested_mapping(key, d):
                         yield result
-                elif isinstance(v, list):
-                    for d in v:
-                        for result in occurrences_of_key_in_nested_mapping(key, d):
-                            yield result
 
+    def update_delete_button_status(self, *args, **kwargs):
         module = args[0]
         updated_values_dict = kwargs.get("updated_values_dict", None)
         target_module = kwargs.get("target_module", None)
@@ -145,7 +144,7 @@ class DomManagement(Module):
 
         for clientid in module.webserver.connected_clients.keys():
             all_selected_elements = 0
-            for dom_element_is_selected_by in occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
+            for dom_element_is_selected_by in self.occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
                 if clientid in dom_element_is_selected_by:
                     all_selected_elements += 1
 
@@ -167,6 +166,11 @@ class DomManagement(Module):
                 method="replace",
                 target_element=dom_element_id
             )
+
+    def get_dict_element_by_path(self, d, l):
+        if len(l) == 1:
+            return d.get(l[0], [])
+        return self.get_dict_element_by_path(d.get(l[0], {}), l[1:])
 
 
 loaded_modules_dict[DomManagement().get_module_identifier()] = DomManagement()
