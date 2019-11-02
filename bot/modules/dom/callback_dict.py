@@ -258,7 +258,7 @@ class CallbackDict(dict, object):
 
     def upsert(self, *args, **kwargs):
         updated_values_dict = args[0]
-        working_copy_dict = kwargs.get("dict_to_update", self)
+        dict_to_update = kwargs.get("dict_to_update", self)
         if isinstance(updated_values_dict, Mapping) and len(updated_values_dict) < 1:
             # early exit: nothing to update!
             return
@@ -268,7 +268,7 @@ class CallbackDict(dict, object):
 
         original_values_dict = kwargs.get("original_values_dict", None)
         if layer == 0 and original_values_dict is None:
-            original_values_dict = deepcopy(dict(working_copy_dict))
+            original_values_dict = deepcopy(dict(dict_to_update))
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
         max_callback_level = kwargs.get("max_callback_level", self.dict_depth(updated_values_dict))
@@ -289,76 +289,41 @@ class CallbackDict(dict, object):
                 layer=layer
             )
 
-            if key_to_update in working_copy_dict:
+            if key_to_update in dict_to_update:
                 # the key exists in the current dom
-                if isinstance(working_copy_dict[key_to_update], Mapping) and isinstance(updated_values_dict[key_to_update], Mapping):
+                if isinstance(dict_to_update[key_to_update], (list, dict)) and isinstance(updated_values_dict[key_to_update], (list, dict)):
                     # both the updated values and the original ones are Mappings. Let's dive in
-                    if isinstance(original_values_dict.get(key_to_update, None), Mapping):
+                    if isinstance(updated_values_dict.get(key_to_update, None), dict):
+                        if original_values_dict.get(key_to_update, None) is not None:
+                            original_values_dict = original_values_dict[key_to_update]
+
                         self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
-                            original_values_dict=original_values_dict[key_to_update],
-                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                        )
-                    else:
-                        self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                            updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
                             original_values_dict=original_values_dict,
                             path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                             max_callback_level=max_callback_level, min_callback_level=min_callback_level
                         )
+                    elif isinstance(updated_values_dict.get(key_to_update, None), list):
+                        dict_to_update[key_to_update] = updated_values_dict.get(key_to_update)
 
                 elif all([
-                    not isinstance(working_copy_dict[key_to_update], Mapping),
-                    isinstance(updated_values_dict[key_to_update], Mapping)
-                ]):
-                    # the new value is a mapping, the old one is not. Shouldn't happen
-                    # really, but there we go, just in case
-                    # copy it over and then iterate through it
-                    print("### Overwriting Value with Mapping ### AAALEEEEEEERT, this should never happen!!!")
-                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
-                    if isinstance(original_values_dict.get(key_to_update, None), Mapping):
-                        self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
-                            original_values_dict=original_values_dict[key_to_update],
-                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                        )
-                    else:
-                        self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=working_copy_dict,
-                            original_values_dict=original_values_dict[key_to_update],
-                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                        )
-                elif all([
-                    not isinstance(working_copy_dict[key_to_update], Mapping),
-                    not isinstance(updated_values_dict[key_to_update], Mapping)
+                    not isinstance(dict_to_update[key_to_update], (list, dict)),
+                    not isinstance(updated_values_dict[key_to_update], (list, dict))
                 ]):
                     # both keys are Values, we'll update and continue the loop
-                    if working_copy_dict[key_to_update] != updated_values_dict[key_to_update]:
-                        # print("Value updated with another Value {} --> {}".format(working_copy_dict[key_to_update], updated_values_dict[key_to_update]))
-                        working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
-                    else:
-                        # print("Value unchanged Value {} == {}".format(working_copy_dict[key_to_update], updated_values_dict[key_to_update]))
-                        pass
+                    if dict_to_update[key_to_update] != updated_values_dict[key_to_update]:
+                        dict_to_update[key_to_update] = updated_values_dict[key_to_update]
             else:
                 # the key is not in our current dom
-                if isinstance(updated_values_dict[key_to_update], Mapping):
+                dict_to_update[key_to_update] = updated_values_dict[key_to_update]
+                if isinstance(updated_values_dict[key_to_update], (dict)):
                     # it's a mapping, it's not present in the current dom. Copy it over and go through it
-                    # there will be no original values.
-                    # print("Insert new mapping into {} --> {}".format(k, updated_values_dict[key_to_update]))
-                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
                     self.upsert(
-                        updated_values_dict[key_to_update], dict_to_update=working_copy_dict[key_to_update],
+                        updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
                         original_values_dict={},
                         path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                         max_callback_level=max_callback_level, min_callback_level=min_callback_level
                     )
-                else:
-                    # it's a Value and is not present in the current dom. Insert it
-                    # print("Value inserted into {} --> {}".format(k, updated_values_dict[key_to_update]))
-                    working_copy_dict[key_to_update] = updated_values_dict[key_to_update]
 
             if working_paths_list is not None:
                 try:
