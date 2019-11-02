@@ -324,7 +324,7 @@ class Webserver(Module):
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
-            print("client {} disconnected".format(current_user.id))
+            pass
 
         @self.websocket.on('ding')
         def ding_dong():
