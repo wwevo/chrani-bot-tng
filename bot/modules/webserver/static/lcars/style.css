@@ -147,6 +147,16 @@ body > main > div {
     margin-bottom: -0.5em;
 }
 
+body > main > div #unauthorized_disclaimer a,
+body > main > div #unauthorized_disclaimer a:visited {
+    color: var(--lcars-light-blue);
+    text-decoration: None;
+}
+
+body > main > div #unauthorized_disclaimer a:hover {
+    text-decoration: underline;
+}
+
 body > main > div .widget {
     flex: 1 1 auto;
     width: calc(100% - var(--main_shoulder_width) - 2em);
@@ -291,6 +301,18 @@ main > div > #webserver_status_widget { order: 997 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
 /* Widget positions -> end */
+
+body > main > div #unauthorized_disclaimer {
+    width: 100%;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
+    padding-left: calc(var(--main_shoulder_width));
+    background: url(ui/main_vertical_bar.png) repeat-y;
+}
+
+body > main > div #unauthorized_disclaimer p {
+    font-size: 1.5em;
+    padding-bottom: 1em;
+}
 
 /* player status */
 /* offline */

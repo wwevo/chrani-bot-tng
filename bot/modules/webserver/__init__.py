@@ -295,8 +295,10 @@ class Webserver(Module):
                 'footer': footer_markup
             }
             if not current_user.is_authenticated:
-                main_output = '<p>Welcome to the <strong>chrani-bot: the next generation</strong></p>'
-                main_output += '<p>You can use your steam-account to log in!</p>'
+                main_output = '<div id="unauthorized_disclaimer">'
+                main_output += '<p>Welcome to the <strong>chrani-bot: The Next Generation</strong></p>'
+                main_output += '<p>You can <a href="/login">use your steam-account to log in</a>!</p>'
+                main_output += '</div>'
                 main_markup = Markup(main_output)
                 template_options['main'] = main_markup
 
