@@ -263,6 +263,7 @@ class Webserver(Module):
         @self.app.route('/logout')
         @login_required
         def logout():
+            print("client {} disconnected".format(current_user.id))
             del self.connected_clients[current_user.id]
             for module in loaded_modules_dict.values():
                 module.on_socket_disconnect(current_user.id)
