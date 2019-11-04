@@ -112,15 +112,7 @@ def frontend_view(*args, **kwargs):
                     .get(player_steamid, {})
                 )
                 for identifier, location_dict in player_locations.items():
-                    location_is_selected_by = (
-                        module.dom.data
-                        .get("module_dom", {})
-                        .get("module_locations", {})
-                        .get(current_map_identifier, {})
-                        .get(player_steamid, {})
-                        .get(identifier, {})
-                        .get("selected_by", [])
-                    )
+                    location_is_selected_by = location_dict.get("selected_by", [])
 
                     location_entry_selected = False
                     if dispatchers_steamid in location_is_selected_by:
@@ -369,8 +361,7 @@ def table_row(*args, **kwargs):
                 visibility_conditions = [
                     current_view == "frontend"
                 ]
-                table_is_visible = True if any(visibility_conditions) else False
-                if table_is_visible:  # only relevant if the table is shown
+                if any(visibility_conditions):  # only relevant if the table is shown
                     for player_steamid, locations in updated_values_dict.items():
                         player_dict = (
                             module.dom.data
@@ -380,15 +371,8 @@ def table_row(*args, **kwargs):
                             .get(player_steamid, {})
                         )
                         for identifier, location_dict in locations.items():
-                            location_is_selected_by = (
-                                module.dom.data
-                                .get("module_dom", {})
-                                .get("module_locations", {})
-                                .get(current_map_identifier, {})
-                                .get(player_steamid, {})
-                                .get(identifier, {})
-                                .get("selected_by", [])
-                            )
+                            location_is_selected_by = location_dict.get("selected_by", [])
+
                             location_entry_selected = False
                             if clientid in location_is_selected_by:
                                 location_entry_selected = True
@@ -600,7 +584,7 @@ widget_meta = {
             select_view,
         "module_locations/elements/%map_identifier%/%steamid%":
             table_row,
-        "module_dom/module_locations/%map_identifier%/%steamid%/%element_identifier%/selected_by":
+        "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
             update_selection_status,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
             update_enabled_flag,

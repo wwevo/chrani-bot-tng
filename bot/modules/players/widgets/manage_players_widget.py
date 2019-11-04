@@ -77,8 +77,8 @@ def frontend_view(module, dispatchers_steamid=None):
 
                 player_is_selected_by = (
                     module.dom.data
-                    .get("module_dom", {})
                     .get("module_players", {})
+                    .get("elements", {})
                     .get(current_map_identifier, {})
                     .get(player_steamid, {})
                     .get("selected_by", [])
@@ -311,8 +311,8 @@ def table_rows(*args, ** kwargs):
 
                 selected_player_entries = (
                     module.dom.data
-                    .get("module_dom", {})
                     .get("module_players", {})
+                    .get("elements", {})
                     .get(current_map_identifier, {})
                     .get(player_steamid, {})
                     .get("selected_by", [])
@@ -422,7 +422,7 @@ def update_widget(*args, **kwargs):
 def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    location_identifier = updated_values_dict.get("identifier")
+    dom_element_identifier = updated_values_dict.get("identifier")
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
@@ -473,7 +473,7 @@ widget_meta = {
             select_view,
         "module_players/elements/%map_identifier%/%steamid%":
             table_rows,
-        "module_dom/module_players/%map_identifier%/%steamid%/selected_by":
+        "module_players/elements/%map_identifier%/%steamid%/selected_by":
             update_selection_status,
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
         #     update_enabled_flag,

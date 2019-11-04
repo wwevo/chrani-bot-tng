@@ -80,8 +80,8 @@ class DomManagement(Module):
 
         dom_element_is_selected_by = (
             module.dom.data
-            .get("module_dom", {})
             .get(target_module.get_module_identifier(), {})
+            .get("elements", {})
             .get(dom_element_origin, {})
             .get(dom_element_owner, {})
         )
@@ -112,6 +112,36 @@ class DomManagement(Module):
             target_element=dom_element_id
         )
 
+    def search(self, d, k, path=None):
+        if path is None:
+            path = []
+
+        # Reached bottom of dict - no good
+        if not isinstance(d, dict):
+            return False
+
+        # Found it!
+        if k in d.keys():
+            path.append(k)
+            return path
+
+        else:
+            check = list(d.keys())
+            # Look in each key of dictionary
+            while check:
+                first = check[0]
+                # Note which we just looked in
+                path.append(first)
+                if self.search(d[first], k, path) is not False:
+                    break
+                else:
+                    # Move on
+                    check.pop(0)
+                    path.pop(-1)
+            else:
+                return False
+            return path
+
     def occurrences_of_key_in_nested_mapping(self, key, value):
         for k, v in value.items():
             if k == key:
@@ -119,10 +149,6 @@ class DomManagement(Module):
             elif isinstance(v, dict):
                 for result in self.occurrences_of_key_in_nested_mapping(key, v):
                     yield result
-            elif isinstance(v, list):
-                for d in v:
-                    for result in self.occurrences_of_key_in_nested_mapping(key, d):
-                        yield result
 
     def update_delete_button_status(self, *args, **kwargs):
         module = args[0]
@@ -137,8 +163,8 @@ class DomManagement(Module):
 
         all_available_elements = (
             module.dom.data
-            .get("module_dom", {})
             .get(target_module.get_module_identifier(), {})
+            .get("elements", {})
             .get(dom_element_origin, {})
         )
 

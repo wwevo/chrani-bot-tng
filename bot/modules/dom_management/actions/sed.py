@@ -18,7 +18,7 @@ def main_function(module, event_data, dispatchers_steamid):
     if all([
         action is not None
     ]):
-        general_root = ["module_dom", target_module]
+        general_root = [target_module]
         owner_root = [dom_element_origin, dom_element_owner]
         if action == "select_dom_element" or action == "deselect_dom_element":
             full_root = general_root + owner_root + dom_element_select_root
@@ -36,23 +36,23 @@ def main_function(module, event_data, dispatchers_steamid):
 
             current_level = 0
             selected_by_dict = {}
-            for key in reversed(dom_element_select_root):
+            for path in reversed(dom_element_select_root):
                 if current_level == 0:
                     selected_by_dict = {
-                        key: selected_by_dict_element,
+                        path: selected_by_dict_element,
                         "origin": dom_element_origin,
                         "owner": dom_element_owner,
                         "identifier": dom_element_identifier
                     }
                 else:
                     selected_by_dict = {
-                        key: selected_by_dict
+                        path: selected_by_dict
                     }
                 current_level += 1
 
             module.dom.data.upsert({
-                "module_dom": {
-                    target_module: {
+                target_module: {
+                    "elements": {
                         dom_element_origin: {
                             dom_element_owner: selected_by_dict
                         }
@@ -65,14 +65,10 @@ def main_function(module, event_data, dispatchers_steamid):
         elif action == "delete_selected_dom_elements":
             all_available_elements = (
                 module.dom.data
-                .get("module_dom", {})
                 .get(target_module, {})
             )
 
-            for selected_by_dict_element in module.dom_management.occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
-                print(selected_by_dict_element)
-
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            # module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
