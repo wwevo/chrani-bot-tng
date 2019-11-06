@@ -9,7 +9,7 @@ def main_function(origin_module, module, regex_result):
     player_name = regex_result.group("player_name")
     command = regex_result.group("command")
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     all_players_dict = (
         module.dom.data
         .get("module_players", {})

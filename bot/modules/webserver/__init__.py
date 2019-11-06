@@ -124,6 +124,7 @@ class Webserver(Module):
         data_type = kwargs.get("data_type", "widget_content")
         target_element = kwargs.get("target_element", None)
         clients = kwargs.get("clients", None)
+
         if all([
             clients is not None,
             not isinstance(clients, KeysView),

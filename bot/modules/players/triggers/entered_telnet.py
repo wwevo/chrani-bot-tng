@@ -8,11 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    current_map_identifier = (
-        module.dom.data.get("module_environment", {})
-        .get("gameprefs", {})
-        .get("GameName", None)
-    )
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     player_steamid = regex_result.group("player_steamid")
     player_dict = (
         module.dom.data

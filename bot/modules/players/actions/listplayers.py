@@ -52,7 +52,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     )
     players_to_update_dict = {}
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if current_map_identifier is None:
         return
 
@@ -130,7 +130,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if current_map_identifier is None:
          return
 
@@ -164,7 +164,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if current_map_identifier is None:
         return
 

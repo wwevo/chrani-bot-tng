@@ -14,7 +14,7 @@ def main_function(origin_module, module, regex_result):
     if result:
         location_name = result.group("location_name")
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(steamid, {})
     if len(player_dict) >= 1 and result:

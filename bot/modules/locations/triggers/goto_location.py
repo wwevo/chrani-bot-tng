@@ -18,11 +18,7 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    current_map_identifier = (
-        module.dom.data.get("module_environment", {})
-            .get("gameprefs", {})
-            .get("GameName", None)
-    )
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     location_dict = (
         module.dom.data.get("module_locations", {})

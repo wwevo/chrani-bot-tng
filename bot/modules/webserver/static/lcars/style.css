@@ -162,7 +162,9 @@ body > main > div .widget {
     width: calc(100% - var(--main_shoulder_width) - 2em);
     /* margin-left: var(--main_shoulder_width); */
     max-width: calc(1920px - 2em);
+    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
     margin-bottom: 0.5em;
+    overflow: auto
 }
 
 @media (min-width: 1920px) {

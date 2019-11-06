@@ -44,14 +44,17 @@ def select_view(*args, **kwargs):
     )
 
     if current_view == "options":
-        options_view(module, dispatchers_steamid)
+        options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "info":
-        show_info_view(module, dispatchers_steamid)
+        show_info_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
-        frontend_view(module, dispatchers_steamid)
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
 
-def frontend_view(module, dispatchers_steamid=None):
+def frontend_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
     template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
     template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
     template_table_header = module.templates.get_template('player_table_widget/table_header.html')
@@ -63,7 +66,7 @@ def frontend_view(module, dispatchers_steamid=None):
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
@@ -174,7 +177,10 @@ def frontend_view(module, dispatchers_steamid=None):
     )
 
 
-def options_view(module, dispatchers_steamid=None):
+def options_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
     template_frontend = module.templates.get_template('player_table_widget/view_options.html')
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
@@ -219,7 +225,10 @@ def options_view(module, dispatchers_steamid=None):
     )
 
 
-def show_info_view(module, dispatchers_steamid=None):
+def show_info_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
     template_frontend = module.templates.get_template('player_table_widget/view_info.html')
     template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
@@ -251,7 +260,7 @@ def show_info_view(module, dispatchers_steamid=None):
         )
     )
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     player_dict = (
         module.dom.data
         .get("module_players", {})
@@ -285,7 +294,7 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     for clientid in module.webserver.connected_clients.keys():
         current_view = (

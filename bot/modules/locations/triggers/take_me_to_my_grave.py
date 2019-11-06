@@ -1,6 +1,5 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
@@ -9,7 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(origin_module, module, regex_result):
     location_identifier = "PlaceofDeath"
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     steamid = regex_result.group("player_steamid")
 
     player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(current_map_identifier, {}).get(steamid, {})

@@ -100,7 +100,7 @@ def frontend_view(*args, **kwargs):
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("gameprefs", {}).get("GameName", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     for map_identifier, location_owner in all_available_locations.items():
         if current_map_identifier == map_identifier:
             for player_steamid, player_locations in location_owner.items():

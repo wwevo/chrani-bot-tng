@@ -7,11 +7,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     location_identifier = event_data[1].get("location_identifier", None)
-    current_map_identifier = (
-        module.dom.data.get("module_environment", {})
-        .get("gameprefs", {})
-        .get("GameName", None)
-    )
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     if action == "create_new" or action == "edit":
         location_owner = dispatchers_steamid if action == "create_new" else event_data[1].get("location_owner", dispatchers_steamid)
