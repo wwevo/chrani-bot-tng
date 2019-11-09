@@ -144,7 +144,9 @@ def frontend_view(*args, **kwargs):
         count=all_selected_elements_count,
         target_module="module_players",
         dom_element_id="player_table_widget_action_delete_button",
-        dom_action="delete_selected_dom_elements"
+        dom_action="delete_selected_dom_elements",
+        dom_element_root = module.dom_element_root,
+        dom_element_select_root = module.dom_element_select_root
     )
 
     data_to_emit = module.template_render_hook(
@@ -293,84 +295,102 @@ def show_info_view(*args, **kwargs):
 def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
+    method = kwargs.get("method", None)
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
-    for clientid in module.webserver.connected_clients.keys():
-        current_view = (
-            module.dom.data
-            .get("module_players", {})
-            .get("visibility", {})
-            .get(clientid, {})
-            .get("current_view", "frontend")
-        )
-        if current_view == "frontend":
-            template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
-            control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-            control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    if method == "upsert" or method == "edit":
+        for clientid in module.webserver.connected_clients.keys():
+            current_view = (
+                module.dom.data
+                .get("module_players", {})
+                .get("visibility", {})
+                .get(clientid, {})
+                .get("current_view", "frontend")
+            )
+            if current_view == "frontend":
+                template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
+                control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+                control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
 
-            for player_steamid, player_dict in updated_values_dict.items():
-                try:
-                    table_row_id = "player_table_row_{}_{}".format(
-                        str(player_dict["origin"]),
-                        str(player_steamid)
+                for player_steamid, player_dict in updated_values_dict.items():
+                    try:
+                        table_row_id = "player_table_row_{}_{}".format(
+                            str(player_dict["origin"]),
+                            str(player_steamid)
+                        )
+                    except KeyError:
+                        table_row_id = "player_table_widget"
+
+                    selected_player_entries = (
+                        module.dom.data
+                        .get("module_players", {})
+                        .get("elements", {})
+                        .get(current_map_identifier, {})
+                        .get(player_steamid, {})
+                        .get("selected_by", [])
                     )
-                except KeyError:
-                    table_row_id = "player_table_widget"
 
-                selected_player_entries = (
-                    module.dom.data
-                    .get("module_players", {})
-                    .get("elements", {})
-                    .get(current_map_identifier, {})
-                    .get(player_steamid, {})
-                    .get("selected_by", [])
-                )
+                    player_entry_selected = False
+                    if clientid in selected_player_entries:
+                        player_entry_selected = True
 
-                player_entry_selected = False
-                if clientid in selected_player_entries:
-                    player_entry_selected = True
-
-                control_select_link = module.dom_management.get_selection_dom_element(
-                    module,
-                    target_module="module_players",
-                    dom_element_select_root=["selected_by"],
-                    dom_element=player_dict,
-                    dom_element_entry_selected=player_entry_selected,
-                    dom_action_inactive="select_dom_element",
-                    dom_action_active="deselect_dom_element"
-                )
-
-                table_row = module.template_render_hook(
-                    module,
-                    template_table_rows,
-                    player=player_dict,
-                    css_class=get_player_table_row_css_class(player_dict),
-                    control_info_link=module.template_render_hook(
+                    control_select_link = module.dom_management.get_selection_dom_element(
                         module,
-                        control_info_link,
-                        player=player_dict
-                    ),
-                    control_kick_link=module.template_render_hook(
+                        target_module="module_players",
+                        dom_element_select_root=["selected_by"],
+                        dom_element=player_dict,
+                        dom_element_entry_selected=player_entry_selected,
+                        dom_action_inactive="select_dom_element",
+                        dom_action_active="deselect_dom_element"
+                    )
+
+                    table_row = module.template_render_hook(
                         module,
-                        control_kick_link,
+                        template_table_rows,
                         player=player_dict,
-                    ),
-                    control_select_link=control_select_link
-                )
+                        css_class=get_player_table_row_css_class(player_dict),
+                        control_info_link=module.template_render_hook(
+                            module,
+                            control_info_link,
+                            player=player_dict
+                        ),
+                        control_kick_link=module.template_render_hook(
+                            module,
+                            control_kick_link,
+                            player=player_dict,
+                        ),
+                        control_select_link=control_select_link
+                    )
 
-                module.webserver.send_data_to_client_hook(
-                    module,
-                    event_data=table_row,
-                    data_type="table_row",
-                    clients=[clientid],
-                    target_element={
-                        "id": table_row_id,
-                        "type": "tr",
-                        "class": get_player_table_row_css_class(player_dict),
-                        "selector": "body > main > div > div#player_table_widget > main > table > tbody"
-                    }
+                    module.webserver.send_data_to_client_hook(
+                        module,
+                        event_data=table_row,
+                        data_type="table_row",
+                        clients=[clientid],
+                        target_element={
+                            "id": table_row_id,
+                            "type": "tr",
+                            "class": get_player_table_row_css_class(player_dict),
+                            "selector": "body > main > div > div#player_table_widget > main > table > tbody"
+                        }
+                    )
+    elif method == "remove":
+        player_origin = updated_values_dict[2]
+        player_steamid = updated_values_dict[3]
+        module.webserver.send_data_to_client_hook(
+            module,
+            data_type="remove_table_row",
+            clients="all",
+            target_element={
+                "id": "player_table_row_{}_{}".format(
+                    str(player_origin),
+                    str(player_steamid)
                 )
+            }
+        )
+
+        update_delete_button_status(module, *args, **kwargs)
 
 
 def update_widget(*args, **kwargs):
@@ -431,13 +451,10 @@ def update_widget(*args, **kwargs):
 def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    dom_element_identifier = updated_values_dict.get("identifier")
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
-        dom_element_root=[],
-        dom_element_select_root=["selected_by"],
         dom_action_active="deselect_dom_element",
         dom_action_inactive="select_dom_element",
         dom_element_id={
@@ -453,14 +470,12 @@ def update_selection_status(*args, **kwargs):
 
 def update_delete_button_status(*args, **kwargs):
     module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", None)
-    location_identifier = updated_values_dict["identifier"]
 
     module.dom_management.update_delete_button_status(
         *args, **kwargs,
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
         target_module=module,
-        dom_element_root=[location_identifier],
-        dom_element_select_root=["selected_by"],
         dom_action="delete_selected_dom_elements",
         dom_element_id={
             "id": "player_table_widget_action_delete_button"

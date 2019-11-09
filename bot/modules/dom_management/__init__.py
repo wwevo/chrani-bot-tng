@@ -63,6 +63,8 @@ class DomManagement(Module):
             module.dom_management.templates.get_template('control_action_delete_button.html'),
             count=kwargs.get("count"),
             target_module=kwargs.get("target_module"),
+            dom_element_root=kwargs.get("dom_element_root"),
+            dom_element_select_root=kwargs.get("dom_element_select_root"),
             dom_action=kwargs.get("dom_action"),
             delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
             dom_element_id=kwargs.get("dom_element_id")
@@ -73,10 +75,10 @@ class DomManagement(Module):
         module = args[0]
         updated_values_dict = kwargs.get("updated_values_dict", None)
         target_module = kwargs.get("target_module", None)
-        dom_element_root = kwargs.get("dom_element_root", None)
+        dom_element_root = kwargs.get("dom_element_root", [])
         dom_action_active = kwargs.get("dom_action_active", None)
         dom_action_inactive = kwargs.get("dom_action_inactive", None)
-        dom_element_select_root = kwargs.get("dom_element_select_root", None)
+        dom_element_select_root = kwargs.get("dom_element_select_root", ["selected_by"])
         dom_element_id = kwargs.get("dom_element_id", None)
 
         dom_element_origin = updated_values_dict["origin"]
@@ -84,6 +86,8 @@ class DomManagement(Module):
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
+        # getting the base root for all elements. it's always this path if the module wants to use these built
+        # in functions
         dom_element = (
             module.dom.data
             .get(target_module.get_module_identifier(), {})
@@ -91,21 +95,11 @@ class DomManagement(Module):
             .get(dom_element_origin, {})
             .get(dom_element_owner, {})
         )
-
+        # get the individual element path, as provided by the module
         for sub_dict in dom_element_root:
             dom_element = dom_element.get(sub_dict)
 
-        dom_element_is_selected_by = (
-            module.dom.data
-            .get(target_module.get_module_identifier(), {})
-            .get("elements", {})
-            .get(dom_element_origin, {})
-            .get(dom_element_owner, {})
-        )
-
-        for sub_dict in dom_element_select_root:
-            dom_element_is_selected_by = dom_element_is_selected_by.get(sub_dict)
-
+        dom_element_is_selected_by = dom_element.get("selected_by", [])
         dom_element_entry_selected = False
         if dispatchers_steamid in dom_element_is_selected_by:
             dom_element_entry_selected = True
@@ -146,7 +140,10 @@ class DomManagement(Module):
 
         for clientid in module.webserver.connected_clients.keys():
             all_selected_elements = 0
-            for dom_element_is_selected_by in self.occurrences_of_key_in_nested_mapping("selected_by", all_available_elements):
+            for dom_element_is_selected_by in self.occurrences_of_key_in_nested_mapping(
+                    "selected_by",
+                    all_available_elements
+            ):
                 if clientid in dom_element_is_selected_by:
                     all_selected_elements += 1
 
@@ -154,6 +151,8 @@ class DomManagement(Module):
                 module,
                 template_action_delete_button,
                 dom_action=dom_action,
+                dom_element_root=kwargs.get("dom_element_root", []),
+                dom_element_select_root=kwargs.get("dom_element_select_root", []),
                 target_module=target_module.get_module_identifier(),
                 count=all_selected_elements,
                 delete_selected_entries_active=True if all_selected_elements >= 1 else False,

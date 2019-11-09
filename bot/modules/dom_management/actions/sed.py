@@ -18,12 +18,11 @@ def main_function(module, event_data, dispatchers_steamid):
     if all([
         action is not None
     ]):
-        general_root = [target_module]
-        owner_root = [dom_element_origin, dom_element_owner]
         if action == "select_dom_element" or action == "deselect_dom_element":
-            full_root = general_root + owner_root + dom_element_select_root
-            selected_by_dict_element = module.dom_management.get_dict_element_by_path(module.dom.data, full_root)
+            general_root = [target_module, "elements", dom_element_origin, dom_element_owner]
+            full_root = general_root + dom_element_select_root
 
+            selected_by_dict_element = module.dom_management.get_dict_element_by_path(module.dom.data, full_root)
             try:
                 if action == "select_dom_element":
                     if dispatchers_steamid not in selected_by_dict_element:
@@ -34,22 +33,29 @@ def main_function(module, event_data, dispatchers_steamid):
             except ValueError as error:
                 print(error)
 
-            current_level = 0
+            """ we want to get to the selected_by list, which can be on a different level for each module
+            since we store the path to it in the settings, we can simply construct it on the go.
+            """
+            max_discovered_level = 0
             selected_by_dict = {}
-            for path in reversed(dom_element_select_root):
-                if current_level == 0:
+            for path_fragment in reversed(dom_element_select_root):
+                if max_discovered_level == 0:
                     selected_by_dict = {
-                        path: selected_by_dict_element,
+                        path_fragment: selected_by_dict_element,
                         "origin": dom_element_origin,
                         "owner": dom_element_owner,
                         "identifier": dom_element_identifier
                     }
                 else:
                     selected_by_dict = {
-                        path: selected_by_dict
+                        path_fragment: selected_by_dict
                     }
-                current_level += 1
+                max_discovered_level += 1
 
+            """ we do a # + max_discovered_level so we won't trigger actions associated at lower levels
+            the 3 in this example translates to "%target_module%/elements/%element_origin%/%dom_element_owner"
+            otherwise we'd possibly trigger widget-updates whenever we select something
+            """
             module.dom.data.upsert({
                 target_module: {
                     "elements": {
@@ -58,15 +64,24 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + current_level)
+            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + max_discovered_level)
 
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
         elif action == "delete_selected_dom_elements":
-            all_available_elements = (
-                module.dom.data
-                .get(target_module, {})
-            )
+            stuff_to_delete = []
+            for path, dom_element_key, dom_element in module.dom.get_dom_element_by_query(
+                target_module=target_module,
+                query="selected_by"
+            ):
+                if dispatchers_steamid in dom_element:
+                    stuff_to_delete.append([target_module, "elements"] + path)
+
+            for dom_element_to_delete in stuff_to_delete:
+                module.dom.data.remove_key_by_path(
+                        dom_element_to_delete,
+                        dispatchers_steamid=dispatchers_steamid
+                    )
 
             # module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return

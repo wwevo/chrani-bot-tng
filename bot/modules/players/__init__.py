@@ -4,13 +4,16 @@ from time import time
 
 
 class Players(Module):
-    templates = object
+    dom_element_root = list
+    dom_element_select_root = list
 
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "run_observer_interval": 2,
             "run_observer_interval_idle": 10,
+            "dom_element_root": [],
+            "dom_element_select_root": ["selected_by"]
         })
 
         setattr(self, "required_modules", [
@@ -42,6 +45,12 @@ class Players(Module):
         )
         self.run_observer_interval_idle = self.options.get(
             "run_observer_interval_idle",self.default_options.get("run_observer_interval_idle", None)
+        )
+        self.dom_element_root = self.options.get(
+            "dom_element_root", self.default_options.get("dom_element_root", None)
+        )
+        self.dom_element_select_root = self.options.get(
+            "dom_element_select_root", self.default_options.get("dom_element_select_root", None)
         )
     # endregion
 

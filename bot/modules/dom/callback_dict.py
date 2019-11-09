@@ -1,6 +1,9 @@
+from bot import loaded_modules_dict
 from collections import Mapping, deque
 from threading import Thread
 from copy import deepcopy
+from functools import reduce
+import operator
 
 
 class CallbackDict(dict, object):
@@ -13,6 +16,10 @@ class CallbackDict(dict, object):
 
     def __setitem__(self, key, value):
         super().__setitem__(key, value)
+
+    @staticmethod
+    def get_from_dict(data_dict, map_list):
+        return reduce(operator.getitem, map_list[:-1], data_dict)
 
     @staticmethod
     def get_callback_package(
@@ -96,74 +103,46 @@ class CallbackDict(dict, object):
             return 1 + (max(map(self.dict_depth, d.values())) if d else 0)
         return 0
 
-    def remove(self, *args, **kwargs):
-        updated_values_dict = args[0]
-        working_copy_dict = kwargs.get("dict_to_update", self)
-        original_values_dict = kwargs.get("original_values_dict", {})
-        if len(original_values_dict) <= 0:
-            original_values_dict = deepcopy(dict(working_copy_dict))
-
-        path = kwargs.get("path", [])
+    def remove_key_by_path(self, *args, **kwargs):
+        key_to_remove = args[0]
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-        layer = kwargs.get("layer", 0)
-        max_callback_level = kwargs.get("max_callback_level", self.dict_depth(updated_values_dict))
-        min_callback_level = kwargs.get("min_callback_level", 0)
-        callbacks = kwargs.get("callbacks", None)
-        maxlen = kwargs.get("maxlen", None)
+        target_module_delete_root = loaded_modules_dict[key_to_remove[0]].dom_element_select_root
+        keys_to_ignore = len(target_module_delete_root) - 1
+        if keys_to_ignore >= 1:
+            path_to_delete = "/".join(key_to_remove[:-(keys_to_ignore)])
+        else:
+            path_to_delete = "/".join(key_to_remove)
 
-        if layer == 0 and callbacks is None:
-            callbacks = []
+        matching_callback_path = self.get_matching_callback_path(
+            path_to_delete,
+            min_callback_level=len(key_to_remove),
+            max_callback_level=len(key_to_remove),
+            layer=len(key_to_remove)
+        )
 
-        path = path[0:layer]
+        callbacks = []
+        if matching_callback_path is not None:
+            for working_path in matching_callback_path:
+                for callback in self.registered_callbacks[len(key_to_remove) - (1 + keys_to_ignore)][working_path]:
+                    callbacks.append(
+                        self.get_callback_package(
+                            updated_values=key_to_remove,
+                            original_values_dict={},
+                            dispatchers_steamid=dispatchers_steamid,
+                            callback=callback,
+                            method="remove",
+                            matched_path=working_path
+                        )
+                    )
 
-        """" recursion happens in this section """
-        for k, v in updated_values_dict.items():
-            matching_callback_path = self.get_matching_callback_path(
-                self.construct_full_path(path, k, layer),
-                min_callback_level=min_callback_level,
-                max_callback_level=max_callback_level,
-                layer=layer
-            )
-
-            if matching_callback_path is not None:
-                for working_path in matching_callback_path:
-                    for callback in self.registered_callbacks[layer][working_path]:
-                        callbacks.append(
-                            self.get_callback_package(
-                                updated_values=updated_values_dict,
-                                original_values_dict=original_values_dict,
-                                dispatchers_steamid=dispatchers_steamid,
-                                callback=callback,
-                                method="remove",
-                                matched_path=working_path
-                            ))
-
-            if isinstance(v, Mapping) and isinstance(working_copy_dict[k], Mapping):
-                self.remove(
-                    v,
-                    dict_to_update=working_copy_dict[k],
-                    original_values_dict=original_values_dict[k],
-                    path=path,
-                    layer=layer + 1,
-                    callbacks=callbacks,
-                    maxlen=maxlen,
-                    dispatchers_steamid=dispatchers_steamid,
-                    max_callback_level=max_callback_level,
-                    min_callback_level=min_callback_level
-                )
-            else:
-                try:
-                    del working_copy_dict[k][v]
-                except KeyError:
-                    pass
-                except TypeError:
-                    try:
-                        working_copy_dict[k].remove(v)
-                    except ValueError:
-                        pass
-
-        if layer != 0:
-            return
+        try:
+            print(target_module_delete_root, "remove:", key_to_remove[-1])
+            del self.get_from_dict(self, key_to_remove)[key_to_remove[-1]]
+            # del working_copy_dict[k]
+        except KeyError:
+            pass
+        except TypeError:
+            pass
 
         """ we've reached the end of all recursions """
         for callback in callbacks:

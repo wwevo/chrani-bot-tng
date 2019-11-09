@@ -1,7 +1,0 @@
-{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-<div id="manage_whitelist_widget_action_delete_button" class="delete_button">
-{{ construct_toggle_link(
-    delete_selected_entries_active,
-    "delete (" + count|string + ")", ['widget_event', ['whitelist', ['manage_whitelist', {'action': 'delete_selected_entries'}]]]
-) }}
-</div>

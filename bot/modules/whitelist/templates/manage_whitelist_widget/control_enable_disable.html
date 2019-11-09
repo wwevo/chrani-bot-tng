@@ -1,8 +1,0 @@
-{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
-<div id="manage_whitelist_widget_enable_disable_toggle">
-    {{ construct_toggle_link(
-        enable_disable_toggle,
-        "online", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "deactivate_whitelist"}]]],
-        "offline", ['widget_event', ['whitelist', ['manage_whitelist', {"action": "activate_whitelist"}]]]
-    )}}
-</div>

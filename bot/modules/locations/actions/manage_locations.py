@@ -52,31 +52,6 @@ def main_function(module, event_data, dispatchers_steamid):
             }, dispatchers_steamid=dispatchers_steamid, max_callback_level=3)
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
-    elif action == "delete_selected_entries":
-        """ remove all locations selected by the current user """
-        all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
-        locations_to_remove = []
-        for map_identifier, location_owner in all_available_locations.items():
-            for owner_steamid, player_locations in location_owner.items():
-                for identifier, location_dict in player_locations.items():
-                    if dispatchers_steamid in location_dict.get("selected_by"):
-                        locations_to_remove.append(
-                            (map_identifier, owner_steamid, identifier)
-                        )
-
-        for location_tuple in locations_to_remove:
-            module.dom.data.remove({
-                "module_locations": {
-                    "elements": {
-                        location_tuple[0]: {
-                            location_tuple[1]: location_tuple[2]
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-        return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 

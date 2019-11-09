@@ -152,6 +152,8 @@ def frontend_view(*args, **kwargs):
         module,
         count=all_selected_elements_count,
         target_module="module_locations",
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
         dom_element_id="manage_locations_control_action_delete_link",
         dom_action="delete_selected_dom_elements"
     )
@@ -428,26 +430,23 @@ def table_row(*args, **kwargs):
                             )
                 else:  # table is not visible or current user, skip it!
                     continue
-        if method == "remove":  # callback_dict sent us here with a removal notification!
-            for steamid, identifier in updated_values_dict.items():
-                try:
-                    if identifier in original_values_dict[steamid]:
-                        module.webserver.send_data_to_client_hook(
-                            module,
-                            data_type="remove_table_row",
-                            clients="all",
-                            target_element={
-                                "id": "manage_locations_table_row_{}_{}_{}".format(
-                                    str(original_values_dict[steamid][identifier]["origin"]),
-                                    str(steamid),
-                                    str(identifier)
-                                ),
-                            }
-                        )
+        elif method == "remove":  # callback_dict sent us here with a removal notification!
+            location_origin = updated_values_dict[2]
+            player_steamid = updated_values_dict[3]
+            location_identifier = updated_values_dict[-1]
 
-                except TypeError:
-                    # we are not deleting, so we are skipping any actions
-                    pass
+            module.webserver.send_data_to_client_hook(
+                module,
+                data_type="remove_table_row",
+                clients="all",
+                target_element={
+                    "id": "manage_locations_table_row_{}_{}_{}".format(
+                        str(location_origin),
+                        str(player_steamid),
+                        str(location_identifier)
+                    ),
+                }
+            )
 
             update_delete_button_status(module, *args, **kwargs)
 
@@ -555,14 +554,12 @@ def update_enabled_flag(*args, **kwargs):
 
 def update_delete_button_status(*args, **kwargs):
     module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", None)
-    location_identifier = updated_values_dict["identifier"]
 
     module.dom_management.update_delete_button_status(
         *args, **kwargs,
         target_module=module,
-        dom_element_root=[location_identifier],
-        dom_element_select_root=[location_identifier, "selected_by"],
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
         dom_action="delete_selected_dom_elements",
         dom_element_id={
             "id": "manage_locations_control_action_delete_link"
