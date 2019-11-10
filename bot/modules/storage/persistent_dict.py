@@ -19,7 +19,7 @@ class PersistentDict(dict):
 
     """
 
-    def __init__(self, filename, flag='c', mode=None, format='pickle', *args, **kwds):
+    def __init__(self, filename, flag='c', mode=None, format='json', *args, **kwds):
         self.flag = flag                    # r=readonly, c=create, or n=new
         self.mode = mode                    # None or an octal triple like 0644
         self.format = format                # 'csv', 'json', or 'pickle'
@@ -36,7 +36,7 @@ class PersistentDict(dict):
             return
         filename = self.filename
         tempname = filename + '.tmp'
-        fileobj = open(tempname, 'wb' if self.format=='pickle' else 'w')
+        fileobj = open(tempname, 'wb' if self.format == 'pickle' else 'w')
         try:
             self.dump(fileobj)
         except Exception:
@@ -61,7 +61,7 @@ class PersistentDict(dict):
         if self.format == 'csv':
             csv.writer(fileobj).writerows(self.items())
         elif self.format == 'json':
-            json.dump(self, fileobj, separators=(',', ':'))
+            json.dump(self, fileobj, separators=(',', ':'), sort_keys=True, indent=4)
         elif self.format == 'pickle':
             pickle.dump(dict(self), fileobj, 2)
         else:
