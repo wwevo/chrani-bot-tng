@@ -1,5 +1,6 @@
 from bot import loaded_modules_dict
 from os import path, pardir
+from collections import OrderedDict
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
@@ -74,18 +75,13 @@ def frontend_view(*args, **kwargs):
     all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if current_map_identifier == map_identifier:
-            for player_steamid, player_dict in player_dicts.items():
+            # have the online players displayed first initially!
+            ordered_player_dicts = OrderedDict(sorted(player_dicts.items(), key=lambda x: x[1]['is_initialized'], reverse=True))
+            for player_steamid, player_dict in ordered_player_dicts.items():
                 if player_steamid == 'last_updated_servertime':
                     continue
 
-                player_is_selected_by = (
-                    module.dom.data
-                    .get("module_players", {})
-                    .get("elements", {})
-                    .get(current_map_identifier, {})
-                    .get(player_steamid, {})
-                    .get("selected_by", [])
-                )
+                player_is_selected_by = player_dict.get("selected_by", [])
 
                 player_entry_selected = False
                 if dispatchers_steamid in player_is_selected_by:
