@@ -9,8 +9,6 @@ import telnetlib
 class Telnet(Module):
     tn = object
 
-    data_transfer_enabled = bool
-
     telnet_buffer = str
     valid_telnet_lines = deque
 
@@ -27,7 +25,6 @@ class Telnet(Module):
             "max_queue_length": 100,
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
-            "data_transfer_enabled": True,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
@@ -65,9 +62,6 @@ class Telnet(Module):
 
         self.telnet_lines_to_process = deque(maxlen=self.options["max_queue_length"])
         self.valid_telnet_lines = deque(maxlen=self.options["max_queue_length"])
-        self.data_transfer_enabled = self.options.get(
-            "data_transfer_enabled", self.default_options.get("data_transfer_enabled", False)
-        )
         self.run_observer_interval = self.options.get(
             "run_observer_interval", self.default_options.get("run_observer_interval", None)
         )
@@ -204,10 +198,7 @@ class Telnet(Module):
             command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
             try:
-                if self.data_transfer_enabled:
-                    self.tn.write(command.encode('ascii'))
-                else:
-                    raise ConnectionRefusedError("telnet data transfer has been disabled")
+                self.tn.write(command.encode('ascii'))
 
             except Exception as error:
                 print("couldn't process command '{command}' due to: '{error}'".format(
@@ -231,16 +222,14 @@ class Telnet(Module):
                         self.setup_telnet()
                         self.dom.data.upsert({
                             self.get_module_identifier(): {
-                                "server_is_online": True,
-                                "data_transfer_enabled": self.data_transfer_enabled
+                                "server_is_online": True
                             }
                         })
 
                     except (OSError, Exception, ConnectionRefusedError) as sub_error:
                         self.dom.data.upsert({
                             self.get_module_identifier(): {
-                                "server_is_online": False,
-                                "data_transfer_enabled": self.data_transfer_enabled
+                                "server_is_online": False
                             }
                         })
                         self.telnet_buffer = ""
@@ -322,12 +311,7 @@ class Telnet(Module):
                 self.execute_telnet_command_queue()
 
             self.last_execution_time = time() - profile_start
-            if self.data_transfer_enabled:
-                interval = self.run_observer_interval
-            else:
-                interval = self.run_observer_interval_idle
-
-            self.next_cycle = interval - self.last_execution_time
+            self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Telnet().get_module_identifier()] = Telnet()
