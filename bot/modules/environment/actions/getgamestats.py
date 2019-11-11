@@ -8,25 +8,39 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 1.5  # [seconds]
+    current_game_name = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("current_game_name", None)
+    )
+
+    # we can't save the gamestats without knowing the game-name, as each game can have different stats.
+    if current_game_name is None:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+
+    timeout = 3  # [seconds]
     timeout_start = time()
 
     module.telnet.add_telnet_command_to_queue("getgamestat")
-    poll_is_finished = False
     regex = (
         r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
         r"INF Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"
         r"(?P<raw_gamestats>^(GameStat\..*\s)+)"
     )
+
+    match = None
+    match_found = False
+    poll_is_finished = False
     while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)
+        sleep(0.25)  # give the telnet a little time to respond so we have a chance to get the data at first try
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer, re.MULTILINE):
             poll_is_finished = True
+            match_found = True
 
-        if match:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-            return
+    if match_found:
+        module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
+        return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
@@ -37,17 +51,25 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     )
     raw_gamestats = match.group("raw_gamestats")
     gamestats_dict = {}
+
     for m in re.finditer(regex, raw_gamestats, re.MULTILINE):
         gamestats_dict[m.group("gamestat_name")] = m.group("gamestat_value").rstrip()
 
+    current_game_name = (
+        module.dom.data
+        .get(module.get_module_identifier())
+        .get("current_game_name", None)
+    )
+
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "gamestats": gamestats_dict
+            current_game_name: {
+                "gamestats": gamestats_dict
+            }
         }
-    }, overwrite=True)
+    })
 
-    disable_after_success = event_data[1]["disable_after_success"]
-    if disable_after_success:
+    if event_data[1]["disable_after_success"]:
         module.disable_action(action_name)
 
 

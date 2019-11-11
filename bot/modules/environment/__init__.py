@@ -44,6 +44,7 @@ class Environment(Module):
                 "disable_after_success": True
             }])
 
+            # requires getgameprefs to be successful
             self.trigger_action_hook(self, ["getgamestats", {
                 "disable_after_success": True
             }])
