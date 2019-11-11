@@ -9,8 +9,12 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     if current_view == "options":
@@ -35,16 +39,23 @@ def frontend_view(*args, **kwargs):
 
     try:
         server_is_online = module.dom.data.get("module_telnet").get("server_is_online", True)
-    except AttributeError as error:
+    except AttributeError:
         server_is_online = True
 
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
-    webserver_logged_in_users = module.dom.data.get(module.get_module_identifier(), {}).get(
-        "webserver_logged_in_users", []
+    webserver_logged_in_users = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("webserver_logged_in_users", [])
     )
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -96,8 +107,12 @@ def options_view(*args, **kwargs):
         'webserver_status_widget/control_switch_options_view.html'
     )
 
-    current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
-        "current_view", "frontend"
+    current_view = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view", "frontend")
     )
 
     data_to_emit = module.template_render_hook(
@@ -159,7 +174,6 @@ def update_servertime(*args, **kwargs):
 def update_logged_in_users(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    original_values_dict = kwargs.get("original_values_dict", None)
 
     webserver_logged_in_users = updated_values_dict.get("webserver_logged_in_users", [])
 
@@ -183,7 +197,7 @@ def update_logged_in_users(*args, **kwargs):
 
 
 widget_meta = {
-    "description": "shows all users with an active session for the webinterface",
+    "description": "shows all users with an active session for the webinterface and some other stats",
     "main_widget": select_view,
     "handlers": {
         "module_webserver/visibility/%steamid%/current_view": select_view,
