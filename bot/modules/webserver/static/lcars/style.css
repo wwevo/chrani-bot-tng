@@ -296,8 +296,7 @@ body > header > div #gameserver_status_widget span:hover > a {
 .widget { order: 500 } /* making the standard order the middle instead of 0 */
 
 main > div > #player_table_widget { order: -1 }
-main > div > #manage_whitelist_widget { order: 0 }
-main > div > #webserver_status_widget { order: 997 }
+main > div > #webserver_status_widget { order: 0 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
 /* Widget positions -> end */
@@ -314,25 +313,36 @@ body > main > div #unauthorized_disclaimer p {
     padding-bottom: 1em;
 }
 
+@media (min-width: 1920px) {
+    main > div > #player_table_widget {
+        max-width: 1440px;
+    }
+
+    main > div > #webserver_status_widget {
+        min-width: 480px;
+        max-width: 640px;
+    }
+}
+
+#player_table_widget tbody > tr:hover * {
+    background-color: var(--lcars-yellow);
+    color: var(--background)
+}
 /* player status */
 /* offline */
 #player_table_widget caption span:not([class]),
 #player_table_widget tbody > span:not([class]),
-#player_table_widget tbody > tr:not([class]) {
-    color: var(--lcars-red);
-}
-
-/* offline and dead */
+#player_table_widget tbody > tr:not([class]),
 #player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
 #player_table_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized),
 #player_table_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) {
-    color: var(--lcars-brown);
+    color: var(--lcars-red);
 }
 /* online and logging in */
-#player_table_widget caption span.is_online:not(.is_initialized):not(.in_limbo),
-#player_table_widget tbody > span.is_online:not(.is_initialized):not(.in_limbo),
-#player_table_widget tbody > tr.is_online:not(.is_initialized):not(.in_limbo) {
-    color: var(--lcars-yellow);
+#player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
+#player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo,
+#player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
+    color: var(--lcars-lilac);
 }
 /* online */
 #player_table_widget caption span.is_online.is_initialized:not(.in_limbo),
@@ -393,22 +403,6 @@ main > div > #locations_widget #current_player_pos > span > div > label input {
 main > div > #locations_widget #current_player_pos > span > div > label:nth-child(2) input {
     width: 2em;
 }
-
-/* players whitelist status */
-/* not on whitelist */
-#manage_whitelist_widget caption span:not([class]),
-#manage_whitelist_widget tbody > span:not([class]),
-#manage_whitelist_widget tbody > tr:not([class]) {
-    color: var(--lcars-red);
-}
-
-/* on whitelist */
-#manage_whitelist_widget caption span.on_whitelist,
-#manage_whitelist_widget tbody > span.on_whitelist,
-#manage_whitelist_widget tbody > tr.on_whitelist {
-    color: var(--lcars-yellow);
-}
-/* manage_whitelist_widget - captions -> end*/
 /* region main_widgets -> end */
 
 /* region footer_widgets -> start */
@@ -488,7 +482,7 @@ footer > div > p {
 
 .widget > main > table > tbody > tr > td {
     font-size: 1.125em;
-    height: 28px; line-height: 24px;
+    line-height: 24px;
     white-space: nowrap;
     padding: 0 4px;
 }
@@ -611,7 +605,7 @@ footer > div > p {
     td[id^="manage_locations_table_row_"][id$="_last_changed"],
     td[id^="manage_locations_table_row_"][id$="_coordinates"],
     td[id^="manage_locations_table_row_"][id$="_owner"] {
-        font-size: 0.75em;
+        font-size: 0.90em;
         vertical-align: middle;
     }
 }
