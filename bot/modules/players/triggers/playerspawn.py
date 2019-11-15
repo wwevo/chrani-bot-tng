@@ -13,15 +13,15 @@ def main_function(origin_module, module, regex_result):
     if command == "joined the game":
         # print(command, regex_result.re.groupindex)
         player_name = regex_result.group("player_name")
-        servertime_player_left = (
+        servertime_player_joined = (
             module.dom.data
             .get("module_environment", {})
             .get("last_recorded_gametime", {})
         )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=servertime_player_left.get("day", "00"),
-            hour=servertime_player_left.get("hour", "00"),
-            minute=servertime_player_left.get("minute", "00")
+            day=servertime_player_joined.get("day", "00"),
+            hour=servertime_player_joined.get("hour", "00"),
+            minute=servertime_player_joined.get("minute", "00")
         )
         payload = '{} joined the a18 test-server at {}'.format(player_name, last_seen_gametime_string)
 

@@ -138,7 +138,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
-        .get(current_map_identifier)
+        .get(current_map_identifier, {})
     )
 
     for steamid, player_dict in all_players_dict.items():
