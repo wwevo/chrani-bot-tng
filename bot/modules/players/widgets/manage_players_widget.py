@@ -7,29 +7,16 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def get_player_table_row_css_class(player_dict):
-    in_limbo = player_dict.get("in_limbo", False)
-    is_online = player_dict.get("is_online", False)
-    is_initialized = player_dict.get("is_initialized", False)
+    css_classes = []
 
-    css_class = ""
+    if player_dict.get("is_online", False):
+        css_classes.append("is_online")
+    if player_dict.get("in_limbo", False):
+        css_classes.append("in_limbo")
+    if player_dict.get("is_initialized", False):
+        css_classes.append("is_initialized")
 
-    # offline
-    if not is_online and not in_limbo and not is_initialized:
-        css_class = ""
-    # offline + dead
-    if not is_online and in_limbo and not is_initialized:
-        css_class = "in_limbo"
-    # online + logging in
-    if is_online and in_limbo and not is_initialized:
-        css_class = "is_online"
-    # online + logged in
-    if is_online and not in_limbo and is_initialized:
-        css_class = "is_online is_initialized"
-    # online + logged in + dead
-    if is_online and in_limbo and is_initialized:
-        css_class = "is_online in_limbo is_initialized"
-
-    return css_class
+    return " ".join(css_classes)
 
 
 def select_view(*args, **kwargs):
