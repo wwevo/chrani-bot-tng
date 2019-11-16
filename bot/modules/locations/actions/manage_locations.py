@@ -15,8 +15,8 @@ def main_function(module, event_data, dispatchers_steamid):
         if location_identifier is None:
             location_identifier = ''.join(e for e in location_name if e.isalnum())
         location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
-        location_coordinates = event_data[1].get("location_coordinates", None)
-        location_dimensions = event_data[1].get("location_dimensions", None)
+        location_coordinates = event_data[1].get("location_coordinates", {})
+        location_dimensions = event_data[1].get("location_dimensions", {})
         location_enabled = event_data[1].get("location_enabled", False)
         last_changed = event_data[1].get("last_changed", False)
 
