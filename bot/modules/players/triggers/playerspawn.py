@@ -7,11 +7,14 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    # print("{}: {}".format(module.getName(), regex_result.re.groupindex))
     command = regex_result.group("command")
+    # print("{module}: {available_vars}, {command}".format(
+    #     module=module.getName(),
+    #     available_vars=regex_result.re.groupindex,
+    #     command=command
+    # ))
 
     if command == "joined the game":
-        # print(command, regex_result.re.groupindex)
         player_name = regex_result.group("player_name")
         servertime_player_joined = (
             module.dom.data
@@ -31,6 +34,32 @@ def main_function(origin_module, module, regex_result):
             content=payload
         )
         webhook.execute()
+
+    if command == "JoinMultiplayer":
+        steamid = regex_result.group("player_steamid")
+        player_name = regex_result.group("player_name")
+        current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+        player_dict = (
+            module.dom.data.get("module_players", {})
+            .get("elements", {})
+            .get(current_map_identifier, {})
+            .get(steamid, {})
+        )
+
+        if player_dict.get("is_authenticated", False) is True:
+            message = "[66FF66]Welcome back[-] [FFFFFF]{}[-]".format(player_name)
+        else:
+            message = (
+                "[66FF66]Welcome to the server[-] [FFFFFF]{player_name},[-] "
+                "[FF6666]please authenticate[-] [FFFFFF]and make yourself at home :)[-]"
+            ).format(
+                player_name=player_name
+            )
+        event_data = ['say_to_player', {
+            'steamid': steamid,
+            'message': message
+        }]
+        module.trigger_action_hook(origin_module.players, event_data, steamid)
 
 
 trigger_meta = {

@@ -8,8 +8,6 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    player_name = regex_result.group("player_name")
-    entity_id = regex_result.group("entity_id")
     steamid = regex_result.group("player_steamid")
 
     result = re.match(r"^.*password\s(?P<password>.*)", command)
@@ -20,6 +18,12 @@ def main_function(origin_module, module, regex_result):
 
     if origin_module.default_options.get("player_password", None) == entered_password:
         is_authenticated = True
+        event_data = ['say_to_player', {
+            'steamid': steamid,
+            'message': 'Thank you for playing along, you may now leave the Crater'
+        }]
+        module.trigger_action_hook(origin_module.players, event_data, steamid)
+
     else:
         is_authenticated = False
 
