@@ -18,7 +18,7 @@ class Environment(Module):
         ])
 
         self.next_cycle = 0
-        self.run_observer_interval = 3
+        self.run_observer_interval = 5
         Module.__init__(self)
 
     @staticmethod

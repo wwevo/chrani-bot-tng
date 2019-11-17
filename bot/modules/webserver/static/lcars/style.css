@@ -367,6 +367,7 @@ body > main > div #unauthorized_disclaimer p {
 /* telnet log widget */
 main > div > #telnet_log_widget {
     margin-bottom: 0;
+    width: 100%;
 }
 
 main > div > #telnet_log_widget .log_line {

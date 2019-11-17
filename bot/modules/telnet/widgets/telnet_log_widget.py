@@ -79,7 +79,7 @@ widget_meta = {
     "handlers": {
         "module_telnet/telnet_lines": update_widget,
     },
-    "enabled": False
+    "enabled": True
 }
 
 loaded_modules_dict["module_" + module_name].register_widget(widget_name, widget_meta)
