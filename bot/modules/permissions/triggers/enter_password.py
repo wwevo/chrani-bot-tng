@@ -12,39 +12,29 @@ def main_function(origin_module, module, regex_result):
     entity_id = regex_result.group("entity_id")
     steamid = regex_result.group("player_steamid")
 
-    result = re.match(r"^.*send\sme\sto\slocation\s(?P<location_identifier>.*)", command)
+    result = re.match(r"^.*password\s(?P<password>.*)", command)
     if result:
-        location_identifier = result.group("location_identifier")
+        entered_password = result.group("password")
     else:
         return
 
+    if origin_module.default_options.get("player_password", None) == entered_password:
+        is_authenticated = True
+    else:
+        is_authenticated = False
+
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-
-    location_dict = (
-        module.dom.data.get("module_locations", {})
-        .get("elements", {})
-        .get(current_map_identifier, {})
-        .get(steamid, {})
-        .get(location_identifier, {})
-    )
-
-    player_dict = (
-        module.dom.data.get("module_players", {})
-        .get("elements", {})
-        .get(current_map_identifier, {})
-        .get(steamid, {})
-    )
-
-    if len(player_dict) >= 1 and len(location_dict) >= 1:
-        event_data = ['management_tools', {
-            'location_coordinates': {
-                "x": location_dict["coordinates"]["x"],
-                "y": location_dict["coordinates"]["y"],
-                "z": location_dict["coordinates"]["z"]
-            },
-            'action': 'teleport'
-        }]
-        module.trigger_action_hook(origin_module, event_data, steamid)
+    module.dom.data.upsert({
+        "module_players": {
+            "elements": {
+                current_map_identifier: {
+                    steamid: {
+                        "is_authenticated": is_authenticated
+                    }
+                }
+            }
+        }
+    })
 
 
 trigger_meta = {
@@ -57,7 +47,7 @@ trigger_meta = {
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
                 r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\sto\slocation.*)"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
             ),
             "callback": main_function
         },
@@ -68,7 +58,7 @@ trigger_meta = {
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
                 r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\sto\slocation.*)"
+                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
             ),
             "callback": main_function
         }

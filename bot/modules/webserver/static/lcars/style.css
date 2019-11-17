@@ -342,8 +342,15 @@ body > main > div #unauthorized_disclaimer p {
 #player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
 #player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo,
 #player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
-    color: var(--lcars-lilac);
+  animation: blinker 2s linear infinite;
 }
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
 /* online */
 #player_table_widget caption span.is_online.is_initialized:not(.in_limbo),
 #player_table_widget tbody > span.is_online.is_initialized:not(.in_limbo),

@@ -59,10 +59,14 @@ def main_function(origin_module, module, regex_result):
             content=payload
         )
         webhook.execute()
-
         executed_trigger = True
 
-    if executed_trigger is True:
+    if all([
+        executed_trigger is True,
+        current_map_identifier is not None,
+        player_steamid is not None,
+        len(player_dict) >= 1
+    ]):
         module.dom.data.upsert({
             "module_players": {
                     "elements": {

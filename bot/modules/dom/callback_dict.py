@@ -273,16 +273,18 @@ class CallbackDict(dict, object):
                 if isinstance(dict_to_update[key_to_update], (list, dict)) and isinstance(updated_values_dict[key_to_update], (list, dict)):
                     # both the updated values and the original ones are Mappings. Let's dive in
                     if isinstance(updated_values_dict.get(key_to_update, None), dict):
-                        if original_values_dict.get(key_to_update, None) is not None:
-                            original_values_dict = original_values_dict[key_to_update]
-
-                        self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
-                            original_values_dict=original_values_dict,
-                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                        )
+                        try:
+                            self.upsert(
+                                updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
+                                original_values_dict=original_values_dict[key_to_update],
+                                path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
+                                max_callback_level=max_callback_level, min_callback_level=min_callback_level
+                            )
+                        except KeyError:
+                            pass
                     elif isinstance(updated_values_dict.get(key_to_update, None), list):
+                        # if the value is a list, we simply replace the entire list. We will not go
+                        # through list items in this dict
                         dict_to_update[key_to_update] = updated_values_dict.get(key_to_update)
 
                 elif all([
@@ -294,12 +296,13 @@ class CallbackDict(dict, object):
                         dict_to_update[key_to_update] = updated_values_dict[key_to_update]
             else:
                 # the key is not in our current dom
+                original_values_dict = {}
                 dict_to_update[key_to_update] = updated_values_dict[key_to_update]
                 if isinstance(updated_values_dict[key_to_update], (dict)):
                     # it's a mapping, it's not present in the current dom. Copy it over and go through it
                     self.upsert(
                         updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
-                        original_values_dict={},
+                        original_values_dict=original_values_dict,
                         path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
                         max_callback_level=max_callback_level, min_callback_level=min_callback_level
                     )

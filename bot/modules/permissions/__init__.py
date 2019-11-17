@@ -13,6 +13,7 @@ class Permissions(Module):
         setattr(self, "required_modules", [
             'module_dom',
             'module_players',
+            'module_locations',
             'module_webserver'
         ])
 
