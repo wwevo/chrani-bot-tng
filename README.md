@@ -1,6 +1,9 @@
 # chrani-bot-tng
 Flexible, modern, and easy to extend bot/webinterface for the game 7dtd
 
+### *Important!*
+`Do use the development branch for updates, testing for bleeding edge - master is rarely updated and only meant for stable (not necessarily usable ^^)`
+
 ### Vision
 After running a gameserver for several years, and using several managers and bots, I have realized one thing: They
 heavily modify the game-experience. In both ways, good or bad
@@ -14,7 +17,6 @@ from the authentication process of course ^^
 
 ### Current state
 
-* Epic **LCARS**-Style Interface :)
 * Module based functionality
 * Monitor the games telnet-log
 * Simple triggers to react to the telnet-log
@@ -24,13 +26,17 @@ from the authentication process of course ^^
 * Socket/Push based webinterface that is triggered by changes to the database
 * Widget system to easily extend the webinterface
 * Multiple Servers can be managed with one bot (simplified for now)
+* Epic **LCARS**-Style Interface :)
 
 * The following widgets are (partly) implemented
   * Telnet-log widget
-  * Player-table widget (login-status, info, kick)
+  * Player-table widget (delete, login-status, info, kick)
   * Location widget (create, edit, delete, records time and place of death)
   * (Timed) Remote shutdown procedure
   * Simple gametime display
+  * permissions widget to gate commands
+    * a location can be designated as a Lobby to keep people in
+    * a password can be used to authenticate a player, for example, to give them the ability to leave the Lobby 
 
   
 ### Future
