@@ -246,7 +246,7 @@ class CallbackDict(dict, object):
         layer = len(path)
 
         original_values_dict = kwargs.get("original_values_dict", {})
-        if layer == 0 and len(original_values_dict) >= 1:
+        if layer == 0 and len(original_values_dict) == 0:
             original_values_dict = deepcopy(dict(dict_to_update))
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
