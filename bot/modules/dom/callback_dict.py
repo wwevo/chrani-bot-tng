@@ -245,8 +245,8 @@ class CallbackDict(dict, object):
         path = kwargs.get("path", [])
         layer = len(path)
 
-        original_values_dict = kwargs.get("original_values_dict", None)
-        if layer == 0 and original_values_dict is None:
+        original_values_dict = kwargs.get("original_values_dict", {})
+        if layer == 0 and len(original_values_dict) >= 1:
             original_values_dict = deepcopy(dict(dict_to_update))
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
@@ -273,15 +273,12 @@ class CallbackDict(dict, object):
                 if isinstance(dict_to_update[key_to_update], (list, dict)) and isinstance(updated_values_dict[key_to_update], (list, dict)):
                     # both the updated values and the original ones are Mappings. Let's dive in
                     if isinstance(updated_values_dict.get(key_to_update, None), dict):
-                        try:
-                            self.upsert(
-                                updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
-                                original_values_dict=original_values_dict[key_to_update],
-                                path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                                max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                            )
-                        except KeyError:
-                            pass
+                        self.upsert(
+                            updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
+                            original_values_dict=original_values_dict.get(key_to_update, {}),
+                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
+                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
+                        )
                     elif isinstance(updated_values_dict.get(key_to_update, None), list):
                         # if the value is a list, we simply replace the entire list. We will not go
                         # through list items in this dict

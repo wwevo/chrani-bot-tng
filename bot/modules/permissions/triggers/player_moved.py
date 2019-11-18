@@ -11,7 +11,7 @@ def main_function(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
     try:
-        if any([
+        if len(original_values_dict) >= 1 and any([
             original_values_dict.get("pos", {}).get("x") != updated_values_dict.get("pos", {}).get("x"),
             original_values_dict.get("pos", {}).get("y") != updated_values_dict.get("pos", {}).get("y"),
             original_values_dict.get("pos", {}).get("z") != updated_values_dict.get("pos", {}).get("z")

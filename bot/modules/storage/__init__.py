@@ -26,11 +26,11 @@ class Storage(Module):
         return "module_storage"
 
     def load_persistent_dict_to_dom(self):
-        with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
+        with PersistentDict(path.join(self.root_dir, "storage_pickle"), 'c') as storage:
             self.dom.data.update(storage)
 
     def save_dom_to_persistent_dict(self):
-        with PersistentDict(path.join(self.root_dir, "storage"), 'c') as storage:
+        with PersistentDict(path.join(self.root_dir, "storage_pickle"), 'c') as storage:
             storage.update(self.dom.data)
 
     # region Standard module stuff

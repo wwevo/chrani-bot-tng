@@ -19,7 +19,7 @@ class PersistentDict(dict):
 
     """
 
-    def __init__(self, filename, flag='c', mode=None, format='json', *args, **kwds):
+    def __init__(self, filename, flag='c', mode=None, format='pickle', *args, **kwds):
         self.flag = flag                    # r=readonly, c=create, or n=new
         self.mode = mode                    # None or an octal triple like 0644
         self.format = format                # 'csv', 'json', or 'pickle'
