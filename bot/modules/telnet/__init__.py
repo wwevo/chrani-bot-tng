@@ -242,7 +242,7 @@ class Telnet(Module):
 
             if len(self.telnet_response) > 0:
                 self.telnet_buffer += self.telnet_response.lstrip()
-                self.telnet_buffer = self.telnet_buffer[-8144:]
+                self.telnet_buffer = self.telnet_buffer[-12288:]
 
                 # module_dom needs to be in the required modules list!!
                 # let's expose the telnet_buffer to the general module population via our DOM!

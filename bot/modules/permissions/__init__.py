@@ -46,7 +46,6 @@ class Permissions(Module):
         if any([
                 event_data[0] == "toggle_locations_view",
                 event_data[0] == "toggle_player_table_widget_view",
-                event_data[0] == "toggle_whitelist_widget_view",
                 event_data[0] == "toggle_webserver_status_view",
                 event_data[0] == "toggle_permissions_view"
         ]):
@@ -94,19 +93,6 @@ class Permissions(Module):
                     event_data[1]["action"] == "show_create_new",
                 ]):
                     if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 4:
-                        permission_denied = True
-
-        if module.get_module_identifier() == "module_whitelist":
-            if any([
-                    event_data[0] == "manage_whitelist",
-            ]):
-                if any([
-                    event_data[1]["action"] == "activate_whitelist",
-                    event_data[1]["action"] == "deactivate_whitelist",
-                    event_data[1]["action"] == "remove_from_whitelist",
-                    event_data[1]["action"] == "add_to_whitelist"
-                ]):
-                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                         permission_denied = True
 
         if module.get_module_identifier() == "module_telnet":

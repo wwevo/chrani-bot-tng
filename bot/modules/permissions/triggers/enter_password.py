@@ -20,7 +20,7 @@ def main_function(origin_module, module, regex_result):
         is_authenticated = True
         event_data = ['say_to_player', {
             'steamid': steamid,
-            'message': 'Thank you for playing along, you may now leave the Crater'
+            'message': '[66FF66]Thank you for playing along[-][FFFFFF], you may now leave the Crater[-]'
         }]
         module.trigger_action_hook(origin_module.players, event_data, steamid)
 
