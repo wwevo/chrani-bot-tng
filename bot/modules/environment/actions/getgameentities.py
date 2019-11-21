@@ -14,10 +14,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     current_entities = (
         module.dom.data
-        .get(module.get_module_identifier())
-        .get("elements")
-        .get(current_map_identifier)
-        .get("entities")
+        .get(module.get_module_identifier(), {})
+        .get("elements", {})
+        .get(current_map_identifier, {})
+        .get("entities", {})
     )
     # print(current_entities)
 
