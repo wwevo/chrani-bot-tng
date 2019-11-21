@@ -8,7 +8,9 @@ class Environment(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "dom_element_root": ["entities"],
+            "dom_element_select_root": ["entities", "id"]
         })
 
         setattr(self, "required_modules", [
@@ -34,6 +36,14 @@ class Environment(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
+
+        self.dom_element_root = self.options.get(
+            "dom_element_root", self.default_options.get("dom_element_root", None)
+        )
+
+        self.dom_element_select_root = self.options.get(
+            "dom_element_select_root", self.default_options.get("dom_element_select_root", None)
+        )
     # endregion
 
     def run(self):

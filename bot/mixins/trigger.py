@@ -39,7 +39,7 @@ class Trigger(object):
             pass
 
     def execute_telnet_triggers(self):
-        telnet_lines_to_process = self.telnet.get_a_bunch_of_lines(25)
+        telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)
         for telnet_line in telnet_lines_to_process:
             for loaded_module in loaded_modules_dict.values():
                 for trigger_name, trigger_group in loaded_module.available_triggers_dict.items():

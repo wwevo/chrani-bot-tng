@@ -79,9 +79,9 @@ def main_function(module, event_data, dispatchers_steamid):
 
             for dom_element_to_delete in stuff_to_delete:
                 module.dom.data.remove_key_by_path(
-                        dom_element_to_delete,
-                        dispatchers_steamid=dispatchers_steamid
-                    )
+                    dom_element_to_delete,
+                    dispatchers_steamid=dispatchers_steamid
+                )
 
             # module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return

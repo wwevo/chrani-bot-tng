@@ -104,7 +104,10 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     )
     online_players_list = list(players_to_update_dict.keys())
     for steamid, player_dict in all_players_dict.items():
-        if steamid == 'last_updated_servertime' or player_dict["is_initialized"] is False:
+        if steamid == 'last_updated_servertime':
+            print('last_updated_servertime')
+            continue
+        if player_dict["is_initialized"] is False:
             continue
 
         if steamid not in online_players_list and player_dict["is_online"] is True:

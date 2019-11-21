@@ -11,6 +11,16 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
 
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    current_entities = (
+        module.dom.data
+        .get(module.get_module_identifier())
+        .get("elements")
+        .get(current_map_identifier)
+        .get("entities")
+    )
+    # print(current_entities)
+
     module.telnet.add_telnet_command_to_queue("listents")
     poll_is_finished = False
     regex = (
@@ -39,7 +49,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         regex = (
             r"\d{1,2}. id=(?P<id>\d+), \["
             r"type=(?P<type>.+), "
-            r"name=(?P<name>.+).*"
+            r"name=(?P<name>.*), "
+            r"id=(\d+)"
             r"\], "
             r"pos=\((?P<pos_x>.?\d+.\d), (?P<pos_y>.?\d+.\d), (?P<pos_z>.?\d+.\d)\), "
             r"rot=\((?P<rot_x>.?\d+.\d), (?P<rot_y>.?\d+.\d), (?P<rot_z>.?\d+.\d)\), "
@@ -79,7 +90,30 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             entities_to_update_dict[m.group("id")] = entity_dict
 
         if len(entities_to_update_dict) >= 1:
-            print(entities_to_update_dict)
+            module.dom.data.upsert({
+                module.get_module_identifier(): {
+                    "elements": {
+                        current_map_identifier: {
+                            "entities": entities_to_update_dict
+                        }
+                    }
+                }
+            })
+
+            stuff_to_delete = []
+            for path, dom_element_key, dom_element in module.dom.get_dom_element_by_query(
+                target_module=module.get_module_identifier(),
+                query="id"
+            ):
+                if dom_element not in entities_to_update_dict:
+                    stuff_to_delete.append([module.get_module_identifier(), "elements"] + path)
+
+            for dom_element_to_delete in stuff_to_delete:
+                module.dom.data.remove_key_by_path(
+                    dom_element_to_delete,
+                    dispatchers_steamid=dispatchers_steamid
+                )
+
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

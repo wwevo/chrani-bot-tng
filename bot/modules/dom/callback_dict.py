@@ -136,7 +136,7 @@ class CallbackDict(dict, object):
                     )
 
         try:
-            print(target_module_delete_root, "remove:", key_to_remove[-1])
+            # print(target_module_delete_root, "remove:", key_to_remove[-1])
             del self.get_from_dict(self, key_to_remove)[key_to_remove[-1]]
             # del working_copy_dict[k]
         except KeyError:

@@ -163,11 +163,11 @@ class Telnet(Module):
 
         return telnet_response_has_multiple_lines
 
-    def get_lines(self, telnet_response):
-        telnet_lines_list = [telnet_line for telnet_line in telnet_response.splitlines(True)]
-        return telnet_lines_list
+    @staticmethod
+    def extract_lines(telnet_response):
+        return [telnet_line for telnet_line in telnet_response.splitlines(True)]
 
-    def get_a_bunch_of_lines(self, this_many_lines):
+    def get_a_bunch_of_lines_from_queue(self, this_many_lines):
         telnet_lines = []
         current_queue_length = 0
         done = False
@@ -258,7 +258,7 @@ class Telnet(Module):
 
                 """ telnet returned data. let's get some information about it"""
                 response_count = 1
-                telnet_response_components = self.get_lines(self.telnet_response)
+                telnet_response_components = self.extract_lines(self.telnet_response)
                 for component in telnet_response_components:
                     valid_telnet_line = None
                     if self.is_a_valid_line(component):  # added complete line
