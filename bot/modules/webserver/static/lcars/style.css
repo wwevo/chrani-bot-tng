@@ -332,22 +332,40 @@ body > main > div #unauthorized_disclaimer p {
 /* offline */
 #player_table_widget caption span:not([class]),
 #player_table_widget tbody > span:not([class]),
-#player_table_widget tbody > tr:not([class]),
+#player_table_widget tbody > tr:not([class]) {
+    color: var(--lcars-red);
+}
+
+/* offline and dead */
 #player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
 #player_table_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized),
 #player_table_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) {
     color: var(--lcars-red);
 }
+
+/* special fading animation for offline players currently dead */
+#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
+#player_table_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3),
+#player_table_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3) {
+    animation: blinker 4s linear infinite;
+}
+
 /* online and logging in */
 #player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
 #player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo,
 #player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
-  animation: blinker 2s linear infinite;
+    color: var(--lcars-yellow);
+}
+/* special fading animation for players currently logging in */
+#player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
+#player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo td:nth-child(n+3),
+#player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo td:nth-child(n+3) {
+    animation: blinker 3s linear infinite;
 }
 
 @keyframes blinker {
-  50% {
-    opacity: 0;
+  33% {
+    opacity: 33%;
   }
 }
 
