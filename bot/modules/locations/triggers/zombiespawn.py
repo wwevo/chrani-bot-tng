@@ -15,6 +15,8 @@ def main_function(origin_module, module, regex_result):
     }
 
     zombie_name = regex_result.group("zombie_name")
+    print(zombie_name)
+
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if zombie_name == "zombieScreamer":
         village_dict = (
@@ -35,6 +37,7 @@ def main_function(origin_module, module, regex_result):
             }]
 
         module.trigger_action_hook(origin_module.players, event_data)
+
 
 trigger_meta = {
     "description": "reacts to spawning zombies",

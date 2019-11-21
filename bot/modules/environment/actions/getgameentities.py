@@ -16,7 +16,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
     regex = (
         r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
         r"INF Executing\scommand\s\'listents\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
-        r"(?P<raw_entitydata>[\s\S]+?)"
+        r"(?P<raw_entity_data>[\s\S]+?)"
         r"Total\sof\s(?P<playercount>\d{1,2})\sin\sthe\sgame"
     )
 
@@ -34,8 +34,51 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    raw_entitydata = match.group("raw_entitydata").lstrip()
-    print(raw_entitydata)
+    raw_entity_data = match.group("raw_entity_data").lstrip()
+    if len(raw_entity_data) >= 1:
+        regex = (
+            r"\d{1,2}. id=(?P<id>\d+), \["
+            r"type=(?P<type>.+), "
+            r"name=(?P<name>.+).*"
+            r"\], "
+            r"pos=\((?P<pos_x>.?\d+.\d), (?P<pos_y>.?\d+.\d), (?P<pos_z>.?\d+.\d)\), "
+            r"rot=\((?P<rot_x>.?\d+.\d), (?P<rot_y>.?\d+.\d), (?P<rot_z>.?\d+.\d)\), "
+            r"lifetime=(?P<lifetime>.+), "
+            r"remote=(?P<remote>.+), "
+            r"dead=(?P<dead>.+), "
+            r"health=(?P<health>\d+)"
+            r"\r\n"
+        )
+        entities_to_update_dict = {}
+
+        current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+        if current_map_identifier is None:
+            return
+
+        for m in re.finditer(regex, raw_entity_data):
+            entity_dict = {
+                "id": m.group("id"),
+                "type": str(m.group("type")),
+                "name": str(m.group("name")),
+                "pos": {
+                    "x": int(float(m.group("pos_x"))),
+                    "y": int(float(m.group("pos_y"))),
+                    "z": int(float(m.group("pos_z"))),
+                },
+                "rot": {
+                    "x": int(float(m.group("rot_x"))),
+                    "y": int(float(m.group("rot_y"))),
+                    "z": int(float(m.group("rot_z"))),
+                },
+                "lifetime": str(m.group("lifetime")),
+                "remote": bool(m.group("remote")),
+                "dead": bool(m.group("dead")),
+                "health": int(m.group("health")),
+                "origin": current_map_identifier
+            }
+            entities_to_update_dict[m.group("id")] = entity_dict
+
+        print(entities_to_update_dict)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

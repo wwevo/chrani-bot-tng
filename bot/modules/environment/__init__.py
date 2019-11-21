@@ -1,6 +1,6 @@
 from bot.module import Module
 from bot import loaded_modules_dict
-from time import time
+from time import time, sleep
 
 
 class Environment(Module):
@@ -37,7 +37,8 @@ class Environment(Module):
     # endregion
 
     def run(self):
-        while not self.stopped.wait(self.next_cycle):
+        while not self.stopped.wait(1):
+            sleep(self.next_cycle - 1)
             profile_start = time()
 
             self.trigger_action_hook(self, ["getgameprefs", {
@@ -50,6 +51,8 @@ class Environment(Module):
             }])
 
             self.trigger_action_hook(self, ["gettime", {}])
+
+            self.trigger_action_hook(self, ["getgameentities", {}])
 
             self.execute_telnet_triggers()
 
