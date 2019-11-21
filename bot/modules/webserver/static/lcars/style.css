@@ -393,6 +393,12 @@ main > div > #telnet_log_widget .log_line {
     color: var(--lcars-dark-blue);
 }
 
+main > div > #telnet_log_widget .log_line td {
+    white-space: normal;
+    padding-left: calc(var(--main_shoulder_width) / 3);
+    text-indent: calc(-1 * calc(var(--main_shoulder_width) / 3));
+}
+
 /* locations widget */
 main > div > #locations_widget #current_player_pos > span > div {
     display: flex;
