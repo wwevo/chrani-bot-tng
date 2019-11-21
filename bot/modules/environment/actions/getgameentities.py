@@ -78,7 +78,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
             entities_to_update_dict[m.group("id")] = entity_dict
 
-        print(entities_to_update_dict)
+        if len(entities_to_update_dict) >= 1:
+            print(entities_to_update_dict)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
