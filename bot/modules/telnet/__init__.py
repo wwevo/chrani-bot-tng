@@ -25,6 +25,7 @@ class Telnet(Module):
             "max_queue_length": 100,
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
+            "max_telnet_buffer": 12288,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
@@ -242,7 +243,10 @@ class Telnet(Module):
 
             if len(self.telnet_response) > 0:
                 self.telnet_buffer += self.telnet_response.lstrip()
-                self.telnet_buffer = self.telnet_buffer[-12288:]
+                max_telnet_buffer = self.options.get(
+                    "max_telnet_buffer", self.default_options.get("max_telnet_buffer", 12288)
+                )
+                self.telnet_buffer = self.telnet_buffer[-max_telnet_buffer:]
 
                 # module_dom needs to be in the required modules list!!
                 # let's expose the telnet_buffer to the general module population via our DOM!
@@ -293,7 +297,8 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None:
-                        if not any(exclude_element in valid_telnet_line for exclude_element in ["'lp'", "'gettime'"]):
+                        elements_excluded_from_logs = ["'lp'", "'gettime'", "'listents'"]
+                        if not any(exclude_element in valid_telnet_line for exclude_element in elements_excluded_from_logs):
                             print(valid_telnet_line)
 
                         self.valid_telnet_lines.append(valid_telnet_line)
