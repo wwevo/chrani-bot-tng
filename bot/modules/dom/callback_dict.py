@@ -269,6 +269,7 @@ class CallbackDict(dict, object):
             )
 
             if key_to_update in dict_to_update:
+                method = "update"
                 # the key exists in the current dom
                 if isinstance(dict_to_update[key_to_update], (list, dict)) and isinstance(updated_values_dict[key_to_update], (list, dict)):
                     # both the updated values and the original ones are Mappings. Let's dive in
@@ -293,9 +294,10 @@ class CallbackDict(dict, object):
                         dict_to_update[key_to_update] = updated_values_dict[key_to_update]
             else:
                 # the key is not in our current dom
+                method = "insert"
                 original_values_dict = {}
                 dict_to_update[key_to_update] = updated_values_dict[key_to_update]
-                if isinstance(updated_values_dict[key_to_update], (dict)):
+                if isinstance(updated_values_dict[key_to_update], dict):
                     # it's a mapping, it's not present in the current dom. Copy it over and go through it
                     self.upsert(
                         updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
@@ -314,7 +316,7 @@ class CallbackDict(dict, object):
                                     original_values_dict=original_values_dict,
                                     dispatchers_steamid=dispatchers_steamid,
                                     callback=callback,
-                                    method="upsert",
+                                    method=method,
                                     matched_path=working_path
                                 )
                             )

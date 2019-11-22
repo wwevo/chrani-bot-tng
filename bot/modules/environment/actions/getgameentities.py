@@ -11,16 +11,6 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-    current_entities = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("elements", {})
-        .get(current_map_identifier, {})
-        .get("entities", {})
-    )
-    # print(current_entities)
-
     module.telnet.add_telnet_command_to_queue("listents")
     poll_is_finished = False
     regex = (

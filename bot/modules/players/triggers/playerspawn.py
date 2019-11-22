@@ -50,7 +50,7 @@ def main_function(origin_module, module, regex_result):
             message = "[66FF66]Welcome back[-] [FFFFFF]{}[-]".format(player_name)
         else:
             message = (
-                "[66FF66]Welcome to the server[-] [FFFFFF]{player_name},[-] "
+                "[66FF66]Welcome to the server[-] [FFFFFF]{player_name}[-], "
                 "[FF6666]please authenticate[-] [FFFFFF]and make yourself at home :)[-]"
             ).format(
                 player_name=player_name

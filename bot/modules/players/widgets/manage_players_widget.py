@@ -279,10 +279,9 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     method = kwargs.get("method", None)
-
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
-    if method == "upsert" or method == "edit":
+    if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():
             current_view = (
                 module.dom.data
@@ -380,18 +379,22 @@ def update_widget(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    player_entries_to_update = updated_values_dict
-    player_clients_to_update = list(module.webserver.connected_clients.keys())
+    method = kwargs.get("method", None)
+    if method in ["update"]:
+        player_dict = updated_values_dict
+        player_clients_to_update = list(module.webserver.connected_clients.keys())
 
-    for clientid in player_clients_to_update:
-        try:
-            module_players = module.dom.data.get("module_players", {})
-            for steamid, player_dict in player_entries_to_update.items():
+        for clientid in player_clients_to_update:
+            try:
+                module_players = module.dom.data.get("module_players", {})
                 current_view = (
                     module_players
                     .get("visibility", {})
                     .get(clientid, {})
                     .get("current_view", None)
+                )
+                table_row_id = "player_table_row_{}".format(
+                    str(player_dict["origin"])
                 )
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
@@ -401,7 +404,7 @@ def update_widget(*args, **kwargs):
                         clients="all",
                         method="update",
                         target_element={
-                            "id": "player_table_row",
+                            "id": table_row_id,
                             "parent_id": "player_table_widget",
                             "module": "players",
                             "type": "tr",
@@ -424,11 +427,11 @@ def update_widget(*args, **kwargs):
                             "selector": "body > main > div > div#player_table_widget"
                         }
                     )
-        except AttributeError as error:
-            # probably dealing with a player_dict here, not the players dict
-            pass
-        except KeyError as error:
-            pass
+            except AttributeError as error:
+                # probably dealing with a player_dict here, not the players dict
+                pass
+            except KeyError as error:
+                pass
 
 
 def update_selection_status(*args, **kwargs):
@@ -480,6 +483,8 @@ widget_meta = {
             select_view,
         "module_players/elements/%map_identifier%/%steamid%":
             table_rows,
+        "module_players/elements/%map_identifier%/%steamid%/pos":
+            update_widget,
         "module_players/elements/%map_identifier%/%steamid%/selected_by":
             update_selection_status,
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":

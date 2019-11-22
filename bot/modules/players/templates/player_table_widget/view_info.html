@@ -86,6 +86,36 @@
                     {{ player.last_seen_gametime }}
                 </td>
             </tr>
+            <tr>
+                <td>origin</td>
+                <td class="nobr" id="player_table_row_{{ player.steamid }}_origin">
+                    {{ player.origin }}
+                </td>
+            </tr>
+            <tr>
+                <td>is_authenticated</td>
+                <td class="nobr" id="player_table_row_{{ player.steamid }}_is_authenticated">
+                    {{ player.is_authenticated }}
+                </td>
+            </tr>
+            <tr>
+                <td>in_limbo</td>
+                <td class="nobr" id="player_table_row_{{ player.steamid }}_in_limbo">
+                    {{ player.in_limbo }}
+                </td>
+            </tr>
+            <tr>
+                <td>is_initialized</td>
+                <td class="nobr" id="player_table_row_{{ player.steamid }}_is_initialized">
+                    {{ player.is_initialized }}
+                </td>
+            </tr>
+            <tr>
+                <td>is_online</td>
+                <td class="nobr" id="player_table_row_{{ player.steamid }}_is_online">
+                    {{ player.is_online }}
+                </td>
+            </tr>
         </tbody>
     </table>
 </main>
