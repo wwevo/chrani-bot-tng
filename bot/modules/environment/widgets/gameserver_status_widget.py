@@ -28,7 +28,7 @@ def main_widget(*args, **kwargs):
         target_element={
             "id": "gameserver_status_widget",
             "type": "div",
-            "selector": "body > header > div"
+            "selector": "body > header > div > div"
         }
     )
 
@@ -62,7 +62,7 @@ def update_widget(*args, **kwargs):
         target_element={
             "id": "gameserver_status_widget",
             "type": "div",
-            "selector": "body > header > div"
+            "selector": "body > header > div > div"
         }
     )
 

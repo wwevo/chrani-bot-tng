@@ -205,8 +205,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 );
                 return false;
             }
-
-            parent_element.setClass(data["target_element"]["class"]);
+            console.log("##" + data["target_element"]["class"] + "/" + data["target_element"]["class"].length);
+            if (data["target_element"]["class"].length >= 1) {
+                parent_element.setClass(data["target_element"]["class"]);
+            } else {
+                parent_element.removeAttribute("class");
+            }
 
             let elements_to_update = data["event_data"];
             $.each(elements_to_update, function (key, value) {

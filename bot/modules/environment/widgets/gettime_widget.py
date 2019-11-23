@@ -29,7 +29,7 @@ def main_widget(*args, **kwargs):
         target_element={
             "id": "gametime_widget",
             "type": "div",
-            "selector": "body > header > div"
+            "selector": "body > header > div > div"
         }
     )
 
@@ -64,7 +64,7 @@ def update_widget(*args, **kwargs):
         target_element={
             "id": "gametime_widget",
             "type": "div",
-            "selector": "body > header > div"
+            "selector": "body > header > div > div"
         }
     )
     return gametime

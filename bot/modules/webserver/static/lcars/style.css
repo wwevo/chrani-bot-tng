@@ -228,66 +228,67 @@ body > main > div .widget {
 /* specific layout-rules for certain modules/widgets */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
-body > header > div > #gametime_widget {
+body > header > div > {
     position: relative;
     height: var(--main_shoulder_height);
-    font-size: 1.5em;
-    line-height: 1em;
-    color: black;
-    padding-right: 0;
 }
 
-body > header > div > #gametime_widget > div {
+body > header > div > div {
     position: absolute;
-    left: -18px; bottom: 0;
+    height: calc(var(--main_shoulder_height) - var(--main_bar_height));
+    bottom: 0;
+}
+
+body > header > div > div > #gametime_widget {
+    margin-left: -0.5em;
+}
+
+body > header > div > div > #gametime_widget,
+body > header > div > div > #gameserver_status_widget {
+    padding-right: 0.25em;
+    padding-top: 0.25em;
+    z-index: 100;
+    color: black;
+    display: inline-block;
+}
+
+body > header > div > div > #gametime_widget > div,
+body > header > div > div > #gameserver_status_widget > div {
     background-color: var(--lcars-orange);
     border-radius: 12px; padding: 0 1em;
     white-space: nowrap;
-}
-
-body > header > div > #gameserver_status_widget {
-    position: absolute;
-    bottom: 0; left: 210px;
-    z-index: 100;
-}
-
-body > header > div > #gameserver_status_widget > div {
-    color: var(--background);
-    border-radius: 12px;
     height: 1.5em; line-height: 1.5em;
-    white-space: nowrap;
-    padding: 0 1em;
 }
 
-body > header > div > #gameserver_status_widget > div.active {
+body > header > div > div > #gameserver_status_widget > div.active {
     background-color: var(--lcars-yellow);
 }
 
-body > header > div > #gameserver_status_widget > div.inactive {
+body > header > div > div > #gameserver_status_widget > div.inactive {
     background-color: var(--lcars-red);
 }
 
-body > header > div #gameserver_status_widget span > a,
-body > header > div #gameserver_status_widget span > a:visited {
+body > header > div > div > #gameserver_status_widget span > a,
+body > header > div > div > #gameserver_status_widget span > a:visited {
     color: var(--lcars-dark-blue);
 }
 
-body > header > div #gameserver_status_widget span > a {
+body > header > div > div > #gameserver_status_widget span > a {
     display: inline-block;
-    padding: 0 0.25em;
-    border-left: 0.25em solid var(--background);
-    border-right: 0.25em solid var(--background);
+    padding: 0 0.1em;
+    border-left: 0.1em solid var(--background);
+    border-right: 0.1em solid var(--background);
     color: var(--background); /* Edge seems to require this */
     background-color: var(--lcars-red);
 }
 
-body > header > div #gameserver_status_widget span > a:hover,
-body > header > div #gameserver_status_widget span > a:visited {
+body > header > div > div > #gameserver_status_widget span > a:hover,
+body > header > div > div > #gameserver_status_widget span > a:visited {
     color: var(--background);
     text-decoration: none;
 }
 
-body > header > div #gameserver_status_widget span:hover > a {
+body > header > div > div > #gameserver_status_widget span:hover > a {
     background-color: var(--lcars-red);
 }
 /* region header_widgets -> end */
