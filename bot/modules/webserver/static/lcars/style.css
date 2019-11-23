@@ -237,19 +237,14 @@ body > header > div > div {
     position: absolute;
     height: calc(var(--main_shoulder_height) - var(--main_bar_height));
     bottom: 0;
-}
-
-body > header > div > div > #gametime_widget {
-    margin-left: -0.5em;
+    display: flex;
 }
 
 body > header > div > div > #gametime_widget,
 body > header > div > div > #gameserver_status_widget {
     padding-right: 0.25em;
     padding-top: 0.25em;
-    z-index: 100;
     color: black;
-    display: inline-block;
 }
 
 body > header > div > div > #gametime_widget > div,
@@ -290,6 +285,15 @@ body > header > div > div > #gameserver_status_widget span > a:visited {
 
 body > header > div > div > #gameserver_status_widget span:hover > a {
     background-color: var(--lcars-red);
+}
+
+body > header #gameserver_status_widget {
+    order: 1;
+}
+
+body > header #gametime_widget {
+    margin-left: -1em;
+    order: -1;
 }
 /* region header_widgets -> end */
 /* region main_widgets -> start */
