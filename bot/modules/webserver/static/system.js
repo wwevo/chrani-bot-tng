@@ -116,10 +116,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
         console.log("ding/dong took " + latency + "ms");
     });
 
-    function request_widget_row(module, widget, widget_id, row_id) {
-        window.socket.emit('widget_event', [module, ['request_table_row', {'widget': widget, 'widget_id': widget_id, 'row_id': row_id}]]);
-    }
-
     load_audio_files();
 
     window.socket.on('data', function(data) {
@@ -167,6 +163,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             elem.parentElement.removeChild(elem);
         }
         if (data["data_type"] === "table_row") {
+            /* the whole row will be swapped out, not very economic ^^
+             * can be suitable for smaller widgets, not needing the hassle of sub-element id's and stuff */
             play_audio_file("processing");
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
@@ -178,51 +176,39 @@ document.addEventListener("DOMContentLoaded", function(event) {
             let target_element = parent_element.find("#" + target_element_id);
 
             if (target_element.length === 0) {
+                /* If the row doesn't exist, append it */
                 parent_element.append(data["event_data"]);
             } else {
                 target_element.replaceWith(data["event_data"]);
             }
         }
         if (data["data_type"] === "table_row_content") {
+            play_audio_file("keyok1");
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
             }
-            let target_player_steamid = data["event_data"]["steamid"];
-            if (target_player_steamid == null) {
-                return false;
-            }
-            let selector = data["target_element"]["selector"];
-
-            let parent_element = $('#' + target_element_id + '_' + target_player_steamid);
+            let parent_element = $('#' + target_element_id);
             if (parent_element.length === 0) {
-                /* seems like the container we want ain't here- let's request it */
-                request_widget_row(
-                    data["target_element"]["module"],
-                    data["target_element"]["parent_id"],
-                    target_element_id,
-                    data["event_data"]["steamid"]
-                );
                 return false;
             }
-            console.log("##" + data["target_element"]["class"] + "/" + data["target_element"]["class"].length);
             if (data["target_element"]["class"].length >= 1) {
                 parent_element.setClass(data["target_element"]["class"]);
             } else {
-                parent_element.removeAttribute("class");
+                parent_element[0].removeAttribute("class");
             }
 
             let elements_to_update = data["event_data"];
             $.each(elements_to_update, function (key, value) {
                 if ($.type(value) === 'object') {
                     $.each(value, function (sub_key, sub_value) {
-                        let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key + '_' + sub_key);
+                        let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
                         if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
                             element_to_update.html(sub_value);
                         }
                     });
                 } else {
-                    let element_to_update = $('#' + target_element_id + '_' + data["event_data"]["steamid"] + '_' + key);
+                    let element_to_update = $('#' + target_element_id + '_' + key);
                     if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
                         element_to_update.html(value);
                     }

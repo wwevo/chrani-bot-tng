@@ -393,8 +393,10 @@ def update_widget(*args, **kwargs):
                     .get(clientid, {})
                     .get("current_view", None)
                 )
-                table_row_id = "player_table_row_{}".format(
-                    str(player_dict["origin"])
+                table_row_id = "player_table_row_{}_{}".format(
+                    str(player_dict.get("origin", None)),
+                    str(player_dict.get("steamid", None))
+
                 )
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
@@ -408,8 +410,8 @@ def update_widget(*args, **kwargs):
                             "parent_id": "player_table_widget",
                             "module": "players",
                             "type": "tr",
+                            "selector": "body > main > div > div#player_table_widget",
                             "class": get_player_table_row_css_class(player_dict),
-                            "selector": "body > main > div > div#player_table_widget"
                         }
                     )
                 elif current_view == "info":
@@ -420,11 +422,12 @@ def update_widget(*args, **kwargs):
                         clients=[clientid],
                         method="update",
                         target_element={
-                            "id": "player_table_row",
+                            "id": table_row_id,
                             "parent_id": "player_table_widget",
                             "module": "players",
                             "type": "tr",
-                            "selector": "body > main > div > div#player_table_widget"
+                            "selector": "body > main > div > div#player_table_widget",
+                            "class": get_player_table_row_css_class(player_dict),
                         }
                     )
             except AttributeError as error:
