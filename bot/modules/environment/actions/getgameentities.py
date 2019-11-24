@@ -57,6 +57,17 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             return
 
         for m in re.finditer(regex, raw_entity_data):
+            last_recorded_gametime = (
+                 module.dom.data
+                 .get("module_environment", {})
+                 .get(current_map_identifier, {})
+                 .get("last_recorded_gametime", {})
+            )
+            last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
+                day=last_recorded_gametime.get("day", "00"),
+                hour=last_recorded_gametime.get("hour", "00"),
+                minute=last_recorded_gametime.get("minute", "00")
+            )
             entity_dict = {
                 "id": m.group("id"),
                 "type": str(m.group("type")),
@@ -75,7 +86,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "remote": bool(m.group("remote")),
                 "dead": bool(m.group("dead")),
                 "health": int(m.group("health")),
-                "origin": current_map_identifier
+                "origin": current_map_identifier,
+                "last_seen_gametime": last_recorded_gametime
             }
             entities_to_update_dict[m.group("id")] = entity_dict
 
