@@ -119,103 +119,110 @@ document.addEventListener("DOMContentLoaded", function(event) {
     load_audio_files();
 
     window.socket.on('data', function(data) {
-        if (data["data_type"] === "element_content") {
-            let target_element_id = data["target_element"]["id"];
-            let target_element = document.getElementById(target_element_id);
-            if (target_element_id == null || target_element == null) {
-                return false;
-            }
-            if (data["method"] === "update") {
-                if (target_element.innerHTML !== data["payload"]) {
-                    target_element.innerHTML = data["payload"];
-                } else {
-                    return false;
-                }
-            } else if (data["method"] === "replace") {
-                target_element.outerHTML = data["payload"];
-            }
-
-        }
-        if (data["data_type"] === "widget_content") {
+        if ([
+            "element_content",
+            "widget_content",
+            "remove_table_row",
+            "table_row",
+            "table_row_content"
+        ].includes(data["data_type"])) {
+            /* target element needs to be present for these operations */
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
                 return false;
             }
-            let selector = data["target_element"]["selector"];
-            let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
 
-            if (data["method"] === "update") {
-                $el.html(data["payload"]);
-            } else if (data["method"] === "append") {
-                $el.append(data["payload"]);
-            } else if (data["method"] === "prepend") {
-                play_audio_file("computerbeep_38");
-                $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
-                $el.prepend(data["payload"]);
-                let $entries = $el.find('tr');
-                if ($entries.length >= 50) {
-                    $entries.last().remove();
-                }
-            }
-        }
-        if (data["data_type"] === "remove_table_row") {
-            let elem = document.getElementById(data["target_element"]["id"]);
-            elem.parentElement.removeChild(elem);
-        }
-        if (data["data_type"] === "table_row") {
-            /* the whole row will be swapped out, not very economic ^^
-             * can be suitable for smaller widgets, not needing the hassle of sub-element id's and stuff */
-            play_audio_file("processing");
-            let target_element_id = data["target_element"]["id"];
-            if (target_element_id == null) {
-                return false;
-            }
-            let selector = data["target_element"]["selector"];
+            if (data["data_type"] === "widget_content") {
+                /* widget content requires a selector, in case the widget is not yet rendered in the browser
+                 * with the help of the selector, we can create it in the right place
+                 */
+                let selector = data["target_element"]["selector"];
+                let $target_element = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
 
-            let parent_element = $(selector);
-            let target_element = parent_element.find("#" + target_element_id);
-
-            if (target_element.length === 0) {
-                /* If the row doesn't exist, append it */
-                parent_element.append(data["payload"]);
-            } else {
-                target_element.replaceWith(data["payload"]);
-            }
-        }
-        if (data["data_type"] === "table_row_content") {
-            play_audio_file("keyok1");
-            let target_element_id = data["target_element"]["id"];
-            if (target_element_id == null) {
-                return false;
-            }
-            let parent_element = $('#' + target_element_id);
-            if (parent_element.length === 0) {
-                return false;
-            }
-            if (data["target_element"]["class"].length >= 1) {
-                parent_element.setClass(data["target_element"]["class"]);
-            } else {
-                parent_element[0].removeAttribute("class");
-            }
-
-            let elements_to_update = data["payload"];
-            $.each(elements_to_update, function (key, value) {
-                if ($.type(value) === 'object') {
-                    $.each(value, function (sub_key, sub_value) {
-                        let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
-                        if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
-                            element_to_update.html(sub_value);
-                        }
-                    });
-                } else {
-                    let element_to_update = $('#' + target_element_id + '_' + key);
-                    if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
-                        element_to_update.html(value);
+                if (data["method"] === "update") {
+                    $target_element.html(data["payload"]);
+                } else if (data["method"] === "append") {
+                    $target_element.append(data["payload"]);
+                } else if (data["method"] === "prepend") {
+                    play_audio_file("computerbeep_38");
+                    $target_element = $('#' + target_element_id + ' ' + data["target_element"]["type"]);
+                    $target_element.prepend(data["payload"]);
+                    let $entries = $target_element.find('tr');
+                    if ($entries.length >= 50) {
+                        $entries.last().remove();
                     }
                 }
-            });
-        }
-        if (data["data_type"] === "status_message") {
+            }
+            if (data["data_type"] === "element_content") {
+                let target_element = document.getElementById(target_element_id);
+                if (target_element == null) {
+                    return false;
+                }
+                if (data["method"] === "update") {
+                    if (target_element.innerHTML !== data["payload"]) {
+                        target_element.innerHTML = data["payload"];
+                    } else {
+                        return false;
+                    }
+                } else if (data["method"] === "replace") {
+                    target_element.outerHTML = data["payload"];
+                }
+
+            }
+            if (data["data_type"] === "table_row") {
+                /* the whole row will be swapped out, not very economic ^^
+                 * can be suitable for smaller widgets, not needing the hassle of sub-element id's and stuff
+                 * table_row content requires a selector, in case the row is not yet rendered in the browser
+                 * with the help of the selector, we can create it in the right place
+                 */
+                play_audio_file("processing");
+                let selector = data["target_element"]["selector"];
+
+                let parent_element = $(selector);
+                let target_element = parent_element.find("#" + target_element_id);
+
+                if (target_element.length === 0) {
+                    /* If the row doesn't exist, append it */
+                    parent_element.append(data["payload"]);
+                } else {
+                    target_element.replaceWith(data["payload"]);
+                }
+            }
+            if (data["data_type"] === "table_row_content") {
+                play_audio_file("keyok1");
+                let parent_element = $('#' + target_element_id);
+                if (parent_element.length === 0) {
+                    return false;
+                }
+                if (data["target_element"]["class"].length >= 1) {
+                    parent_element.setClass(data["target_element"]["class"]);
+                } else {
+                    parent_element[0].removeAttribute("class");
+                }
+
+                let elements_to_update = data["payload"];
+                $.each(elements_to_update, function (key, value) {
+                    if ($.type(value) === 'object') {
+                        $.each(value, function (sub_key, sub_value) {
+                            let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
+                            if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
+                                element_to_update.html(sub_value);
+                            }
+                        });
+                    } else {
+                        let element_to_update = $('#' + target_element_id + '_' + key);
+                        if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
+                            element_to_update.html(value);
+                        }
+                    }
+                });
+            }
+            if (data["data_type"] === "remove_table_row") {
+                let target_element = document.getElementById(target_element_id);
+                target_element.parentElement.removeChild(target_element);
+            }
+        } else if (data["data_type"] === "status_message") {
+            /* this does not require any website containers. we simply play sounds and echo logs */
             if (data['status']) {
                 let json = data["status"];
                 if (json["status"]) {
