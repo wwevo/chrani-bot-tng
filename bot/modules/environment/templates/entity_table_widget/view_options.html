@@ -1,0 +1,27 @@
+<header>
+    <div>
+        <span>Entities</span>
+    </div>
+</header>
+<aside>
+{{ options_toggle }}
+</aside>
+<main>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Entity Module Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th colspan="2"><span>widget-options</span></th>
+            </tr>
+            {% for key, value in widget_options.items() %}
+            <tr>
+                <td><span>{{key}}</span></td><td>{{value}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>

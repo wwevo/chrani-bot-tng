@@ -70,6 +70,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             )
             entity_dict = {
                 "id": m.group("id"),
+                "owner": m.group("id"),
+                "identifier": m.group("id"),
                 "type": str(m.group("type")),
                 "name": str(m.group("name")),
                 "pos": {
@@ -87,7 +89,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "dead": bool(m.group("dead")),
                 "health": int(m.group("health")),
                 "dataset": current_map_identifier,
-                "last_seen_gametime": last_recorded_gametime
+                "last_seen_gametime": last_seen_gametime_string
             }
             entities_to_update_dict[m.group("id")] = entity_dict
 

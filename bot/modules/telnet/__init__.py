@@ -25,7 +25,7 @@ class Telnet(Module):
             "max_queue_length": 100,
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
-            "max_telnet_buffer": 12288,
+            "max_telnet_buffer": 16384,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
