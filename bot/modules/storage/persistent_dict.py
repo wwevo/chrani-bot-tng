@@ -6,11 +6,13 @@ import shutil
 import base64
 
 
+""" found on https://stackoverflow.com/a/36252257/8967590 """
 class PythonObjectEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (list, dict, str, int, float, bool, type(None))):
             return super().default(obj)
         return {'_python_object': base64.b64encode(pickle.dumps(obj)).decode('utf-8')}
+
 
 def as_python_object(dct):
     if '_python_object' in dct:
