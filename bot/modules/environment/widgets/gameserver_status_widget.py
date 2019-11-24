@@ -9,7 +9,7 @@ def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
-    template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
+    template_frontend = module.templates.get_template('gameserver_status_widget/view_frontend.html')
 
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
     shutdown_in_seconds = module.dom.data.get("module_telnet", {}).get("shutdown_in_seconds", None)
@@ -37,7 +37,7 @@ def update_widget(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    template_frontend = module.templates.get_template('gameserver_status_widget_frontend.html')
+    template_frontend = module.templates.get_template('gameserver_status_widget/view_frontend.html')
 
     server_is_online = module.dom.get_updated_or_default_value(
         "module_telnet", "server_is_online", updated_values_dict, True

@@ -184,9 +184,9 @@ class Webserver(Module):
         )
 
     def run(self):
-        template_header = self.templates.get_template('header.html')
-        template_frontend = self.templates.get_template('index.html')
-        template_footer = self.templates.get_template('footer.html')
+        template_header = self.templates.get_template('frontpage/header.html')
+        template_frontend = self.templates.get_template('frontpage/index.html')
+        template_footer = self.templates.get_template('frontpage/footer.html')
 
         # region Management function and routes without any user-display or interaction
         @self.login_manager.user_loader

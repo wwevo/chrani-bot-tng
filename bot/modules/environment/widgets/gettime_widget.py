@@ -10,7 +10,7 @@ def main_widget(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
-    template_frontend = module.templates.get_template('gametime_widget_frontend.html')
+    template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     gametime = module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {
         "day": "00",
         "hour": "00",
@@ -50,7 +50,7 @@ def update_widget(*args, **kwargs):
         pass
         # return
 
-    template_frontend = module.templates.get_template('gametime_widget_frontend.html')
+    template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,

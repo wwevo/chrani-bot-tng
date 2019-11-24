@@ -61,7 +61,7 @@ class Environment(Module):
 
             self.trigger_action_hook(self, ["gettime", {}])
 
-            self.trigger_action_hook(self, ["getgameentities", {}])
+            self.trigger_action_hook(self, ["getentities", {}])
 
             self.execute_telnet_triggers()
 

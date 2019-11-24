@@ -58,10 +58,10 @@ class Players(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            self.trigger_action_hook(self, ["listadmins", {
+            self.trigger_action_hook(self, ["getadmins", {
                 "disable_after_success": True
             }])
-            self.trigger_action_hook(self, ["listplayers", {}])
+            self.trigger_action_hook(self, ["getplayers", {}])
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time
