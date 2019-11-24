@@ -3,6 +3,19 @@ import json
 import csv
 import os
 import shutil
+import base64
+
+
+class PythonObjectEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (list, dict, str, int, float, bool, type(None))):
+            return super().default(obj)
+        return {'_python_object': base64.b64encode(pickle.dumps(obj)).decode('utf-8')}
+
+def as_python_object(dct):
+    if '_python_object' in dct:
+        return pickle.loads(base64.b64decode(dct['_python_object'].encode('utf-8')))
+    return dct
 
 
 class PersistentDict(dict):
@@ -19,7 +32,7 @@ class PersistentDict(dict):
 
     """
 
-    def __init__(self, filename, flag='c', mode=None, format='pickle', *args, **kwds):
+    def __init__(self, filename, flag='c', mode=None, format='pickle', *args, **kwargs):
         self.flag = flag                    # r=readonly, c=create, or n=new
         self.mode = mode                    # None or an octal triple like 0644
         self.format = format                # 'csv', 'json', or 'pickle'
@@ -28,7 +41,7 @@ class PersistentDict(dict):
             fileobj = open(filename, 'rb' if format == 'pickle' else 'r')
             with fileobj:
                 self.load(fileobj)
-        dict.__init__(self, *args, **kwds)
+        dict.__init__(self, *args, **kwargs)
 
     def sync(self):
         """Write dict to disk"""
@@ -61,7 +74,7 @@ class PersistentDict(dict):
         if self.format == 'csv':
             csv.writer(fileobj).writerows(self.items())
         elif self.format == 'json':
-            json.dump(self, fileobj, separators=(',', ':'), sort_keys=True, indent=4)
+            json.dump(self, fileobj, separators=(',', ':'), sort_keys=True, indent=4, cls=PythonObjectEncoder)
         elif self.format == 'pickle':
             pickle.dump(dict(self), fileobj, 2)
         else:
@@ -69,10 +82,16 @@ class PersistentDict(dict):
 
     def load(self, fileobj):
         # try formats from most restrictive to least restrictive
-        for loader in (pickle.load, json.load, csv.reader):
+        for loader in (
+            (pickle.load, {}),
+            (json.load, {
+                "object_hook": as_python_object}
+             ),
+            (csv.reader, {})
+        ):
             fileobj.seek(0)
             try:
-                return self.update(loader(fileobj))
+                return self.update(loader[0](fileobj, **loader[1]))
             except Exception:
                 pass
         raise ValueError('File not in a supported format')

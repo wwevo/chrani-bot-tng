@@ -94,8 +94,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         if len(entities_to_update_dict) >= 1:
             module.dom.data.upsert({
                 module.get_module_identifier(): {
-                    current_map_identifier: {
-                        "elements": entities_to_update_dict
+                    "elements": {
+                        current_map_identifier: entities_to_update_dict
                     }
                 }
             })
@@ -105,7 +105,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 target_module=module.get_module_identifier(),
                 query="id"
             ):
-                if dom_element not in entities_to_update_dict:
+                if dom_element not in entities_to_update_dict or entities_to_update_dict.get(dom_element).get("health" <= "0"):
                     stuff_to_delete.append([module.get_module_identifier(), "elements"] + path)
 
             for dom_element_to_delete in stuff_to_delete:
@@ -113,7 +113,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     dom_element_to_delete,
                     dispatchers_steamid=dispatchers_steamid
                 )
-
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
