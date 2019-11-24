@@ -381,7 +381,7 @@ def table_row(*args, **kwargs):
 
                             try:
                                 table_row_id = "manage_locations_table_row_{}_{}_{}".format(
-                                    str(updated_values_dict[player_steamid][identifier]["origin"]),
+                                    str(updated_values_dict[player_steamid][identifier]["dataset"]),
                                     str(player_steamid),
                                     str(identifier)
                                 )
@@ -502,7 +502,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
-                updated_values_dict["origin"],
+                updated_values_dict["dataset"],
                 updated_values_dict["owner"],
                 updated_values_dict["identifier"]
             )
@@ -518,7 +518,7 @@ def update_enabled_flag(*args, **kwargs):
 
     control_enable_link = module.dom_management.templates.get_template('control_enabled_link.html')
 
-    location_origin = original_values_dict.get("origin", None)
+    location_origin = original_values_dict.get("dataset", None)
     location_owner = original_values_dict.get("owner", None)
     location_identifier = original_values_dict.get("identifier", None)
 

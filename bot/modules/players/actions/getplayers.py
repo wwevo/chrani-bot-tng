@@ -91,7 +91,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             "is_initialized": True,
             "last_updated_servertime": telnet_datetime,
             "last_seen_gametime": last_seen_gametime_string,
-            "origin": current_map_identifier,
+            "dataset": current_map_identifier,
             "owner": m.group("steamid")
 
         }

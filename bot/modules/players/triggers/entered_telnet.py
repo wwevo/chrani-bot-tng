@@ -29,7 +29,7 @@ def main_function(origin_module, module, regex_result):
                     "y": 0,
                     "z": 0,
                 },
-                "origin": current_map_identifier,
+                "dataset": current_map_identifier,
                 "owner": player_steamid
             }
         player_dict["is_online"] = True

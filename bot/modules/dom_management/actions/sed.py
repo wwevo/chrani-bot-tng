@@ -42,7 +42,7 @@ def main_function(module, event_data, dispatchers_steamid):
                 if max_discovered_level == 0:
                     selected_by_dict = {
                         path_fragment: selected_by_dict_element,
-                        "origin": dom_element_origin,
+                        "dataset": dom_element_origin,
                         "owner": dom_element_owner,
                         "identifier": dom_element_identifier
                     }

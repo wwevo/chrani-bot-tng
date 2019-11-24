@@ -1,31 +1,31 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-<tr id="player_table_row_{{ player.origin }}_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
+<tr id="player_table_row_{{ player.dataset }}_{{ player.steamid }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
     <td>
-        <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_control_select_link" class="select_button">{{ control_select_link }}</span>
+        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
-    <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_actions">
-        <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_control_info_link" class="info">{{ control_info_link }}</span>
+    <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_actions">
+        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_info_link" class="info">{{ control_info_link }}</span>
     </td>
-    <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
-    <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
-    <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+    <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
+    <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
+    <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
     <td class="position right" onclick="$(this).selectText();">
-        <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_x">
+        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_x">
             {{ ((player | default({})).pos | default({}) ).x | default('0') }}
         </span>
-        <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_y">
+        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_y">
             {{ ((player | default({})).pos | default({}) ).y | default('0') }}
         </span>
-        <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_z">
+        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_z">
             {{ ((player | default({})).pos | default({}) ).z | default('0') }}
         </span>
     </td>
-    <td class="center" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_level">{{ player.level }}</td>
-    <td class="center" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_ping">{{ player.zombies }}</td>
-    <td class="nobr right" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_last_updated_servertime">
+    <td class="center" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_level">{{ player.level }}</td>
+    <td class="center" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_ping">{{ player.zombies }}</td>
+    <td class="nobr right" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_last_updated_servertime">
         {{ player.last_updated_servertime }}
     </td>
-    <td class="nobr right" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_last_seen_gametime">
+    <td class="nobr right" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_last_seen_gametime">
         {{ player.last_seen_gametime }}
     </td>
 </tr>

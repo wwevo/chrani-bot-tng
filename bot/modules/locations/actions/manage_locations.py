@@ -36,7 +36,7 @@ def main_function(module, event_data, dispatchers_steamid):
                                 location_identifier: {
                                     "name": location_name,
                                     "identifier": location_identifier,
-                                    "origin": current_map_identifier,
+                                    "dataset": current_map_identifier,
                                     "shape": location_shape,
                                     "coordinates": location_coordinates,
                                     "dimensions": location_dimensions,

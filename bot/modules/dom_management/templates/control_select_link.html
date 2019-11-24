@@ -1,7 +1,7 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {% set owner = dom_element.owner|default("null") %}
 {% set identifier = dom_element.identifier|default("null") %}
-{% set origin = dom_element.origin|default("null") %}
+{% set dataset = dom_element.dataset|default("null") %}
 {{ construct_toggle_link(
     dom_element_entry_selected,
     "&#9745;", ['widget_event', ['dom_management', ['sed', {
@@ -9,7 +9,7 @@
         "target_module": target_module,
         "dom_element_owner": owner,
         "dom_element_identifier": identifier,
-        "dom_element_origin": origin,
+        "dom_element_origin": dataset,
         'action': dom_action_active
     }]]],
     "&#9744;", ['widget_event', ['dom_management', ['sed', {
@@ -17,7 +17,7 @@
         "target_module": target_module,
         "dom_element_owner": owner,
         "dom_element_identifier": identifier,
-        "dom_element_origin": origin,
+        "dom_element_origin": dataset,
         "action": dom_action_inactive
     }]]]
 ) }}

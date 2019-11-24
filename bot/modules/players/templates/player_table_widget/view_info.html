@@ -13,125 +13,125 @@
                 <th colspan="3">player-info ({{ player.steamid }})</th>
             </tr>
         </thead>
-        <tbody id="player_table_row_{{ player.origin }}_{{ player.steamid }}">
+        <tbody id="player_table_row_{{ player.dataset }}_{{ player.steamid }}">
             <tr>
                 <td>Name</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
                 <td>the players steam-name</td>
             </tr>
             <tr>
                 <td>ID</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_id" onclick="$(this).selectText();">{{ player.id }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>SteamID</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_steamid" onclick="$(this).selectText();">{{ player.steamid }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Health</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_health">{{ player.health }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_health">{{ player.health }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Position</td>
                 <td class="position" onclick="$(this).selectText();">
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_x">{{ ((player | default({})).pos | default({}) ).x | default('0') }}</span>
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_y">{{ ((player | default({})).pos | default({}) ).y | default('0') }}</span>
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_pos_z">{{ ((player | default({})).pos | default({}) ).z | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_x">{{ ((player | default({})).pos | default({}) ).x | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_y">{{ ((player | default({})).pos | default({}) ).y | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_pos_z">{{ ((player | default({})).pos | default({}) ).z | default('0') }}</span>
                 </td>
                 <td></td>
             </tr>
             <tr>
                 <td>Rotation</td>
                 <td class="position">
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_rot_x">{{ ((player | default({})).rot | default({}) ).x | default('0') }}</span>
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_rot_y">{{ ((player | default({})).rot | default({}) ).y | default('0') }}</span>
-                    <span id="player_table_row_{{ player.origin }}_{{ player.steamid }}_rot_z">{{ ((player | default({})).rot | default({}) ).z | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_rot_x">{{ ((player | default({})).rot | default({}) ).x | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_rot_y">{{ ((player | default({})).rot | default({}) ).y | default('0') }}</span>
+                    <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_rot_z">{{ ((player | default({})).rot | default({}) ).z | default('0') }}</span>
                 </td>
                 <td></td>
             </tr>
             <tr>
                 <td>Level</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_level">{{ player.level }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_level">{{ player.level }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>IP-Address</td>
-                <td onclick="$(this).selectText();" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_ip">{{ player.ip }}</td>
+                <td onclick="$(this).selectText();" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_ip">{{ player.ip }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Ping</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_ping">{{ player.ping }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_ping">{{ player.ping }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Deaths</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_deaths">{{ player.deaths }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Zombie-Kills</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_zombies">{{ player.zombies }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Player-Kills</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_players">{{ player.players }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_players">{{ player.players }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Score</td>
-                <td id="player_table_row_{{ player.origin }}_{{ player.steamid }}_score">{{ player.score }}</td>
+                <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_score">{{ player.score }}</td>
                 <td></td>
             </tr>
             <tr>
                 <td>Last seen</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_last_updated_servertime">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_last_updated_servertime">
                     {{ player.last_updated_servertime }}
                 </td>
                 <td></td>
             </tr>
             <tr>
                 <td>Last seen (gametime)</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_last_seen_gametime">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_last_seen_gametime">
                     {{ player.last_seen_gametime }}
                 </td>
                 <td></td>
             </tr>
             <tr>
-                <td>origin</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_origin">
-                    {{ player.origin }}
+                <td>dataset</td>
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_origin">
+                    {{ player.dataset }}
                 </td>
                 <td>the server-instance this entry is from</td>
             </tr>
             <tr>
                 <td>is_authenticated</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_is_authenticated">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_authenticated">
                     {{ player.is_authenticated }}
                 </td>
                 <td>has authenticated with the bot</td>
             </tr>
             <tr>
                 <td>in_limbo</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_in_limbo">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_in_limbo">
                     {{ player.in_limbo }}
                 </td>
                 <td>hasn't got any health, is dead(ish)!</td>
             </tr>
             <tr>
                 <td>is_initialized</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_is_initialized">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_initialized">
                     {{ player.is_initialized }}
                 </td>
                 <td>player is online, has health, is ready to go!</td>
             </tr>
             <tr>
                 <td>is_online</td>
-                <td class="nobr" id="player_table_row_{{ player.origin }}_{{ player.steamid }}_is_online">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_online">
                     {{ player.is_online }}
                 </td>
                 <td>we can see you!</td>

@@ -298,7 +298,7 @@ def table_rows(*args, ** kwargs):
                 for player_steamid, player_dict in updated_values_dict.items():
                     try:
                         table_row_id = "player_table_row_{}_{}".format(
-                            str(player_dict["origin"]),
+                            str(player_dict["dataset"]),
                             str(player_steamid)
                         )
                     except KeyError:
@@ -394,7 +394,7 @@ def update_widget(*args, **kwargs):
                     .get("current_view", None)
                 )
                 table_row_id = "player_table_row_{}_{}".format(
-                    str(player_dict.get("origin", None)),
+                    str(player_dict.get("dataset", None)),
                     str(player_dict.get("steamid", None))
 
                 )
@@ -448,7 +448,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "player_table_row_{}_{}_control_select_link".format(
-                updated_values_dict["origin"],
+                updated_values_dict["dataset"],
                 updated_values_dict["owner"]
             )
         }

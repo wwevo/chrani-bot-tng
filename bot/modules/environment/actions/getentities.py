@@ -86,7 +86,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "remote": bool(m.group("remote")),
                 "dead": bool(m.group("dead")),
                 "health": int(m.group("health")),
-                "origin": current_map_identifier,
+                "dataset": current_map_identifier,
                 "last_seen_gametime": last_recorded_gametime
             }
             entities_to_update_dict[m.group("id")] = entity_dict

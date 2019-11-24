@@ -16,37 +16,21 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    if origin_module.default_options.get("player_password", None) == entered_password:
-        is_authenticated = True
-        event_data = ['say_to_player', {
-            'steamid': steamid,
-            'message': '[66FF66]Thank you for playing along[-][FFFFFF], you may now leave the Crater[-]'
-        }]
-        module.trigger_action_hook(origin_module.players, event_data, steamid)
-
-    else:
-        is_authenticated = False
-
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-    module.dom.data.upsert({
-        "module_players": {
-            "elements": {
-                current_map_identifier: {
-                    steamid: {
-                        "is_authenticated": is_authenticated
-                    }
-                }
-            }
-        }
-    })
+    event_data = ['manage_permissions', {
+        'dataset': module.dom.data.get("module_environment", {}).get("current_game_name", None),
+        'player_steamid': steamid,
+        'entered_password': entered_password,
+        'action': 'add authentication'
+    }]
+    module.trigger_action_hook(origin_module, event_data, steamid)
 
 
 trigger_meta = {
-    "description": "sends player to the location of their choosing",
+    "description": "validates a players password",
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "add location (Alloc)",
+            "identifier": "password (Alloc)",
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
@@ -56,11 +40,11 @@ trigger_meta = {
             "callback": main_function
         },
         {
-            "identifier": "add location (BCM)",
+            "identifier": "password (BCM)",
             "regex": (
-
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
+                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
                 r"to\s\'(?P<target_room>.*)\'\)\:\s"
                 r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
             ),
