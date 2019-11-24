@@ -9,8 +9,8 @@ class Environment(Module):
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
-            "dom_element_root": ["entities"],
-            "dom_element_select_root": ["entities", "id"]
+            "dom_element_root": [],
+            "dom_element_select_root": ["id"]
         })
 
         setattr(self, "required_modules", [
@@ -47,8 +47,7 @@ class Environment(Module):
     # endregion
 
     def run(self):
-        while not self.stopped.wait(1):
-            sleep(self.next_cycle - 1)
+        while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
             self.trigger_action_hook(self, ["getgameprefs", {

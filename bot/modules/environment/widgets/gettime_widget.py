@@ -8,9 +8,10 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
     template_frontend = module.templates.get_template('gametime_widget_frontend.html')
-    gametime = module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {
+    gametime = module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {
         "day": "00",
         "hour": "00",
         "minute": "00",
@@ -23,7 +24,7 @@ def main_widget(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -58,7 +59,7 @@ def update_widget(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=module.webserver.connected_clients.keys(),
         target_element={
@@ -74,7 +75,7 @@ widget_meta = {
     "description": "displays the in-game time and day",
     "main_widget": main_widget,
     "handlers": {
-        "module_environment/last_recorded_gametime": update_widget
+        "module_environment/%map_identifier%/last_recorded_gametime": update_widget
     },
     "enabled": True
 }

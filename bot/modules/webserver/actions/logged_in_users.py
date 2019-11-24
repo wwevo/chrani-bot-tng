@@ -7,8 +7,6 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(*args, **kwargs):
     module = args[0]
-    event_data = kwargs.get("event_data", [])
-    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
     try:
         connected_clients = list(module.connected_clients.keys())
@@ -20,8 +18,6 @@ def main_function(*args, **kwargs):
             "webserver_logged_in_users": connected_clients
         }
     })
-    # layers are counted from 0. In this case the value from key "webserver_logged_in_users" will be replaced
-    # module.get_module_identifier() would be layer 0, which would replace all data the module has. Don't do it ^^
 
 
 def callback_success(*args, **kwargs):

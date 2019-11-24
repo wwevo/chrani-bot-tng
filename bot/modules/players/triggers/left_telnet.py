@@ -29,6 +29,7 @@ def main_function(origin_module, module, regex_result):
         servertime_player_left = (
             module.dom.data
             .get("module_environment", {})
+            .get(current_map_identifier, {})
             .get("last_recorded_gametime", {})
         )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(

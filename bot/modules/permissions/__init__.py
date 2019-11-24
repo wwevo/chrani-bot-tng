@@ -54,7 +54,6 @@ class Permissions(Module):
                     permission_denied = True
 
         if module.get_module_identifier() == "module_dom_management":
-            # print(event_data[0], event_data[1]["action"])
             if any([
                     event_data[0] == "sed",
             ]):
@@ -71,7 +70,6 @@ class Permissions(Module):
                         permission_denied = False
 
         if module.get_module_identifier() == "module_locations":
-            # print(event_data[0], event_data[1]["action"])
             if any([
                     event_data[0] == "manage_locations",
                     event_data[0] == "management_tools",

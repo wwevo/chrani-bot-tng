@@ -82,10 +82,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         if len(entities_to_update_dict) >= 1:
             module.dom.data.upsert({
                 module.get_module_identifier(): {
-                    "elements": {
-                        current_map_identifier: {
-                            "entities": entities_to_update_dict
-                        }
+                    current_map_identifier: {
+                        "elements": entities_to_update_dict
                     }
                 }
             })

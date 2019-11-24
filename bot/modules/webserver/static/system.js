@@ -126,13 +126,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 return false;
             }
             if (data["method"] === "update") {
-                if (target_element.innerHTML !== data["event_data"]) {
-                    target_element.innerHTML = data["event_data"];
+                if (target_element.innerHTML !== data["payload"]) {
+                    target_element.innerHTML = data["payload"];
                 } else {
                     return false;
                 }
             } else if (data["method"] === "replace") {
-                target_element.outerHTML = data["event_data"];
+                target_element.outerHTML = data["payload"];
             }
 
         }
@@ -145,13 +145,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
             let $el = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
 
             if (data["method"] === "update") {
-                $el.html(data["event_data"]);
+                $el.html(data["payload"]);
             } else if (data["method"] === "append") {
-                $el.append(data["event_data"]);
+                $el.append(data["payload"]);
             } else if (data["method"] === "prepend") {
                 play_audio_file("computerbeep_38");
                 $el = $('#' + data["target_element"]["id"] + ' ' + data["target_element"]["type"]);
-                $el.prepend(data["event_data"]);
+                $el.prepend(data["payload"]);
                 let $entries = $el.find('tr');
                 if ($entries.length >= 50) {
                     $entries.last().remove();
@@ -177,9 +177,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
             if (target_element.length === 0) {
                 /* If the row doesn't exist, append it */
-                parent_element.append(data["event_data"]);
+                parent_element.append(data["payload"]);
             } else {
-                target_element.replaceWith(data["event_data"]);
+                target_element.replaceWith(data["payload"]);
             }
         }
         if (data["data_type"] === "table_row_content") {
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 parent_element[0].removeAttribute("class");
             }
 
-            let elements_to_update = data["event_data"];
+            let elements_to_update = data["payload"];
             $.each(elements_to_update, function (key, value) {
                 if ($.type(value) === 'object') {
                     $.each(value, function (sub_key, sub_value) {

@@ -150,7 +150,7 @@ def frontend_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         method="update",
@@ -198,7 +198,7 @@ def options_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         method="update",
@@ -263,7 +263,7 @@ def show_info_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         method="update",
@@ -347,7 +347,7 @@ def table_rows(*args, ** kwargs):
 
                     module.webserver.send_data_to_client_hook(
                         module,
-                        event_data=table_row,
+                        payload=table_row,
                         data_type="table_row",
                         clients=[clientid],
                         target_element={
@@ -401,7 +401,7 @@ def update_widget(*args, **kwargs):
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        event_data=player_dict,
+                        payload=player_dict,
                         data_type="table_row_content",
                         clients="all",
                         method="update",
@@ -417,7 +417,7 @@ def update_widget(*args, **kwargs):
                 elif current_view == "info":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        event_data=player_dict,
+                        payload=player_dict,
                         data_type="table_row_content",
                         clients=[clientid],
                         method="update",

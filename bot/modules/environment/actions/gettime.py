@@ -31,12 +31,24 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
+    current_game_name = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get("current_game_name", None)
+    )
+
+    # we can't save the gamestats without knowing the game-name, as each game can have different stats.
+    if current_game_name is None:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "last_recorded_gametime": {
-                "day": match.group("day"),
-                "hour": match.group("hour"),
-                "minute": match.group("minute")
+            current_game_name: {
+                "last_recorded_gametime": {
+                    "day": match.group("day"),
+                    "hour": match.group("hour"),
+                    "minute": match.group("minute")
+                }
             }
         }
     })

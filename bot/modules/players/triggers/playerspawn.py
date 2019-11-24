@@ -8,6 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
+    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     # print("{module}: {available_vars}, {command}".format(
     #     module=module.getName(),
     #     available_vars=regex_result.re.groupindex,
@@ -19,6 +20,7 @@ def main_function(origin_module, module, regex_result):
         servertime_player_joined = (
             module.dom.data
             .get("module_environment", {})
+            .get(current_map_identifier, {})
             .get("last_recorded_gametime", {})
         )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(

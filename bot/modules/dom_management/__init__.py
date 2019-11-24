@@ -116,7 +116,7 @@ class DomManagement(Module):
 
         module.webserver.send_data_to_client_hook(
             module,
-            event_data=control_select_link,
+            payload=control_select_link,
             data_type="element_content",
             clients=[dispatchers_steamid],
             method="update",
@@ -161,7 +161,7 @@ class DomManagement(Module):
 
             module.webserver.send_data_to_client_hook(
                 module,
-                event_data=data_to_emit,
+                payload=data_to_emit,
                 data_type="element_content",
                 clients=[clientid],
                 method="replace",

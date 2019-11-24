@@ -83,7 +83,6 @@ def main_function(module, event_data, dispatchers_steamid):
                     dispatchers_steamid=dispatchers_steamid
                 )
 
-            # module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)

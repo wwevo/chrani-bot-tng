@@ -84,7 +84,7 @@ def frontend_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -138,7 +138,7 @@ def options_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -161,7 +161,7 @@ def update_servertime(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=servertime_view,
+        payload=servertime_view,
         data_type="element_content",
         method="replace",
         clients=module.webserver.connected_clients.keys(),
@@ -186,7 +186,7 @@ def update_logged_in_users(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=component_logged_in_users_view,
+        payload=component_logged_in_users_view,
         data_type="element_content",
         method="replace",
         clients=module.webserver.connected_clients.keys(),

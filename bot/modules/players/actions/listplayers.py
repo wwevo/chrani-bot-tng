@@ -58,9 +58,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
     for m in re.finditer(regex, raw_playerdata):
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("day", {}),
-            hour=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("hour", {}),
-            minute=module.dom.data.get("module_environment", {}).get("last_recorded_gametime", {}).get("minute", {})
+            day=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("day", {}),
+            hour=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("hour", {}),
+            minute=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("minute", {})
         )
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {

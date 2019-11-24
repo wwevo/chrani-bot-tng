@@ -192,7 +192,7 @@ def frontend_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -243,7 +243,7 @@ def options_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -322,7 +322,7 @@ def edit_view(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
@@ -418,7 +418,7 @@ def table_row(*args, **kwargs):
 
                             module.webserver.send_data_to_client_hook(
                                 module,
-                                event_data=rendered_table_row,
+                                payload=rendered_table_row,
                                 data_type="table_row",
                                 clients=[clientid],
                                 target_element={
@@ -478,7 +478,7 @@ def update_player_location(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="element_content",
         method="replace",
         clients=dispatchers_steamid,
@@ -538,7 +538,7 @@ def update_enabled_flag(*args, **kwargs):
 
     module.webserver.send_data_to_client_hook(
         module,
-        event_data=data_to_emit,
+        payload=data_to_emit,
         data_type="element_content",
         clients="all",
         method="update",

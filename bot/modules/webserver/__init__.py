@@ -55,7 +55,6 @@ class Webserver(Module):
     @staticmethod
     def dispatch_socket_event(target_module, event_data, dispatchers_steamid):
         module_identifier = "module_{}".format(target_module)
-        # print("user '{}' tries sending {} to module {}...".format(dispatchers_steamid, event_data, module_identifier))
         try:
             started_modules_dict[module_identifier].on_socket_event(event_data, dispatchers_steamid)
         except KeyError as error:
@@ -119,8 +118,7 @@ class Webserver(Module):
             s.close()
         return host
 
-    def send_data_to_client(self, *args, **kwargs):
-        event_data = kwargs.get("event_data", None)
+    def send_data_to_client(self, *args, payload=None, **kwargs):
         data_type = kwargs.get("data_type", "widget_content")
         target_element = kwargs.get("target_element", None)
         clients = kwargs.get("clients", None)
@@ -144,7 +142,7 @@ class Webserver(Module):
             widget_options = {
                 "method": method,
                 "status": status,
-                "event_data": event_data,
+                "payload": payload,
                 "data_type": data_type,
                 "target_element": target_element,
             }
@@ -179,7 +177,7 @@ class Webserver(Module):
 
         self.send_data_to_client_hook(
             module,
-            event_data=event_data,
+            payload=event_data,
             data_type="status_message",
             clients=clients,
             status=status
