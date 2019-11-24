@@ -327,6 +327,8 @@ body > main > div #unauthorized_disclaimer p {
     }
 }
 
+#entity_table_widget tbody > tr:hover *,
+#locations_widget tbody > tr:hover *,
 #player_table_widget tbody > tr:hover * {
     background-color: var(--lcars-yellow);
     color: var(--background)
