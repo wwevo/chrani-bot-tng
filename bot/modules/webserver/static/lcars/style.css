@@ -18,6 +18,7 @@
     --main_shoulder_height: 72px;
     --main_bar_height: 42px;
     --main_bar_terminator_width: 40px;
+    --main_table_gutter: 4px;
 }
 
 @font-face {
@@ -28,6 +29,23 @@
 @font-face {
     font-family: 'SWISS 911 Extra Compressed BT';
     src: url('fonts/SWISS911ExtraCompressedBT.ttf'); /*URL to font*/
+}
+
+/* Scrollbar hackz */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--lcars-yellow);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--lcars-orange);
 }
 
 html {
@@ -141,10 +159,13 @@ body > header > div > aside a:visited {
 /* main rules, widgets will share the available space between them, creating columns as needed, up to 3 for now */
 body > main > div {
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
     width: 100%;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
     margin-bottom: -0.5em;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-padding-bottom: calc(var(--main_shoulder_height) + 1em);
 }
 
 body > main > div #unauthorized_disclaimer a,
@@ -157,12 +178,13 @@ body > main > div #unauthorized_disclaimer a:hover {
     text-decoration: underline;
 }
 
-body > main > div .widget {
-    flex: 1 1 auto;
-    width: calc(100% - var(--main_shoulder_width) - 2em);
-    /* margin-left: var(--main_shoulder_width); */
+body > main > div > .widget {
+    width: calc(100vw);
     max-width: calc(1920px - 2em);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
+    overflow: hidden;
     margin-bottom: 0.5em;
+    scroll-snap-align: start;
 }
 
 @media (min-width: 1920px) {
@@ -181,9 +203,34 @@ body > main > div .widget {
     margin-top: 0.5em;
 }
 
-.widget > main > table > thead {
+.widget > main > table > tbody {
+    display: block;
+    overflow: auto;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 1em - 18px - 32px);
+    width: 100%;
+    padding-right: 2em;
+}
+
+.widget > main > table.data_table > tbody {
+    background: linear-gradient(
+        to right,
+        var(--background) 0%,
+        var(--background) var(--main_table_gutter),
+        var(--lcars-yellow) var(--main_table_gutter),
+        var(--lcars-yellow) calc(42.52px + var(--main_table_gutter)),
+        var(--background) calc(42.52px + var(--main_table_gutter)),
+        var(--background) 100%
+    );
+}
+
+.widget > main > table.data_table > thead > tr {
     display: none;
 }
+
+.widget > main > table.data_table > tbody > tr {
+    background: var(--background);
+}
+
 
 .widget > main table.box_input,
 .widget > main table.box_select {
@@ -521,7 +568,7 @@ footer > div > p {
     font-size: 1.125em;
     line-height: 24px;
     white-space: nowrap;
-    padding: 0 4px;
+    padding: 0 var(--main_table_gutter);
 }
 
 .widget > main > table > tbody > tr > td[id$='_name'] {
@@ -540,7 +587,8 @@ footer > div > p {
 }
 
 .widget > main > table > tfoot > tr {
-    height: 2.5em; line-height: 1.25em;
+    height: calc(1.25em + var(--main_table_gutter));
+    line-height: 1.25em;
 }
 
 .widget > main > table > tfoot > tr > td {
@@ -549,7 +597,7 @@ footer > div > p {
 
 .widget > main > table > tfoot > tr > td > div {
     background-color: var(--lcars-yellow);
-    margin: 0 0 0 0.25em ;
+    margin: 0 0 0 var(--main_table_gutter) ;
     padding-left: 5.25em;
     height: 20px; line-height: 20px;
     border-top-right-radius: 1em;
