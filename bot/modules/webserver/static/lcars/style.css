@@ -179,24 +179,13 @@ body > main > div #unauthorized_disclaimer a:hover {
 }
 
 body > main > div > .widget {
-    width: calc(100vw);
-    max-width: calc(1920px - 2em);
+    flex: 1 1 auto;
+    min-width: 640px;
+    max-width: 1920px;
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
     overflow: hidden;
     margin-bottom: 0.5em;
     scroll-snap-align: start;
-}
-
-@media (min-width: 1920px) {
-    body > main > div .widget {
-        width: calc(50% - 4em);
-    }
-}
-
-@media (min-width: 2880px) {
-    body > main > div .widget {
-        width: calc((100% / 3) - 6em);
-    }
 }
 
 .widget > main > table {
@@ -361,17 +350,6 @@ body > main > div #unauthorized_disclaimer {
 body > main > div #unauthorized_disclaimer p {
     font-size: 1.5em;
     padding-bottom: 1em;
-}
-
-@media (min-width: 1920px) {
-    main > div > #player_table_widget {
-        max-width: 1440px;
-    }
-
-    main > div > #webserver_status_widget {
-        min-width: 480px;
-        max-width: 640px;
-    }
 }
 
 #entity_table_widget tbody > tr:hover *,
