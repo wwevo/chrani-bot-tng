@@ -103,14 +103,17 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         .get(current_map_identifier, {})
     )
     online_players_list = list(players_to_update_dict.keys())
-    for steamid, player_dict in all_players_dict.items():
+    for steamid, existing_player_dict in all_players_dict.items():
         if steamid == 'last_updated_servertime':
             print('last_updated_servertime')
             continue
-        if player_dict["is_initialized"] is False:
+        if existing_player_dict["is_initialized"] is False:
             continue
 
         if steamid not in online_players_list and player_dict["is_online"] is True:
+            player_dict = {}
+            player_dict.update(existing_player_dict)
+
             player_dict["is_online"] = False
             player_dict["is_initialized"] = False
             players_to_update_dict.update({steamid: player_dict})
@@ -135,26 +138,29 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 def callback_fail(module, event_data, dispatchers_steamid):
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if current_map_identifier is None:
-         return
+        return
 
-    all_players_dict = (
+    all_existing_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
         .get(current_map_identifier, {})
     )
 
-    for steamid, player_dict in all_players_dict.items():
+    all_modified_players_dict = {}
+    for steamid, existing_player_dict in all_existing_players_dict.items():
         if steamid == 'last_updated_servertime':
             continue
-
+        player_dict = {}
+        player_dict.update(existing_player_dict)
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
+        all_modified_players_dict.update({steamid: player_dict})
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "elements": {
-                current_map_identifier: all_players_dict
+                current_map_identifier: all_modified_players_dict
             }
         }
     })
@@ -171,28 +177,32 @@ def skip_it(module, event_data, dispatchers_steamid=None):
     if current_map_identifier is None:
         return
 
-    all_players_dict = (
+    all_existing_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
         .get(current_map_identifier, {})
     )
 
-    for steamid, player_dict in all_players_dict.items():
+    all_modified_players_dict = {}
+    for steamid, existing_player_dict in all_existing_players_dict.items():
+        player_dict = {}
+        player_dict.update(existing_player_dict)
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
+        all_modified_players_dict.update({steamid: player_dict})
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "elements": {
-                current_map_identifier: all_players_dict
+                current_map_identifier: all_modified_players_dict
             }
         }
     })
 
 
 action_meta = {
-    "description": "gets a list of all currently logged in players",
+    "description": "gets a list of all currently logged in players and sets status-flags",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,

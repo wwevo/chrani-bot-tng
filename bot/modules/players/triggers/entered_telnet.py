@@ -10,7 +10,7 @@ def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     player_steamid = regex_result.group("player_steamid")
-    player_dict = (
+    existing_player_dict = (
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
@@ -19,8 +19,9 @@ def main_function(origin_module, module, regex_result):
     )
 
     executed_trigger = False
+    player_dict = {}
     if command in ["Authenticating", "connected"]:
-        if player_dict is None:
+        if existing_player_dict is None:
             player_dict = {
                 "name": regex_result.group("player_name"),
                 "steamid": player_steamid,
@@ -32,13 +33,20 @@ def main_function(origin_module, module, regex_result):
                 "dataset": current_map_identifier,
                 "owner": player_steamid
             }
-        player_dict["is_online"] = True
-        player_dict["in_limbo"] = True
-        player_dict["is_initialized"] = False
+        else:
+            player_dict.update(existing_player_dict)
+
+        player_dict.update({
+            "is_online": True,
+            "in_limbo": True,
+            "is_initialized": False,
+        })
 
         if command == "connected":
-            player_dict["id"] = regex_result.group("entity_id")
-            player_dict["ip"] = regex_result.group("player_ip")
+            player_dict.update({
+                "id": regex_result.group("entity_id"),
+                "ip": regex_result.group("player_ip")
+            })
 
         player_name = player_dict.get("name", regex_result.group("player_name"))
         servertime_player_joined = (
@@ -70,9 +78,9 @@ def main_function(origin_module, module, regex_result):
     ]):
         module.dom.data.upsert({
             "module_players": {
-                    "elements": {
-                        current_map_identifier: {
-                            player_steamid: player_dict
+                "elements": {
+                    current_map_identifier: {
+                        player_steamid: player_dict
                     }
                 }
             }

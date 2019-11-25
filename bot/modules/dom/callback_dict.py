@@ -261,17 +261,22 @@ class CallbackDict(dict, object):
 
         """" recursion happens in this section """
         for key_to_update, value_to_update in updated_values_dict.items():
+            method = "upsert"
+            full_path = self.construct_full_path(path, key_to_update, layer)
             working_paths_list = self.get_matching_callback_path(
-                self.construct_full_path(path, key_to_update, layer),
+                full_path,
                 min_callback_level=min_callback_level,
                 max_callback_level=max_callback_level,
                 layer=layer
             )
 
             if key_to_update in dict_to_update:
-                method = "update"
                 # the key exists in the current dom
-                if isinstance(dict_to_update[key_to_update], (list, dict)) and isinstance(updated_values_dict[key_to_update], (list, dict)):
+                if all([
+                    isinstance(dict_to_update[key_to_update], (list, dict)),
+                    isinstance(updated_values_dict[key_to_update], (list, dict))
+                ]):
+                    method = "update"
                     # both the updated values and the original ones are Mappings. Let's dive in
                     if isinstance(updated_values_dict.get(key_to_update, None), dict):
                         self.upsert(
@@ -283,15 +288,19 @@ class CallbackDict(dict, object):
                     elif isinstance(updated_values_dict.get(key_to_update, None), list):
                         # if the value is a list, we simply replace the entire list. We will not go
                         # through list items in this dict
-                        dict_to_update[key_to_update] = updated_values_dict.get(key_to_update)
+                        dict_to_update[key_to_update] = updated_values_dict[key_to_update]
 
                 elif all([
                     not isinstance(dict_to_update[key_to_update], (list, dict)),
                     not isinstance(updated_values_dict[key_to_update], (list, dict))
                 ]):
                     # both keys are Values, we'll update and continue the loop
-                    if dict_to_update[key_to_update] != updated_values_dict[key_to_update]:
+                    if dict_to_update.get(key_to_update) == updated_values_dict[key_to_update]:
+                        method = "unchanged"
+                    else:
+                        method = "update"
                         dict_to_update[key_to_update] = updated_values_dict[key_to_update]
+
             else:
                 # the key is not in our current dom
                 method = "insert"
@@ -310,16 +319,17 @@ class CallbackDict(dict, object):
                 try:
                     for working_path in working_paths_list:
                         for callback in self.registered_callbacks[layer][working_path]:
-                            callbacks.append(
-                                self.get_callback_package(
-                                    updated_values=updated_values_dict,
-                                    original_values_dict=original_values_dict,
-                                    dispatchers_steamid=dispatchers_steamid,
-                                    callback=callback,
-                                    method=method,
-                                    matched_path=working_path
+                            if method != "unchanged":
+                                callbacks.append(
+                                    self.get_callback_package(
+                                        updated_values=updated_values_dict,
+                                        original_values_dict=original_values_dict,
+                                        dispatchers_steamid=dispatchers_steamid,
+                                        callback=callback,
+                                        method=method,
+                                        matched_path=working_path
+                                    )
                                 )
-                            )
 
                 except KeyError:
                     pass

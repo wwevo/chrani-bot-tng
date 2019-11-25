@@ -304,17 +304,8 @@ def table_rows(*args, ** kwargs):
                     except KeyError:
                         table_row_id = "player_table_widget"
 
-                    selected_player_entries = (
-                        module.dom.data
-                        .get("module_players", {})
-                        .get("elements", {})
-                        .get(current_map_identifier, {})
-                        .get(player_steamid, {})
-                        .get("selected_by", [])
-                    )
-
                     player_entry_selected = False
-                    if clientid in selected_player_entries:
+                    if clientid in player_dict.get("selected_by", []):
                         player_entry_selected = True
 
                     control_select_link = module.dom_management.get_selection_dom_element(
@@ -472,6 +463,41 @@ def update_delete_button_status(*args, **kwargs):
     )
 
 
+def update_actions_status(*args, **kwargs):
+    """ we want to update the action status here
+    not all actions can work all the time, some depend on a player being online for example"""
+    module = args[0]
+    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
+    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+
+    player_dict = kwargs.get("updated_values_dict", None)
+
+    rendered_control_info_link = module.template_render_hook(
+        module,
+        control_info_link,
+        player=player_dict
+    )
+    rendered_control_kick_link = module.template_render_hook(
+        module,
+        control_kick_link,
+        player=player_dict
+    )
+    payload = rendered_control_info_link + rendered_control_kick_link
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=payload,
+        data_type="element_content",
+        clients="all",
+        method="update",
+        target_element={
+            "id": "player_table_row_{}_{}_actions".format(
+                player_dict.get("dataset"),
+                player_dict.get("steamid")
+            )
+        }
+    )
+
+
 widget_meta = {
     "description": "sends and updates a table of all currently known players",
     "main_widget": select_view,
@@ -490,6 +516,8 @@ widget_meta = {
             update_widget,
         "module_players/elements/%map_identifier%/%steamid%/selected_by":
             update_selection_status,
+        "module_players/elements/%map_identifier%/%steamid%/is_initialized":
+            update_actions_status,
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
         #     update_enabled_flag,
     },

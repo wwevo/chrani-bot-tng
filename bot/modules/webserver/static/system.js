@@ -92,10 +92,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
         let color = "255, 204, 153"; // has to be in this format since we use rgba
         let interval = setInterval(function() {
             opacity -= 2.5;
-            if (opacity <= 0) clearInterval(interval);
-            $(elements).css({
-                "background-color": "rgba(" + color + ", " + (opacity/50) + ")"
-            });
+            if (opacity <= 0) {
+                clearInterval(interval);
+                $(elements).removeAttr('style');
+            } else {
+                $(elements).css({
+                    "background-color": "rgba(" + color + ", " + (opacity / 50) + ")"
+                });
+            }
         }, 20)
     };
 

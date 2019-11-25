@@ -15,15 +15,19 @@ def main_function(origin_module, module, regex_result):
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
 
-        player_dict = (
+        existing_player_dict = (
             module.dom.data
             .get("module_players", {})
             .get("elements", {})
             .get(current_map_identifier, {})
             .get(player_steamid, {})
         )
-        player_dict["is_online"] = False
-        player_dict["is_initialized"] = False
+        player_dict = {}
+        player_dict.update(existing_player_dict)
+        player_dict.update({
+            "is_online": False,
+            "is_initialized": False
+        })
 
         player_name = player_dict.get("name", regex_result.group("player_name"))
         servertime_player_left = (
@@ -68,9 +72,9 @@ trigger_meta = {
             "regex": (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
                 r"Player\s(?P<command>.*):\s"
-                r"EntityID=(?P<entity_id>[-1]\d+), "
-                r"PlayerID='(?P<player_steamid>\d{17})', "
-                r"OwnerID='(?P<owner_id>\d{17})', "
+                r"EntityID=(?P<entity_id>.*),\s"
+                r"PlayerID='(?P<player_steamid>\d{17})',\s"
+                r"OwnerID='(?P<owner_id>\d{17})',\s"
                 r"PlayerName='(?P<player_name>.*)'"
             ),
             "callback": main_function
