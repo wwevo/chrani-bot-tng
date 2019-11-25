@@ -2,6 +2,9 @@
 {%- if player.is_online == true or player.is_initialized == true -%}
 {{ construct_toggle_link(
     True,
-    "kick", ['widget_event', ['players', ['kickplayer', {'steamid': player.steamid, 'reason': 'whatever'}]]]
+    "kick", ['widget_event', ['players', ['manage_players', {
+        'action': 'kick player',
+        'steamid': player.steamid
+    }]]]
 )}}
 {%- endif -%}
