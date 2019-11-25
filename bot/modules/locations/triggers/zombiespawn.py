@@ -13,9 +13,8 @@ def main_function(origin_module, module, regex_result):
             "z": regex_result.group("pos_z")
         }
     }
-
+    zombie_id = regex_result.group("entity_id")
     zombie_name = regex_result.group("zombie_name")
-    print(zombie_name)
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
     if zombie_name == "zombieScreamer":
@@ -28,19 +27,38 @@ def main_function(origin_module, module, regex_result):
             .get("Chraniville", {})
         )
         if origin_module.locations.position_is_inside_boundary(position_dict, village_dict):
+            event_data = ['manage_entities', {
+                'dataset': current_map_identifier,
+                'entity_id': zombie_id,
+                'entity_name': zombie_name,
+                'action': 'kill'
+            }]
+            module.trigger_action_hook(origin_module.environment, event_data)  # no steamid cause it's a s system_call
+
             event_data = ['say_to_all', {
-                'message': '[FF6666]Screamer spawned[-] [FFFFFF]inside {}[-]'.format(village_dict.get("name"))
+                'message': (
+                    '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
+                    '[FFFFFF]inside [CCCCFF]{village_name}[FFFFFF].[-]'.format(
+                        entity_id=zombie_id,
+                        village_name=village_dict.get("name")
+                    )
+                )
             }]
         else:
             event_data = ['say_to_all', {
-                'message': '[FF6666]Screamer spawned[-] [FFFFFF]somewhere...[-]'
+                'message': (
+                    '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
+                    '[CCCCFF]somewhere[FFFFFF]...[-]'.format(
+                        entity_id=zombie_id
+                    )
+                )
             }]
 
-        module.trigger_action_hook(origin_module.players, event_data)
+        module.trigger_action_hook(origin_module.environment, event_data)
 
 
 trigger_meta = {
-    "description": "reacts to spawning zombies",
+    "description": "reacts to spawning zombies (screamers, mostly)",
     "main_function": main_function,
     "triggers": [
         {

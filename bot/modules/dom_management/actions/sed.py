@@ -15,9 +15,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
     print(target_module, "shall", action, "for", dispatchers_steamid)
 
-    if all([
-        action is not None
-    ]):
+    if action is not None:
         if action == "select_dom_element" or action == "deselect_dom_element":
             general_root = [target_module, "elements", dom_element_origin, dom_element_owner]
             full_root = general_root + dom_element_select_root
