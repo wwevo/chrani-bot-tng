@@ -44,10 +44,10 @@ class Permissions(Module):
         """ Manually for now, this will be handled by a permissions widget. """
         permission_denied = False
         if any([
-                event_data[0] == "toggle_locations_view",
-                event_data[0] == "toggle_player_table_widget_view",
-                event_data[0] == "toggle_webserver_status_view",
-                event_data[0] == "toggle_permissions_view"
+            event_data[0] == "toggle_locations_view",
+            event_data[0] == "toggle_player_table_widget_view",
+            event_data[0] == "toggle_webserver_status_view",
+            event_data[0] == "toggle_permissions_view"
         ]):
             if event_data[1]["action"] == "show_options":
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
@@ -69,12 +69,24 @@ class Permissions(Module):
                     if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
                         permission_denied = False
 
+        if module.get_module_identifier() == "module_players":
+            if any([
+                event_data[0] == "manage_players",
+            ]):
+                if any([
+                    event_data[1]["action"] == "kick player",
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                        permission_denied = True
+                    if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
+                        permission_denied = False
+
         if module.get_module_identifier() == "module_locations":
             if any([
-                    event_data[0] == "manage_locations",
-                    event_data[0] == "management_tools",
-                    event_data[0] == "sed",
-                    event_data[0] == "toggle_locations_view"
+                event_data[0] == "manage_locations",
+                event_data[0] == "management_tools",
+                event_data[0] == "sed",
+                event_data[0] == "toggle_locations_view"
             ]):
                 if any([
                     event_data[1]["action"] == "edit_location_entry",
