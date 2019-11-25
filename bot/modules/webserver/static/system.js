@@ -87,6 +87,18 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return $el;
     };
 
+    let flash = function(elements) {
+        let opacity = 40;
+        let color = "255, 204, 153"; // has to be in this format since we use rgba
+        let interval = setInterval(function() {
+            opacity -= 2.5;
+            if (opacity <= 0) clearInterval(interval);
+            $(elements).css({
+                "background-color": "rgba(" + color + ", " + (opacity/50) + ")"
+            });
+        }, 20)
+    };
+
     //connect to the socket server.
     window.socket = io.connect(
         'http://' + document.domain + ':' + location.port, {
@@ -137,20 +149,27 @@ document.addEventListener("DOMContentLoaded", function(event) {
                  * with the help of the selector, we can create it in the right place
                  */
                 let selector = data["target_element"]["selector"];
-                let $target_element = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
+                let target_element = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
 
                 if (data["method"] === "update") {
-                    $target_element.html(data["payload"]);
+                    target_element.html(data["payload"]);
+                    console.log("widget content updated");
+                    flash(target_element);
                 } else if (data["method"] === "append") {
-                    $target_element.append(data["payload"]);
+                    target_element.append(data["payload"]);
+                    console.log("widget content appended");
+                    flash(target_element);
                 } else if (data["method"] === "prepend") {
                     play_audio_file("computerbeep_38");
-                    $target_element = $('#' + target_element_id + ' ' + data["target_element"]["type"]);
-                    $target_element.prepend(data["payload"]);
-                    let $entries = $target_element.find('tr');
+                    let target_table = $('#' + target_element_id + ' ' + data["target_element"]["type"]);
+                    /* prepend adds a row on top */
+                    target_table.prepend(data["payload"]);
+                    let $entries = target_table.find('tr');
                     if ($entries.length >= 50) {
                         $entries.last().remove();
                     }
+                    console.log("widget content prepended");
+                    flash($entries[1]);
                 }
             }
             if (data["data_type"] === "element_content") {
@@ -161,11 +180,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (data["method"] === "update") {
                     if (target_element.innerHTML !== data["payload"]) {
                         target_element.innerHTML = data["payload"];
+                        flash(target_element);
+                        console.log("element content appended");
                     } else {
                         return false;
                     }
                 } else if (data["method"] === "replace") {
                     target_element.outerHTML = data["payload"];
+                    flash(target_element);
+                    console.log("element content replaced");
                 }
 
             }
@@ -184,9 +207,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (target_element.length === 0) {
                     /* If the row doesn't exist, append it */
                     parent_element.append(data["payload"]);
+                    console.log("table row added");
                 } else {
                     target_element.replaceWith(data["payload"]);
+                    console.log("table row replaced");
                 }
+                flash(target_element);
             }
             if (data["data_type"] === "table_row_content") {
                 play_audio_file("keyok1");
@@ -207,12 +233,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
                             let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
                             if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
                                 element_to_update.html(sub_value);
+                                console.log("table row content updated");
+                                flash(element_to_update);
                             }
                         });
                     } else {
                         let element_to_update = $('#' + target_element_id + '_' + key);
                         if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
                             element_to_update.html(value);
+                            console.log("table row content updated");
+                            flash(element_to_update);
                         }
                     }
                 });
