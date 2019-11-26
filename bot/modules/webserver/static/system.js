@@ -134,9 +134,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return $el;
     };
 
-    let flash = function(elements) {
+    let flash = function(elements, color=false) {
         let opacity = 40;
-        let color = lcars_colors["lcars-light-blue"]; // has to be in this format since we use rgba
+        if (color === false) {
+            color = lcars_colors["lcars-yellow"]; // has to be in this format since we use rgba
+        }
         let interval = setInterval(function() {
             opacity -= 2.5;
             if (opacity <= 0) {
@@ -317,6 +319,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         play_audio_file("computerbeep_11");
                     } else if (status === "fail") {
                         play_audio_file("computer_error");
+                        flash(document.body, lcars_colors["lcars-red"])
                     }
                     console.log("received status from server\n\"" + status + ":" + json["uuid4"] + "\"");
                 }
