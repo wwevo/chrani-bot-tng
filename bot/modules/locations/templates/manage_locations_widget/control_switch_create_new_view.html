@@ -2,8 +2,8 @@
 <div>
     {{ construct_toggle_link(
         create_new_view_toggle,
-        "create new location", ['widget_event', ['locations', ['toggle_locations_view', {'steamid': steamid, "action": "show_create_new"}]]],
-        "back", ['widget_event', ['locations', ['toggle_locations_view', {'steamid': steamid, "action": "show_frontend"}]]]
+        "create new location", ['widget_event', ['locations', ['toggle_locations_widget_view', {'steamid': steamid, "action": "show_create_new"}]]],
+        "back", ['widget_event', ['locations', ['toggle_locations_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
     )}}
 </div>
 

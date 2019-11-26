@@ -90,8 +90,8 @@ def frontend_view(*args, **kwargs):
         'manage_locations_widget/control_switch_create_new_view.html'
     )
 
-    control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
-    control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
+    control_edit_link = module.templates.get_template('manage_locations_widget/control_edit_link.html')
+    control_enabled_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
     template_table_header = module.templates.get_template('manage_locations_widget/table_header.html')
     template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
@@ -341,8 +341,8 @@ def table_row(*args, **kwargs):
 
     template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
 
-    control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
-    control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
+    control_edit_link = module.templates.get_template('manage_locations_widget/control_edit_link.html')
+    control_enabled_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
     if updated_values_dict is not None:
         if method == "upsert" or method == "edit":
