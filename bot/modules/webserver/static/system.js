@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             let promise = play.apply(audio, arguments);
             if (promise !== undefined) {
                 promise.catch(_ => {
-                    // Autoplay was prevented. you can take steps here, like notifying the user.
+                    console.log("autoplay of audiofile failed :(");
                 });
             }
         };
@@ -50,6 +50,54 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
 
+    /* found on https://stackoverflow.com/a/21648508/8967590
+     * slightly modified to only return the rgb value and getting rid of type-warnings
+     */
+    function hexToRgb(hex){
+        let char;
+        if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+            char = hex.substring(1).split('');
+            if(char.length === 3){
+                char = [char[0], char[0], char[1], char[1], char[2], char[2]];
+            }
+            char = '0x' + char.join('');
+            return [(char >> 16) & 255, (char >> 8) & 255, char & 255].join(',');
+        }
+        throw new Error('Bad Hex');
+    }
+
+    let lcars_colors = []
+    function load_lcars_colors() {
+        /* https://davidwalsh.name/css-variables-javascript */
+        lcars_colors["lcars-brown"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-brown').trim()
+        );
+        lcars_colors["lcars-orange"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-orange').trim()
+        );
+        lcars_colors["lcars-yellow"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-yellow').trim()
+        );
+        lcars_colors["lcars-red"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-red').trim()
+        );
+        lcars_colors["lcars-purple"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-purple').trim()
+        );
+        lcars_colors["lcars-lilac"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-lilac').trim()
+        );
+        lcars_colors["lcars-dark-blue"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-dark-blue').trim()
+        );
+        lcars_colors["lcars-light-blue"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-light-blue').trim()
+        );
+        lcars_colors["background"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
+        );
+    }
+
     // https://stackoverflow.com/a/38311629/8967590
     $.fn.setClass = function(classes) {
         this.attr('class', classes);
@@ -83,13 +131,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
             $el = $(htmlString);
             $(this).prepend($el);
         }
-
         return $el;
     };
 
     let flash = function(elements) {
         let opacity = 40;
-        let color = "255, 204, 153"; // has to be in this format since we use rgba
+        let color = lcars_colors["lcars-light-blue"]; // has to be in this format since we use rgba
         let interval = setInterval(function() {
             opacity -= 2.5;
             if (opacity <= 0) {
@@ -133,6 +180,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     load_audio_files();
+    load_lcars_colors();
 
     window.socket.on('data', function(data) {
         if ([
@@ -152,8 +200,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 /* widget content requires a selector, in case the widget is not yet rendered in the browser
                  * with the help of the selector, we can create it in the right place
                  */
+                let html_string = '<div id="' + target_element_id + '" class="widget"></div>';
                 let selector = data["target_element"]["selector"];
-                let target_element = $(selector).upsert('#' + target_element_id, '<div id="' + target_element_id + '" class="widget"></div>');
+                let target_element = $(selector).upsert(
+                    '#' + target_element_id,
+                    html_string
+                );
 
                 if (data["method"] === "update") {
                     target_element.html(data["payload"]);

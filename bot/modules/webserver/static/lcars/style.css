@@ -1,7 +1,8 @@
 /* region main_settings -> start */
 /* variables */
 :root {
-    --background: black;
+    /* colors have to be issued in HEX, so we can use them without trouble inside out JavaScript portion */
+    --background: #000000;
 
     /* StarTrek color information found on: http://www.lcarscom.net */
     --lcars-brown: #FF9966;
@@ -33,7 +34,7 @@
 
 /* Scrollbar hackz */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: var(--main_bar_terminator_width);
 }
 
 ::-webkit-scrollbar-track {
@@ -42,7 +43,7 @@
 
 ::-webkit-scrollbar-thumb {
     background: var(--lcars-yellow);
-    border-radius: 10px;
+    border-radius: 20px;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--lcars-orange);
@@ -93,8 +94,8 @@ body > header > div {
 body > main {
     position: relative;
     color: var(--lcars-orange);
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
-    margin: 1em 0;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
+    margin: 0.5em 0;
     overflow: auto;
 }
 
@@ -160,8 +161,8 @@ body > header > div > aside a:visited {
 body > main > div {
     display: flex;
     flex-wrap: wrap;
-    width: 100%;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
+    width: calc(100%);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
     margin-bottom: -0.5em;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
@@ -182,7 +183,7 @@ body > main > div > .widget {
     flex: 1 1 auto;
     min-width: 640px;
     max-width: 1920px;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
     overflow: hidden;
     margin-bottom: 0.5em;
     scroll-snap-align: start;
@@ -190,14 +191,15 @@ body > main > div > .widget {
 
 .widget > main > table {
     margin-top: 0.5em;
+    width: calc(100vw - var(--main_shoulder_width) - var(--main_bar_terminator_width) - 2.5em);
 }
 
 .widget > main > table > tbody {
     display: block;
     overflow: auto;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 1em - 18px - 32px);
-    width: 100%;
-    padding-right: 2em;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
+    width: calc(100% - 0.5em);
+    padding-right: 0.5em;
 }
 
 .widget > main > table.data_table > tbody {
@@ -505,10 +507,8 @@ footer > div > p {
 }
 
 .widget > main {
-    float: right;
-    width: calc(100% - var(--main_shoulder_width) - var(--main_bar_terminator_width));
+    width: calc(100vw - var(--main_shoulder_width) - var(--main_bar_terminator_width) - 2.5em);
     min-height: calc(176px + 1.5em);
-    padding-right: var(--main_bar_terminator_width);
     overflow-y: auto;
 }
 
