@@ -62,8 +62,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
             }
             char = '0x' + char.join('');
             return [(char >> 16) & 255, (char >> 8) & 255, char & 255].join(',');
+        } else {
+            alert(hex);
+            throw new Error('Bad Hex');
         }
-        throw new Error('Bad Hex');
     }
 
     let lcars_colors = []
