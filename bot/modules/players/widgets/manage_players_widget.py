@@ -13,6 +13,8 @@ def get_player_table_row_css_class(player_dict):
         css_classes.append("is_online")
     if player_dict.get("in_limbo", False):
         css_classes.append("in_limbo")
+    if int(player_dict.get("health", 0)) > 0:
+        css_classes.append("has_health")
     if player_dict.get("is_initialized", False):
         css_classes.append("is_initialized")
 

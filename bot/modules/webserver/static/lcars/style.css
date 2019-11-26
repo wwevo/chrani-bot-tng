@@ -268,10 +268,6 @@ body > main > div > .widget > main .dialog .modal-content {
     height: 100%;
 }
 
-body > main > div > .widget > main > table > thead {
-    display: none;
-}
-
 body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
@@ -289,6 +285,10 @@ body > main > div > .widget > main > table.data_table > tbody {
         var(--background) calc(var(--main_bar_terminator_width) + (var(--main_table_gutter) / 2)),
         var(--background) 100%
     );
+}
+
+.widget > main > table.data_table > thead > tr {
+    display: none;
 }
 
 .widget > main > table.data_table > tbody > tr {
@@ -443,23 +443,22 @@ body > main > div #unauthorized_disclaimer p {
 }
 /* player status */
 /* offline */
-#manage_players_widget caption span:not([class]),
-#manage_players_widget tbody > span:not([class]),
-#manage_players_widget tbody > tr:not([class]) {
+#manage_players_widget caption span:not(.is_online):not(.is_initialized),
+#manage_players_widget tbody > span:not(.is_online):not(.is_initialized),
+#manage_players_widget tbody > tr:not(.is_online):not(.is_initialized) {
     color: var(--lcars-red);
 }
 
 /* offline and dead */
-#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
-#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized),
-#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) {
+#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
+#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
+#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized):not(.has_health) {
     color: var(--lcars-red);
 }
-
 /* special fading animation for offline players currently dead */
-#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
-#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3),
-#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3) {
+#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
+#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health) td:nth-child(n+3),
+#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized):not(.has_health) td:nth-child(n+3) {
     animation: blinker 4s linear infinite;
 }
 
@@ -705,3 +704,29 @@ footer > div > p {
         vertical-align: middle;
     }
 }
+
+td[id^="player_table_row_"][id$="_health"]:before {
+    content: "\2665";
+    padding-right: var(--main_table_gutter);
+    padding-left: calc(var(--main_table_gutter) * 2);
+    color: var(--lcars-red);
+}
+
+td[id^="player_table_row_"][id$="_pos"] span {
+    width: 1.5em;
+    display: inline-block;
+}
+
+td[id^="player_table_row_"][id$="_pos"]:before {
+    padding-left: calc(var(--main_table_gutter) * 2);
+    color: var(--lcars-red);
+    content: "\2691";
+}
+
+td[id^="player_table_row_"][id$="_zombies"]:before {
+    color: var(--lcars-red);
+    content: "\2620";
+    padding-right: var(--main_table_gutter);
+    padding-left: calc(var(--main_table_gutter) * 2);
+}
+
