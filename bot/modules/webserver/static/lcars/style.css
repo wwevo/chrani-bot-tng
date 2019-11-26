@@ -4,6 +4,8 @@
     font-size: 16px;
     /* colors have to be issued in HEX, so we can use them without trouble inside out JavaScript portion */
     --background: #000000;
+    --main-bar-color: #939598;
+    --main-bar-border-color: #6F7172;
 
     /* StarTrek color information found on: http://www.lcarscom.net */
     --lcars-brown: #FF9966;
@@ -95,8 +97,7 @@ body > header > div {
 body > main {
     position: relative;
     color: var(--lcars-orange);
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
-    margin: 0.5em 0;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height));
     overflow: auto;
 }
 
@@ -162,12 +163,11 @@ body > header > div > aside a:visited {
 body > main > div {
     display: flex;
     flex-wrap: wrap;
-    width: calc(100%);
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
-    margin-bottom: -0.5em;
+    width: 100%;
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height));
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
-    scroll-padding-bottom: calc(var(--main_shoulder_height) + 1em);
+    scroll-padding-bottom: calc(var(--main_shoulder_height));
 }
 
 body > main > div #unauthorized_disclaimer a,
@@ -181,28 +181,90 @@ body > main > div #unauthorized_disclaimer a:hover {
 }
 
 body > main > div > .widget {
+    position: relative;
+    padding-right: var(--main_bar_terminator_width);
+}
+
+body > main > div > .widget > header {
+    display: block;
+    height: 3em;
+    width: 100%;
+    clear: both;
+    background-color: var(--lcars-purple);
+    border-top-left-radius: 1.5em;
+    border-top-right-radius: 1.5em;
+    border-bottom-right-radius: 1.5em;
+}
+
+body > main > div > .widget > header > div > span {
+    font-size: 3em; line-height: 1em;
+    color: var(--background);
+    margin-left: 1.5em;
+}
+
+body > main > div > .widget > aside {
+    float: left;
+    width: calc(var(--main_shoulder_width));
+    background: linear-gradient(
+        to right,
+        var(--main-bar-border-color) 0,
+        var(--main-bar-border-color) 1px,
+        var(--main-bar-color) 1px,
+        var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
+        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em),
+        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em - 1px),
+        var(--background) calc(var(--main_shoulder_width) - 1.625em - 1px),
+        var(--background) 100%
+    );
+    height: calc(100% - 3em);
+}
+
+body > main > div > .widget > main {
+    overflow-y: auto;
+}
+
+body > main > div > .widget > aside > div {
+    width: var(--main_shoulder_width);
+}
+
+body > main > div > .widget > aside > div > div {
+    border-top: 0.5em solid black;
+}
+
+body > main > div > .widget > aside > div > div:last-child {
+    border-bottom: 0.5em solid black;
+}
+
+body > main > div > .widget > aside > div > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    padding: 0; margin-right: 1.625em;
+    line-height: 4.5em;
+}
+
+body > main > div > .widget {
     flex: 1 1 auto;
     min-width: 640px;
     max-width: 1920px;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - (var(--main_table_gutter) * 4));
     overflow: hidden;
-    margin-bottom: 0.5em;
+    margin-bottom: calc(0 - (var(--main_table_gutter) * 2));
     scroll-snap-align: start;
+    padding: calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) 0;
 }
 body > main > div > .widget > main {
     position: relative;
+    width: calc(100% - var(--main_shoulder_width) - (var(--main_table_gutter) * 2));
+    margin-top: calc(var(--main_table_gutter) * 2);
 }
 
 body > main > div > .widget > main .dialog {
     position: absolute;
-    top: 0.5em; left: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
     background-color: var(--lcars-yellow);
     opacity: 0.95;
     z-index: 1000;
-    display: none;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - 2em);
-    width: calc(100vw - var(--main_shoulder_width) - (var(--main_bar_terminator_width) * 2) - 0.5em);
-    padding-right: 0.5em;
+    display: block;
     border-top-right-radius: 1.25em;
     border-bottom-right-radius: 1.25em;
     overflow: hidden;
@@ -212,20 +274,14 @@ body > main > div > .widget > main .dialog .modal-content {
     padding: 1em;
 }
 
-.widget > main > table {
-    margin-top: 0.5em;
-    width: calc(100vw - var(--main_shoulder_width) - var(--main_bar_terminator_width) - 2.5em);
-}
-
-.widget > main > table > tbody {
+body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
-    width: calc(100% - 0.5em);
     padding-right: 0.5em;
 }
 
-.widget > main > table.data_table > tbody {
+body > main > div > .widget > main > table.data_table > tbody {
     background: linear-gradient(
         to right,
         var(--background) 0%,
@@ -369,7 +425,15 @@ body > main > div #unauthorized_disclaimer {
     width: 100%;
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
     padding-left: calc(var(--main_shoulder_width));
-    background: url(ui/main_vertical_bar.png) repeat-y;
+    background: linear-gradient(
+        to right,
+        var(--main-bar-color) 0,
+        var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
+        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em),
+        var(--main-bar-border-color) calc(100% - 1px),
+        var(--background) calc(100% - 1px),
+        var(--background) 100%
+    );
 }
 
 body > main > div #unauthorized_disclaimer p {
@@ -500,60 +564,6 @@ footer > div > p {
 /* region footer_widgets -> end */
 
 /* debug options -> start */
-.widget {
-    position: relative;
-    padding-right: var(--main_bar_terminator_width);
-}
-
-.widget > header {
-    display: block;
-    height: 3em;
-    width: 100%;
-    clear: both;
-    background-color: var(--lcars-purple);
-    border-top-left-radius: 1.5em;
-    border-top-right-radius: 1.5em;
-    border-bottom-right-radius: 1.5em;
-}
-
-.widget > header > div > span {
-    font-size: 3em; line-height: 1em;
-    color: var(--background);
-    margin-left: 1.5em;
-}
-
-.widget > aside {
-    float: left;
-    width: var(--main_shoulder_width);
-    background: url(ui/main_vertical_bar.png) repeat-y;
-    height: calc(100% - 3em);
-}
-
-.widget > main {
-    width: calc(100vw - var(--main_shoulder_width) - var(--main_bar_terminator_width) - 2.5em);
-    overflow-y: auto;
-}
-
-.widget > aside > div {
-    width: var(--main_shoulder_width);
-}
-
-.widget > aside > div > div {
-    border-top: 0.5em solid black;
-}
-
-.widget > aside > div > div:last-child {
-    border-bottom: 0.5em solid black;
-}
-
-.widget > aside > div > div > span {
-    display: block;
-    background-color: var(--lcars-purple);
-    padding: 0; margin-right: 1.625em;
-    line-height: 4.5em;
-}
-
-#manage_whitelist_widget_enable_disable_toggle span,
 .widget > aside > div > div > span.info {
     color: var(--background);
     line-height: 2em;

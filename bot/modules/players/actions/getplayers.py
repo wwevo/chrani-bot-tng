@@ -110,7 +110,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         if existing_player_dict["is_initialized"] is False:
             continue
 
-        if steamid not in online_players_list and player_dict["is_online"] is True:
+        if steamid not in online_players_list and existing_player_dict["is_online"] is True:
             player_dict = {}
             player_dict.update(existing_player_dict)
 
