@@ -336,7 +336,7 @@ body > header #gametime_widget {
 /* Widget positions -> start */
 .widget { order: 500 } /* making the standard order the middle instead of 0 */
 
-main > div > #player_table_widget { order: -1 }
+main > div > #manage_players_widget { order: -1 }
 main > div > #webserver_status_widget { order: 0 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
@@ -354,44 +354,44 @@ body > main > div #unauthorized_disclaimer p {
     padding-bottom: 1em;
 }
 
-#entity_table_widget tbody > tr:hover *,
-#locations_widget tbody > tr:hover *,
-#player_table_widget tbody > tr:hover * {
+#manage_entities_widget tbody > tr:hover *,
+#manage_locations_widget tbody > tr:hover *,
+#manage_players_widget tbody > tr:hover * {
     background-color: var(--lcars-yellow);
     color: var(--background)
 }
 /* player status */
 /* offline */
-#player_table_widget caption span:not([class]),
-#player_table_widget tbody > span:not([class]),
-#player_table_widget tbody > tr:not([class]) {
+#manage_players_widget caption span:not([class]),
+#manage_players_widget tbody > span:not([class]),
+#manage_players_widget tbody > tr:not([class]) {
     color: var(--lcars-red);
 }
 
 /* offline and dead */
-#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
-#player_table_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized),
-#player_table_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) {
+#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
+#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized),
+#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) {
     color: var(--lcars-red);
 }
 
 /* special fading animation for offline players currently dead */
-#player_table_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
-#player_table_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3),
-#player_table_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3) {
+#manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized),
+#manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3),
+#manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized) td:nth-child(n+3) {
     animation: blinker 4s linear infinite;
 }
 
 /* online and logging in */
-#player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
-#player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo,
-#player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
+#manage_players_widget caption span.is_online:not(.is_initialized).in_limbo,
+#manage_players_widget tbody > span.is_online:not(.is_initialized).in_limbo,
+#manage_players_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
     color: var(--lcars-yellow);
 }
 /* special fading animation for players currently logging in */
-#player_table_widget caption span.is_online:not(.is_initialized).in_limbo,
-#player_table_widget tbody > span.is_online:not(.is_initialized).in_limbo td:nth-child(n+3),
-#player_table_widget tbody > tr.is_online:not(.is_initialized).in_limbo td:nth-child(n+3) {
+#manage_players_widget caption span.is_online:not(.is_initialized).in_limbo,
+#manage_players_widget tbody > span.is_online:not(.is_initialized).in_limbo td:nth-child(n+3),
+#manage_players_widget tbody > tr.is_online:not(.is_initialized).in_limbo td:nth-child(n+3) {
     animation: blinker 3s linear infinite;
 }
 
@@ -402,15 +402,15 @@ body > main > div #unauthorized_disclaimer p {
 }
 
 /* online */
-#player_table_widget caption span.is_online.is_initialized:not(.in_limbo),
-#player_table_widget tbody > span.is_online.is_initialized:not(.in_limbo),
-#player_table_widget tbody > tr.is_online.is_initialized:not(.in_limbo) {
+#manage_players_widget caption span.is_online.is_initialized:not(.in_limbo),
+#manage_players_widget tbody > span.is_online.is_initialized:not(.in_limbo),
+#manage_players_widget tbody > tr.is_online.is_initialized:not(.in_limbo) {
     color: var(--lcars-yellow);
 }
 /* online and dead */
-#player_table_widget caption span.is_online.is_initialized.in_limbo,
-#player_table_widget tbody > span.is_online.is_initialized.in_limbo,
-#player_table_widget tbody > tr.is_online.is_initialized.in_limbo {
+#manage_players_widget caption span.is_online.is_initialized.in_limbo,
+#manage_players_widget tbody > span.is_online.is_initialized.in_limbo,
+#manage_players_widget tbody > tr.is_online.is_initialized.in_limbo {
     color: var(--lcars-orange);
 }
 
@@ -432,30 +432,30 @@ main > div > #telnet_log_widget .log_line td {
 }
 
 /* locations widget */
-main > div > #locations_widget #current_player_pos > span > div {
+main > div > #manage_locations_widget #current_player_pos > span > div {
     display: flex;
     justify-content: flex-end;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > div {
+main > div > #manage_locations_widget #current_player_pos > span > div > div {
     margin-right: 0.5em;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > div:last-child {
+main > div > #manage_locations_widget #current_player_pos > span > div > div:last-child {
     margin-right: 0;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > label {
+main > div > #manage_locations_widget #current_player_pos > span > div > label {
     flex: 0;
     white-space: nowrap;
     margin-right: 0.5em;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > label:last-child {
+main > div > #manage_locations_widget #current_player_pos > span > div > label:last-child {
     margin-right: 0;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > label input {
+main > div > #manage_locations_widget #current_player_pos > span > div > label input {
     border: 0;
     display: inline-block;
     margin: 0; padding: 0;
@@ -464,7 +464,7 @@ main > div > #locations_widget #current_player_pos > span > div > label input {
     background-color: transparent;
 }
 
-main > div > #locations_widget #current_player_pos > span > div > label:nth-child(2) input {
+main > div > #manage_locations_widget #current_player_pos > span > div > label:nth-child(2) input {
     width: 2em;
 }
 /* region main_widgets -> end */
@@ -664,10 +664,10 @@ footer > div > p {
     td[id^="player_table_row_"][id$="_ping"],
     td[id^="player_table_row_"][id$="_last_updated_servertime"],
     td[id^="player_table_row_"][id$="_last_seen_gametime"],
-    td[id^="manage_locations_table_row_"][id$="_id"],
-    td[id^="manage_locations_table_row_"][id$="_last_changed"],
-    td[id^="manage_locations_table_row_"][id$="_coordinates"],
-    td[id^="manage_locations_table_row_"][id$="_owner"] {
+    td[id^="location_table_row_"][id$="_id"],
+    td[id^="location_table_row_"][id$="_last_changed"],
+    td[id^="location_table_row_"][id$="_coordinates"],
+    td[id^="location_table_row_"][id$="_owner"] {
         font-size: 0.90em;
         vertical-align: middle;
     }

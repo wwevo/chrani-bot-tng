@@ -79,23 +79,23 @@ def frontend_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
-    template_frontend = module.templates.get_template('locations_widget/view_frontend.html')
+    template_frontend = module.templates.get_template('manage_locations_widget/view_frontend.html')
 
-    template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
+    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_options_view.html'
+        'manage_locations_widget/control_switch_options_view.html'
     )
 
     template_create_new_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_create_new_view.html'
+        'manage_locations_widget/control_switch_create_new_view.html'
     )
 
     control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
     control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
 
-    template_table_header = module.templates.get_template('locations_widget/table_header.html')
-    template_table_rows = module.templates.get_template('locations_widget/table_row.html')
-    template_table_footer = module.templates.get_template('locations_widget/table_footer.html')
+    template_table_header = module.templates.get_template('manage_locations_widget/table_header.html')
+    template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
+    template_table_footer = module.templates.get_template('manage_locations_widget/table_footer.html')
 
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
@@ -196,7 +196,7 @@ def frontend_view(*args, **kwargs):
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
-            "id": "locations_widget",
+            "id": "manage_locations_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -207,14 +207,14 @@ def options_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
-    template_frontend = module.templates.get_template('locations_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
+    template_frontend = module.templates.get_template('manage_locations_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_options_view.html'
+        'manage_locations_widget/control_switch_options_view.html'
     )
 
     template_create_new_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_create_new_view.html'
+        'manage_locations_widget/control_switch_create_new_view.html'
     )
 
     data_to_emit = module.template_render_hook(
@@ -247,7 +247,7 @@ def options_view(*args, **kwargs):
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
-            "id": "locations_widget",
+            "id": "manage_locations_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -271,19 +271,19 @@ def edit_view(*args, **kwargs):
         ]):
             location_to_edit_dict = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(location_origin).get(location_owner).get(location_identifier)
 
-    template_frontend = module.templates.get_template('locations_widget/view_create_new.html')
+    template_frontend = module.templates.get_template('manage_locations_widget/view_create_new.html')
 
-    template_options_toggle = module.templates.get_template('locations_widget/control_switch_view.html')
+    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_options_view.html'
+        'manage_locations_widget/control_switch_options_view.html'
     )
 
     template_create_new_toggle_view = module.templates.get_template(
-        'locations_widget/control_switch_create_new_view.html'
+        'manage_locations_widget/control_switch_create_new_view.html'
     )
 
     control_player_location_view = module.templates.get_template(
-        'locations_widget/control_player_location.html'
+        'manage_locations_widget/control_player_location.html'
     )
 
     player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
@@ -326,7 +326,7 @@ def edit_view(*args, **kwargs):
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
-            "id": "locations_widget",
+            "id": "manage_locations_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -339,7 +339,7 @@ def table_row(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", None)
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    template_table_rows = module.templates.get_template('locations_widget/table_row.html')
+    template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
 
     control_edit_link = module.dom_management.templates.get_template('control_edit_link.html')
     control_enabled_link = module.dom_management.templates.get_template('control_enabled_link.html')
@@ -380,13 +380,13 @@ def table_row(*args, **kwargs):
                                 location_entry_selected = True
 
                             try:
-                                table_row_id = "manage_locations_table_row_{}_{}_{}".format(
+                                table_row_id = "location_table_row_{}_{}_{}".format(
                                     str(updated_values_dict[player_steamid][identifier]["dataset"]),
                                     str(player_steamid),
                                     str(identifier)
                                 )
                             except KeyError:
-                                table_row_id = "locations_widget"
+                                table_row_id = "manage_locations_widget"
 
                             control_select_link = module.dom_management.get_selection_dom_element(
                                 module,
@@ -425,7 +425,7 @@ def table_row(*args, **kwargs):
                                     "id": table_row_id,
                                     "type": "tr",
                                     "class": get_table_row_css_class(location_dict),
-                                    "selector": "body > main > div > div#locations_widget > main > table > tbody"
+                                    "selector": "body > main > div > div#manage_locations_widget > main > table > tbody"
                                 }
                             )
                 else:  # table is not visible or current user, skip it!
@@ -440,7 +440,7 @@ def table_row(*args, **kwargs):
                 data_type="remove_table_row",
                 clients="all",
                 target_element={
-                    "id": "manage_locations_table_row_{}_{}_{}".format(
+                    "id": "location_table_row_{}_{}_{}".format(
                         str(location_origin),
                         str(player_steamid),
                         str(location_identifier)
@@ -463,7 +463,7 @@ def update_player_location(*args, **kwargs):
         return
 
     control_player_location_view = module.templates.get_template(
-        'locations_widget/control_player_location.html'
+        'manage_locations_widget/control_player_location.html'
     )
 
     player_coordinates = updated_values_dict.get("pos", {})
@@ -501,7 +501,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_active="deselect_dom_element",
         dom_action_inactive="select_dom_element",
         dom_element_id={
-            "id": "manage_locations_table_row_{}_{}_{}_control_select_link".format(
+            "id": "location_table_row_{}_{}_{}_control_select_link".format(
                 updated_values_dict["dataset"],
                 updated_values_dict["owner"],
                 updated_values_dict["identifier"]
@@ -543,7 +543,7 @@ def update_enabled_flag(*args, **kwargs):
         clients="all",
         method="update",
         target_element={
-            "id": "manage_locations_table_row_{}_{}_{}_control_enabled_link".format(
+            "id": "location_table_row_{}_{}_{}_control_enabled_link".format(
                 location_origin,
                 location_owner,
                 location_identifier

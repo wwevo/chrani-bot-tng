@@ -20,11 +20,11 @@ def select_view(*args, **kwargs):
 
 
 def frontend_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('permissions_widget/view_frontend.html')
+    template_frontend = module.templates.get_template('manage_permissions_widget/view_frontend.html')
 
-    template_options_toggle = module.templates.get_template('permissions_widget/control_switch_view.html')
+    template_options_toggle = module.templates.get_template('manage_permissions_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
-        'permissions_widget/control_switch_options_view.html'
+        'manage_permissions_widget/control_switch_options_view.html'
     )
 
     current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
@@ -52,7 +52,7 @@ def frontend_view(module, dispatchers_steamid=None):
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
-            "id": "permissions_widget",
+            "id": "manage_permissions_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -60,11 +60,11 @@ def frontend_view(module, dispatchers_steamid=None):
 
 
 def options_view(module, dispatchers_steamid=None):
-    template_frontend = module.templates.get_template('permissions_widget/view_options.html')
+    template_frontend = module.templates.get_template('manage_permissions_widget/view_options.html')
 
-    template_options_toggle = module.templates.get_template('permissions_widget/control_switch_view.html')
+    template_options_toggle = module.templates.get_template('manage_permissions_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template(
-        'permissions_widget/control_switch_options_view.html'
+        'manage_permissions_widget/control_switch_options_view.html'
     )
 
     current_view = module.dom.data.get(module.get_module_identifier(), {}).get("visibility", {}).get(dispatchers_steamid, {}).get(
@@ -95,7 +95,7 @@ def options_view(module, dispatchers_steamid=None):
         data_type="widget_content",
         clients=[dispatchers_steamid],
         target_element={
-            "id": "permissions_widget",
+            "id": "manage_permissions_widget",
             "type": "table",
             "selector": "body > main > div"
         }

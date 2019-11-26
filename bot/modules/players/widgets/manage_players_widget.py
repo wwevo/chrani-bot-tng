@@ -43,16 +43,16 @@ def frontend_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_frontend = module.templates.get_template('player_table_widget/view_frontend.html')
-    template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
-    template_table_header = module.templates.get_template('player_table_widget/table_header.html')
-    template_table_footer = module.templates.get_template('player_table_widget/table_footer.html')
+    template_frontend = module.templates.get_template('manage_players_widget/view_frontend.html')
+    template_table_rows = module.templates.get_template('manage_players_widget/table_row.html')
+    template_table_header = module.templates.get_template('manage_players_widget/table_header.html')
+    template_table_footer = module.templates.get_template('manage_players_widget/table_footer.html')
 
-    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    control_info_link = module.templates.get_template('manage_players_widget/control_info_link.html')
+    control_kick_link = module.templates.get_template('manage_players_widget/control_kick_link.html')
 
-    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
+    template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
@@ -155,7 +155,7 @@ def frontend_view(*args, **kwargs):
         clients=[dispatchers_steamid],
         method="update",
         target_element={
-            "id": "player_table_widget",
+            "id": "manage_players_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -166,9 +166,9 @@ def options_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_frontend = module.templates.get_template('player_table_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
+    template_frontend = module.templates.get_template('manage_players_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
     current_view = (
         module.dom.data
@@ -203,7 +203,7 @@ def options_view(*args, **kwargs):
         clients=[dispatchers_steamid],
         method="update",
         target_element={
-            "id": "player_table_widget",
+            "id": "manage_players_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -214,9 +214,9 @@ def show_info_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_frontend = module.templates.get_template('player_table_widget/view_info.html')
-    template_options_toggle = module.templates.get_template('player_table_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('player_table_widget/control_switch_options_view.html')
+    template_frontend = module.templates.get_template('manage_players_widget/view_info.html')
+    template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
     current_view = (
         module.dom.data
@@ -268,7 +268,7 @@ def show_info_view(*args, **kwargs):
         clients=[dispatchers_steamid],
         method="update",
         target_element={
-            "id": "player_table_widget",
+            "id": "manage_players_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -291,9 +291,9 @@ def table_rows(*args, ** kwargs):
                 .get("current_view", "frontend")
             )
             if current_view == "frontend":
-                template_table_rows = module.templates.get_template('player_table_widget/table_row.html')
-                control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-                control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+                template_table_rows = module.templates.get_template('manage_players_widget/table_row.html')
+                control_info_link = module.templates.get_template('manage_players_widget/control_info_link.html')
+                control_kick_link = module.templates.get_template('manage_players_widget/control_kick_link.html')
 
                 for player_steamid, player_dict in updated_values_dict.items():
                     try:
@@ -302,7 +302,7 @@ def table_rows(*args, ** kwargs):
                             str(player_steamid)
                         )
                     except KeyError:
-                        table_row_id = "player_table_widget"
+                        table_row_id = "manage_players_widget"
 
                     player_entry_selected = False
                     if clientid in player_dict.get("selected_by", []):
@@ -345,7 +345,7 @@ def table_rows(*args, ** kwargs):
                             "id": table_row_id,
                             "type": "tr",
                             "class": get_player_table_row_css_class(player_dict),
-                            "selector": "body > main > div > div#player_table_widget > main > table > tbody"
+                            "selector": "body > main > div > div#manage_players_widget > main > table > tbody"
                         }
                     )
     elif method == "remove":
@@ -398,10 +398,10 @@ def update_widget(*args, **kwargs):
                         method="update",
                         target_element={
                             "id": table_row_id,
-                            "parent_id": "player_table_widget",
+                            "parent_id": "manage_players_widget",
                             "module": "players",
                             "type": "tr",
-                            "selector": "body > main > div > div#player_table_widget",
+                            "selector": "body > main > div > div#manage_players_widget",
                             "class": get_player_table_row_css_class(player_dict),
                         }
                     )
@@ -414,10 +414,10 @@ def update_widget(*args, **kwargs):
                         method="update",
                         target_element={
                             "id": table_row_id,
-                            "parent_id": "player_table_widget",
+                            "parent_id": "manage_players_widget",
                             "module": "players",
                             "type": "tr",
-                            "selector": "body > main > div > div#player_table_widget",
+                            "selector": "body > main > div > div#manage_players_widget",
                             "class": get_player_table_row_css_class(player_dict),
                         }
                     )
@@ -467,8 +467,8 @@ def update_actions_status(*args, **kwargs):
     """ we want to update the action status here
     not all actions can work all the time, some depend on a player being online for example"""
     module = args[0]
-    control_info_link = module.templates.get_template('player_table_widget/control_info_link.html')
-    control_kick_link = module.templates.get_template('player_table_widget/control_kick_link.html')
+    control_info_link = module.templates.get_template('manage_players_widget/control_info_link.html')
+    control_kick_link = module.templates.get_template('manage_players_widget/control_kick_link.html')
 
     player_dict = kwargs.get("updated_values_dict", None)
 

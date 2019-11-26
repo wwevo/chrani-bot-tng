@@ -247,7 +247,7 @@ main > div > .widget caption {
 #player_table_widget caption span.is_online.is_initialized.in_limbo {
     background-color: var(--lcars-red);
 }
-/* player_table_widget */
+/* manage_players_widget */
 /* offline */
 #player_table_widget tbody span:not([class]),
 #player_table_widget tbody tr:not([class]) {

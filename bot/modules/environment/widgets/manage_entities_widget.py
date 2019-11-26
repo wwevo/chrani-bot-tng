@@ -32,13 +32,13 @@ def frontend_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_frontend = module.templates.get_template('entity_table_widget/view_frontend.html')
-    template_table_rows = module.templates.get_template('entity_table_widget/table_row.html')
-    template_table_header = module.templates.get_template('entity_table_widget/table_header.html')
-    template_table_footer = module.templates.get_template('entity_table_widget/table_footer.html')
+    template_frontend = module.templates.get_template('manage_entities_widget/view_frontend.html')
+    template_table_rows = module.templates.get_template('manage_entities_widget/table_row.html')
+    template_table_header = module.templates.get_template('manage_entities_widget/table_header.html')
+    template_table_footer = module.templates.get_template('manage_entities_widget/table_footer.html')
 
-    template_options_toggle = module.templates.get_template('entity_table_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('entity_table_widget/control_switch_options_view.html')
+    template_options_toggle = module.templates.get_template('manage_entities_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_entities_widget/control_switch_options_view.html')
 
     current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
 
@@ -129,7 +129,7 @@ def frontend_view(*args, **kwargs):
         clients=[dispatchers_steamid],
         method="update",
         target_element={
-            "id": "entity_table_widget",
+            "id": "manage_entities_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -140,9 +140,9 @@ def options_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_frontend = module.templates.get_template('entity_table_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('entity_table_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('entity_table_widget/control_switch_options_view.html')
+    template_frontend = module.templates.get_template('manage_entities_widget/view_options.html')
+    template_options_toggle = module.templates.get_template('manage_entities_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('manage_entities_widget/control_switch_options_view.html')
 
     current_view = (
         module.dom.data
@@ -177,7 +177,7 @@ def options_view(*args, **kwargs):
         clients=[dispatchers_steamid],
         method="update",
         target_element={
-            "id": "entity_table_widget",
+            "id": "manage_entities_widget",
             "type": "table",
             "selector": "body > main > div"
         }
@@ -200,7 +200,7 @@ def table_rows(*args, ** kwargs):
                 .get("current_view", "frontend")
             )
             if current_view == "frontend":
-                template_table_rows = module.templates.get_template('entity_table_widget/table_row.html')
+                template_table_rows = module.templates.get_template('manage_entities_widget/table_row.html')
 
                 for entity_id, entity_dict in updated_values_dict.items():
                     try:
@@ -209,7 +209,7 @@ def table_rows(*args, ** kwargs):
                             str(entity_id)
                         )
                     except KeyError:
-                        table_row_id = "entity_table_widget"
+                        table_row_id = "manage_entities_widget"
 
                     selected_entity_entries = (
                         module.dom.data
@@ -251,7 +251,7 @@ def table_rows(*args, ** kwargs):
                             "id": table_row_id,
                             "type": "tr",
                             "class": get_entity_table_row_css_class(entity_dict),
-                            "selector": "body > main > div > div#entity_table_widget > main > table > tbody"
+                            "selector": "body > main > div > div#manage_entities_widget > main > table > tbody"
                         }
                     )
     elif method == "remove":
@@ -304,10 +304,10 @@ def update_widget(*args, **kwargs):
                         method="update",
                         target_element={
                             "id": table_row_id,
-                            "parent_id": "entity_table_widget",
+                            "parent_id": "manage_entities_widget",
                             "module": "environment",
                             "type": "tr",
-                            "selector": "body > main > div > div#entity_table_widget",
+                            "selector": "body > main > div > div#manage_entities_widget",
                             "class": get_entity_table_row_css_class(entity_dict),
                         }
                     )
