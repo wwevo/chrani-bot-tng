@@ -252,6 +252,7 @@ body > main > div > .widget {
     scroll-snap-align: start;
     padding: calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) 0;
 }
+
 body > main > div > .widget > main {
     position: relative;
     width: calc(100% - var(--main_shoulder_width) - (var(--main_table_gutter) * 2));
@@ -264,7 +265,7 @@ body > main > div > .widget > main .dialog {
     background-color: var(--lcars-yellow);
     opacity: 0.95;
     z-index: 1000;
-    display: block;
+    display: none;
     border-top-right-radius: 1.25em;
     border-bottom-right-radius: 1.25em;
     overflow: hidden;
