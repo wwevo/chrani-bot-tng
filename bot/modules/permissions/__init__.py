@@ -42,7 +42,11 @@ class Permissions(Module):
 
     def trigger_action_with_permission(self, module, event_data, dispatchers_id=None):
         """ Manually for now, this will be handled by a permissions widget. """
+        # even_data may contain a "has_permission" data-field.
+        # this will be overwritten with the actual permissions, if a rule exists
+        # all permissions default to Allowed if no rules are set here
         permission_denied = False
+
         if any([
             event_data[0] == "toggle_telnet_widget_view",
             event_data[0] == "toggle_locations_widget_view",
@@ -59,7 +63,7 @@ class Permissions(Module):
                 if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
                     permission_denied = False
             if event_data[1]["action"] == "show_create_new":
-                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 4:
                     permission_denied = True
 
         if module.get_module_identifier() == "module_dom_management":
@@ -120,13 +124,15 @@ class Permissions(Module):
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
-        if not permission_denied:
-            return module.trigger_action(module, event_data, dispatchers_id)
-        else:
-            print("permission denied for {} ({})".format(event_data[0], dispatchers_id))
-            return False
 
-    def template_render_hook_with_permission(self, module, template, **kwargs):
+        if permission_denied:
+            print("permission denied for {} ({})".format(event_data[0], dispatchers_id))
+
+        event_data[1]["has_permission"] = not permission_denied
+        return module.trigger_action(module, event_data, dispatchers_id)
+
+    @staticmethod
+    def template_render_hook_with_permission(module, template, **kwargs):
         # print(module.get_module_identifier(), template.name)
         return module.template_render(module, template, **kwargs)
 

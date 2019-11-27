@@ -57,14 +57,30 @@ class Action(object):
                 "requires_telnet_connection", False
             )
             action_is_enabled = self.available_actions_dict[action_identifier]["enabled"]
+            user_has_permission = event_data[1].get("has_permission", None)
+
             if action_is_enabled:
                 event_data[1]["module"] = module.getName()
                 event_data[1]["uuid4"] = self.id_generator(22)
                 if server_is_online is True or action_requires_server_to_be_online is not True:
-                    Thread(
-                        target=self.available_actions_dict[action_identifier]["main_function"],
-                        args=(self, event_data, dispatchers_steamid)
-                    ).start()
+                    if any([
+                        user_has_permission is None,
+                        user_has_permission is True
+                    ]):
+                        Thread(
+                            target=self.available_actions_dict[action_identifier]["main_function"],
+                            args=(self, event_data, dispatchers_steamid)
+                        ).start()
+                    else:
+                        Thread(
+                            target=module.callback_fail(
+                                self.available_actions_dict[action_identifier]["callback_fail"],
+                                module,
+                                event_data,
+                                dispatchers_steamid
+                            ),
+                            args=(self, event_data, dispatchers_steamid)
+                        ).start()
                 else:
                     try:
                         skip_it_callback = self.available_actions_dict[action_identifier]["skip_it"]

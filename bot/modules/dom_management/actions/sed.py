@@ -13,8 +13,6 @@ def main_function(module, event_data, dispatchers_steamid):
     dom_element_owner = event_data[1].get("dom_element_owner", None)
     dom_element_identifier = event_data[1].get("dom_element_identifier", None)
 
-    print(target_module, "shall", action, "for", dispatchers_steamid)
-
     if action is not None:
         if action == "select_dom_element" or action == "deselect_dom_element":
             general_root = [target_module, "elements", dom_element_origin, dom_element_owner]
