@@ -516,7 +516,7 @@ def update_enabled_flag(*args, **kwargs):
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", None)
 
-    control_enable_link = module.dom_management.templates.get_template('control_enabled_link.html')
+    control_enable_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
     location_origin = original_values_dict.get("dataset", None)
     location_owner = original_values_dict.get("owner", None)
