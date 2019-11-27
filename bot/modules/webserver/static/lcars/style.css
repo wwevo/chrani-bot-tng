@@ -271,28 +271,18 @@ body > main > div > .widget > main .dialog .modal-content {
 body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
+    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
     padding-right: 0.5em;
 }
 
 body > main > div > .widget > main > table.data_table > tbody {
-    background: linear-gradient(
-        to right,
-        var(--background) 0%,
-        var(--background) var(--main_table_gutter),
-        var(--lcars-yellow) var(--main_table_gutter),
-        var(--lcars-yellow) calc(var(--main_bar_terminator_width) + (var(--main_table_gutter) /2)),
-        var(--background) calc(var(--main_bar_terminator_width) + (var(--main_table_gutter) / 2)),
-        var(--background) 100%
-    );
 }
 
-.widget > main > table.data_table > thead > tr {
+.widget > main > table > thead > tr {
     display: none;
 }
 
 .widget > main > table.data_table > tbody > tr {
-    background: var(--background);
 }
 
 
@@ -572,10 +562,6 @@ footer > div > p {
     line-height: 1.5em;
     white-space: nowrap;
     padding: 0 calc(var(--main_table_gutter) / 2);
-}
-
-.widget > main > table > tbody > tr > td:first-child {
-    padding-left: var(--main_table_gutter);
 }
 
 .widget > main > table > tbody > tr > td:last-child {
