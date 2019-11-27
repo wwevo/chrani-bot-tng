@@ -137,6 +137,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     let flash = function(elements, color=false) {
+        return;
+
         let opacity = 40;
         if (color === false) {
             color = lcars_colors["lcars-yellow"]; // has to be in this format since we use rgba
