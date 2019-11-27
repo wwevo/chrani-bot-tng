@@ -9,7 +9,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def kill_entity(module, event_data, dispatchers_steamid=None):
-    timeout = 5  # [seconds]
+    timeout = 8  # [seconds]
     timeout_start = time()
 
     entity_to_be_killed = event_data[1].get("entity_id", None)
@@ -42,6 +42,7 @@ def main_function(module, event_data, dispatchers_steamid):
     if action is not None:
         if action == "kill":
             match = kill_entity(module, event_data, dispatchers_steamid)
+            print(entity_name, action, match)
             if match is not False:
                 if entity_name == "zombieScreamer":
                     module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)

@@ -236,6 +236,7 @@ class Telnet(Module):
                         self.telnet_buffer = ""
                         self.telnet_response = ""
                         self.last_connection_loss = time()
+
                         print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
                         print("Telnet: check if the server is running, it's connectivity and options!")
                 except Exception as main_error:
@@ -246,6 +247,7 @@ class Telnet(Module):
                 max_telnet_buffer = self.options.get(
                     "max_telnet_buffer", self.default_options.get("max_telnet_buffer", 12288)
                 )
+                # cutting buffer down to max-size
                 self.telnet_buffer = self.telnet_buffer[-max_telnet_buffer:]
 
                 # module_dom needs to be in the required modules list!!

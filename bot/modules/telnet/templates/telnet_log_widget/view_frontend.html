@@ -4,17 +4,21 @@
     </div>
 </header>
 <aside>
-    <div id="telnet_log_widget_status" class="pull_out right">
-        <div><span><div>Options</div></span></div>
-    </div>
+{{ options_toggle }}
 </aside>
 <main>
     <table>
+        <caption>
+            <span>accept</span>
+        </caption>
         <thead>
             {{ table_header }}
         </thead>
         <tbody>
             <tr>{{ log_lines }}</tr>
         </tbody>
+        <tfoot>
+            {{ table_footer }}
+        </tfoot>
     </table>
 </main>

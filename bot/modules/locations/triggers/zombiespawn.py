@@ -34,7 +34,7 @@ def main_function(origin_module, module, regex_result):
                 'action': 'kill'
             }]
             module.trigger_action_hook(origin_module.environment, event_data)  # no steamid cause it's a s system_call
-
+            print(origin_module, event_data)
             event_data = ['say_to_all', {
                 'message': (
                     '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '

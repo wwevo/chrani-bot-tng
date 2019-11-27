@@ -396,7 +396,7 @@ def update_widget(*args, **kwargs):
                         module,
                         payload=player_dict,
                         data_type="table_row_content",
-                        clients="all",
+                        clients=[clientid],
                         method="update",
                         target_element={
                             "id": table_row_id,
