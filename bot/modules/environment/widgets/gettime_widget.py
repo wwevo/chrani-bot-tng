@@ -8,10 +8,10 @@ widget_name = path.basename(path.abspath(__file__))[:-3]
 def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
-    gametime = module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {
+    gametime = module.dom.data.get("module_environment", {}).get(active_dataset, {}).get("last_recorded_gametime", {
         "day": "00",
         "hour": "00",
         "minute": "00",

@@ -8,14 +8,10 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    current_game_name = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("current_game_name", None)
-    )
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     # we can't save the gamestats without knowing the game-name, as each game can have different stats.
-    if current_game_name is None:
+    if active_dataset is None:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
     timeout = 3  # [seconds]
@@ -55,15 +51,15 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     for m in re.finditer(regex, raw_gamestats, re.MULTILINE):
         gamestats_dict[m.group("gamestat_name")] = m.group("gamestat_value").rstrip()
 
-    current_game_name = (
+    active_dataset = (
         module.dom.data
         .get(module.get_module_identifier())
-        .get("current_game_name", None)
+        .get("active_dataset", None)
     )
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            current_game_name: {
+            active_dataset: {
                 "gamestats": gamestats_dict
             }
         }

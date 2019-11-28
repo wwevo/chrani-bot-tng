@@ -9,12 +9,12 @@ def main_function(origin_module, module, regex_result):
     player_name = regex_result.group("player_name")
     command = regex_result.group("command")
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
     all_players_dict = (
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
-        .get(current_map_identifier)
+        .get(active_dataset)
     )
 
     steamid = None

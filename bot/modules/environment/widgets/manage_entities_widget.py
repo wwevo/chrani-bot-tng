@@ -40,14 +40,14 @@ def frontend_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('manage_entities_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('manage_entities_widget/control_switch_options_view.html')
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     all_available_entity_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
     table_rows = ""
     all_selected_elements_count = 0
     for map_identifier, entity_dicts in all_available_entity_dicts.items():
-        if current_map_identifier == map_identifier:
+        if active_dataset == map_identifier:
             for entity_id, entity_dict in entity_dicts.items():
                 if entity_id == 'last_updated_servertime':
                     continue
@@ -188,7 +188,7 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     method = kwargs.get("method", None)
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():
@@ -215,7 +215,7 @@ def table_rows(*args, ** kwargs):
                         module.dom.data
                         .get("module_environment", {})
                         .get("elements", {})
-                        .get(current_map_identifier, {})
+                        .get(active_dataset, {})
                         .get(entity_id, {})
                         .get("selected_by", [])
                     )

@@ -16,13 +16,13 @@ def main_function(*args, **kwargs):
             original_values_dict.get("pos", {}).get("y") != updated_values_dict.get("pos", {}).get("y"),
             original_values_dict.get("pos", {}).get("z") != updated_values_dict.get("pos", {}).get("z")
         ]):
-            current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+            active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
             lobby_dict = (
                 module.dom.data
                 .get("module_locations", {})
                 .get("elements", {})
-                .get(current_map_identifier, {})
+                .get(active_dataset, {})
                 .get("76561198040658370", {})
                 .get("Lobby", {})
             )

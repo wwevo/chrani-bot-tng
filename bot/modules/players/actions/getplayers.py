@@ -52,15 +52,21 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     )
     players_to_update_dict = {}
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-    if current_map_identifier is None:
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
         return
 
     for m in re.finditer(regex, raw_playerdata):
+        last_recorded_gametime = (
+             module.dom.data
+             .get("module_environment", {})
+             .get(active_dataset, {})
+             .get("last_recorded_gametime", {})
+        )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("day", {}),
-            hour=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("hour", {}),
-            minute=module.dom.data.get("module_environment", {}).get(current_map_identifier, {}).get("last_recorded_gametime", {}).get("minute", {})
+            day=last_recorded_gametime.get("day", {}),
+            hour=last_recorded_gametime.get("hour", {}),
+            minute=last_recorded_gametime.get("minute", {})
         )
         in_limbo = True if int(m.group("health")) == 0 else False
         player_dict = {
@@ -91,7 +97,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             "is_initialized": True,
             "last_updated_servertime": telnet_datetime,
             "last_seen_gametime": last_seen_gametime_string,
-            "dataset": current_map_identifier,
+            "dataset": active_dataset,
             "owner": m.group("steamid")
 
         }
@@ -100,7 +106,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     all_players_dict = (
         module.dom.data.get(module.get_module_identifier(), {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
     )
     online_players_list = list(players_to_update_dict.keys())
     for steamid, existing_player_dict in all_players_dict.items():
@@ -122,7 +128,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         module.dom.data.upsert({
             module.get_module_identifier(): {
                 "elements": {
-                    current_map_identifier: players_to_update_dict
+                    active_dataset: players_to_update_dict
                 }
             }
         })
@@ -136,15 +142,15 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-    if current_map_identifier is None:
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
         return
 
     all_existing_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
     )
 
     all_modified_players_dict = {}
@@ -160,7 +166,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "elements": {
-                current_map_identifier: all_modified_players_dict
+                active_dataset: all_modified_players_dict
             }
         }
     })
@@ -173,15 +179,15 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-    if current_map_identifier is None:
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
         return
 
     all_existing_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
     )
 
     all_modified_players_dict = {}
@@ -195,7 +201,7 @@ def skip_it(module, event_data, dispatchers_steamid=None):
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "elements": {
-                current_map_identifier: all_modified_players_dict
+                active_dataset: all_modified_players_dict
             }
         }
     })

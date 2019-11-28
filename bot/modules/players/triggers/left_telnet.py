@@ -10,7 +10,7 @@ def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
     executed_trigger = False
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
@@ -19,7 +19,7 @@ def main_function(origin_module, module, regex_result):
             module.dom.data
             .get("module_players", {})
             .get("elements", {})
-            .get(current_map_identifier, {})
+            .get(active_dataset, {})
             .get(player_steamid, {})
         )
         player_dict = {}
@@ -33,7 +33,7 @@ def main_function(origin_module, module, regex_result):
         servertime_player_left = (
             module.dom.data
             .get("module_environment", {})
-            .get(current_map_identifier, {})
+            .get(active_dataset, {})
             .get("last_recorded_gametime", {})
         )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
@@ -56,7 +56,7 @@ def main_function(origin_module, module, regex_result):
         module.dom.data.upsert({
             "module_players": {
                 "elements": {
-                    current_map_identifier: {
+                    active_dataset: {
                         player_steamid: player_dict
                     }
                 }

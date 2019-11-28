@@ -52,15 +52,15 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         )
         entities_to_update_dict = {}
 
-        current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
-        if current_map_identifier is None:
+        active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+        if active_dataset is None:
             return
 
         for m in re.finditer(regex, raw_entity_data):
             last_recorded_gametime = (
                  module.dom.data
                  .get("module_environment", {})
-                 .get(current_map_identifier, {})
+                 .get(active_dataset, {})
                  .get("last_recorded_gametime", {})
             )
             last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
@@ -88,7 +88,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "remote": bool(m.group("remote")),
                 "dead": bool(m.group("dead")),
                 "health": int(m.group("health")),
-                "dataset": current_map_identifier,
+                "dataset": active_dataset,
                 "last_seen_gametime": last_seen_gametime_string
             }
             entities_to_update_dict[m.group("id")] = entity_dict
@@ -97,7 +97,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             module.dom.data.upsert({
                 module.get_module_identifier(): {
                     "elements": {
-                        current_map_identifier: entities_to_update_dict
+                        active_dataset: entities_to_update_dict
                     }
                 }
             })

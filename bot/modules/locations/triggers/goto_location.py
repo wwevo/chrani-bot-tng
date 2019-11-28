@@ -18,12 +18,12 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     location_dict = (
         module.dom.data.get("module_locations", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(steamid, {})
         .get(location_identifier, {})
     )
@@ -31,7 +31,7 @@ def main_function(origin_module, module, regex_result):
     player_dict = (
         module.dom.data.get("module_players", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(steamid, {})
     )
 

@@ -100,15 +100,15 @@ def frontend_view(*args, **kwargs):
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
     for map_identifier, location_owner in all_available_locations.items():
-        if current_map_identifier == map_identifier:
+        if active_dataset == map_identifier:
             for player_steamid, player_locations in location_owner.items():
                 player_dict = (
                     module.dom.data
                     .get("module_players", {})
                     .get("elements", {})
-                    .get(current_map_identifier, {})
+                    .get(active_dataset, {})
                     .get(player_steamid, {})
                 )
                 for identifier, location_dict in player_locations.items():
@@ -346,7 +346,7 @@ def table_row(*args, **kwargs):
 
     if updated_values_dict is not None:
         if method == "upsert" or method == "edit":
-            current_map_identifier = (
+            active_dataset = (
                 module.dom.data
                 .get("module_environment", {})
                 .get("gameprefs", {})
@@ -369,7 +369,7 @@ def table_row(*args, **kwargs):
                             module.dom.data
                             .get("module_players", {})
                             .get("elements", {})
-                            .get(current_map_identifier, {})
+                            .get(active_dataset, {})
                             .get(player_steamid, {})
                         )
                         for identifier, location_dict in locations.items():

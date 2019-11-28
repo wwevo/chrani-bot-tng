@@ -7,7 +7,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     location_identifier = "MyHome"
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     player_steamid = regex_result.group("player_steamid")
 
@@ -15,14 +15,14 @@ def main_function(origin_module, module, regex_result):
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(player_steamid, {})
     )
 
     location_dict = (
         module.dom.data.get("module_locations", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(player_steamid, {})
         .get(location_identifier, {})
     )

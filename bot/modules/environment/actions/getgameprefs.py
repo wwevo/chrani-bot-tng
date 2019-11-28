@@ -75,7 +75,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
         module.dom.data.upsert({
             module.get_module_identifier(): {
-                "current_game_name": current_game_name
+                "active_dataset": current_game_name
             }
         })
 

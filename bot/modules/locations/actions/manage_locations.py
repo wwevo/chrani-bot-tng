@@ -7,7 +7,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     location_identifier = event_data[1].get("location_identifier", None)
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     if action == "create_new" or action == "edit":
         location_owner = dispatchers_steamid if action == "create_new" else event_data[1].get("location_owner", dispatchers_steamid)
@@ -26,17 +26,17 @@ def main_function(module, event_data, dispatchers_steamid):
             location_name is not None and len(location_name) >= 3,
             location_identifier is not None,
             location_shape is not None,
-            current_map_identifier is not None,
+            active_dataset is not None,
         ]):
             module.dom.data.upsert({
                 module.get_module_identifier(): {
                     "elements": {
-                        current_map_identifier: {
+                        active_dataset: {
                             str(location_owner): {
                                 location_identifier: {
                                     "name": location_name,
                                     "identifier": location_identifier,
-                                    "dataset": current_map_identifier,
+                                    "dataset": active_dataset,
                                     "shape": location_shape,
                                     "coordinates": location_coordinates,
                                     "dimensions": location_dimensions,

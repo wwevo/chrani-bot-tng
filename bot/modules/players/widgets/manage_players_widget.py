@@ -56,14 +56,14 @@ def frontend_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
     table_rows = ""
     all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
-        if current_map_identifier == map_identifier:
+        if active_dataset == map_identifier:
             # have the online players displayed first initially!
             ordered_player_dicts = OrderedDict(sorted(player_dicts.items(), key=lambda x: x[1]['is_initialized'], reverse=True))
             for player_steamid, player_dict in ordered_player_dicts.items():
@@ -247,12 +247,12 @@ def show_info_view(*args, **kwargs):
         )
     )
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
     player_dict = (
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(current_view_steamid, None)
     )
 
@@ -281,7 +281,7 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     method = kwargs.get("method", None)
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():

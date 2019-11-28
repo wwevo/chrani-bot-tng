@@ -8,13 +8,13 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
     player_steamid = regex_result.group("player_steamid")
     existing_player_dict = (
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
-        .get(current_map_identifier, {})
+        .get(active_dataset, {})
         .get(player_steamid, None)
     )
 
@@ -30,7 +30,7 @@ def main_function(origin_module, module, regex_result):
                     "y": 0,
                     "z": 0,
                 },
-                "dataset": current_map_identifier,
+                "dataset": active_dataset,
                 "owner": player_steamid
             }
         else:
@@ -52,7 +52,7 @@ def main_function(origin_module, module, regex_result):
         servertime_player_joined = (
             module.dom.data
             .get("module_environment", {})
-            .get(current_map_identifier, {})
+            .get(active_dataset, {})
             .get("last_recorded_gametime", {})
         )
         last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
@@ -72,14 +72,14 @@ def main_function(origin_module, module, regex_result):
 
     if all([
         executed_trigger is True,
-        current_map_identifier is not None,
+        active_dataset is not None,
         player_steamid is not None,
         len(player_dict) >= 1
     ]):
         module.dom.data.upsert({
             "module_players": {
                 "elements": {
-                    current_map_identifier: {
+                    active_dataset: {
                         player_steamid: player_dict
                     }
                 }

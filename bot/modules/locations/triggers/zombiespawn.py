@@ -16,19 +16,19 @@ def main_function(origin_module, module, regex_result):
     zombie_id = regex_result.group("entity_id")
     zombie_name = regex_result.group("zombie_name")
 
-    current_map_identifier = module.dom.data.get("module_environment", {}).get("current_game_name", None)
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
     if zombie_name == "zombieScreamer":
         village_dict = (
             module.dom.data
             .get("module_locations", {})
             .get("elements", {})
-            .get(current_map_identifier, {})
+            .get(active_dataset, {})
             .get("76561198040658370", {})
             .get("Chraniville", {})
         )
         if origin_module.locations.position_is_inside_boundary(position_dict, village_dict):
             event_data = ['manage_entities', {
-                'dataset': current_map_identifier,
+                'dataset': active_dataset,
                 'entity_id': zombie_id,
                 'entity_name': zombie_name,
                 'action': 'kill'
