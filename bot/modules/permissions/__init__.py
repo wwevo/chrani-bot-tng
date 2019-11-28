@@ -76,12 +76,16 @@ class Permissions(Module):
                     event_data[1]["action"] == "deselect_dom_element",
                     event_data[1]["action"] == "enable_location_entry",
                     event_data[1]["action"] == "disable_location_entry",
-                    event_data[1]["action"] == "delete_selected_dom_elements"
                 ]):
-                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
                         permission_denied = True
                     if str(dispatchers_id) == event_data[1]["dom_element_owner"]:
                         permission_denied = False
+                if any([
+                    event_data[1]["action"] == "delete_selected_dom_elements"
+                ]):
+                    if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) >= 2:
+                        permission_denied = True
 
         if module.get_module_identifier() == "module_players":
             if any([
