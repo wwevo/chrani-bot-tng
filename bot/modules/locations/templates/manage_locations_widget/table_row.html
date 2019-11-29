@@ -9,9 +9,9 @@
         <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_edit_link" class="toggle_button">{{ control_edit_link }}</span>
         <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_enabled_link" class="toggle_button">{{ control_enabled_link }}</span>
     </td>
-    <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
     <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_owner_name" onclick="$(this).selectText();">{{ player_dict.name }}</td>
+    <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
     <td class="right" id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_coordinates" onclick="$(this).selectText();">
         {{ ((location | default({})).coordinates | default({}) ).x }}
         {{ ((location | default({})).coordinates | default({}) ).y }}
