@@ -27,6 +27,8 @@ from the authentication process of course ^^
 * Widget system to easily extend the webinterface
 * Multiple Servers can be managed with one bot (simplified for now)
 * Epic **LCARS**-Style Interface :)
+* Entities are being tracked (Players, Vehicles, Animals, Zombies)
+  * Screamer protection can be activated for locations, all screamer will get killed after spawning 
 
 * The following widgets are (partly) implemented
   * Telnet-log widget
@@ -34,6 +36,7 @@ from the authentication process of course ^^
   * Location widget (create, edit, delete, records time and place of death)
   * (Timed) Remote shutdown procedure
   * Simple gametime display
+  * Entity widget
   * permissions widget to gate commands
     * a location can be designated as a Lobby to keep people in
     * a password can be used to authenticate a player, for example, to give them the ability to leave the Lobby 
@@ -42,9 +45,6 @@ from the authentication process of course ^^
 ### Future
 Functions will gradually be added. One at a time
 
-Next up is the batch-processing of selected elements. So kicking, banning and other stuff can be done swiftly
-This of course requires the implementation of kicking and banning ^^
-
-The ability to execute telnet commands from within the webinterface is also on the list of things to do this week :)
-
-With those in place we can start on the authentication again and get the place safe(r) 
+Next on the list is kicking and banning, which will require a framework for modal boxes. Which will then
+also be used for deletion and other actions. Stuff like confirmation, or list of affected elements while
+doing batch-processing and all that 
