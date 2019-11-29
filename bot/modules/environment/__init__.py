@@ -47,6 +47,27 @@ class Environment(Module):
         )
     # endregion
 
+    def get_last_recorded_gametime(self):
+        active_dataset = self.dom.data.get("module_environment", {}).get("active_dataset", None)
+        if active_dataset is None:
+            return "Day {day}, {hour}:{minute}".format(
+                day="n/a",
+                hour="n/a",
+                minute="n/a"
+            )
+
+        last_recorded_gametime = (
+             self.dom.data
+             .get("module_environment", {})
+             .get(active_dataset, {})
+             .get("last_recorded_gametime", {})
+        )
+        return "Day {day}, {hour}:{minute}".format(
+            day=last_recorded_gametime.get("day", "n/a"),
+            hour=last_recorded_gametime.get("hour", "n/a"),
+            minute=last_recorded_gametime.get("minute", "n/a")
+        )
+
     def run(self):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()

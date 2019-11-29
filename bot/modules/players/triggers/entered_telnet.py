@@ -31,7 +31,8 @@ def main_function(origin_module, module, regex_result):
                     "z": 0,
                 },
                 "dataset": active_dataset,
-                "owner": player_steamid
+                "owner": player_steamid,
+                "last_seen_gametime": module.environment.get_last_recorded_gametime()
             }
         else:
             player_dict.update(existing_player_dict)
