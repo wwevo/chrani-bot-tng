@@ -9,13 +9,15 @@ from .user import User
 import re
 from time import time
 from socket import socket, AF_INET, SOCK_DGRAM
-from flask import Flask, request, redirect, Markup
+from flask import Flask, request, redirect, Markup, session
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
 from flask_socketio import SocketIO, emit
 from requests import post
 from urllib.parse import urlencode
 from collections.abc import KeysView
 from threading import Thread
+import string
+import random
 
 
 class Webserver(Module):
@@ -70,6 +72,19 @@ class Webserver(Module):
                 disconnect()
             else:
                 return f(*args, **kwargs)
+
+        return wrapped
+
+    @staticmethod
+    def random_string(length):
+        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+    def validate_token(self, f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            new_token = self.random_string(20)
+
+            return f(*args, **kwargs)
 
         return wrapped
     # endregion
@@ -278,6 +293,7 @@ class Webserver(Module):
             return redirect("/")
 
         @self.app.route('/')
+        @self.validate_token
         def protected():
             header_markup = self.template_render_hook(
                 self,
@@ -289,10 +305,14 @@ class Webserver(Module):
                 self,
                 template_footer
             )
+
+            instance_token = self.random_string(20)
             template_options = {
                 'current_user': current_user,
                 'header': header_markup,
-                'footer': footer_markup
+                'footer': footer_markup,
+                'instance_token': instance_token
+
             }
             if not current_user.is_authenticated:
                 main_output = '<div id="unauthorized_disclaimer">'
@@ -343,14 +363,15 @@ class Webserver(Module):
             self.dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
 
-        Thread(
+        websocket_instance = Thread(
             target=self.websocket.run,
             args=[self.app],
             kwargs={
                 "host": self.options.get("host", self.default_options.get("host")),
                 "port": self.options.get("port", self.default_options.get("port"))
             }
-        ).start()
+        )
+        websocket_instance.start()
 
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()

@@ -57,11 +57,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
         let char;
         if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
             char = hex.substring(1).split('');
-            if(char.length === 3){
+            if (char.length === 3) {
                 char = [char[0], char[0], char[1], char[1], char[2], char[2]];
             }
             char = '0x' + char.join('');
-            return [(char >> 16) & 255, (char >> 8) & 255, char & 255].join(',');
+            return [(char >> 16) & 255, (char >> 8) & 255, char & 255].join(', ');
         } else {
             alert(hex);
             throw new Error('Bad Hex');
@@ -247,10 +247,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     }
                 } else if (data["method"] === "replace") {
                     target_element.outerHTML = data["payload"];
-                    // flash(target_element);
+                    flash(target_element);
                     // console.log("element content replaced");
                 }
-
             }
             if (data["data_type"] === "table_row") {
                 /* the whole row will be swapped out, not very economic ^^
@@ -259,9 +258,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                  * with the help of the selector, we can create it in the right place
                  */
                 play_audio_file("processing");
-                let selector = data["target_element"]["selector"];
+                let parent_element = $(data["target_element"]["selector"]);
 
-                let parent_element = $(selector);
                 let target_element = parent_element.find("#" + target_element_id);
 
                 if (target_element.length === 0) {
