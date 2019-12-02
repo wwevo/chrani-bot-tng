@@ -9,35 +9,38 @@ def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("player_steamid", None)
     dataset = event_data[1].get("dataset", None)
-    entered_password = event_data[1].get("entered_password", False)
-
-    if module.default_options.get("player_password", None) == entered_password:
-        is_authenticated = True
-    else:
-        is_authenticated = False
+    entered_password = event_data[1].get("entered_password", None)
+    default_player_password = module.default_options.get("default_player_password", None)
 
     if all([
+        action is not None and action == "set authentication",
         dataset is not None,
         player_steamid is not None,
-        action is not None
+        entered_password is not None,
+        default_player_password is not None
     ]):
-        if action == "add authentication":
-            module.dom.data.upsert({
-                "module_players": {
-                    "elements": {
-                        dataset: {
-                            player_steamid: {
-                                "is_authenticated": is_authenticated
-                            }
+        if default_player_password == entered_password:
+            is_authenticated = True
+        else:
+            is_authenticated = False
+
+        module.dom.data.upsert({
+            "module_players": {
+                "elements": {
+                    dataset: {
+                        player_steamid: {
+                            "is_authenticated": is_authenticated
                         }
                     }
                 }
-            })
+            }
+        })
 
-    if is_authenticated is True:
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-    else:
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        if is_authenticated is True:
+            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+            return
+
+    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
@@ -55,7 +58,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
     if player_steamid is not None:
         event_data = ['say_to_player', {
             'steamid': player_steamid,
-            'message': '[FF6666]Something went wrong there[-][FFFFFF], wrong password perhaps?[-]'
+            'message': '[FF6666]Could not authenticate[-][FFFFFF], wrong password perhaps?[-]'
         }]
         module.trigger_action_hook(module.players, event_data, player_steamid)
     pass

@@ -16,11 +16,11 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    event_data = ['manage_permissions', {
+    event_data = ['manage_authentication', {
         'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
         'player_steamid': steamid,
         'entered_password': entered_password,
-        'action': 'add authentication'
+        'action': 'set authentication'
     }]
     module.trigger_action_hook(origin_module, event_data, steamid)
 
