@@ -111,35 +111,42 @@
             <tr>
                 <td>is_authenticated</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_authenticated">
-                    {{ player.is_authenticated }}
+                    {{ player.is_authenticated | default("False") }}
                 </td>
                 <td>has authenticated with the bot</td>
             </tr>
             <tr>
                 <td>in_limbo</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_in_limbo">
-                    {{ player.in_limbo }}
+                    {{ player.in_limbo | default("False") }}
                 </td>
                 <td>hasn't got any health, is dead(ish)!</td>
             </tr>
             <tr>
                 <td>is_initialized</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_initialized">
-                    {{ player.is_initialized }}
+                    {{ player.is_initialized | default("False") }}
                 </td>
                 <td>player is online, has health, is ready to go!</td>
             </tr>
             <tr>
                 <td>is_online</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_online">
-                    {{ player.is_online }}
+                    {{ player.is_online | default("False") }}
                 </td>
                 <td>we can see you!</td>
             </tr>
             <tr>
                 <td>is_muted</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_is_muted">
-                    {{ player.is_muted }}
+                    {{ player.is_muted | default("False") }}
+                </td>
+                <td>come again?</td>
+            </tr>
+            <tr>
+                <td>in_transit</td>
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_in_transit">
+                    {{ player.in_transit | default("False") }}
                 </td>
                 <td>come again?</td>
             </tr>

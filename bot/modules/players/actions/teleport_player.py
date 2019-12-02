@@ -11,18 +11,59 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 5  # [seconds]
     timeout_start = time()
 
-    player_to_be_teleported = event_data[1].get("steamid", None)
     coordinates = event_data[1].get("coordinates", None)
-    reason = event_data[1].get("reason", None)
+    player_to_be_teleported = event_data[1].get("steamid", None)
+    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    player_is_in_transit = (
+        module.dom.data
+        .get("module_players", {})
+        .get("elements", {})
+        .get(dataset, {})
+        .get(player_to_be_teleported, {})
+        .get("in_transit", False)
+    )
 
-    if coordinates is not None:
-        command = "tele {} {} {} {}".format(player_to_be_teleported, coordinates["x"], coordinates["y"], coordinates["z"])
+    if all([
+        dataset is not None,
+        coordinates is not None,
+        player_is_in_transit is False
+    ]):
+        """ setting a flag that the player in question is currently being teleported """
+        module.dom.data.upsert({
+            "module_players": {
+                "elements": {
+                    dataset: {
+                        player_to_be_teleported: {
+                            "in_transit": True
+                        }
+                    }
+                }
+            }
+        })
+
+        command = (
+            "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
+        ).format(
+            player_to_be_teleported=player_to_be_teleported,
+            pos_x=coordinates["x"],
+            pos_y=coordinates["y"],
+            pos_z=coordinates["z"]
+        )
         module.telnet.add_telnet_command_to_queue(command)
+
         poll_is_finished = False
         regex = (
             r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-            r"INF Executing\scommand\s\'" + command + "\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
         )
+        regex +=(
+            r"INF\sPlayerSpawnedInWorld\s"
+            r"\(reason:\sTeleport,\sposition:\s(?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\):\s"
+            r"EntityID=3415,\sPlayerID='{player_to_be_teleported}',\sOwnerID='{player_to_be_teleported}',\s"
+            r"PlayerName='(?P<player_name>.*)'"
+        ).format(
+            player_to_be_teleported=player_to_be_teleported
+        )
+
         while not poll_is_finished and (time() < timeout_start + timeout):
             sleep(0.25)
             match = False
@@ -37,11 +78,25 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    pass
+    player_to_be_teleported = event_data[1].get("steamid", None)
+    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+
+    """ the porting was successful, we can now remove the in_transit flag """
+    module.dom.data.upsert({
+        "module_players": {
+            "elements": {
+                dataset: {
+                    player_to_be_teleported: {
+                        "in_transit": False
+                    }
+                }
+            }
+        }
+    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    pass
+    print("teleport failed!")
 
 
 action_meta = {

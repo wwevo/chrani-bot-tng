@@ -110,9 +110,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     )
     online_players_list = list(players_to_update_dict.keys())
     for steamid, existing_player_dict in all_players_dict.items():
-        if steamid == 'last_updated_servertime':
-            print('last_updated_servertime')
-            continue
         if existing_player_dict["is_initialized"] is False:
             continue
 
@@ -122,6 +119,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
             player_dict["is_online"] = False
             player_dict["is_initialized"] = False
+            player_dict["in_transit"] = False
+
             players_to_update_dict.update({steamid: player_dict})
 
     if len(players_to_update_dict) >= 1:
@@ -155,12 +154,12 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
     all_modified_players_dict = {}
     for steamid, existing_player_dict in all_existing_players_dict.items():
-        if steamid == 'last_updated_servertime':
-            continue
         player_dict = {}
         player_dict.update(existing_player_dict)
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
+        player_dict["in_transit"] = False
+
         all_modified_players_dict.update({steamid: player_dict})
 
     module.dom.data.upsert({
