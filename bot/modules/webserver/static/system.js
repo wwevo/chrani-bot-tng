@@ -315,13 +315,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 let json = data["status"];
                 if (json["status"]) {
                     let status = json["status"];
+                    let action = data["payload"][0];
                     if (status === "success") {
                         play_audio_file("computerbeep_11");
                     } else if (status === "fail") {
                         play_audio_file("computer_error");
                         flash(document.body, lcars_colors["lcars-red"])
                     }
-                    console.log("received status from server\n\"" + status + ":" + json["uuid4"] + "\"");
+                    console.log(
+                        "received status\n\"" + status + ":" + json["uuid4"] + "\"\n" +
+                        "for action\n\"" + action + "\""
+                    );
                 }
             }
         }
