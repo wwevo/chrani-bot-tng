@@ -95,6 +95,13 @@
                 <td></td>
             </tr>
             <tr>
+                <td>First seen (gametime)</td>
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_first_seen_gametime">
+                    {{ player.first_seen_gametime }}
+                </td>
+                <td></td>
+            </tr>
+            <tr>
                 <td>Last seen (gametime)</td>
                 <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_last_seen_gametime">
                     {{ player.last_seen_gametime }}
@@ -145,10 +152,10 @@
             </tr>
             <tr>
                 <td>skip_processing</td>
-                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_in_transit">
+                <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_skip_processing">
                     {{ player.skip_processing | default("False") }}
                 </td>
-                <td>come again?</td>
+                <td>yeah, not listening to you!</td>
             </tr>
         </tbody>
     </table>

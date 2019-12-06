@@ -11,20 +11,22 @@ def main_function(origin_module, module, regex_result):
     active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     update_player_pos = False
+
+    last_recorded_gametime = (
+        module.dom.data
+        .get("module_environment", {})
+        .get(active_dataset, {})
+        .get("last_recorded_gametime", {})
+    )
+    last_recorded_gametime_string = "Day {day}, {hour}:{minute}".format(
+        day=last_recorded_gametime.get("day", "00"),
+        hour=last_recorded_gametime.get("hour", "00"),
+        minute=last_recorded_gametime.get("minute", "00")
+    )
+
     if command == "joined the game":
         player_name = regex_result.group("player_name")
-        servertime_player_joined = (
-            module.dom.data
-            .get("module_environment", {})
-            .get(active_dataset, {})
-            .get("last_recorded_gametime", {})
-        )
-        last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=servertime_player_joined.get("day", "00"),
-            hour=servertime_player_joined.get("hour", "00"),
-            minute=servertime_player_joined.get("minute", "00")
-        )
-        payload = '{} joined the a18 test-server at {}'.format(player_name, last_seen_gametime_string)
+        payload = '{} joined the a18 test-server at {}'.format(player_name, last_recorded_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
         webhook = DiscordWebhook(
@@ -33,32 +35,48 @@ def main_function(origin_module, module, regex_result):
         )
         webhook.execute()
 
-    elif command == "JoinMultiplayer":
+    elif any([
+        command == "EnterMultiplayer",
+        command == "JoinMultiplayer"
+    ]):
         steamid = regex_result.group("player_steamid")
         player_name = regex_result.group("player_name")
-        player_dict = (
+        existing_player_dict = (
             module.dom.data.get("module_players", {})
             .get("elements", {})
             .get(active_dataset, {})
             .get(steamid, {})
         )
 
-        if player_dict.get("is_authenticated", False) is True:
-            message = "[66FF66]Welcome back[-] [FFFFFF]{}[-]".format(player_name)
-        else:
-            message = (
-                "[66FF66]Welcome to the server[-] [FFFFFF]{player_name}[-], "
-                "[FF6666]please authenticate[-] [FFFFFF]and make yourself at home[-]"
-            ).format(
-                player_name=player_name
-            )
-        event_data = ['say_to_player', {
-            'steamid': steamid,
-            'message': message
-        }]
-        module.trigger_action_hook(origin_module.players, event_data, steamid)
-        update_player_pos = True
+        player_dict = {}
+        player_dict.update(existing_player_dict)
 
+        if command == "EnterMultiplayer":
+            player_dict["first_seen_gametime"] = last_recorded_gametime_string
+            module.dom.data.upsert({
+                "module_players": {
+                    "elements": {
+                        active_dataset: {
+                            steamid: player_dict
+                        }
+                    }
+                }
+            })
+        elif command == "JoinMultiplayer":
+            if player_dict.get("is_authenticated", False) is True:
+                message = "[66FF66]Welcome back[-] [FFFFFF]{}[-]".format(player_name)
+            else:
+                message = (
+                    "[66FF66]Welcome to the server[-] [FFFFFF]{player_name}[-], "
+                    "[FF6666]please authenticate[-] [FFFFFF]and make yourself at home[-]"
+                ).format(
+                    player_name=player_name
+                )
+            event_data = ['say_to_player', {
+                'steamid': steamid,
+                'message': message
+            }]
+            module.trigger_action_hook(origin_module.players, event_data, steamid)
     elif command == "Teleport":
         update_player_pos = True
 
