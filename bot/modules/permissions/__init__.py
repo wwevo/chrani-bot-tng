@@ -128,12 +128,11 @@ class Permissions(Module):
                 if int(self.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_id, 2000)) > 2:
                     permission_denied = True
 
-
         if permission_denied:
             print("permission denied for {} ({})".format(event_data[0], dispatchers_id))
 
         event_data[1]["has_permission"] = not permission_denied
-        return module.trigger_action(module, event_data, dispatchers_id)
+        return module.trigger_action(module, event_data, dispatchers_steamid=dispatchers_id)
 
     @staticmethod
     def template_render_hook_with_permission(module, template, **kwargs):

@@ -18,16 +18,15 @@ def main_function(origin_module, module, regex_result):
     )
 
     if command == "connected":
-        event_data = ['manage_player_muting', {
-            'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
-            'player_steamid': player_steamid,
-            'is_muted': True,
-            'action': 'set mute status'
-        }]
-        if existing_player_dict is None or not existing_player_dict.get("is_authenticated", False):
+        # we want to mute completely new players and players that are not authenticated on login.
+        if existing_player_dict is None or existing_player_dict.get("is_authenticated", False) is False:
+            event_data = ['manage_player_muting', {
+                'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
+                'player_steamid': player_steamid,
+                'is_muted': True,
+                'action': 'set mute status'
+            }]
             module.trigger_action_hook(origin_module, event_data, player_steamid)
-        else:
-            print("seems to be fine, no muting required for ", player_steamid)
 
 
 trigger_meta = {

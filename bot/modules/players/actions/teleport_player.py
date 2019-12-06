@@ -11,30 +11,35 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 5  # [seconds]
     timeout_start = time()
 
-    coordinates = event_data[1].get("coordinates", None)
-    player_to_be_teleported = event_data[1].get("steamid", None)
+    target_coordinates = event_data[1].get("coordinates", None)
+    player_to_be_teleported_steamid = event_data[1].get("steamid", None)
     dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
-    player_is_in_transit = (
+    player_to_be_teleported_dict = (
         module.dom.data
         .get("module_players", {})
         .get("elements", {})
         .get(dataset, {})
-        .get(player_to_be_teleported, {})
-        .get("in_transit", False)
+        .get(player_to_be_teleported_steamid, {})
     )
+    player_coordinates = player_to_be_teleported_dict.get("pos", None)
 
+    # print(target_coordinates != player_coordinates)
+    # print(target_coordinates, player_coordinates)
     if all([
         dataset is not None,
-        coordinates is not None,
-        player_is_in_transit is False
+        target_coordinates is not None,
+        player_coordinates is not None
+    ]) and all([
+        # no sense in porting a player to a place they are already standing on ^^
+        target_coordinates != player_coordinates
     ]):
-        """ setting a flag that the player in question is currently being teleported """
+        # setting a flag that the player in question is currently being teleported
         module.dom.data.upsert({
             "module_players": {
                 "elements": {
                     dataset: {
-                        player_to_be_teleported: {
-                            "in_transit": True
+                        player_to_be_teleported_steamid: {
+                            "skip_processing": True
                         }
                     }
                 }
@@ -44,12 +49,13 @@ def main_function(module, event_data, dispatchers_steamid=None):
         command = (
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
-            player_to_be_teleported=player_to_be_teleported,
-            pos_x=coordinates["x"],
-            pos_y=coordinates["y"],
-            pos_z=coordinates["z"]
+            player_to_be_teleported=player_to_be_teleported_steamid,
+            pos_x=target_coordinates["x"],
+            pos_y=target_coordinates["y"],
+            pos_z=target_coordinates["z"]
         )
         module.telnet.add_telnet_command_to_queue(command)
+        print(command)
 
         poll_is_finished = False
         regex = (
@@ -61,7 +67,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
             r"EntityID=3415,\sPlayerID='{player_to_be_teleported}',\sOwnerID='{player_to_be_teleported}',\s"
             r"PlayerName='(?P<player_name>.*)'"
         ).format(
-            player_to_be_teleported=player_to_be_teleported
+            player_to_be_teleported=player_to_be_teleported_steamid
         )
 
         while not poll_is_finished and (time() < timeout_start + timeout):
@@ -80,14 +86,13 @@ def main_function(module, event_data, dispatchers_steamid=None):
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     player_to_be_teleported = event_data[1].get("steamid", None)
     dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
-
-    """ the porting was successful, we can now remove the in_transit flag """
+    # the porting was successful, we can now remove the skip_processing flag """
     module.dom.data.upsert({
         "module_players": {
             "elements": {
                 dataset: {
                     player_to_be_teleported: {
-                        "in_transit": False
+                        "skip_processing": False,
                     }
                 }
             }

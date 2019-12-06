@@ -8,7 +8,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 1.5  # [seconds]
+    timeout = 2  # [seconds]
     timeout_start = time()
 
     module.telnet.add_telnet_command_to_queue("lp")
@@ -32,6 +32,27 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
+    """ without a place to store this, why bother """
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    if all([
+        active_dataset is None
+    ]):
+        return False
+
+    """ get some basic stuff needed later """
+    last_recorded_gametime = (
+        module.dom.data
+        .get("module_environment", {})
+        .get(active_dataset, {})
+        .get("last_recorded_gametime", {})
+    )
+    last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
+        day=last_recorded_gametime.get("day", {}),
+        hour=last_recorded_gametime.get("hour", {}),
+        minute=last_recorded_gametime.get("minute", {})
+    )
+
+    """ lets extract all data the game provides!! """
     telnet_datetime = match.group("datetime")
     raw_playerdata = match.group("raw_playerdata").lstrip()
     regex = (
@@ -50,64 +71,55 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         r"ping=(?P<ping>\d+)"
         r"\r\n"
     )
-    players_to_update_dict = {}
-
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
-    if active_dataset is None:
-        return
-
-    for m in re.finditer(regex, raw_playerdata):
-        last_recorded_gametime = (
-             module.dom.data
-             .get("module_environment", {})
-             .get(active_dataset, {})
-             .get("last_recorded_gametime", {})
-        )
-        last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=last_recorded_gametime.get("day", {}),
-            hour=last_recorded_gametime.get("hour", {}),
-            minute=last_recorded_gametime.get("minute", {})
-        )
-        in_limbo = True if int(m.group("health")) == 0 else False
-        player_dict = {
-            "id": m.group("id"),
-            "name": str(m.group("name")),
-            "pos": {
-                "x": int(float(m.group("pos_x"))),
-                "y": int(float(m.group("pos_y"))),
-                "z": int(float(m.group("pos_z"))),
-            },
-            "rot": {
-                "x": int(float(m.group("rot_x"))),
-                "y": int(float(m.group("rot_y"))),
-                "z": int(float(m.group("rot_z"))),
-            },
-            "remote": bool(m.group("remote")),
-            "health": int(m.group("health")),
-            "deaths": int(m.group("deaths")),
-            "zombies": int(m.group("zombies")),
-            "players": int(m.group("players")),
-            "score": m.group("score"),
-            "level": m.group("level"),
-            "steamid": m.group("steamid"),
-            "ip": str(m.group("ip")),
-            "ping": int(float(m.group("ping"))),
-            "in_limbo": in_limbo,
-            "is_online": True,
-            "is_initialized": True,
-            "last_updated_servertime": telnet_datetime,
-            "last_seen_gametime": last_seen_gametime_string,
-            "dataset": active_dataset,
-            "owner": m.group("steamid")
-
-        }
-        players_to_update_dict[m.group("steamid")] = player_dict
 
     all_players_dict = (
         module.dom.data.get(module.get_module_identifier(), {})
         .get("elements", {})
         .get(active_dataset, {})
     )
+
+    players_to_update_dict = {}
+    for m in re.finditer(regex, raw_playerdata):
+        in_limbo = True if int(m.group("health")) == 0 else False
+        player_dict = {
+            # data the game provides
+            "id": m.group("id"),
+            "name": str(m.group("name")),
+            "remote": bool(m.group("remote")),
+            "health": int(m.group("health")),
+            "deaths": int(m.group("deaths")),
+            "zombies": int(m.group("zombies")),
+            "players": int(m.group("players")),
+            "score": int(m.group("score")),
+            "level": int(m.group("level")),
+            "steamid": m.group("steamid"),
+            "ip": str(m.group("ip")),
+            "ping": int(float(m.group("ping"))),
+            "pos": {
+                "x": int(float(m.group("pos_x"))),
+                "y": int(float(m.group("pos_y"))),
+                "z": int(float(m.group("pos_z")))
+            },
+            "rot": {
+                "x": int(float(m.group("rot_x"))),
+                "y": int(float(m.group("rot_y"))),
+                "z": int(float(m.group("rot_z")))
+            },
+            # data invented by the bot
+            "dataset": active_dataset,
+            "in_limbo": in_limbo,
+            "is_online": True,
+            "is_initialized": True,
+            "last_updated_servertime": telnet_datetime,
+            "last_seen_gametime": last_seen_gametime_string,
+            "owner": m.group("steamid")
+        }
+        players_to_update_dict[m.group("steamid")] = player_dict
+
+    """ players_to_update_dict now holds all game-data for all online players plus a few generated ones like last seen
+    and is_initialized. Otherwise it's empty """
+
+    # set all players not currently online to offline
     online_players_list = list(players_to_update_dict.keys())
     for steamid, existing_player_dict in all_players_dict.items():
         if existing_player_dict["is_initialized"] is False:
@@ -119,9 +131,11 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
             player_dict["is_online"] = False
             player_dict["is_initialized"] = False
-            player_dict["in_transit"] = False
+            player_dict["skip_processing"] = False
 
-            players_to_update_dict.update({steamid: player_dict})
+            players_to_update_dict.update({
+                steamid: player_dict
+            })
 
     if len(players_to_update_dict) >= 1:
         module.dom.data.upsert({
@@ -158,7 +172,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
         player_dict.update(existing_player_dict)
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
-        player_dict["in_transit"] = False
+        player_dict["skip_processing"] = False
 
         all_modified_players_dict.update({steamid: player_dict})
 

@@ -60,6 +60,12 @@ class Action(object):
             user_has_permission = event_data[1].get("has_permission", None)
 
             if action_is_enabled:
+                # print(
+                #     "system" if dispatchers_steamid is None else dispatchers_steamid,
+                #     "executed", event_data[0],
+                #     "options:", event_data[1]
+                # )
+
                 event_data[1]["module"] = module.getName()
                 event_data[1]["uuid4"] = self.id_generator(22)
                 if server_is_online is True or action_requires_server_to_be_online is not True:

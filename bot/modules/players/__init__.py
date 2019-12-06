@@ -11,7 +11,6 @@ class Players(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "run_observer_interval": 2,
-            "run_observer_interval_idle": 10,
             "dom_element_root": [],
             "dom_element_select_root": ["selected_by"]
         })
@@ -42,9 +41,6 @@ class Players(Module):
 
         self.run_observer_interval = self.options.get(
             "run_observer_interval", self.default_options.get("run_observer_interval", None)
-        )
-        self.run_observer_interval_idle = self.options.get(
-            "run_observer_interval_idle",self.default_options.get("run_observer_interval_idle", None)
         )
         self.dom_element_root = self.options.get(
             "dom_element_root", self.default_options.get("dom_element_root", None)

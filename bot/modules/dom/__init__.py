@@ -63,7 +63,7 @@ class Dom(Module):
                 )
             else:
                 if current_layer >= starting_layer and key == query:
-                    yield (path, key, value)
+                    yield path, key, value
 
     @staticmethod
     def pretty_print_dict(dict_to_print=dict):

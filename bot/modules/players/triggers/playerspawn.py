@@ -9,12 +9,8 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
     active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
-    # print("{module}: {available_vars}, {command}".format(
-    #     module=module.getName(),
-    #     available_vars=regex_result.re.groupindex,
-    #     command=command
-    # ))
 
+    update_player_pos = False
     if command == "joined the game":
         player_name = regex_result.group("player_name")
         servertime_player_joined = (
@@ -37,10 +33,9 @@ def main_function(origin_module, module, regex_result):
         )
         webhook.execute()
 
-    if command == "JoinMultiplayer":
+    elif command == "JoinMultiplayer":
         steamid = regex_result.group("player_steamid")
         player_name = regex_result.group("player_name")
-        active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
         player_dict = (
             module.dom.data.get("module_players", {})
             .get("elements", {})
@@ -62,6 +57,30 @@ def main_function(origin_module, module, regex_result):
             'message': message
         }]
         module.trigger_action_hook(origin_module.players, event_data, steamid)
+        update_player_pos = True
+
+    elif command == "Teleport":
+        update_player_pos = True
+
+    if update_player_pos:
+        player_to_be_updated = regex_result.group("player_steamid")
+        pos_after_teleport = {
+            "pos": {
+                "x": regex_result.group("pos_x"),
+                "y": regex_result.group("pos_y"),
+                "z": regex_result.group("pos_z"),
+            }
+        }
+        # update the players location data with the teleport ones
+        module.dom.data.upsert({
+            "module_players": {
+                "elements": {
+                    active_dataset: {
+                        player_to_be_updated: pos_after_teleport
+                    }
+                }
+            }
+        })
 
 
 trigger_meta = {
