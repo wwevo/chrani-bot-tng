@@ -144,12 +144,5 @@ class Permissions(Module):
             module.trigger_action_hook = self.trigger_action_with_permission
             module.template_render_hook = self.template_render_hook_with_permission
 
-    def run(self):
-        while not self.stopped.wait(self.next_cycle):
-            profile_start = time()
-
-            self.last_execution_time = time() - profile_start
-            self.next_cycle = self.run_observer_interval - self.last_execution_time
-
 
 loaded_modules_dict[Permissions().get_module_identifier()] = Permissions()

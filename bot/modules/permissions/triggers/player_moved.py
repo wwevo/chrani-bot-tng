@@ -9,6 +9,7 @@ def main_function(*args, **kwargs):
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
+    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     # only dive into this when not authenticated
     if original_values_dict.get("is_authenticated", False) is False and any([
@@ -16,6 +17,16 @@ def main_function(*args, **kwargs):
         original_values_dict.get("pos", {}).get("y") != updated_values_dict.get("pos", {}).get("y"),
         original_values_dict.get("pos", {}).get("z") != updated_values_dict.get("pos", {}).get("z")
     ]):
+        on_the_move_player_dict = (
+            module.dom.data
+            .get("module_players", {})
+            .get("elements", {})
+            .get(dataset, {})
+            .get(updated_values_dict.get("steamid"), {})
+        )
+        if on_the_move_player_dict.get("steamid") == "76561198040658370":
+            print(on_the_move_player_dict.get("skip_processing"))
+
         active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
         # only proceed when we actually have a lobby
         lobby_dict = (
