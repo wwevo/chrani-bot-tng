@@ -50,6 +50,51 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
 
+    /* found on https://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript/49041392#49041392
+     * slightly modified
+     */
+    let index;      // cell index
+    let toggleBool; // sorting asc, desc
+    window.sorting = function sorting(tbody, index) {
+        function compareCells(a, b) {
+            let aVal = a.cells[index].innerText.replace(/,/g, '');
+            let bVal = b.cells[index].innerText.replace(/,/g, '');
+
+            if (toggleBool) {
+                let temp = aVal;
+                aVal = bVal;
+                bVal = temp;
+            }
+
+            if (aVal.match(/^[0-9]+$/) && bVal.match(/^[0-9]+$/)) {
+                return parseFloat(aVal) - parseFloat(bVal);
+            } else {
+                if (aVal < bVal) {
+                    return -1;
+                } else if (aVal > bVal) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+        }
+
+        this.index = index;
+        toggleBool = !toggleBool;
+
+        let datas = [];
+        for (let i = 0; i < tbody.rows.length; i++) {
+            datas[i] = tbody.rows[i];
+        }
+
+        // sort by cell[index]
+        datas.sort(compareCells);
+        for (let i = 0; i < tbody.rows.length; i++) {
+            // rearrange table rows by sorted rows
+            tbody.appendChild(datas[i]);
+        }
+    };
+
     /* found on https://stackoverflow.com/a/21648508/8967590
      * slightly modified to only return the rgb value and getting rid of type-warnings
      */

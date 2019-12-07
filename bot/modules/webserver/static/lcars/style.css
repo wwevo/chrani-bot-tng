@@ -276,13 +276,29 @@ body > main > div > .widget > main > table > tbody {
 }
 
 body > main > div > .widget > main > table.data_table > tbody {
+    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2));
 }
 
 .widget > main > table > thead > tr {
     display: none;
 }
 
-.widget > main > table.data_table > tbody > tr {
+.widget > main > table.data_table > thead > tr {
+    display: inline-block;
+    width: 100%;
+    margin: calc(0 - var(--main_table_gutter));
+    text-align: right;
+}
+
+.widget > main > table.data_table > thead > tr > th {
+    display: inline-block;
+    margin: var(--main_table_gutter);
+    font-size: 1.25em;
+    height: calc(var(--main_bar_height) / 2);
+}
+
+.widget > main > table.data_table > thead > tr > th:last-child {
+    margin-right: var(--main_bar_terminator_width);
 }
 
 
