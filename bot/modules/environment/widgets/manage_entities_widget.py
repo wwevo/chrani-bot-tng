@@ -24,8 +24,41 @@ def select_view(*args, **kwargs):
 
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "modal":
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+        modal_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+
+
+def modal_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+        module,
+        count=0,
+        target_module="module_environment",
+        dom_element_id="entity_table_widget_action_delete_button",
+        dom_action="delete_selected_dom_elements",
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        confirmed="True"
+    )
+
+    data_to_emit = dom_element_delete_button
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="modal_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "manage_entities_widget_modal",
+            "type": "div",
+            "selector": "body > main > div"
+        }
+    )
 
 
 def frontend_view(*args, **kwargs):

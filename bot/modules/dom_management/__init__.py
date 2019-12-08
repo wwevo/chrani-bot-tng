@@ -67,7 +67,8 @@ class DomManagement(Module):
             dom_element_select_root=kwargs.get("dom_element_select_root"),
             dom_action=kwargs.get("dom_action"),
             delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
-            dom_element_id=kwargs.get("dom_element_id")
+            dom_element_id=kwargs.get("dom_element_id"),
+            confirmed=kwargs.get("confirmed", "False")
         )
 
     @staticmethod
@@ -156,7 +157,8 @@ class DomManagement(Module):
                 target_module=target_module.get_module_identifier(),
                 count=all_selected_elements,
                 delete_selected_entries_active=True if all_selected_elements >= 1 else False,
-                dom_element_id=dom_element_id["id"]
+                dom_element_id=dom_element_id["id"],
+                confirmed=kwargs.get("confirmed", "False")
             )
 
             module.webserver.send_data_to_client_hook(

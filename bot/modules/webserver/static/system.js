@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
      */
     let index;      // cell index
     let toggleBool; // sorting asc, desc
-    window.sorting = function sorting(tbody, index) {
+    window.sorting = function sorting(th, tbody, index) {
         function compareCells(a, b) {
             let aVal = a.cells[index].innerText.replace(/,/g, '');
             let bVal = b.cells[index].innerText.replace(/,/g, '');
@@ -235,6 +235,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if ([
             "element_content",
             "widget_content",
+            "modal_content",
             "remove_table_row",
             "table_row",
             "table_row_content"
@@ -295,6 +296,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     flash(target_element);
                     // console.log("element content replaced");
                 }
+            }
+            if (data["data_type"] === "modal_content") {
+                let target_element = document.getElementById(target_element_id);
+                if (target_element == null) {
+                    return false;
+                }
+
+                let modal_container = target_element.parentElement;
+                modal_container.classList.toggle("open");
+
+                target_element.innerHTML = data["payload"];
+                // flash(target_element);
+                // console.log("element content replaced");
             }
             if (data["data_type"] === "table_row") {
                 /* the whole row will be swapped out, not very economic ^^

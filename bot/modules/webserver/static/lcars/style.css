@@ -259,6 +259,10 @@ body > main > div > .widget > main .dialog {
     display: none;
 }
 
+body > main > div > .widget > main .dialog.open {
+    display: block;
+}
+
 body > main > div > .widget > main .dialog .modal-content {
     padding: 1em;
     background-color: var(--lcars-yellow);
