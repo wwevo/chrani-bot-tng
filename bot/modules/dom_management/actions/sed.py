@@ -86,7 +86,7 @@ def main_function(module, event_data, dispatchers_steamid):
             else:
                 # show the modal!
                 module.dom.data.upsert({
-                    "module_environment": {
+                    target_module: {
                         "visibility": {
                             dispatchers_steamid: {
                                 "current_view": "modal"

@@ -37,8 +37,41 @@ def select_view(*args, **kwargs):
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "info":
         show_info_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "modal":
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+        modal_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+
+
+def modal_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+        module,
+        count=0,
+        target_module="module_players",
+        dom_element_id="entity_table_widget_action_delete_button",
+        dom_action="delete_selected_dom_elements",
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        confirmed="True"
+    )
+
+    data_to_emit = dom_element_delete_button
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="modal_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "manage_players_widget_modal",
+            "type": "div",
+            "selector": "body > main > div"
+        }
+    )
 
 
 def frontend_view(*args, **kwargs):
@@ -64,12 +97,16 @@ def frontend_view(*args, **kwargs):
     all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if active_dataset == map_identifier:
-            # have the online players displayed first initially!
-            ordered_player_dicts = OrderedDict(sorted(player_dicts.items(), key=lambda x: x[1]['is_initialized'], reverse=True))
-            for player_steamid, player_dict in ordered_player_dicts.items():
-                if player_steamid == 'last_updated_servertime':
-                    continue
+            # have the recently online players displayed first initially!
+            ordered_player_dicts = OrderedDict(
+                sorted(
+                    player_dicts.items(),
+                    key=lambda x: x[1].get('last_updated_servertime', ""),
+                    reverse=True
+                )
+            )
 
+            for player_steamid, player_dict in ordered_player_dicts.items():
                 player_is_selected_by = player_dict.get("selected_by", [])
 
                 player_entry_selected = False
@@ -80,11 +117,11 @@ def frontend_view(*args, **kwargs):
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
                     target_module="module_players",
-                    dom_element_select_root=["selected_by"],
                     dom_element=player_dict,
+                    dom_element_select_root=["selected_by"],
                     dom_element_entry_selected=player_entry_selected,
-                    dom_action_inactive="select_dom_element",
-                    dom_action_active="deselect_dom_element"
+                    dom_action_active="deselect_dom_element",
+                    dom_action_inactive="select_dom_element"
                 )
 
                 table_rows += module.template_render_hook(
