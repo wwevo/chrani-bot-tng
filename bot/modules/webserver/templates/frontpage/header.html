@@ -1,9 +1,14 @@
-<div></div>
+<div id="header_widgets">
+    <div id="login_logout_widget" class="widget">
+        <div>
+{% if current_user.is_authenticated %}
+            <a href="/logout" title="{{ current_user.id }}">log out</a>
+{%- else %}
+            <a href="/login">log in</a>
+{%- endif %}
+        </div>
+    </div>
+</div>
 <hgroup>
     <h1>{{ title }}</h1>
 </hgroup>
-<aside>{% if current_user.is_authenticated %}
-    <a href="/logout" title="{{ current_user.id }}">log out</a>
-{%- else %}
-    <a href="/login">log in</a>{%- endif %}
-</aside>

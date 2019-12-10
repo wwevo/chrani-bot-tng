@@ -82,26 +82,16 @@ body {
 }
 
 body > header {
-    background:
-            url(ui/main_horizontal_bar_end.png) no-repeat top right,
-            url(ui/main_shoulder.png) no-repeat top left;
+    border-top-left-radius: calc(var(--main_bar_height) * 2.66) calc(var(--main_bar_height) * 1.33);
+    border-top-right-radius: calc(var(--main_bar_height) / 2);
+    margin-bottom: 0.5em;
+    background: var(--main-bar-color);
 }
 
 body > header > div {
     position: relative;
     height: var(--main_shoulder_height);
-    margin: 0 var(--main_bar_terminator_width) 0 var(--main_shoulder_width);
-    background: linear-gradient(
-        var(--main-bar-border-color) 0,
-        var(--main-bar-border-color) 1px,
-        var(--main-bar-color) 1px,
-        var(--main-bar-color) calc(var(--main_bar_height) - 1px),
-        var(--main-bar-border-color) calc(var(--main_bar_height) - 1px),
-        var(--main-bar-border-color) var(--main_bar_height),
-        var(--background) calc(var(--main_bar_height)),
-        var(--background) 100%
-    );
-
+    margin: 0 0 0 var(--main_shoulder_width);
 }
 
 body > main {
@@ -116,6 +106,7 @@ body > footer > div:before {
 }
 
 body > footer {
+    margin-top: 0.5em;
     background:
             url(ui/main_shoulder.png) no-repeat top left,
             url(ui/main_horizontal_bar_end.png) no-repeat top right;
@@ -141,8 +132,8 @@ body > footer > div {
 body > header > div > hgroup {
     position: absolute;
     right: 0; top: 0;
-    background-color: var(--background);
     height: var(--main_bar_height);
+    margin-right: var(--main_bar_terminator_width);
 }
 
 body > header > div > hgroup > h1 {
@@ -156,10 +147,11 @@ body > header > div > hgroup > h1 {
 
 body > header > div > aside {
     position: absolute;
-    bottom: 0; right: calc(var(--main_bar_terminator_width) - (2 * var(--main_bar_terminator_width)));
-    margin-right: 0.5em;
+    top: var(--main_bar_height); right: 0;
+    padding-right: calc(0 - var(--main_bar_terminator_width));
     color: var(--lcars-orange);
     background-color: var(--background);
+    height: calc(var(--main_shoulder_height) - var(--main_bar_height));
 }
 
 body > header > div > aside a,
@@ -171,7 +163,7 @@ body > header > div > aside a:visited {
 body > main > div {
     display: flex;
     flex-wrap: wrap;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height));
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
     overflow-y: scroll; /* this has to stay for scroll-snapping to work */
     scroll-snap-type: y mandatory;
 }
@@ -202,17 +194,14 @@ body > main > div > .widget > header > div > span {
 body > main > div > .widget > aside {
     float: left;
 
-    background: linear-gradient(
-        to right,
-        var(--main-bar-border-color) 0,
-        var(--main-bar-border-color) 1px,
-        var(--main-bar-color) 1px,
-        var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
-        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em),
-        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em - 1px),
-        var(--background) calc(var(--main_shoulder_width) - 1.625em - 1px),
-        var(--background) 100%
-    );
+    background:
+        linear-gradient(
+            to right,
+            var(--main-bar-color) 0,
+            var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
+            var(--background) calc(var(--main_shoulder_width) - 1.625em),
+            var(--background) 100%
+        );
     height: calc(100% - 3em);
 }
 
@@ -245,7 +234,11 @@ body > main > div > .widget {
     max-width: 1920px;
     height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - (var(--main_table_gutter) * 4));
     scroll-snap-align: start;
-    padding: calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) calc(var(--main_table_gutter) * 2) 0;
+    padding: 0 calc(var(--main_table_gutter) * 2) 0.5em 0;
+}
+
+body > main > div > #telnet_log_widget {
+    padding-bottom: 0;
 }
 
 body > main > div > .widget > main {
@@ -280,7 +273,7 @@ body > main > div > .widget > main > table > tbody {
 }
 
 body > main > div > .widget > main > table.data_table > tbody {
-    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2));
+    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 0.5em - 2em - 18px - 32px - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2));
 }
 
 .widget > main > table > thead > tr {
@@ -355,23 +348,36 @@ body > header > div > {
 }
 
 body > header > div > div {
+    background-color: var(--background);
+    border-top-left-radius: calc((var(--main_shoulder_height) - var(--main_bar_height)) / 1.66) calc((var(--main_shoulder_height) - var(--main_bar_height)) / 2);
+    height: calc(var(--main_shoulder_height) - var(--main_bar_height));
     position: absolute;
-    bottom: 0;
+    top: var(--main_bar_height);
+    right: 0;
+    left: 0;
     display: flex;
+    margin-left: -1.66em;
 }
 
-body > header > div > div > #gametime_widget,
-body > header > div > div > #gameserver_status_widget {
+body > header > div > div > .widget {
     padding-right: 0.25em;
     color: black;
+    padding-top: var(--main_table_gutter)
 }
 
-body > header > div > div > #gametime_widget > div,
-body > header > div > div > #gameserver_status_widget > div {
+body > header > div > div > .widget > div {
     background-color: var(--lcars-orange);
     border-radius: 12px; padding: 0 1em;
     white-space: nowrap;
-    height: 1.5em; line-height: 1.5em;
+    line-height: 1.5em;
+}
+
+body > header > div > div > #login_logout_widget {
+    margin-left: auto;
+}
+
+body > header > div > div > #login_logout_widget a {
+    color: var(--background)
 }
 
 body > header > div > div > #gameserver_status_widget > div.active {
@@ -411,7 +417,7 @@ body > header #gameserver_status_widget {
 }
 
 body > header #gametime_widget {
-    margin-left: -1em;
+    margin-left: 1em;
     order: -1;
 }
 /* region header_widgets -> end */
@@ -427,15 +433,13 @@ main > div > #telnet_log_widget { order: 999 }
 
 body > main > div #unauthorized_disclaimer {
     width: 100%;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 2em);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em);
     padding-left: calc(var(--main_shoulder_width));
     background: linear-gradient(
         to right,
         var(--main-bar-color) 0,
         var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
-        var(--main-bar-border-color) calc(var(--main_shoulder_width) - 1.625em),
-        var(--main-bar-border-color) calc(100% - 1px),
-        var(--background) calc(100% - 1px),
+        var(--background) calc(var(--main_shoulder_width) - 1.625em),
         var(--background) 100%
     );
 }
