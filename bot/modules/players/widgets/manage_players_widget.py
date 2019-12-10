@@ -52,7 +52,7 @@ def modal_view(*args, **kwargs):
         module,
         count=0,
         target_module="module_players",
-        dom_element_id="entity_table_widget_action_delete_button",
+        dom_element_id="player_table_widget_action_delete_button",
         dom_action="delete_selected_dom_elements",
         dom_element_root=module.dom_element_root,
         dom_element_select_root=module.dom_element_select_root,
