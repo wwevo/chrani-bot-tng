@@ -35,6 +35,22 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
+    target_player_steamid = event_data[1].get("steamid", None)
+    flag_player_to_be_muted = event_data[1].get("mute_status", None)
+    active_dataset = event_data[1].get("dataset", None)
+
+    module.dom.data.upsert({
+        "module_players": {
+            "elements": {
+                active_dataset: {
+                    target_player_steamid: {
+                        "is_muted": flag_player_to_be_muted
+                    }
+                }
+            }
+        }
+    })
+
     pass
 
 

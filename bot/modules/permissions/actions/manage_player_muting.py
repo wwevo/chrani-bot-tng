@@ -8,29 +8,30 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("player_steamid", None)
-    dataset = event_data[1].get("dataset", None)
-    is_muted = event_data[1].get("is_muted", None)
+    active_dataset = event_data[1].get("dataset", None)
+    flag_player_to_be_muted = event_data[1].get("is_muted", None)
 
     if all([
         action is not None and action == "set mute status",
-        dataset is not None,
+        active_dataset is not None,
         player_steamid is not None,
-        is_muted is not None,
+        flag_player_to_be_muted is not None,
     ]):
-        module.dom.data.upsert({
-            "module_players": {
-                "elements": {
-                    dataset: {
-                        player_steamid: {
-                            "is_muted": is_muted
-                        }
-                    }
-                }
-            }
-        })
+        player_dict = (
+            module.dom.data
+            .get("module_players", {})
+            .get("elements", {})
+            .get(active_dataset, {})
+            .get(player_steamid, {})
+        )
+        player_is_currently_muted = player_dict.get("is_muted", False)
 
-        if not is_muted:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+        if not flag_player_to_be_muted:
+            # player is not set to be muted,
+            if player_is_currently_muted:
+                # player is currently muted! call the
+                module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+
             return
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
@@ -38,6 +39,8 @@ def main_function(module, event_data, dispatchers_steamid):
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     player_steamid = event_data[1].get("player_steamid", None)
+    active_dataset = event_data[1].get("dataset", None)
+
     if player_steamid is not None:
         event_data = ['say_to_player', {
             'steamid': player_steamid,
@@ -47,13 +50,16 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,
-            'mute_status': False
+            'mute_status': False,
+            'dataset': active_dataset
         }]
         module.trigger_action_hook(module.players, event_data, player_steamid)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
     player_steamid = event_data[1].get("player_steamid", None)
+    active_dataset = event_data[1].get("dataset", None)
+
     if player_steamid is not None:
         event_data = ['say_to_player', {
             'steamid': player_steamid,
@@ -63,7 +69,8 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,
-            'mute_status': True
+            'mute_status': True,
+            'dataset': active_dataset
         }]
         module.trigger_action_hook(module.players, event_data, player_steamid)
 

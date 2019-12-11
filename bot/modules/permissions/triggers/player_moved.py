@@ -24,9 +24,6 @@ def main_function(*args, **kwargs):
             .get(dataset, {})
             .get(updated_values_dict.get("steamid"), {})
         )
-        if on_the_move_player_dict.get("steamid") == "76561198040658370":
-            print(on_the_move_player_dict.get("skip_processing"))
-
         active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
         # only proceed when we actually have a lobby
         lobby_dict = (
