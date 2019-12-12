@@ -31,7 +31,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
         player_coordinates is not None
     ]) and all([
         # don't try to teleport a player that's already being handled by something
-        player_to_be_teleported_dict.get("skip_processing", False) is False,
+        # player_to_be_teleported_dict.get("skip_processing", False) is False,
         # no sense in porting a player to a place they are already standing on ^^
         target_coordinates != player_coordinates
     ]):
