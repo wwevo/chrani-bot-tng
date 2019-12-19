@@ -63,13 +63,16 @@ class Action(object):
             # permission is True = Permission has been set by some other process
             # permission is False = permission has not been granted by any module
 
-            if action_is_enabled and dispatchers_steamid is not None:
+            if dispatchers_steamid is not None:
+                # none would be a system-call
                 print(
+                    "enabled:", action_is_enabled,
                     dispatchers_steamid,
                     "executed \"", event_data[0], "\"",
                     "options:", event_data[1]
                 )
 
+            if action_is_enabled:
                 event_data[1]["module"] = target_module.getName()
                 event_data[1]["uuid4"] = target_module.id_generator(22)
                 if server_is_online is True or action_requires_server_to_be_online is not True:
