@@ -82,18 +82,29 @@ def modal_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+    all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
+    all_selected_elements_count = 0
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    for map_identifier, location_owner in all_available_locations.items():
+        if active_dataset == map_identifier:
+            for player_steamid, player_locations in location_owner.items():
+                for identifier, location_dict in player_locations.items():
+                    location_is_selected_by = location_dict.get("selected_by", [])
+                    if dispatchers_steamid in location_is_selected_by:
+                        all_selected_elements_count += 1
+
+    modal_confirm_delete = module.dom_management.get_delete_confirm_modal(
         module,
-        count=0,
+        count=all_selected_elements_count,
         target_module="module_locations",
-        dom_element_id="location_table_widget_action_delete_button",
+        dom_element_id="location_table_modal_action_delete_button",
         dom_action="delete_selected_dom_elements",
         dom_element_root=module.dom_element_root,
         dom_element_select_root=module.dom_element_select_root,
         confirmed="True"
     )
 
-    data_to_emit = dom_element_delete_button
+    data_to_emit = modal_confirm_delete
 
     module.webserver.send_data_to_client_hook(
         module,
@@ -191,6 +202,8 @@ def frontend_view(*args, **kwargs):
         dom_action="delete_selected_dom_elements"
     )
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
     data_to_emit = module.template_render_hook(
         module,
         template_frontend,
@@ -201,7 +214,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=True
+                options_view_toggle=(True if current_view == "frontend" else False)
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,

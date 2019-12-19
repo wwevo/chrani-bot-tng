@@ -62,3 +62,12 @@ class Widget(object):
         except FileNotFoundError as error:
             # module does not have widgets
             pass
+
+    def get_current_view(self, dispatchers_steamid):
+        return (
+            self.dom.data
+            .get(self.get_module_identifier(), {})
+            .get("visibility", {})
+            .get(dispatchers_steamid, {})
+            .get("current_view", "frontend")
+        )

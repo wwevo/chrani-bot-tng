@@ -72,6 +72,22 @@ class DomManagement(Module):
         )
 
     @staticmethod
+    def get_delete_confirm_modal(*args, **kwargs):
+        module = args[0]
+        return module.template_render_hook(
+            module,
+            module.dom_management.templates.get_template('modal_confirm_delete.html'),
+            count=kwargs.get("count"),
+            target_module=kwargs.get("target_module"),
+            dom_element_root=kwargs.get("dom_element_root"),
+            dom_element_select_root=kwargs.get("dom_element_select_root"),
+            dom_action=kwargs.get("dom_action"),
+            delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
+            dom_element_id=kwargs.get("dom_element_id"),
+            confirmed=kwargs.get("confirmed", "False")
+        )
+
+    @staticmethod
     def update_selection_status(*args, **kwargs):
         module = args[0]
         updated_values_dict = kwargs.get("updated_values_dict", None)

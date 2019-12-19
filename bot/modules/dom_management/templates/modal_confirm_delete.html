@@ -1,0 +1,15 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+<p>Make sure you've got the right stuff selected! Deletions can not be undone.</p>
+<p>You have {{ count|string }} elements selected for deletion!</p>
+<p>click the "back" button on the left-hand side to abort.</p>
+<div id="{{ dom_element_id }}" class="modal_delete_button">
+{{ construct_toggle_link(
+    delete_selected_entries_active,
+    "confirm delete (" + count|string + ")", ['widget_event', ['dom_management', ['sed', {
+        "target_module": target_module,
+        "dom_element_root": dom_element_root,
+        'action': dom_action,
+        'confirmed': confirmed
+    }]]]
+) }}
+</div>

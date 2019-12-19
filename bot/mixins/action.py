@@ -49,52 +49,58 @@ class Action(object):
             # module does not have actions
             pass
 
-    def trigger_action(self, module, event_data, dispatchers_steamid=None):
+    @staticmethod
+    def trigger_action(target_module, event_data, dispatchers_steamid=None):
         action_identifier = event_data[0]
-        if action_identifier in self.available_actions_dict:
-            server_is_online = self.dom.data.get("module_telnet", {}).get("server_is_online", False)
-            action_requires_server_to_be_online = self.available_actions_dict[action_identifier].get(
+        if action_identifier in target_module.available_actions_dict:
+            server_is_online = target_module.dom.data.get("module_telnet", {}).get("server_is_online", False)
+            action_requires_server_to_be_online = target_module.available_actions_dict[action_identifier].get(
                 "requires_telnet_connection", False
             )
-            action_is_enabled = self.available_actions_dict[action_identifier]["enabled"]
+            action_is_enabled = target_module.available_actions_dict[action_identifier]["enabled"]
             user_has_permission = event_data[1].get("has_permission", None)
+            # permission is None = no status has been set, so it's allowed (default)
+            # permission is True = Permission has been set by some other process
+            # permission is False = permission has not been granted by any module
 
             if action_is_enabled:
-                # print(
-                #     "system" if dispatchers_steamid is None else dispatchers_steamid,
-                #     "executed", event_data[0],
-                #     "options:", event_data[1]
-                # )
+                print(
+                    "system" if dispatchers_steamid is None else dispatchers_steamid,
+                    "executed \"", event_data[0], "\"",
+                    "options:", event_data[1]
+                )
 
-                event_data[1]["module"] = module.getName()
-                event_data[1]["uuid4"] = self.id_generator(22)
+                event_data[1]["module"] = target_module.getName()
+                event_data[1]["uuid4"] = target_module.id_generator(22)
                 if server_is_online is True or action_requires_server_to_be_online is not True:
                     if any([
                         user_has_permission is None,
                         user_has_permission is True
                     ]):
                         Thread(
-                            target=self.available_actions_dict[action_identifier]["main_function"],
-                            args=(self, event_data, dispatchers_steamid)
+                            target=target_module.available_actions_dict[action_identifier]["main_function"],
+                            args=(target_module, event_data, dispatchers_steamid)
                         ).start()
                     else:
+                        # in case we don't have permission, we call the fail callback. it then can determine what to do
+                        # next
                         Thread(
-                            target=module.callback_fail(
-                                self.available_actions_dict[action_identifier]["callback_fail"],
-                                module,
+                            target=target_module.callback_fail(
+                                target_module.available_actions_dict[action_identifier]["callback_fail"],
+                                target_module,
                                 event_data,
                                 dispatchers_steamid
                             ),
-                            args=(self, event_data, dispatchers_steamid)
+                            args=(target_module, event_data, dispatchers_steamid)
                         ).start()
                 else:
                     try:
-                        skip_it_callback = self.available_actions_dict[action_identifier]["skip_it"]
+                        skip_it_callback = target_module.available_actions_dict[action_identifier]["skip_it"]
                     except KeyError:
                         skip_it_callback = None
 
                     if skip_it_callback is not None:
                         Thread(
-                            target=self.available_actions_dict[action_identifier]["skip_it"],
-                            args=(self, event_data)
+                            target=target_module.available_actions_dict[action_identifier]["skip_it"],
+                            args=(target_module, event_data)
                         ).start()

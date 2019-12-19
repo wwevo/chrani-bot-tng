@@ -258,17 +258,24 @@ body > main > div > .widget > main .dialog.open {
 
 body > main > div > .widget > main .dialog .modal-content {
     padding: 1em;
-    background-color: var(--lcars-yellow);
-    opacity: 0.95;
+    color: var(--lcars-dark-blue);
+    background-color: var(--background);
+    border: var(--main_table_gutter) solid var(--lcars-red);
     border-top-right-radius: 1.25em;
     border-bottom-right-radius: calc(1.25em / 2);
-    height: 100%;
+    border-bottom-left-radius: 2.5em calc(2.5em / 2);
+    height: calc(100% + 18px);
+}
+
+body > main > div > .widget > main .dialog .modal-content a,
+body > main > div > .widget > main .dialog .modal-content p {
+    font-size: 2em;
 }
 
 body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
-    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
+    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
     padding-right: 0.5em;
 }
 

@@ -25,13 +25,7 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = (
-        module.dom.data
-        .get("module_players", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
+    current_view = module.get_current_view(dispatchers_steamid)
 
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
@@ -48,18 +42,28 @@ def modal_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
+    all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
+    all_selected_elements_count = 0
+    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    for map_identifier, player_dicts in all_available_player_dicts.items():
+        if active_dataset == map_identifier:
+            for player_steamid, player_dict in player_dicts.items():
+                player_is_selected_by = player_dict.get("selected_by", [])
+                if dispatchers_steamid in player_is_selected_by:
+                    all_selected_elements_count += 1
+
+    modal_confirm_delete = module.dom_management.get_delete_confirm_modal(
         module,
-        count=0,
+        count=all_selected_elements_count,
         target_module="module_players",
-        dom_element_id="player_table_widget_action_delete_button",
+        dom_element_id="player_table_modal_action_delete_button",
         dom_action="delete_selected_dom_elements",
         dom_element_root=module.dom_element_root,
         dom_element_select_root=module.dom_element_select_root,
         confirmed="True"
     )
 
-    data_to_emit = dom_element_delete_button
+    data_to_emit = modal_confirm_delete
 
     module.webserver.send_data_to_client_hook(
         module,
@@ -87,13 +91,15 @@ def frontend_view(*args, **kwargs):
     control_kick_link = module.templates.get_template('manage_players_widget/control_kick_link.html')
 
     template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_players_widget/control_switch_options_view.html'
+    )
 
     active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
-    table_rows = ""
+    rendered_table_rows = ""
     all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if active_dataset == map_identifier:
@@ -124,7 +130,7 @@ def frontend_view(*args, **kwargs):
                     dom_action_inactive="select_dom_element"
                 )
 
-                table_rows += module.template_render_hook(
+                rendered_table_rows += module.template_render_hook(
                     module,
                     template_table_rows,
                     player=player_dict,
@@ -142,13 +148,7 @@ def frontend_view(*args, **kwargs):
                     control_select_link=control_select_link
                 )
 
-    current_view = (
-        module.dom.data
-        .get("module_players", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
+    current_view = module.get_current_view(dispatchers_steamid)
 
     options_toggle = module.template_render_hook(
         module,
@@ -179,7 +179,7 @@ def frontend_view(*args, **kwargs):
             module,
             template_table_header
         ),
-        table_rows=table_rows,
+        table_rows=rendered_table_rows,
         table_footer=module.template_render_hook(
             module,
             template_table_footer,
@@ -209,21 +209,13 @@ def options_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
-    current_view = (
-        module.dom.data
-        .get("module_players", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
     options_toggle = module.template_render_hook(
         module,
         template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
             template_options_toggle_view,
-            options_view_toggle=(True if current_view == "frontend" else False),
+            options_view_toggle=False,
             steamid=dispatchers_steamid
         )
     )
@@ -255,14 +247,8 @@ def show_info_view(*args, **kwargs):
 
     template_frontend = module.templates.get_template('manage_players_widget/view_info.html')
     template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
-
-    current_view = (
-        module.dom.data
-        .get("module_players", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
+    template_options_toggle_view = module.templates.get_template(
+        'manage_players_widget/control_switch_options_view.html'
     )
 
     current_view_steamid = (
@@ -279,7 +265,7 @@ def show_info_view(*args, **kwargs):
         control_switch_options_view=module.template_render_hook(
             module,
             template_options_toggle_view,
-            options_view_toggle=(True if current_view == "frontend" else False),
+            options_view_toggle=False,
             steamid=dispatchers_steamid
         )
     )
