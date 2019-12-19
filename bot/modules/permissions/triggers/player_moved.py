@@ -52,7 +52,7 @@ def main_function(*args, **kwargs):
             },
             'action': 'teleport'
         }]
-        module.trigger_action_hook(module.locations, event_data, original_values_dict.get("steamid"))
+        module.trigger_action_hook(module.locations, event_data=event_data)
 
 
 trigger_meta = {

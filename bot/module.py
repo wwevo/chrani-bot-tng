@@ -69,7 +69,7 @@ class Module(Thread, Action, Trigger, Template, Widget):
         Widget.on_socket_disconnect(self, dispatchers_steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):
-        self.trigger_action_hook(self, event_data, dispatchers_steamid)
+        self.trigger_action_hook(self, event_data=event_data, dispatchers_steamid=dispatchers_steamid)
         self.emit_event_status(self, event_data, dispatchers_steamid)
 
         Widget.on_socket_event(self, event_data, dispatchers_steamid)

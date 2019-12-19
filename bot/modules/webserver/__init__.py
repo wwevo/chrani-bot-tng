@@ -297,13 +297,13 @@ class Webserver(Module):
         def protected():
             header_markup = self.template_render_hook(
                 self,
-                template_header,
+                template=template_header,
                 current_user=current_user,
                 title=self.options.get("title", self.default_options.get("title"))
             )
             footer_markup = self.template_render_hook(
                 self,
-                template_footer
+                template=template_footer
             )
 
             instance_token = self.random_string(20)
@@ -324,7 +324,7 @@ class Webserver(Module):
 
             return self.template_render_hook(
                 self,
-                template_frontend,
+                template=template_frontend,
                 **template_options
             )
         # endregion
@@ -376,7 +376,7 @@ class Webserver(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            self.trigger_action_hook(self, ["logged_in_users", {}])
+            self.trigger_action_hook(self, event_data=["logged_in_users", {}])
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time

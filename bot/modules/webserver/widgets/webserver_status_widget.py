@@ -58,24 +58,24 @@ def frontend_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         component_logged_in_users=module.template_render_hook(
             module,
-            component_logged_in_users,
+            template=component_logged_in_users,
             webserver_logged_in_users=webserver_logged_in_users
         ),
         options_toggle=module.template_render_hook(
             module,
-            template_options_toggle,
+            template=template_options_toggle,
             control_switch_options_view=module.template_render_hook(
                 module,
-                template_options_toggle_view,
+                template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=(True if current_view == "frontend" else False)
             ),
             control_servertime=module.template_render_hook(
                 module,
-                template_servertime,
+                template=template_servertime,
                 time=module.dom.data.get("module_telnet", {}).get("last_recorded_servertime", None),
             )
         ),
@@ -117,19 +117,19 @@ def options_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=module.template_render_hook(
             module,
-            template_options_toggle,
+            template=template_options_toggle,
             control_switch_options_view=module.template_render_hook(
                 module,
-                template_options_toggle_view,
+                template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=(True if current_view == "frontend" else False)
             ),
             control_servertime=module.template_render_hook(
                 module,
-                template_servertime,
+                template=template_servertime,
                 time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None),
             )
         ),
@@ -155,7 +155,7 @@ def update_servertime(*args, **kwargs):
     template_servertime = module.templates.get_template('webserver_status_widget/control_servertime.html')
     servertime_view = module.template_render_hook(
         module,
-        template_servertime,
+        template=template_servertime,
         time=module.dom.data.get("module_telnet").get("last_recorded_servertime", None)
     )
 
@@ -180,7 +180,7 @@ def update_logged_in_users(*args, **kwargs):
     component_logged_in_users = module.templates.get_template('webserver_status_widget/component_logged_in_users.html')
     component_logged_in_users_view = module.template_render_hook(
         module,
-        component_logged_in_users,
+        template=component_logged_in_users,
         webserver_logged_in_users=webserver_logged_in_users
     )
 

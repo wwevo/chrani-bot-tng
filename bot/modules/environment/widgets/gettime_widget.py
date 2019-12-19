@@ -18,7 +18,7 @@ def main_widget(*args, **kwargs):
     })
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         last_recorded_gametime=gametime,
     )
 
@@ -43,7 +43,7 @@ def update_widget(*args, **kwargs):
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = original_values_dict.get("last_recorded_gametime", None)
     if gametime is None:
-        module.trigger_action_hook(module, ["gettime", {}])
+        module.trigger_action_hook(module, event_data=["gettime", {}])
         return False
 
     if gametime == old_gametime:
@@ -53,7 +53,7 @@ def update_widget(*args, **kwargs):
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         last_recorded_gametime=gametime,
     )
 

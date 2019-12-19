@@ -175,18 +175,18 @@ def frontend_view(*args, **kwargs):
 
                     table_rows += module.template_render_hook(
                         module,
-                        template_table_rows,
+                        template=template_table_rows,
                         location=location_dict,
                         player_dict=player_dict,
                         control_select_link=control_select_link,
                         control_enabled_link=module.template_render_hook(
                             module,
-                            control_enabled_link,
+                            template=control_enabled_link,
                             location=location_dict,
                         ),
                         control_edit_link=module.template_render_hook(
                             module,
-                            control_edit_link,
+                            template=control_edit_link,
                             dispatchers_steamid=dispatchers_steamid,
                             location=location_dict,
                         )
@@ -206,31 +206,31 @@ def frontend_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=module.template_render_hook(
             module,
-            template_options_toggle,
+            template=template_options_toggle,
             control_switch_options_view=module.template_render_hook(
                 module,
-                template_options_toggle_view,
+                template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=(True if current_view == "frontend" else False)
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
-                template_create_new_toggle_view,
+                template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True
             )
         ),
         table_header=module.template_render_hook(
             module,
-            template_table_header
+            template=template_table_header
         ),
         table_rows=table_rows,
         table_footer=module.template_render_hook(
             module,
-            template_table_footer,
+            template=template_table_footer,
             action_delete_button=dom_element_delete_button
         )
 
@@ -265,19 +265,19 @@ def options_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=module.template_render_hook(
             module,
-            template_options_toggle,
+            template=template_options_toggle,
             control_switch_options_view=module.template_render_hook(
                 module,
-                template_options_toggle_view,
+                template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=False,
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
-                template_create_new_toggle_view,
+                template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True,
             )
@@ -338,25 +338,25 @@ def edit_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=module.template_render_hook(
             module,
-            template_options_toggle,
+            template=template_options_toggle,
             control_switch_options_view=module.template_render_hook(
                 module,
-                template_options_toggle_view,
+                template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
                 options_view_toggle=True
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
-                template_create_new_toggle_view,
+                template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=False
             ),
             control_player_location_view=module.template_render_hook(
                 module,
-                control_player_location_view,
+                template=control_player_location_view,
                 pos_x=player_coordinates["x"],
                 pos_y=player_coordinates["y"],
                 pos_z=player_coordinates["z"]
@@ -445,18 +445,18 @@ def table_row(*args, **kwargs):
                             )
                             rendered_table_row = module.template_render_hook(
                                 module,
-                                template_table_rows,
+                                template=template_table_rows,
                                 location=location_dict,
                                 player_dict=player_dict,
                                 control_select_link=control_select_link,
                                 control_enabled_link=module.template_render_hook(
                                     module,
-                                    control_enabled_link,
+                                    template=control_enabled_link,
                                     location=location_dict,
                                 ),
                                 control_edit_link=module.template_render_hook(
                                     module,
-                                    control_edit_link,
+                                    template=control_edit_link,
                                     location=location_dict,
                                 ),
                                 css_class=get_table_row_css_class(location_dict)
@@ -516,7 +516,7 @@ def update_player_location(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        control_player_location_view,
+        template=control_player_location_view,
         pos_x=player_coordinates["x"],
         pos_y=player_coordinates["y"],
         pos_z=player_coordinates["z"]
@@ -578,7 +578,7 @@ def update_enabled_flag(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        control_enable_link,
+        template=control_enable_link,
         location=location_dict,
     )
 

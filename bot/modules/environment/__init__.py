@@ -72,18 +72,18 @@ class Environment(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            self.trigger_action_hook(self, ["getgameprefs", {
+            self.trigger_action_hook(self, event_data=["getgameprefs", {
                 "disable_after_success": True
             }])
 
             # requires getgameprefs to be successful
-            self.trigger_action_hook(self, ["getgamestats", {
+            self.trigger_action_hook(self, event_data=["getgamestats", {
                 "disable_after_success": True
             }])
 
-            self.trigger_action_hook(self, ["gettime", {}])
+            self.trigger_action_hook(self, event_data=["gettime", {}])
 
-            self.trigger_action_hook(self, ["getentities", {}])
+            self.trigger_action_hook(self, event_data=["getentities", {}])
 
             self.execute_telnet_triggers()
 

@@ -26,9 +26,15 @@ class Widget(object):
     def on_socket_event(self, event_data, dispatchers_steamid):
         pass
 
-    def template_render(self, module, template, **kwargs):
-        rendered_template = template.render(**kwargs)
-        return rendered_template
+    @staticmethod
+    def template_render(*args, **kwargs):
+        module = args[0]
+        template = kwargs.get("template", None)
+        if template is not None:
+            rendered_template = template.render(**kwargs)
+            return rendered_template
+
+        return False
 
     @staticmethod
     def get_all_available_widgets_dict():

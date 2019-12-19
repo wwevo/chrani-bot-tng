@@ -105,7 +105,7 @@ def frontend_view(*args, **kwargs):
 
                 table_rows += module.template_render_hook(
                     module,
-                    template_table_rows,
+                    template=template_table_rows,
                     entity=entity_dict,
                     css_class=get_entity_table_row_css_class(entity_dict),
                     control_select_link=control_select_link
@@ -115,10 +115,10 @@ def frontend_view(*args, **kwargs):
 
     options_toggle = module.template_render_hook(
         module,
-        template_options_toggle,
+        template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
-            template_options_toggle_view,
+            template=template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         )
@@ -136,16 +136,16 @@ def frontend_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=options_toggle,
         table_header=module.template_render_hook(
             module,
-            template_table_header
+            template=template_table_header
         ),
         table_rows=table_rows,
         table_footer=module.template_render_hook(
             module,
-            template_table_footer,
+            template=template_table_footer,
             action_delete_button=dom_element_delete_button
         )
     )
@@ -174,10 +174,10 @@ def options_view(*args, **kwargs):
 
     options_toggle = module.template_render_hook(
         module,
-        template_options_toggle,
+        template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
-            template_options_toggle_view,
+            template=template_options_toggle_view,
             options_view_toggle=False,
             steamid=dispatchers_steamid
         )
@@ -185,7 +185,7 @@ def options_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=options_toggle,
         widget_options=module.options
     )
@@ -256,7 +256,7 @@ def table_rows(*args, ** kwargs):
 
                     table_row = module.template_render_hook(
                         module,
-                        template_table_rows,
+                        template=template_table_rows,
                         entity=entity_dict,
                         css_class=get_entity_table_row_css_class(entity_dict),
                         control_select_link=control_select_link

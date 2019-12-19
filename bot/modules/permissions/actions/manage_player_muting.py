@@ -46,14 +46,14 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             'steamid': player_steamid,
             'message': '[66FF66]Free speech[-][FFFFFF], you may now chat. Say hello ^^[-]'
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,
             'mute_status': False,
             'dataset': active_dataset
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
@@ -65,14 +65,14 @@ def callback_fail(module, event_data, dispatchers_steamid):
             'steamid': player_steamid,
             'message': '[FF6666]You have been automatically muted[-][FFFFFF], until you have authenticated![-]'
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,
             'mute_status': True,
             'dataset': active_dataset
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
 
 
 action_meta = {

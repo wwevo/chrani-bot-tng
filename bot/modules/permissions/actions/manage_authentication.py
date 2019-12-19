@@ -50,7 +50,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             'steamid': player_steamid,
             'message': '[66FF66]Thank you for playing along[-][FFFFFF], you may now leave the Crater[-]'
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
@@ -60,7 +60,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
             'steamid': player_steamid,
             'message': '[FF6666]Could not authenticate[-][FFFFFF], wrong password perhaps?[-]'
         }]
-        module.trigger_action_hook(module.players, event_data, player_steamid)
+        module.trigger_action_hook(module.players, event_data=event_data)
     pass
 
 

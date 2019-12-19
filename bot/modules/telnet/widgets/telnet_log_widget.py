@@ -41,7 +41,7 @@ def frontend_view(*args, **kwargs):
             for line in reversed(telnet_lines):
                 log_lines += module.template_render_hook(
                     module,
-                    log_line,
+                    template=log_line,
                     log_line=line
                 )
 
@@ -55,22 +55,22 @@ def frontend_view(*args, **kwargs):
 
             options_toggle = module.template_render_hook(
                 module,
-                template_options_toggle,
+                template=template_options_toggle,
                 control_switch_options_view=module.template_render_hook(
                     module,
-                    template_options_toggle_view,
+                    template=template_options_toggle_view,
                     options_view_toggle=(True if current_view == "frontend" else False),
                     steamid=dispatchers_steamid
                 )
             )
             data_to_emit = module.template_render_hook(
                 module,
-                telnet_log_frontend,
+                template=telnet_log_frontend,
                 options_toggle=options_toggle,
                 log_lines=log_lines,
                 table_header=module.template_render_hook(
                     module,
-                    template_table_header
+                    template=template_table_header
                 )
             )
             module.webserver.send_data_to_client_hook(
@@ -108,7 +108,7 @@ def options_view(*args, **kwargs):
         template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
-            template_options_toggle_view,
+            template=template_options_toggle_view,
             options_view_toggle=(True if current_view == "frontend" else False),
             steamid=dispatchers_steamid
         )
@@ -116,7 +116,7 @@ def options_view(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         options_toggle=options_toggle,
         widget_options=module.options
     )
@@ -153,7 +153,7 @@ def update_widget(*args, **kwargs):
             telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
             data_to_emit = module.template_render_hook(
                 module,
-                telnet_log_line,
+                template=telnet_log_line,
                 log_line=updated_values_dict["telnet_lines"]
             )
 

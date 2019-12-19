@@ -33,7 +33,7 @@ def main_function(origin_module, module, regex_result):
                 'entity_name': zombie_name,
                 'action': 'kill'
             }]
-            module.trigger_action_hook(origin_module.environment, event_data)  # no steamid cause it's a s system_call
+            module.trigger_action_hook(origin_module.environment, event_data=event_data)  # no steamid cause it's a s system_call
             print(origin_module, event_data)
             event_data = ['say_to_all', {
                 'message': (
@@ -54,7 +54,7 @@ def main_function(origin_module, module, regex_result):
                 )
             }]
 
-        module.trigger_action_hook(origin_module.environment, event_data)
+        module.trigger_action_hook(origin_module.environment, event_data=event_data)
 
 
 trigger_meta = {

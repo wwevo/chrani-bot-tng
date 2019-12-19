@@ -31,7 +31,7 @@ def main_function(origin_module, module, regex_result):
                 'is_muted': is_muted,
                 'action': 'set mute status'
             }]
-            module.trigger_action_hook(origin_module, event_data, player_steamid)
+            module.trigger_action_hook(origin_module, event_data=event_data)
 
 
 trigger_meta = {

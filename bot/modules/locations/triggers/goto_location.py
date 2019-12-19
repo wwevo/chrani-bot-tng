@@ -44,7 +44,7 @@ def main_function(origin_module, module, regex_result):
             },
             'action': 'teleport'
         }]
-        module.trigger_action_hook(origin_module, event_data, steamid)
+        module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 
 trigger_meta = {

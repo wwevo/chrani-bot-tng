@@ -15,7 +15,7 @@ def main_widget(*args, **kwargs):
     shutdown_in_seconds = module.dom.data.get("module_telnet", {}).get("shutdown_in_seconds", None)
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         server_is_online=server_is_online,
         shutdown_in_seconds=shutdown_in_seconds
     )
@@ -49,7 +49,7 @@ def update_widget(*args, **kwargs):
 
     data_to_emit = module.template_render_hook(
         module,
-        template_frontend,
+        template=template_frontend,
         server_is_online=server_is_online,
         shutdown_in_seconds=shutdown_in_seconds
     )

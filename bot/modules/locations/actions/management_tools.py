@@ -17,10 +17,10 @@ def main_function(module, event_data, dispatchers_steamid):
         if action == "teleport":
             location_coordinates = event_data[1].get("location_coordinates", {})
             # print("tele {} {} {} {}".format(dispatchers_steamid, location_coordinates["x"], location_coordinates["y"], location_coordinates["z"]))
-            module.trigger_action_hook(module.players, ["teleport_player", {
+            module.trigger_action_hook(module.players, event_data=["teleport_player", {
                 "steamid": dispatchers_steamid,
                 "coordinates": location_coordinates
-            }], dispatchers_steamid)
+            }])
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
         if action == "enable_location_entry" or action == "disable_location_entry":

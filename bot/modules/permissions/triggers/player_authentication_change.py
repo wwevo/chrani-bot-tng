@@ -29,7 +29,7 @@ def main_function(*args, **kwargs):
             else:
                 event_data[1]["is_muted"] = True
 
-            module.trigger_action_hook(module, event_data, player_steamid)
+            module.trigger_action_hook(module, event_data=event_data)
     except AttributeError:
         pass
 

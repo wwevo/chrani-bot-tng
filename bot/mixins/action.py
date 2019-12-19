@@ -50,7 +50,7 @@ class Action(object):
             pass
 
     @staticmethod
-    def trigger_action(target_module, event_data, dispatchers_steamid=None):
+    def trigger_action(target_module, event_data=[], dispatchers_steamid=None):
         action_identifier = event_data[0]
         if action_identifier in target_module.available_actions_dict:
             server_is_online = target_module.dom.data.get("module_telnet", {}).get("server_is_online", False)

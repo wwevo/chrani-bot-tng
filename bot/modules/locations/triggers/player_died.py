@@ -40,7 +40,7 @@ def main_function(origin_module, module, regex_result):
             'location_enabled': True,
             'last_changed': servertime_player_died
         }]
-        module.trigger_action_hook(origin_module, event_data, steamid)
+        module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 
 trigger_meta = {

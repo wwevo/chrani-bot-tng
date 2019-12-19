@@ -76,7 +76,7 @@ def main_function(origin_module, module, regex_result):
                 'steamid': steamid,
                 'message': message
             }]
-            module.trigger_action_hook(origin_module.players, event_data, steamid)
+            module.trigger_action_hook(origin_module.players, event_data=event_data)
     elif command == "Teleport":
         update_player_pos = True
 

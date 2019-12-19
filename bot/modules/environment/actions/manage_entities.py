@@ -72,14 +72,14 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     maybe=random.choice(possible_maybes)
                 )
             }]
-            module.trigger_action_hook(module, event_data)
+            module.trigger_action_hook(module, event_data=event_data)
         else:
             event_data = ['say_to_all', {
                 'message': '[CCFFCC]entity ([FFFFFF]{entity_id}[CCFFCC]) killed[-]'.format(
                     entity_id=entity_id
                 )
             }]
-            module.trigger_action_hook(module, event_data)
+            module.trigger_action_hook(module, event_data=event_data)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

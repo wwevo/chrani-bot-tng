@@ -22,7 +22,7 @@ def main_function(origin_module, module, regex_result):
         'entered_password': entered_password,
         'action': 'set authentication'
     }]
-    module.trigger_action_hook(origin_module, event_data, steamid)
+    module.trigger_action_hook(origin_module, event_data=event_data)
 
 
 trigger_meta = {

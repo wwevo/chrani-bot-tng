@@ -40,7 +40,7 @@ def main_function(origin_module, module, regex_result):
         'location_enabled': True,
         'last_changed': first_seen_gametime_string
     }]
-    module.trigger_action_hook(origin_module, event_data, player_steamid)
+    module.trigger_action_hook(origin_module, event_data=event_data)
 
 
 trigger_meta = {

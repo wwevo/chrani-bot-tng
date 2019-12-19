@@ -46,7 +46,7 @@ class DomManagement(Module):
         module = args[0]
         return module.template_render_hook(
             module,
-            module.dom_management.templates.get_template('control_select_link.html'),
+            template=module.dom_management.templates.get_template('control_select_link.html'),
             dom_element_select_root=kwargs.get("dom_element_select_root"),
             target_module=kwargs.get("target_module"),
             dom_element_entry_selected=kwargs.get("dom_element_entry_selected"),
@@ -60,7 +60,7 @@ class DomManagement(Module):
         module = args[0]
         return module.template_render_hook(
             module,
-            module.dom_management.templates.get_template('control_action_delete_button.html'),
+            template=module.dom_management.templates.get_template('control_action_delete_button.html'),
             count=kwargs.get("count"),
             target_module=kwargs.get("target_module"),
             dom_element_root=kwargs.get("dom_element_root"),
@@ -76,7 +76,7 @@ class DomManagement(Module):
         module = args[0]
         return module.template_render_hook(
             module,
-            module.dom_management.templates.get_template('modal_confirm_delete.html'),
+            template=module.dom_management.templates.get_template('modal_confirm_delete.html'),
             count=kwargs.get("count"),
             target_module=kwargs.get("target_module"),
             dom_element_root=kwargs.get("dom_element_root"),
@@ -166,7 +166,7 @@ class DomManagement(Module):
 
             data_to_emit = module.template_render_hook(
                 module,
-                template_action_delete_button,
+                template=template_action_delete_button,
                 dom_action=dom_action,
                 dom_element_root=kwargs.get("dom_element_root", []),
                 dom_element_select_root=kwargs.get("dom_element_select_root", []),
