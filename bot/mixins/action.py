@@ -63,9 +63,9 @@ class Action(object):
             # permission is True = Permission has been set by some other process
             # permission is False = permission has not been granted by any module
 
-            if action_is_enabled:
+            if action_is_enabled and dispatchers_steamid is not None:
                 print(
-                    "system" if dispatchers_steamid is None else dispatchers_steamid,
+                    dispatchers_steamid,
                     "executed \"", event_data[0], "\"",
                     "options:", event_data[1]
                 )

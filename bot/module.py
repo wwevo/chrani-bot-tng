@@ -79,12 +79,12 @@ class Module(Thread, Action, Trigger, Template, Widget):
         if recipient_steamid is not None and status is not None:
             recipient_steamid = [recipient_steamid]
 
-            print("action {action} from module '{module_name}' sent status '{status}' to {recipient_steamid}".format(
-                action=event_data[0],
-                module_name=self.options['module_name'],
-                status=status,
-                recipient_steamid=recipient_steamid
-            ))
+            # print("action {action} from module '{module_name}' sent status '{status}' to {recipient_steamid}".format(
+            #     action=event_data[0],
+            #     module_name=self.options['module_name'],
+            #     status=status,
+            #     recipient_steamid=recipient_steamid
+            # ))
 
             self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
 
