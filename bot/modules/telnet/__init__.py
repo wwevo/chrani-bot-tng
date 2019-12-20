@@ -26,6 +26,7 @@ class Telnet(Module):
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
             "max_telnet_buffer": 16384,
+            "max_command_queue_execution": 6,
             "match_types_generic": {
                 'log_start': [
                     r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
@@ -69,7 +70,9 @@ class Telnet(Module):
         self.run_observer_interval_idle = self.options.get(
             "run_observer_interval_idle", self.default_options.get("run_observer_interval_idle", None)
         )
-
+        self.max_command_queue_execution = self.options.get(
+            "max_command_queue_execution", self.default_options.get("max_command_queue_execution", None)
+        )
         self.telnet_buffer = ""
 
         self.last_execution_time = 0.0
@@ -184,16 +187,27 @@ class Telnet(Module):
             return []
 
     def add_telnet_command_to_queue(self, command):
-        self.telnet_command_queue.appendleft(command)
+        if command not in self.telnet_command_queue:
+            self.telnet_command_queue.appendleft(command)
+            return True
 
-    def execute_telnet_command_queue(self):
+        print("skipped queue", command)
+        return False
+
+    def execute_telnet_command_queue(self, this_many_lines):
         telnet_command_list = []
+        current_queue_length = 0
         done = False
-        while not done:
+        initial_queue_length = len(self.telnet_command_queue)
+        while (current_queue_length < this_many_lines) and not done:
             try:
                 telnet_command_list.append(self.telnet_command_queue.popleft())
+                current_queue_length += 1
             except IndexError:
                 done = True
+        remaining_queue_length = len(self.telnet_command_queue)
+
+        # print(initial_queue_length, ":", remaining_queue_length)
 
         for telnet_command in telnet_command_list:
             command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
@@ -315,7 +329,7 @@ class Telnet(Module):
                     response_count += 1
 
             if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
-                self.execute_telnet_command_queue()
+                self.execute_telnet_command_queue(self.max_command_queue_execution)
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time

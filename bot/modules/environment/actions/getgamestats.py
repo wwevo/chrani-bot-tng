@@ -17,7 +17,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
 
-    module.telnet.add_telnet_command_to_queue("getgamestat")
+    if not module.telnet.add_telnet_command_to_queue("getgamestat"):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
     regex = (
         r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
         r"INF Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"

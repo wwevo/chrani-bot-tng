@@ -25,7 +25,11 @@ def main_function(module, event_data, dispatchers_steamid):
             ))
 
             command = "kick {} \"{}\"".format(player_to_be_kicked, reason)
-            module.telnet.add_telnet_command_to_queue(command)
+
+            if not module.telnet.add_telnet_command_to_queue(command):
+                module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+                return
+
             poll_is_finished = False
             regex = (
                     r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"

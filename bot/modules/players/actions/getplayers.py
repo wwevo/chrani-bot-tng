@@ -11,7 +11,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 2  # [seconds]
     timeout_start = time()
 
-    module.telnet.add_telnet_command_to_queue("lp")
+    if not module.telnet.add_telnet_command_to_queue("lp"):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
     poll_is_finished = False
     regex = (
         r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
@@ -131,7 +134,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
             player_dict["is_online"] = False
             player_dict["is_initialized"] = False
-            player_dict["skip_processing"] = False
 
             players_to_update_dict.update({
                 steamid: player_dict
@@ -172,7 +174,6 @@ def callback_fail(module, event_data, dispatchers_steamid):
         player_dict.update(existing_player_dict)
         player_dict["is_online"] = False
         player_dict["is_initialized"] = False
-        player_dict["skip_processing"] = False
 
         all_modified_players_dict.update({steamid: player_dict})
 

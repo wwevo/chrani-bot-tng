@@ -11,7 +11,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # give the command 3 seconds to come through
     timeout_start = time()
 
-    module.telnet.add_telnet_command_to_queue("getgamepref")
+    if not module.telnet.add_telnet_command_to_queue("getgamepref"):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
 
     regex = (
         r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"

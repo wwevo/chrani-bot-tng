@@ -15,7 +15,10 @@ def kill_entity(module, event_data, dispatchers_steamid=None):
     entity_to_be_killed = event_data[1].get("entity_id", None)
 
     command = "kill {}".format(entity_to_be_killed)
-    module.telnet.add_telnet_command_to_queue(command)
+    if not module.telnet.add_telnet_command_to_queue(command):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
     poll_is_finished = False
     regex = (
         r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"

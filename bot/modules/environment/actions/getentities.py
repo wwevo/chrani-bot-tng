@@ -11,7 +11,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
 
-    module.telnet.add_telnet_command_to_queue("listents")
+    if not module.telnet.add_telnet_command_to_queue("listents"):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
     poll_is_finished = False
     regex = (
         r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"

@@ -50,7 +50,8 @@ def main_function(*args, **kwargs):
                 "y": lobby_dict["coordinates"]["y"],
                 "z": lobby_dict["coordinates"]["z"]
             },
-            'action': 'teleport'
+            'action': 'teleport',
+            'steamid': on_the_move_player_dict.get("steamid")
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)
 

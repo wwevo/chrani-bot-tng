@@ -35,28 +35,19 @@ def main_function(module, event_data, dispatchers_steamid=None):
         # no sense in porting a player to a place they are already standing on ^^
         target_coordinates != player_coordinates
     ]):
-        # setting a flag that the player in question is currently being teleported
-        module.dom.data.upsert({
-            "module_players": {
-                "elements": {
-                    dataset: {
-                        player_to_be_teleported_steamid: {
-                            "skip_processing": True
-                        }
-                    }
-                }
-            }
-        })
-
         command = (
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
-            player_to_be_teleported=player_to_be_teleported_steamid,
+            player_to_be_teleported=player_to_be_teleported_dict.get("steamid"),
             pos_x=target_coordinates["x"],
             pos_y=target_coordinates["y"],
             pos_z=target_coordinates["z"]
         )
-        module.telnet.add_telnet_command_to_queue(command)
+
+        if not module.telnet.add_telnet_command_to_queue(command):
+            event_data[1]["fail_reason"] = "duplicate command"
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
 
         poll_is_finished = False
         regex = (
@@ -65,10 +56,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
         regex +=(
             r"INF\sPlayerSpawnedInWorld\s"
             r"\(reason:\sTeleport,\sposition:\s(?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\):\s"
-            r"EntityID=3415,\sPlayerID='{player_to_be_teleported}',\sOwnerID='{player_to_be_teleported}',\s"
+            r"EntityID={entity_id},\sPlayerID='{player_to_be_teleported}',\sOwnerID='{player_to_be_teleported}',\s"
             r"PlayerName='(?P<player_name>.*)'"
         ).format(
-            player_to_be_teleported=player_to_be_teleported_steamid
+            player_to_be_teleported=player_to_be_teleported_dict.get("steamid"),
+            entity_id=player_to_be_teleported_dict.get("id")
         )
 
         while not poll_is_finished and (time() < timeout_start + timeout):
@@ -81,28 +73,22 @@ def main_function(module, event_data, dispatchers_steamid=None):
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
                 return
 
+        event_data[1]["fail_reason"] = "action timed out"
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
+    event_data[1]["fail_reason"] = "insufficient data for execution"
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    return
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     player_to_be_teleported = event_data[1].get("steamid", None)
     dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
-    # the porting was successful, we can now remove the skip_processing flag """
-    module.dom.data.upsert({
-        "module_players": {
-            "elements": {
-                dataset: {
-                    player_to_be_teleported: {
-                        "skip_processing": False,
-                    }
-                }
-            }
-        }
-    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    print("teleport failed!")
+    print("teleport failed!", event_data[1].get("fail_reason", "no reason known"))
 
 
 action_meta = {

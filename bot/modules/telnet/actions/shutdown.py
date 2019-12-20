@@ -73,7 +73,10 @@ def main_function(module, event_data, dispatchers_steamid):
         })
 
         if not shutdown_canceled:
-            module.telnet.add_telnet_command_to_queue("shutdown")
+            if not module.telnet.add_telnet_command_to_queue("shutdown"):
+                module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+                return
+
             poll_is_finished = False
             regex = (
                 r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"

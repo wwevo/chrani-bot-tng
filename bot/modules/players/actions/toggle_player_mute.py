@@ -15,7 +15,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
     mute_status = event_data[1].get("mute_status", None)
 
     command = "bc-mute {} {}".format(target_player_steamid, mute_status)
-    module.telnet.add_telnet_command_to_queue(command)
+
+    if not module.telnet.add_telnet_command_to_queue(command):
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
     poll_is_finished = False
     regex = (
         r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
