@@ -84,7 +84,7 @@ def modal_view(*args, **kwargs):
 
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     for map_identifier, location_owner in all_available_locations.items():
         if active_dataset == map_identifier:
             for player_steamid, player_locations in location_owner.items():
@@ -144,7 +144,7 @@ def frontend_view(*args, **kwargs):
     table_rows = ""
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     for map_identifier, location_owner in all_available_locations.items():
         if active_dataset == map_identifier:
             for player_steamid, player_locations in location_owner.items():
@@ -394,7 +394,7 @@ def table_row(*args, **kwargs):
         if method == "upsert" or method == "edit":
             active_dataset = (
                 module.dom.data
-                .get("module_environment", {})
+                .get("module_game_environment", {})
                 .get("gameprefs", {})
                 .get("GameName", None)
             )

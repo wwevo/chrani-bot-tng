@@ -7,7 +7,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_steamid = regex_result.group("player_steamid")
     existing_player_dict = (
         module.dom.data
@@ -26,7 +26,7 @@ def main_function(origin_module, module, regex_result):
                 is_muted = False
 
             event_data = ['manage_player_muting', {
-                'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
+                'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
                 'player_steamid': player_steamid,
                 'is_muted': is_muted,
                 'action': 'set mute status'

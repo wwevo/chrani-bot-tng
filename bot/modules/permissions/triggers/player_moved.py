@@ -9,7 +9,7 @@ def main_function(*args, **kwargs):
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
-    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     # only dive into this when not authenticated
     if original_values_dict.get("is_authenticated", False) is False and any([
@@ -24,7 +24,7 @@ def main_function(*args, **kwargs):
             .get(dataset, {})
             .get(updated_values_dict.get("steamid"), {})
         )
-        active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+        active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
         # only proceed when we actually have a lobby
         lobby_dict = (
             module.dom.data

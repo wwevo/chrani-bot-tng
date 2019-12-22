@@ -8,13 +8,13 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     update_player_pos = False
 
     last_recorded_gametime = (
         module.dom.data
-        .get("module_environment", {})
+        .get("module_game_environment", {})
         .get(active_dataset, {})
         .get("last_recorded_gametime", {})
     )

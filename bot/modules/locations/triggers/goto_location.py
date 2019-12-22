@@ -18,7 +18,7 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     location_dict = (
         module.dom.data.get("module_locations", {})

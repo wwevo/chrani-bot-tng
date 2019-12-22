@@ -8,7 +8,6 @@ from bot.mixins.widget import Widget
 
 class Module(Thread, Action, Trigger, Template, Widget):
     """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
-    # we are importing Action and Trigger class to make them available. requires actions and triggers to be there ^^
     options = dict
     stopped = object
 
@@ -30,12 +29,27 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
     def setup(self, provided_options=dict):
         self.options = self.default_options
+        options_filename = "module_" + self.options['module_name'] + ".json"
         if isinstance(provided_options, dict):
             self.options.update(provided_options)
-            print("{}: provided options have been set".format(self.options['module_name']))
+            print(
+                (
+                    "{module_name}: provided options have been set ({options_filename})"
+                ).format(
+                    module_name=self.options['module_name'],
+                    options_filename=options_filename
+                )
+            )
         else:
-            # print("{}: no options provided, default values are used".format(self.default_options["module_name"]))
-            pass
+            print(
+                (
+                    "{module_name}: no options-file provided (was looking for \"{options_filename}\"), "
+                    "default values are used"
+                ).format(
+                    module_name=self.default_options["module_name"],
+                    options_filename=options_filename
+                )
+            )
 
         self.import_triggers()
         self.import_actions()

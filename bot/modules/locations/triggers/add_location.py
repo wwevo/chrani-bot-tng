@@ -14,7 +14,7 @@ def main_function(origin_module, module, regex_result):
     if result:
         location_name = result.group("location_name")
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(active_dataset, {}).get(steamid, {})
     if len(player_dict) >= 1 and result:

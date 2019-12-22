@@ -40,6 +40,7 @@ class Trigger(object):
 
     def execute_telnet_triggers(self):
         telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)
+
         for telnet_line in telnet_lines_to_process:
             for loaded_module in loaded_modules_dict.values():
                 for trigger_name, trigger_group in loaded_module.available_triggers_dict.items():
@@ -48,8 +49,6 @@ class Trigger(object):
                             regex_results = re.search(trigger["regex"], telnet_line)
                             if regex_results:
                                 trigger["callback"](loaded_module, self, regex_results)
-                                message = "executed trigger: {}".format(trigger_name)
-                                # print(message)
                                 # TODO: add method to append log, or create a new one
                                 # TODO: this needs to weed out triggers being called too often
                     except KeyError:

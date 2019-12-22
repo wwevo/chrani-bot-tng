@@ -13,7 +13,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     target_coordinates = event_data[1].get("coordinates", None)
     player_to_be_teleported_steamid = event_data[1].get("steamid", None)
-    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_to_be_teleported_dict = (
         module.dom.data
         .get("module_players", {})
@@ -84,7 +84,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     player_to_be_teleported = event_data[1].get("steamid", None)
-    dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

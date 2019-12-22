@@ -55,14 +55,14 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         )
         entities_to_update_dict = {}
 
-        active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+        active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
         if active_dataset is None:
             return
 
         for m in re.finditer(regex, raw_entity_data):
             last_recorded_gametime = (
                  module.dom.data
-                 .get("module_environment", {})
+                 .get("module_game_environment", {})
                  .get(active_dataset, {})
                  .get("last_recorded_gametime", {})
             )

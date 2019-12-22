@@ -36,7 +36,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     """ without a place to store this, why bother """
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if all([
         active_dataset is None
     ]):
@@ -45,7 +45,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     """ get some basic stuff needed later """
     last_recorded_gametime = (
         module.dom.data
-        .get("module_environment", {})
+        .get("module_game_environment", {})
         .get(active_dataset, {})
         .get("last_recorded_gametime", {})
     )
@@ -157,7 +157,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         return
 
@@ -193,7 +193,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 def skip_it(module, event_data, dispatchers_steamid=None):
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         return
 

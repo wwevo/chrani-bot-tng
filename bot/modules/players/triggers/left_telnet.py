@@ -10,7 +10,7 @@ def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
     executed_trigger = False
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     if command == "disconnected":
         player_steamid = regex_result.group("player_steamid")
@@ -32,7 +32,7 @@ def main_function(origin_module, module, regex_result):
         player_name = player_dict.get("name", regex_result.group("player_name"))
         servertime_player_left = (
             module.dom.data
-            .get("module_environment", {})
+            .get("module_game_environment", {})
             .get(active_dataset, {})
             .get("last_recorded_gametime", {})
         )

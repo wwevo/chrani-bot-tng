@@ -16,7 +16,7 @@ def main_function(origin_module, module, regex_result):
     zombie_id = regex_result.group("entity_id")
     zombie_name = regex_result.group("zombie_name")
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if zombie_name == "zombieScreamer":
         village_dict = (
             module.dom.data
@@ -33,7 +33,7 @@ def main_function(origin_module, module, regex_result):
                 'entity_name': zombie_name,
                 'action': 'kill'
             }]
-            module.trigger_action_hook(origin_module.environment, event_data=event_data)  # no steamid cause it's a s system_call
+            module.trigger_action_hook(origin_module.game_environment, event_data=event_data)  # no steamid cause it's a s system_call
             print(origin_module, event_data)
             event_data = ['say_to_all', {
                 'message': (
@@ -54,7 +54,7 @@ def main_function(origin_module, module, regex_result):
                 )
             }]
 
-        module.trigger_action_hook(origin_module.environment, event_data=event_data)
+        module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
 
 
 trigger_meta = {

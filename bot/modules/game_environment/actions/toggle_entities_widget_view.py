@@ -24,7 +24,7 @@ def main_function(module, event_data, dispatchers_steamid):
 
         if either_true:
             module.dom.data.upsert({
-                "module_environment": {
+                "module_game_environment": {
                     "visibility": {
                         dispatchers_steamid: {
                             "current_view": current_view,

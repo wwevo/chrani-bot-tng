@@ -1,0 +1,9 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
+<div>
+    {{ construct_toggle_link(
+        options_view_toggle,
+        "options", ['widget_event', ['game_environment', ['toggle_entities_widget_view', {'steamid': steamid, "action": "show_options"}]]],
+        "back", ['widget_event', ['game_environment', ['toggle_entities_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
+    )}}
+</div>
+

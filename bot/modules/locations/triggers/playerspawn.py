@@ -6,7 +6,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     player_dict = {
         "pos": {
@@ -19,7 +19,7 @@ def main_function(origin_module, module, regex_result):
 
     servertime_player_joined = (
         module.dom.data
-        .get("module_environment", {})
+        .get("module_game_environment", {})
         .get(active_dataset, {})
         .get("last_recorded_gametime", {})
     )

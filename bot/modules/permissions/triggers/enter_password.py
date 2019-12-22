@@ -17,7 +17,7 @@ def main_function(origin_module, module, regex_result):
         return
 
     event_data = ['manage_authentication', {
-        'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
+        'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
         'player_steamid': steamid,
         'entered_password': entered_password,
         'action': 'set authentication'

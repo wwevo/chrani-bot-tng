@@ -19,7 +19,7 @@ def main_function(*args, **kwargs):
             player_steamid is not None
         ]):
             event_data = ['manage_player_muting', {
-                'dataset': module.dom.data.get("module_environment", {}).get("active_dataset", None),
+                'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
                 'player_steamid': player_steamid,
                 'action': 'set mute status'
             }]

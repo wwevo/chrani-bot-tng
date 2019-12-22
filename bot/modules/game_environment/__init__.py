@@ -1,6 +1,6 @@
 from bot.module import Module
 from bot import loaded_modules_dict
-from time import time, sleep
+from time import time
 
 
 class Environment(Module):
@@ -21,12 +21,12 @@ class Environment(Module):
         ])
 
         self.next_cycle = 0
-        self.run_observer_interval = 5
+        self.run_observer_interval = 3
         Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
-        return "module_environment"
+        return "module_game_environment"
 
     def on_socket_connect(self, steamid):
         Module.on_socket_connect(self, steamid)
@@ -48,7 +48,7 @@ class Environment(Module):
     # endregion
 
     def get_last_recorded_gametime(self):
-        active_dataset = self.dom.data.get("module_environment", {}).get("active_dataset", None)
+        active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset", None)
         if active_dataset is None:
             return "Day {day}, {hour}:{minute}".format(
                 day="n/a",
@@ -58,7 +58,7 @@ class Environment(Module):
 
         last_recorded_gametime = (
              self.dom.data
-             .get("module_environment", {})
+             .get("module_game_environment", {})
              .get(active_dataset, {})
              .get("last_recorded_gametime", {})
         )

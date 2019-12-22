@@ -44,7 +44,7 @@ def modal_view(*args, **kwargs):
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if active_dataset == map_identifier:
             for player_steamid, player_dict in player_dicts.items():
@@ -95,7 +95,7 @@ def frontend_view(*args, **kwargs):
         'manage_players_widget/control_switch_options_view.html'
     )
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
@@ -270,7 +270,7 @@ def show_info_view(*args, **kwargs):
         )
     )
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_dict = (
         module.dom.data
         .get("module_players", {})
@@ -304,7 +304,7 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     method = kwargs.get("method", None)
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():

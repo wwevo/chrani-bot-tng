@@ -24,7 +24,7 @@ class Locations(Module):
         setattr(self, "required_modules", [
             'module_dom',
             'module_dom_management',
-            'module_environment',
+            'module_game_environment',
             'module_players',
             'module_webserver'
         ])

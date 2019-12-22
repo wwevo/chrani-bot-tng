@@ -8,7 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_steamid = regex_result.group("player_steamid")
     existing_player_dict = (
         module.dom.data
@@ -32,7 +32,7 @@ def main_function(origin_module, module, regex_result):
                 },
                 "dataset": active_dataset,
                 "owner": player_steamid,
-                "last_seen_gametime": module.environment.get_last_recorded_gametime()
+                "last_seen_gametime": module.game_environment.get_last_recorded_gametime()
             }
         else:
             player_dict.update(existing_player_dict)
@@ -52,7 +52,7 @@ def main_function(origin_module, module, regex_result):
         player_name = player_dict.get("name", regex_result.group("player_name"))
         servertime_player_joined = (
             module.dom.data
-            .get("module_environment", {})
+            .get("module_game_environment", {})
             .get(active_dataset, {})
             .get("last_recorded_gametime", {})
         )

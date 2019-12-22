@@ -1,1 +1,11 @@
-__all__ = ["dom", "storage", "telnet", "webserver", "environment", "players", "permissions"]
+__all__ = [
+    'dom',
+    'webserver',
+    'dom_management',
+    'telnet',
+    'game_environment',
+    'players',
+    'locations',
+    'permissions',
+    'storage'
+]

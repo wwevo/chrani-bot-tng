@@ -31,7 +31,7 @@ def modal_view(*args, **kwargs):
 
     all_available_entity_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     for map_identifier, entity_dicts in all_available_entity_dicts.items():
         if active_dataset == map_identifier:
             for entity_id, entity_dict in entity_dicts.items():
@@ -42,7 +42,7 @@ def modal_view(*args, **kwargs):
     modal_confirm_delete = module.dom_management.get_delete_confirm_modal(
         module,
         count=all_selected_elements_count,
-        target_module="module_environment",
+        target_module="module_game_environment",
         dom_element_id="entity_table_modal_action_delete_button",
         dom_action="delete_selected_dom_elements",
         dom_element_root=module.dom_element_root,
@@ -77,7 +77,7 @@ def frontend_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('manage_entities_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('manage_entities_widget/control_switch_options_view.html')
 
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     all_available_entity_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
@@ -95,7 +95,7 @@ def frontend_view(*args, **kwargs):
 
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
-                    target_module="module_environment",
+                    target_module="module_game_environment",
                     dom_element_select_root=["selected_by"],
                     dom_element=entity_dict,
                     dom_element_entry_selected=entity_entry_selected,
@@ -127,7 +127,7 @@ def frontend_view(*args, **kwargs):
     dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
         module,
         count=all_selected_elements_count,
-        target_module="module_environment",
+        target_module="module_game_environment",
         dom_element_id="entity_table_widget_action_delete_button",
         dom_action="delete_selected_dom_elements",
         dom_element_root=module.dom_element_root,
@@ -208,13 +208,13 @@ def table_rows(*args, ** kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
     method = kwargs.get("method", None)
-    active_dataset = module.dom.data.get("module_environment", {}).get("active_dataset", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():
             current_view = (
                 module.dom.data
-                .get("module_environment", {})
+                .get("module_game_environment", {})
                 .get("visibility", {})
                 .get(clientid, {})
                 .get("current_view", "frontend")
@@ -233,7 +233,7 @@ def table_rows(*args, ** kwargs):
 
                     selected_entity_entries = (
                         module.dom.data
-                        .get("module_environment", {})
+                        .get("module_game_environment", {})
                         .get("elements", {})
                         .get(active_dataset, {})
                         .get(entity_id, {})
@@ -246,7 +246,7 @@ def table_rows(*args, ** kwargs):
 
                     control_select_link = module.dom_management.get_selection_dom_element(
                         module,
-                        target_module="module_environment",
+                        target_module="module_game_environment",
                         dom_element_select_root=["selected_by"],
                         dom_element=entity_dict,
                         dom_element_entry_selected=entity_entry_selected,
@@ -305,7 +305,7 @@ def update_widget(*args, **kwargs):
             try:
                 current_view = (
                     module.dom.data
-                    .get("module_environment", {})
+                    .get("module_game_environment", {})
                     .get("visibility", {})
                     .get(clientid, {})
                     .get("current_view", "frontend")
@@ -325,7 +325,7 @@ def update_widget(*args, **kwargs):
                         target_element={
                             "id": table_row_id,
                             "parent_id": "manage_entities_widget",
-                            "module": "environment",
+                            "module": "game_environment",
                             "type": "tr",
                             "selector": "body > main > div > div#manage_entities_widget",
                             "class": get_entity_table_row_css_class(entity_dict),
@@ -376,13 +376,13 @@ widget_meta = {
     "description": "sends and updates a table of all currently known entities",
     "main_widget": select_view,
     "handlers": {
-        "module_environment/visibility/%steamid%/current_view":
+        "module_game_environment/visibility/%steamid%/current_view":
             select_view,
-        "module_environment/elements/%map_identifier%/%id%":
+        "module_game_environment/elements/%map_identifier%/%id%":
             table_rows,
-        "module_environment/elements/%map_identifier%/%id%/pos":
+        "module_game_environment/elements/%map_identifier%/%id%/pos":
             update_widget,
-        "module_environment/elements/%map_identifier%/%id%/selected_by":
+        "module_game_environment/elements/%map_identifier%/%id%/selected_by":
             update_selection_status,
     },
     "enabled": True
