@@ -81,6 +81,17 @@ def main_function(module, event_data, dispatchers_steamid):
                         dispatchers_steamid=dispatchers_steamid
                     )
 
+                # hide the modal after success!
+                module.dom.data.upsert({
+                    target_module: {
+                        "visibility": {
+                            dispatchers_steamid: {
+                                "current_view": "frontend"
+                            }
+                        }
+                    }
+                }, dispatchers_steamid=dispatchers_steamid)
+
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid)
                 return
             else:
