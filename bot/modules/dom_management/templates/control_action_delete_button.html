@@ -2,7 +2,7 @@
 <div id="{{ dom_element_id }}" class="delete_button">
 {{ construct_toggle_link(
     delete_selected_entries_active,
-    "delete (" + count|string + ")", ['widget_event', ['dom_management', ['sed', {
+    "delete (" + count|string + ")", ['widget_event', ['dom_management', ['delete', {
         "target_module": target_module,
         "dom_element_root": dom_element_root,
         'action': dom_action,

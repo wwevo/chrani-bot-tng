@@ -45,6 +45,9 @@ class Permissions(Module):
         module = args[0]
         event_data = kwargs.get("event_data", [])
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+        if dispatchers_steamid is None:
+            # no sense in checking system-calls
+            return True
 
         """ Manually for now, this will be handled by a permissions widget. """
         # even_data may contain a "has_permission" data-field.
@@ -54,36 +57,24 @@ class Permissions(Module):
         dispatchers_permission_level = int(
             module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
         )
+        module_identifier = module.get_module_identifier()
 
-        if any([
-            event_data[0] == "toggle_telnet_widget_view",
-            event_data[0] == "toggle_locations_widget_view",
-            event_data[0] == "toggle_entities_widget_view",
-            event_data[0] == "toggle_players_widget_view",
-            event_data[0] == "toggle_webserver_status_widget_view",
+        if all([
+            event_data[0].startswith("toggle_"),
+            event_data[0].endswith("_widget_view")
         ]):
             if event_data[1]["action"] == "show_options":
-                if dispatchers_permission_level >= 2:
-                    permission_denied = True
-            if event_data[1]["action"] == "edit_location_entry":
-                if dispatchers_permission_level >= 2:
-                    permission_denied = True
-                if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
-                    permission_denied = False
-            if event_data[1]["action"] == "show_create_new":
-                if dispatchers_permission_level > 4:
+                if dispatchers_permission_level >= 1:
                     permission_denied = True
 
-        if module.get_module_identifier() == "module_dom_management":
+        if module_identifier == "module_dom_management":
             if any([
-                event_data[0] == "sed",
+                event_data[0] == "delete",
+                event_data[0] == "select"
             ]):
                 if any([
-                    event_data[1]["action"] == "edit_location_entry",
                     event_data[1]["action"] == "select_dom_element",
-                    event_data[1]["action"] == "deselect_dom_element",
-                    event_data[1]["action"] == "enable_location_entry",
-                    event_data[1]["action"] == "disable_location_entry",
+                    event_data[1]["action"] == "deselect_dom_element"
                 ]):
                     if dispatchers_permission_level >= 2:
                         permission_denied = True
@@ -95,27 +86,24 @@ class Permissions(Module):
                     if dispatchers_permission_level >= 2:
                         permission_denied = True
 
-        if module.get_module_identifier() == "module_players":
+        if module_identifier == "module_players":
             if any([
-                event_data[0] == "manage_players",
+                event_data[0] == "manage_players"
             ]):
                 if any([
-                    event_data[1]["action"] == "kick player",
+                    event_data[1]["action"] == "kick player"
                 ]):
                     if dispatchers_permission_level >= 2:
                         permission_denied = True
 
-        if module.get_module_identifier() == "module_locations":
+        if module_identifier == "module_locations":
             if any([
                 event_data[0] == "manage_locations",
                 event_data[0] == "management_tools",
-                event_data[0] == "sed",
-                event_data[0] == "toggle_locations_view"
+                event_data[0] == "toggle_locations_widget_view"
             ]):
                 if any([
                     event_data[1]["action"] == "edit_location_entry",
-                    event_data[1]["action"] == "select_dom_element",
-                    event_data[1]["action"] == "deselect_dom_element",
                     event_data[1]["action"] == "enable_location_entry",
                     event_data[1]["action"] == "disable_location_entry"
                 ]):
@@ -124,12 +112,12 @@ class Permissions(Module):
                     if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
                         permission_denied = False
                 if any([
-                    event_data[1]["action"] == "show_create_new",
+                    event_data[1]["action"] == "show_create_new"
                 ]):
                     if dispatchers_permission_level > 4:
                         permission_denied = True
 
-        if module.get_module_identifier() == "module_telnet":
+        if module_identifier == "module_telnet":
             if any([
                     event_data[0] == "shutdown"
             ]):
@@ -147,7 +135,7 @@ class Permissions(Module):
     def template_render_hook_with_permission(*args, **kwargs):
         module = args[0]
         template = kwargs.get("template", None)
-        # print(module.get_module_identifier(), args, kwargs)
+        # print(module_identifier, args, kwargs)
         return module.template_render(*args, **kwargs)
 
     def set_permission_hooks(self):

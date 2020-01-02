@@ -4,7 +4,7 @@
 {% set dataset = dom_element.dataset|default("null") %}
 {{ construct_toggle_link(
     dom_element_entry_selected,
-    "&#9745;", ['widget_event', ['dom_management', ['sed', {
+    "&#9745;", ['widget_event', ['dom_management', ['select', {
         "dom_element_select_root": dom_element_select_root,
         "target_module": target_module,
         "dom_element_owner": owner,
@@ -12,7 +12,7 @@
         "dom_element_origin": dataset,
         'action': dom_action_active
     }]]],
-    "&#9744;", ['widget_event', ['dom_management', ['sed', {
+    "&#9744;", ['widget_event', ['dom_management', ['select', {
         "dom_element_select_root": dom_element_select_root,
         "target_module": target_module,
         "dom_element_owner": owner,
