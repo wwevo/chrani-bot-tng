@@ -47,7 +47,8 @@ class Permissions(Module):
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
         if dispatchers_steamid is None:
             # no sense in checking system-calls
-            return True
+            action_result = module.trigger_action(module, event_data=event_data)
+            return action_result
 
         """ Manually for now, this will be handled by a permissions widget. """
         # even_data may contain a "has_permission" data-field.
