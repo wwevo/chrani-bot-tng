@@ -34,7 +34,7 @@ def main_function(module, event_data, dispatchers_steamid):
                     }
                 }
             }
-        })
+        }, dispatchers_steamid=player_steamid)
 
         if is_authenticated is True:
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
