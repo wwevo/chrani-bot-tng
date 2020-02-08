@@ -18,7 +18,7 @@ def main_function(module, event_data, dispatchers_steamid):
             location_coordinates = event_data[1].get("location_coordinates", {})
             # print("tele {} {} {} {}".format(dispatchers_steamid, location_coordinates["x"], location_coordinates["y"], location_coordinates["z"]))
             module.trigger_action_hook(module.players, event_data=["teleport_player", {
-                "steamid": event_data[1].get("steamid", None),
+                "steamid": event_data[1].get("steamid", dispatchers_steamid),
                 "coordinates": location_coordinates
             }])
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
