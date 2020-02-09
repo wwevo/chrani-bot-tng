@@ -15,35 +15,46 @@ def main_function(origin_module, module, regex_result):
     }
     zombie_id = regex_result.group("entity_id")
     zombie_name = regex_result.group("zombie_name")
+    screamer_safe_locations = origin_module.default_options.get("screamer_safe_locations", [])
 
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if zombie_name == "zombieScreamer":
-        village_dict = (
-            module.dom.data
-            .get("module_locations", {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get("76561198040658370", {})
-            .get("Chraniville", {})
-        )
-        if origin_module.locations.position_is_inside_boundary(position_dict, village_dict):
-            event_data = ['manage_entities', {
-                'dataset': active_dataset,
-                'entity_id': zombie_id,
-                'entity_name': zombie_name,
-                'action': 'kill'
-            }]
-            module.trigger_action_hook(origin_module.game_environment, event_data=event_data)  # no steamid cause it's a s system_call
-            print(origin_module, event_data)
-            event_data = ['say_to_all', {
-                'message': (
-                    '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
-                    '[FFFFFF]inside [CCCCFF]{village_name}[FFFFFF].[-]'.format(
-                        entity_id=zombie_id,
-                        village_name=village_dict.get("name")
+        for location in screamer_safe_locations:
+            location_owner = location.get("owner", None)
+            location_identifier = location.get("identifier", None)
+            print(location_owner, location_identifier)
+
+            location_dict = (
+                module.dom.data
+                .get("module_locations", {})
+                .get("elements", {})
+                .get(active_dataset, {})
+                .get(location_owner, {})
+                .get(location_identifier)
+            )
+
+            if origin_module.locations.position_is_inside_boundary(position_dict, location_dict):
+                event_data = ['manage_entities', {
+                    'dataset': active_dataset,
+                    'entity_id': zombie_id,
+                    'entity_name': zombie_name,
+                    'action': 'kill'
+                }]
+                module.trigger_action_hook(origin_module.game_environment, event_data=event_data)  # no steamid cause it's a system_call
+                print(origin_module, event_data)
+                event_data = ['say_to_all', {
+                    'message': (
+                        '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
+                        '[FFFFFF]inside [CCCCFF]{location_name}[FFFFFF].[-]'.format(
+                            entity_id=zombie_id,
+                            location_name=location_dict.get("name")
+                        )
                     )
-                )
-            }]
+                }]
+                module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
+                # we only need to match one location. even though a screamer can be in multiple locations at once,
+                # we stil only have to kill it once :)
+                break
         else:
             event_data = ['say_to_all', {
                 'message': (
@@ -53,8 +64,7 @@ def main_function(origin_module, module, regex_result):
                     )
                 )
             }]
-
-        module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
+            module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
 
 
 trigger_meta = {

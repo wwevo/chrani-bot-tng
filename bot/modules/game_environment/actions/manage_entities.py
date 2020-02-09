@@ -26,11 +26,7 @@ def kill_entity(module, event_data, dispatchers_steamid=None):
     )
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
-        match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
-            poll_is_finished = True
-
-        if match:
             return match
 
     return False
