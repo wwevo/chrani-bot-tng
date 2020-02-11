@@ -5,6 +5,27 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
+def weekday(m):
+    if float(m) % float(7) == 0:
+        current_day = "Sunday"
+    elif float(m) % float(6) == 0:
+        current_day = "Saturday"
+    elif float(m) % float(5) == 0:
+        current_day = "Friday"
+    elif float(m) % float(4) == 0:
+        current_day = "Thursday"
+    elif float(m) % float(3) == 0:
+        current_day = "Wednesday"
+    elif float(m) % float(2) == 0:
+        current_day = "Tuesday"
+    elif float(m) % float(1) == 0:
+        current_day = "Monday"
+    else:
+        current_day = "n/a"
+
+    return current_day
+
+
 def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
@@ -16,6 +37,8 @@ def main_widget(*args, **kwargs):
         "hour": "00",
         "minute": "00",
     })
+    gametime["weekday"] = weekday(gametime["day"])
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
@@ -49,6 +72,8 @@ def update_widget(*args, **kwargs):
     if gametime == old_gametime:
         pass
         # return
+
+    gametime["weekday"] = weekday(gametime["day"])
 
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     data_to_emit = module.template_render_hook(

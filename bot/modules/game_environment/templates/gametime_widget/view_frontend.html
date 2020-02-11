@@ -1,4 +1,8 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 <div>
-    <span>Day {{ last_recorded_gametime["day"] }}, {{ last_recorded_gametime["hour"] }}:{{ last_recorded_gametime["minute"] }}</span>
+    <span>
+        Day {{ last_recorded_gametime["day"] }},
+        {{ last_recorded_gametime["hour"] }}:{{ last_recorded_gametime["minute"] }}
+        ({{ last_recorded_gametime["weekday"] }})
+    </span>
 </div>
