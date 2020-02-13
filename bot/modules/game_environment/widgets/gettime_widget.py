@@ -23,6 +23,24 @@ def get_weekday_string(server_days_passed):
         return "n/a"
 
 
+def is_currently_bloodmoon(module, day, time):
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    next_bloodmoon_date = (
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("BloodMoonDay", None)
+    )
+
+    if int(next_bloodmoon_date) == int(day) and 22 >= int(time) <= 23:
+        return True
+    if (int(next_bloodmoon_date) + 1) == int(day) and 0 <= int(time) <= 4:
+        return True
+
+    return False
+
+
 def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
@@ -35,6 +53,7 @@ def main_widget(*args, **kwargs):
         "minute": "00",
     })
     gametime["weekday"] = get_weekday_string(gametime["day"])
+    gametime["is_bloodmoon"] = is_currently_bloodmoon(module, gametime["day"], gametime["hour"])
 
     data_to_emit = module.template_render_hook(
         module,
@@ -71,6 +90,7 @@ def update_widget(*args, **kwargs):
         # return
 
     gametime["weekday"] = get_weekday_string(gametime["day"])
+    gametime["is_bloodmoon"] = is_currently_bloodmoon(module, gametime["day"], gametime["hour"])
 
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     data_to_emit = module.template_render_hook(
