@@ -22,7 +22,6 @@ def main_function(origin_module, module, regex_result):
         for location in screamer_safe_locations:
             location_owner = location.get("owner", None)
             location_identifier = location.get("identifier", None)
-            print(location_owner, location_identifier)
 
             location_dict = (
                 module.dom.data
@@ -41,7 +40,7 @@ def main_function(origin_module, module, regex_result):
                     'action': 'kill'
                 }]
                 module.trigger_action_hook(origin_module.game_environment, event_data=event_data)  # no steamid cause it's a system_call
-                print(origin_module, event_data)
+
                 event_data = ['say_to_all', {
                     'message': (
                         '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
