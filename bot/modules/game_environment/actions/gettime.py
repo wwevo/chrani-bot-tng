@@ -40,6 +40,9 @@ def is_currently_bloodmoon(module, day, hour=None):
             return True
         if (int(next_bloodmoon_date) + 1) == int(day) and 0 <= int(hour) <= 4:
             return True
+    else:  # we only want the day
+        if int(next_bloodmoon_date) == int(day):
+            return True
 
     return False
 
@@ -92,6 +95,11 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     "is_bloodmoon": (
                         "BM"
                         if is_currently_bloodmoon(module, match.group("day"), match.group("hour")) else
+                        "Regular"
+                    ),
+                    "is_bloodday": (
+                        "BD"
+                        if is_currently_bloodmoon(module, match.group("day")) else
                         "Regular"
                     )
                 }
