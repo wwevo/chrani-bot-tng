@@ -1,10 +1,8 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 <div>
     <span>
-        Day {{ last_recorded_gametime["day"] }},
-        {{ last_recorded_gametime["hour"] }}:{{ last_recorded_gametime["minute"] }}
-        ({{ last_recorded_gametime["weekday"] }})
-        {{ last_recorded_gametime["is_bloodday"] }}
-        {{ last_recorded_gametime["is_bloodmoon"] }}
+        Day <span class="day">{{ last_recorded_gametime["day"] }}</span>,
+        <span class="time{%- if last_recorded_gametime["is_bloodmoon"] == true %} bloodmoon{%- endif -%}">{{ last_recorded_gametime["hour"] }}:{{ last_recorded_gametime["minute"] }}</span>
+        ({%- if last_recorded_gametime["is_bloodday"] == true %}BloodDay{%- else -%}{{ last_recorded_gametime["weekday"] }}{%- endif -%})
     </span>
 </div>

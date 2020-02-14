@@ -427,6 +427,19 @@ body > header #gametime_widget {
     margin-left: 1em;
     order: -1;
 }
+
+body > header #gametime_widget span.time {
+    padding: 0 var(--main_table_gutter);
+}
+
+body > header #gametime_widget span.day.bloodday,
+body > header #gametime_widget span.time.bloodmoon {
+    color: var(--lcars-red);
+}
+
+body > header #gametime_widget span.time.bloodmoon {
+    background-color: var(--background);
+}
 /* region header_widgets -> end */
 /* region main_widgets -> start */
 /* Widget positions -> start */
