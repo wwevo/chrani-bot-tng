@@ -5,7 +5,6 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-
 def main_widget(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
@@ -21,10 +20,19 @@ def main_widget(*args, **kwargs):
         "is_bloodday": ""
     })
 
+    next_bloodmoon_date = (
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("BloodMoonDay", None)
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
         last_recorded_gametime=gametime,
+        next_bloodmoon_date=next_bloodmoon_date
     )
 
     module.webserver.send_data_to_client_hook(
@@ -55,11 +63,21 @@ def update_widget(*args, **kwargs):
         pass
         # return
 
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    next_bloodmoon_date = (
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("BloodMoonDay", None)
+    )
+
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
         last_recorded_gametime=gametime,
+        next_bloodmoon_date=next_bloodmoon_date
     )
 
     module.webserver.send_data_to_client_hook(
