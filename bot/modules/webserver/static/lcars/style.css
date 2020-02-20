@@ -469,9 +469,9 @@ body > main > div #unauthorized_disclaimer p {
     padding-bottom: 1em;
 }
 
-#manage_entities_widget tbody > tr:hover *,
-#manage_locations_widget tbody > tr:hover *,
-#manage_players_widget tbody > tr:hover * {
+#manage_entities_widget tbody#entity_table > tr:hover *,
+#manage_locations_widget tbody#location_table > tr:hover *,
+#manage_players_widget tbody#player_table > tr:hover * {
     background-color: var(--lcars-yellow);
     color: var(--background)
 }
