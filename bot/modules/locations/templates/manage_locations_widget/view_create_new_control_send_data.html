@@ -3,6 +3,10 @@
 <script language="javascript">
     function send_location_data_to_bot() {
         let location_shape = $("input[name='location_shape']:checked").val();
+        let checked_location_types = new Array();
+        $.each($("input[name='location_type[]']:checked"), function() {
+          checked_location_types.push($(this).val());
+        });
         let location_coordinates_x = $("input[name='location_coordinates_x']").val();
         let location_coordinates_y = $("input[name='location_coordinates_y']").val();
         let location_coordinates_z = $("input[name='location_coordinates_z']").val();
@@ -28,6 +32,7 @@
             ['locations', ['manage_locations', {
                 'location_identifier': location_identifier,
                 'location_shape': location_shape,
+                'location_type': checked_location_types,
                 'location_coordinates': location_coordinates,
                 'location_dimensions': location_dimensions,
                 'location_name': location_name,
