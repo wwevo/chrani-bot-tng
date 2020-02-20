@@ -84,9 +84,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         if event_data[1]["disable_after_success"]:
             module.disable_action(action_name)
 
-        print("working with the \"{}\" dataset".format(current_game_name))
+        print("system:", "working with the \"{}\" dataset".format(current_game_name))
     else:
-        print("stuff is missing. bot ain't working")
+        print("system:", "stuff is missing. bot ain't working")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

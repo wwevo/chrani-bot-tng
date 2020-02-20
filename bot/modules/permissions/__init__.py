@@ -126,7 +126,7 @@ class Permissions(Module):
                     permission_denied = True
 
         if permission_denied:
-            print("permission denied for {} ({})".format(event_data[0], dispatchers_steamid))
+            print("permissions:", "permission denied for {} ({})".format(event_data[0], dispatchers_steamid))
 
         event_data[1]["has_permission"] = not permission_denied
         action_result = module.trigger_action(module, event_data=event_data, dispatchers_steamid=dispatchers_steamid)

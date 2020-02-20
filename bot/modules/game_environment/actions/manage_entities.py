@@ -45,7 +45,6 @@ def main_function(module, event_data, dispatchers_steamid):
     if action is not None:
         if action == "kill":
             match = kill_entity(module, event_data, dispatchers_steamid)
-            print(entity_name, action, match)
             if match is not False:
                 if entity_name == "zombieScreamer":
                     module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)

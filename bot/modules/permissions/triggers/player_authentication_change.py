@@ -29,7 +29,8 @@ def main_function(*args, **kwargs):
 
             module.trigger_action_hook(module, event_data=event_data)
         else:
-            print("authentication failed")
+            # print("authentication failed")
+            pass
 
     except AttributeError:
         pass

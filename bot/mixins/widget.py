@@ -28,13 +28,8 @@ class Widget(object):
 
     @staticmethod
     def template_render(*args, **kwargs):
-        module = args[0]
         template = kwargs.get("template", None)
-        if template is not None:
-            rendered_template = template.render(**kwargs)
-            return rendered_template
-
-        return False
+        return template.render(**kwargs)
 
     @staticmethod
     def get_all_available_widgets_dict():
@@ -50,7 +45,6 @@ class Widget(object):
             for name, widget in self.available_widgets_dict.items():
                 for trigger, handler in widget["handlers"].items():
                     self.dom.data.register_callback(self, trigger, handler)
-                    # print(trigger, handler)
 
     def register_widget(self, identifier, widget_dict):
         if widget_dict.get("enabled", True):

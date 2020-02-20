@@ -191,7 +191,6 @@ class Telnet(Module):
             self.telnet_command_queue.appendleft(command)
             return True
 
-        print("skipped queue", command)
         return False
 
     def execute_telnet_command_queue(self, this_many_lines):
@@ -313,18 +312,21 @@ class Telnet(Module):
                             pass
 
                     if valid_telnet_line is not None:
-                        elements_excluded_from_logs = ["'lp'", "'gettime'", "'listents'"]
+                        elements_excluded_from_logs = [
+                            "'lp'", "'gettime'", "'listents'",  # system calls
+                            "INF Time: ", "SleeperVolume", " killed by "  # irrelevant lines for now
+                        ]
                         if not any(exclude_element in valid_telnet_line for exclude_element in elements_excluded_from_logs):
-                            print(valid_telnet_line)
+                            if len(self.webserver.connected_clients) >= 1:
+                                self.dom.data.append({
+                                    self.get_module_identifier(): {
+                                        "telnet_lines": valid_telnet_line
+                                    }
+                                }, maxlen=150)
+
+                        print(valid_telnet_line)
 
                         self.valid_telnet_lines.append(valid_telnet_line)
-
-                        if len(self.webserver.connected_clients) >= 1:
-                            self.dom.data.append({
-                                self.get_module_identifier(): {
-                                    "telnet_lines": valid_telnet_line
-                                }
-                            }, maxlen=150)
 
                     response_count += 1
 

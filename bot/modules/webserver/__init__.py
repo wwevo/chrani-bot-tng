@@ -127,7 +127,6 @@ class Webserver(Module):
             print("{}: discovered IP: {}".format(self.options.get("module_name"), host))
         except Exception as error:
             host = self.default_options.get("host")
-            print(type(error))
             print("{}: could not find IP, using {} instead!".format(self.options.get("module_name"), host))
         finally:
             s.close()

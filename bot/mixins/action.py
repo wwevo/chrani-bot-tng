@@ -65,12 +65,7 @@ class Action(object):
 
             if dispatchers_steamid is not None:
                 # none would be a system-call
-                print(
-                    "enabled:", action_is_enabled,
-                    dispatchers_steamid,
-                    "executed \"", event_data[0], "\"",
-                    "options:", event_data[1]
-                )
+                pass
 
             if action_is_enabled:
                 event_data[1]["module"] = target_module.getName()
