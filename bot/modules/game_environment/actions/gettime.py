@@ -7,7 +7,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def get_weekday_string(server_days_passed):
+def get_weekday_string(server_days_passed: int) -> str:
     days_of_the_week = [
         "Sunday",
         "Monday",
@@ -22,12 +22,12 @@ def get_weekday_string(server_days_passed):
     if 0 <= current_day_index <= 6:
         return days_of_the_week[current_day_index]
     else:
-        return "n/a"
+        return ""
 
 
-def is_currently_bloodmoon(module, day, hour=None):
+def is_currently_bloodmoon(module: object, day: int, hour: int = -1) -> bool:
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    next_bloodmoon_date = (
+    next_bloodmoon_date = int(
         module.dom.data
         .get("module_game_environment", {})
         .get(active_dataset, {})
@@ -35,13 +35,24 @@ def is_currently_bloodmoon(module, day, hour=None):
         .get("BloodMoonDay", None)
     )
 
-    if hour is not None:  # we want the exact bloodmoon
-        if int(next_bloodmoon_date) == int(day) and 23 >= int(hour) >= 22:
+    daylight_length = int(
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("DayLightLength", None)
+    )
+
+    night_length = (24 - daylight_length)
+    morning_length = (night_length - 2)
+
+    if hour >= 0:  # we want the exact bloodmoon
+        if next_bloodmoon_date == day and 23 >= hour >= 22:
             return True
-        if (int(next_bloodmoon_date) + 1) == int(day) and 0 <= int(hour) <= 4:
+        if (next_bloodmoon_date + 1) == day and 0 <= hour <= morning_length:
             return True
     else:  # we only want the day
-        if int(next_bloodmoon_date) == int(day):
+        if next_bloodmoon_date == day:
             return True
 
     return False
@@ -84,24 +95,25 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     if active_dataset is None:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
+    matched_day = int(match.group("day"))
+    matched_hour = int(match.group("hour"))
+    matched_minute = int(match.group("minute"))
+
+    is_bloodmoon = (True if is_currently_bloodmoon(module, matched_day, matched_hour) else False)
+    is_bloodday = (True if is_currently_bloodmoon(module, matched_day) else False)
+
+    weekday_string = get_weekday_string(matched_day)
+
     module.dom.data.upsert({
         module.get_module_identifier(): {
             active_dataset: {
                 "last_recorded_gametime": {
-                    "day": match.group("day"),
-                    "hour": match.group("hour"),
-                    "minute": match.group("minute"),
-                    "weekday": get_weekday_string(match.group("day")),
-                    "is_bloodmoon": (
-                        True
-                        if is_currently_bloodmoon(module, match.group("day"), match.group("hour")) else
-                        False
-                    ),
-                    "is_bloodday": (
-                        True
-                        if is_currently_bloodmoon(module, match.group("day"), None) else
-                        False
-                    )
+                    "day": matched_day,
+                    "hour": matched_hour,
+                    "minute": matched_minute,
+                    "weekday": weekday_string,
+                    "is_bloodmoon": is_bloodmoon,
+                    "is_bloodday": is_bloodday
                 }
             }
         }
