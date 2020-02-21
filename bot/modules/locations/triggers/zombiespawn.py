@@ -39,7 +39,8 @@ def main_function(origin_module, module, regex_result):
                     'entity_name': zombie_name,
                     'action': 'kill'
                 }]
-                module.trigger_action_hook(origin_module.game_environment, event_data=event_data)  # no steamid cause it's a system_call
+                # no steamid cause it's a system_call
+                module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
 
                 event_data = ['say_to_all', {
                     'message': (
@@ -52,7 +53,7 @@ def main_function(origin_module, module, regex_result):
                 }]
                 module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
                 # we only need to match one location. even though a screamer can be in multiple locations at once,
-                # we stil only have to kill it once :)
+                # we still only have to kill it once :)
                 break
         else:
             event_data = ['say_to_all', {
