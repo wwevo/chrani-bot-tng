@@ -14,21 +14,21 @@ def main_function(origin_module, module, regex_result):
     player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(active_dataset, {}).get(steamid, {})
     location_dict = (
         module.dom.data.get("module_locations", {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get(steamid, {})
-            .get(location_identifier, {})
+        .get("elements", {})
+        .get(active_dataset, {})
+        .get(steamid, {})
+        .get(location_identifier, {})
     )
 
     if len(player_dict) >= 1 and len(location_dict) >= 1:
         event_data = ['management_tools', {
-                        'location_coordinates': {
-                            "x": location_dict["coordinates"]["x"],
-                            "y": location_dict["coordinates"]["y"],
-                            "z": location_dict["coordinates"]["z"]
-                        },
-                        'action': 'teleport'
-                    }]
+            'location_coordinates': {
+                "x": location_dict["coordinates"]["x"],
+                "y": location_dict["coordinates"]["y"],
+                "z": location_dict["coordinates"]["z"]
+            },
+            'action': 'teleport'
+        }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 

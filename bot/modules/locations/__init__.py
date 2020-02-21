@@ -67,6 +67,28 @@ class Locations(Module):
         Module.start(self)
     # endregion
 
+    def get_elements_by_type(self, location_type: str, var=None):
+        if var is None:
+            active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+            var = (
+                self.dom.data
+                .get("module_locations", {})
+                .get("elements", {})
+                .get(active_dataset, {})
+            )
+        if hasattr(var, 'items'):
+            for k, v in var.items():
+                if k == "type":
+                    if location_type in v:
+                        yield var
+                if isinstance(v, dict):
+                    for result in self.get_elements_by_type(location_type, v):
+                        yield result
+                elif isinstance(v, list):
+                    for d in v:
+                        for result in self.get_elements_by_type(location_type, d):
+                            yield result
+
     @staticmethod
     def position_is_inside_boundary(position_dict=None, boundary_dict=None):
         position_is_inside_boundary = False

@@ -15,23 +15,15 @@ def main_function(origin_module, module, regex_result):
     }
     zombie_id = regex_result.group("entity_id")
     zombie_name = regex_result.group("zombie_name")
-    screamer_safe_locations = origin_module.default_options.get("screamer_safe_locations", [])
+
+    screamer_safe_locations = []
+    for screamer_safe_location in origin_module.get_elements_by_type("is_screamerfree"):
+        screamer_safe_locations.append(screamer_safe_location)
+        found_screamer_safe_location = True
 
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if zombie_name == "zombieScreamer":
-        for location in screamer_safe_locations:
-            location_owner = location.get("owner", None)
-            location_identifier = location.get("identifier", None)
-
-            location_dict = (
-                module.dom.data
-                .get("module_locations", {})
-                .get("elements", {})
-                .get(active_dataset, {})
-                .get(location_owner, {})
-                .get(location_identifier)
-            )
-
+        for location_dict in screamer_safe_locations:
             if origin_module.locations.position_is_inside_boundary(position_dict, location_dict):
                 event_data = ['manage_entities', {
                     'dataset': active_dataset,

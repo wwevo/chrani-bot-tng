@@ -6,28 +6,16 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
-    location_identifier = "MyHome"
-    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-
     player_steamid = regex_result.group("player_steamid")
 
-    player_dict = (
-        module.dom.data
-        .get("module_players", {})
-        .get("elements", {})
-        .get(active_dataset, {})
-        .get(player_steamid, {})
-    )
+    found_home = False
+    location_dict = {}
+    for home in origin_module.get_elements_by_type("is_home"):
+        if home.get("owner") == player_steamid:
+            location_dict = home
+            found_home = True
 
-    location_dict = (
-        module.dom.data.get("module_locations", {})
-        .get("elements", {})
-        .get(active_dataset, {})
-        .get(player_steamid, {})
-        .get(location_identifier, {})
-    )
-
-    if len(player_dict) >= 1 and len(location_dict) >= 1:
+    if found_home is True and len(location_dict) >= 1:
         event_data = ['management_tools', {
             'location_coordinates': {
                 "x": location_dict["coordinates"]["x"],

@@ -11,6 +11,14 @@ def main_function(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", {})
     dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
+    found_lobby = False
+    for lobby in module.locations.get_elements_by_type("is_lobby"):
+        lobby_dict = lobby
+        found_lobby = True
+
+    if found_lobby is False:
+        return
+
     # only dive into this when not authenticated
     if original_values_dict.get("is_authenticated", False) is False and any([
         original_values_dict.get("pos", {}).get("x") != updated_values_dict.get("pos", {}).get("x"),
@@ -24,18 +32,6 @@ def main_function(*args, **kwargs):
             .get(dataset, {})
             .get(updated_values_dict.get("steamid"), {})
         )
-        active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-        # only proceed when we actually have a lobby
-        lobby_dict = (
-            module.dom.data
-            .get("module_locations", {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get("76561198040658370", {})
-            .get("Lobby", False)
-        )
-        if lobby_dict is False:
-            return
 
         pos_is_inside_coordinates = module.locations.position_is_inside_boundary(updated_values_dict, lobby_dict)
         if pos_is_inside_coordinates is True:
