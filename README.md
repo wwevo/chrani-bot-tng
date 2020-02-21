@@ -20,15 +20,16 @@ from the authentication process of course ^^
 * Module based functionality
 * Monitor the games telnet-log
 * Simple triggers to react to the telnet-log
-  * player-join events are monitored to update playerdata during login/logout
-  * commands can be entered into the games chat-widow and then parsed by tge bot
 * Central Database with access triggers
 * Socket/Push based webinterface that is triggered by changes to the database
 * Widget system to easily extend the webinterface
 * Multiple Servers can be managed with one bot (simplified for now)
 * Epic **LCARS**-Style Interface :)
 * Entities are being tracked (Players, Vehicles, Animals, Zombies)
-  * Screamer protection can be activated for locations, all screamer will get killed after spawning 
+  * Screamer protection can be activated for locations, all screamer will get killed after spawning
+  * Locations can function as a Lobby
+  * Locations can be a Home
+  * Locations can be a Village 
 
 * The following widgets are (partly) implemented
   * Telnet-log widget
@@ -36,6 +37,7 @@ from the authentication process of course ^^
   * Location widget (create, edit, delete, records time and place of death)
   * (Timed) Remote shutdown procedure
   * Simple gametime display
+    * Will show the next Bloodmoon
   * Entity widget
   * permissions widget to gate commands
     * a location can be designated as a Lobby to keep people in
