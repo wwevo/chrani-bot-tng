@@ -96,10 +96,10 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
     matched_day = int(match.group("day"))
-    matched_hour = int(match.group("hour"))
-    matched_minute = int(match.group("minute"))
+    matched_hour = match.group("hour")
+    matched_minute = match.group("minute")
 
-    is_bloodmoon = (True if is_currently_bloodmoon(module, matched_day, matched_hour) else False)
+    is_bloodmoon = (True if is_currently_bloodmoon(module, matched_day, int(matched_hour)) else False)
     is_bloodday = (True if is_currently_bloodmoon(module, matched_day) else False)
 
     weekday_string = get_weekday_string(matched_day)
