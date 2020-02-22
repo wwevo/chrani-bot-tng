@@ -134,6 +134,14 @@ def frontend_view(*args, **kwargs):
         'manage_locations_widget/control_switch_create_new_view.html'
     )
 
+    control_player_location_view = module.templates.get_template(
+        'manage_locations_widget/control_player_location.html'
+    )
+
+    player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
     control_edit_link = module.templates.get_template('manage_locations_widget/control_edit_link.html')
     control_enabled_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
@@ -221,6 +229,13 @@ def frontend_view(*args, **kwargs):
                 template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True
+            ),
+            control_player_location_view=module.template_render_hook(
+                module,
+                template=control_player_location_view,
+                pos_x=player_coordinates["x"],
+                pos_y=player_coordinates["y"],
+                pos_z=player_coordinates["z"]
             )
         ),
         table_header=module.template_render_hook(

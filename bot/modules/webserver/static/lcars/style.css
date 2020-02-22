@@ -660,6 +660,12 @@ footer > div > p {
     background-color: var(--lcars-yellow);
 }
 
+.widget .pull_out > div > span.info > div > span {
+    margin-left: 0.5em;
+    flex: 1;
+    text-align: left;
+}
+
 .widget .pull_out span a,
 .widget .pull_out span a:visited,
 .widget .pull_out span > div {
