@@ -21,6 +21,9 @@ def main_function(module, event_data, dispatchers_steamid):
             current_view = "create_new"
         elif action == "edit_location_entry":
             current_view = "edit_location_entry"
+        elif action == "show_special_locations":
+            current_view = "special_locations"
+            current_view_steamid = None
         else:
             current_view = "frontend"
             either_true = False

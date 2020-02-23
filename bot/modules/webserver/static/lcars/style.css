@@ -604,8 +604,11 @@ footer > div > p {
 .widget > main > table > tbody > tr > td {
     font-size: 1em;
     line-height: 1.5em;
-    white-space: nowrap;
     padding: 0 calc(var(--main_table_gutter) / 2);
+}
+
+.widget > main > table.data_table > tbody > tr > td {
+    white-space: nowrap;
 }
 
 .widget > main > table > tbody > tr > td:last-child {

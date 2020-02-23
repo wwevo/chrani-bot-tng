@@ -34,6 +34,12 @@ def select_view(*args, **kwargs):
             dispatchers_steamid=dispatchers_steamid,
             current_view=current_view
         )
+    elif current_view == "special_locations":
+        special_locations_view(
+            module,
+            dispatchers_steamid=dispatchers_steamid,
+            current_view=current_view
+        )
     elif current_view == "modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
         modal_view(module, dispatchers_steamid=dispatchers_steamid)
@@ -134,6 +140,10 @@ def frontend_view(*args, **kwargs):
         'manage_locations_widget/control_switch_create_new_view.html'
     )
 
+    template_special_locations_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
     control_player_location_view = module.templates.get_template(
         'manage_locations_widget/control_player_location.html'
     )
@@ -230,6 +240,12 @@ def frontend_view(*args, **kwargs):
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True
             ),
+            control_switch_special_locations_view=module.template_render_hook(
+                module,
+                template=template_special_locations_toggle_view,
+                steamid=dispatchers_steamid,
+                special_locations_view_toggle=True
+            ),
             control_player_location_view=module.template_render_hook(
                 module,
                 template=control_player_location_view,
@@ -298,8 +314,47 @@ def options_view(*args, **kwargs):
             )
         ),
         widget_options=module.options,
-        available_actions=module.all_available_actions_dict,
-        available_widgets=module.all_available_widgets_dict
+        available_actions=module.available_actions_dict,
+        available_triggers=module.available_triggers_dict,
+        available_widgets=module.available_widgets_dict
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "manage_locations_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def special_locations_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
+    template_frontend = module.templates.get_template('manage_locations_widget/view_special_locations.html')
+    template_special_locations_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
+    template_special_locations_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template=template_frontend,
+        options_toggle=module.template_render_hook(
+            module,
+            template=template_special_locations_toggle,
+            control_switch_options_view=module.template_render_hook(
+                module,
+                template=template_special_locations_toggle_view,
+                steamid=dispatchers_steamid,
+                options_view_toggle=False,
+            )
+        )
     )
 
     module.webserver.send_data_to_client_hook(
