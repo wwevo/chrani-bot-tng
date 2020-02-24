@@ -35,7 +35,7 @@ def select_view(*args, **kwargs):
             current_view=current_view
         )
     elif current_view == "special_locations":
-        special_locations_view(
+        frontend_view(
             module,
             dispatchers_steamid=dispatchers_steamid,
             current_view=current_view
@@ -128,6 +128,7 @@ def modal_view(*args, **kwargs):
 def frontend_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    current_view = kwargs.get("current_view", None)
 
     template_frontend = module.templates.get_template('manage_locations_widget/view_frontend.html')
 
@@ -174,6 +175,10 @@ def frontend_view(*args, **kwargs):
                     .get(player_steamid, {})
                 )
                 for identifier, location_dict in player_locations.items():
+                    location_has_special_properties = True if len(location_dict.get("type", [])) >= 1 else False
+                    if not location_has_special_properties and current_view == "special_locations":
+                        continue
+
                     location_is_selected_by = location_dict.get("selected_by", [])
 
                     location_entry_selected = False
@@ -232,7 +237,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view == "frontend" else False)
+                options_view_toggle=(True if current_view in ["frontend", "special_locations"] else False)
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
@@ -244,7 +249,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_special_locations_toggle_view,
                 steamid=dispatchers_steamid,
-                special_locations_view_toggle=True
+                special_locations_view_toggle=(True if current_view in ["frontend"] else False)
             ),
             control_player_location_view=module.template_render_hook(
                 module,
@@ -286,6 +291,10 @@ def options_view(*args, **kwargs):
 
     template_frontend = module.templates.get_template('manage_locations_widget/view_options.html')
     template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
+    template_special_locations_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
     template_options_toggle_view = module.templates.get_template(
         'manage_locations_widget/control_switch_options_view.html'
     )
@@ -311,6 +320,12 @@ def options_view(*args, **kwargs):
                 template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=True,
+            ),
+            control_switch_special_locations_view=module.template_render_hook(
+                module,
+                template=template_special_locations_toggle_view,
+                steamid=dispatchers_steamid,
+                special_locations_view_toggle=True
             )
         ),
         widget_options=module.options,
@@ -398,6 +413,10 @@ def edit_view(*args, **kwargs):
         'manage_locations_widget/control_switch_create_new_view.html'
     )
 
+    template_special_locations_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
     control_player_location_view = module.templates.get_template(
         'manage_locations_widget/control_player_location.html'
     )
@@ -423,6 +442,12 @@ def edit_view(*args, **kwargs):
                 template=template_create_new_toggle_view,
                 steamid=dispatchers_steamid,
                 create_new_view_toggle=False
+            ),
+            control_switch_special_locations_view=module.template_render_hook(
+                module,
+                template=template_special_locations_toggle_view,
+                steamid=dispatchers_steamid,
+                special_locations_view_toggle=True
             ),
             control_player_location_view=module.template_render_hook(
                 module,
