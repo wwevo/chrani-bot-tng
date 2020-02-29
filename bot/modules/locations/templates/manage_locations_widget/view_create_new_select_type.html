@@ -16,6 +16,14 @@
     {% set location_type_lobby_checked = checked_string %}
     {% set location_type_not_found = false %}
 {% endif %}
+{% if "is_onslaught" in location_dict["type"] %}
+    {% set location_type_onslaught_checked = checked_string %}
+    {% set location_type_not_found = false %}
+{% endif %}
+{% if "is_hunting_resort" in location_dict["type"] %}
+    {% set location_type_hunting_resort_checked = checked_string %}
+    {% set location_type_not_found = false %}
+{% endif %}
 {% if location_type_not_found %}{% endif %}
 <table class="box_select">
     <thead>
@@ -29,17 +37,17 @@
         <tr>
             <td>
                 <div class="box">
-                    <label><span>
+                    <label class="slider">Village
                         <input type="checkbox" name="location_type[]" value="is_village" {{ location_type_village_checked }}/>
-                        This location is a village and will have all village-functions enabled</span>
+                        <span>This location is a village and will have all village-functions enabled</span>
                     </label>
                 </div>
             </td>
             <td>
                 <div class="box">
-                    <label>
-                        <span><input type="checkbox" name="location_type[]" value="is_screamerfree" {{ location_type_screamerfree_checked }}/>
-                        Screamers will be killed on arrival</span>
+                    <label class="slider">Screamer-free
+                        <input type="checkbox" name="location_type[]" value="is_screamerfree" {{ location_type_screamerfree_checked }}/>
+                        <span>Screamers will be killed on arrival</span>
                     </label>
                 </div>
             </td>
@@ -47,17 +55,35 @@
         <tr>
             <td>
                 <div class="box">
-                    <label><span>
-                        <input type="checkbox" name="location_type[]" value="is_home" {{ location_type_home_checked }} />
-                        a player will be able to teleport to this under special circunstances</span>
+                    <label class="slider">Onslaught
+                        <input type="checkbox" name="location_type[]" value="is_onslaught" {{ location_type_onslaught_checked }} />
+                        <span>Endless streams of zombies. Until you turn 'em off.</span>
                     </label>
                 </div>
             </td>
             <td>
                 <div class="box">
-                    <label><span>
+                    <label class="slider">Hunting Resort
+                        <input type="checkbox" name="location_type[]" value="is_hunting_resort" {{ location_type_hunting_resort_checked }} />
+                        <span>They are there, promise!!</span>
+                    </label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div class="box">
+                    <label class="slider">Home
+                        <input type="checkbox" name="location_type[]" value="is_home" {{ location_type_home_checked }} />
+                        <span>a player will be able to teleport to this under special circunstances</span>
+                    </label>
+                </div>
+            </td>
+            <td>
+                <div class="box">
+                    <label class="slider">Lobby
                         <input type="checkbox" name="location_type[]" value="is_lobby" {{ location_type_lobby_checked }} />
-                        No way out. Unless you know the password.<br />
+                        <span>No way out. Unless you know the password.<br />
                         What's the word?<br />
                         B-b-b-b-b-b-b-b-bird bird bird b-b-bird is the word :)</span>
                     </label>

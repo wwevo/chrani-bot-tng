@@ -338,6 +338,38 @@ body > main > div > .widget > main > table.data_table > tbody {
     /* display: none; */
 }
 
+.widget > main table.box_select td {
+    width: 50%;
+}
+
+/* checkbox styling */
+.widget > main table.box_select label.slider {
+    position: relative;
+    cursor: pointer;
+}
+
+.widget > main table.box_select label.slider [type="checkbox"] {
+    display: none;
+}
+
+.widget > main table.box_select .slider [type="checkbox"] + span {
+    color: var(--background);
+    display: block;
+    background: var(--lcars-red);
+    padding: var(--main_table_gutter);
+    margin: var(--main_table_gutter);
+    border-radius: 0.5em;
+}
+
+.widget > main table.box_select .slider:hover [type="checkbox"] + span,
+.widget > main table.box_select .slider :checked + span {
+    background: var(--lcars-yellow);
+}
+
+.widget > main table.box_select .slider [type="checkbox"][disabled] + span {
+    background: var(--lcars-brown);
+}
+
 .widget > main > table > caption {
     /* display: none; */
     border-top: 0.5em solid var(--background);
@@ -345,7 +377,6 @@ body > main > div > .widget > main > table.data_table > tbody {
     color: var(--lcars-light-blue);
     margin-right: 1em;
 }
-
 /* specific layout-rules for certain modules/widgets */
 /* region header_widgets -> start */
 /* these widgets are tightly integrated into the header design */
@@ -446,6 +477,7 @@ body > header #gametime_widget span.time.bloodmoon {
 .widget { order: 500 } /* making the standard order the middle instead of 0 */
 
 main > div > #manage_players_widget { order: -1 }
+main > div > #manage_locations_widget { order: -2 }
 main > div > #webserver_status_widget { order: 0 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
