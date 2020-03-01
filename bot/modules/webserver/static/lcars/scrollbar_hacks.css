@@ -1,0 +1,16 @@
+/* Scrollbar hackz */
+::-webkit-scrollbar {
+    width: var(--main_bar_terminator_width);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--lcars-yellow);
+    border-radius: 1.25em;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--lcars-orange);
+}

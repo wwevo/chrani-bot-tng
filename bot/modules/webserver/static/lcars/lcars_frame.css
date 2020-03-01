@@ -1,0 +1,104 @@
+@import url("scrollbar_hacks.css");
+/* general styling */
+html {
+    font-size: 16px;
+    background: var(--background);
+}
+
+a, a:visited {
+    color: var(--background);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+body {
+    margin: 0 auto;
+    font-family: "SWISS 911 Extra Compressed BT", sans-serif;
+}
+
+/* header and footer are special due to their graphical shoulders */
+body > header, body > header > div, body > header > div:before,
+body > footer, body > footer > div, body > footer > div:before {
+    height: var(--main_shoulder_height);
+}
+
+body > header {
+    border-top-left-radius: calc(var(--main_bar_height) * 2.66) calc(var(--main_bar_height) * 1.33);
+    border-top-right-radius: calc(var(--main_bar_height) / 2);
+    margin-bottom: 0.5em;
+    background: var(--main-bar-color);
+}
+
+body > footer {
+    margin-top: 0.5em;
+}
+
+body > header > div {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    margin:
+        0 var(--main_bar_terminator_width)
+        0 var(--main_shoulder_width);
+    overflow: hidden;
+}
+
+body > header,
+body > footer {
+    background:
+            url(ui/main_shoulder.png) no-repeat top left,
+            url(ui/main_horizontal_bar_end.png) no-repeat top right;
+}
+
+body > footer,
+body > footer > div,
+body > footer > div:before {
+    transform: scaleY(-1);
+}
+
+body > header > div:before,
+body > footer > div:before {
+    width: 100%;
+    content: "";
+    z-index: -1;
+    position: absolute;
+    background: url(ui/main_horizontal_bar.png) repeat-x;
+}
+
+body > footer > div {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 var(--main_bar_terminator_width) 0 var(--main_shoulder_width);
+    overflow: hidden;
+}
+
+/* every element inside main is a widget! */
+body > main > div {
+    color: var(--lcars-orange);
+    display: flex;
+    flex-wrap: wrap;
+    height: var(--main_area_height);
+    overflow-y: scroll; /* this has to stay for scroll-snapping to work */
+    scroll-snap-type: y mandatory;
+}
+
+body > main > div #unauthorized_disclaimer {
+    width: 100%;
+    height: var(--main_area_height);
+    padding-left: calc(var(--main_shoulder_width));
+    background: linear-gradient(
+        to right,
+        var(--main-bar-color) 0,
+        var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
+        var(--background) calc(var(--main_shoulder_width) - 1.625em),
+        var(--background) 100%
+    );
+}
+
+body > main > div #unauthorized_disclaimer p {
+    font-size: 1.5em;
+    padding-bottom: 1em;
+}

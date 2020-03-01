@@ -1,0 +1,9 @@
+@font-face {
+    font-family: 'SWISS 911 Ultra Compressed BT';
+    src: url('fonts/SWISS911UltraCompressedBT.ttf'); /*URL to font*/
+}
+
+@font-face {
+    font-family: 'SWISS 911 Extra Compressed BT';
+    src: url('fonts/SWISS911ExtraCompressedBT.ttf'); /*URL to font*/
+}

@@ -1,0 +1,98 @@
+body > header > div > hgroup {
+    position: absolute;
+    right: 0; top: 0;
+    height: var(--main_bar_height);
+}
+
+body > header > div > hgroup > h1 {
+    font-size: var(--main_bar_height);
+    color: var(--lcars-yellow);
+    background-color: var(--background);
+
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    text-transform: uppercase;
+    padding: 0 0.25em;
+}
+
+body > header > div {
+    margin:
+        0 var(--main_bar_terminator_width)
+        0 var(--main_shoulder_width);
+}
+
+body > header > div #header_widgets {
+    position: absolute;
+    top: var(--main_bar_height);
+    right: 0; bottom: 0; left: 0;
+    display: flex;
+}
+
+body > header > div > #header_widgets > .widget {
+    padding-right: 0.25em;
+    color: black;
+    padding-top: var(--main_table_gutter)
+}
+
+body > header > div > #header_widgets > .widget > div {
+    background-color: var(--lcars-orange);
+    border-radius: 12px; padding: 0 1em;
+    white-space: nowrap;
+    line-height: 1.5em;
+}
+
+body > header > div > #header_widgets > #login_logout_widget {
+    margin-left: auto;
+}
+
+body > header > div > #header_widgets > #login_logout_widget a {
+    color: var(--background)
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget > div.active {
+    background-color: var(--lcars-yellow);
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget > div.inactive {
+    background-color: var(--lcars-red);
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget span > a,
+body > header > div > #header_widgets > #gameserver_status_widget span > a:visited {
+    color: var(--lcars-dark-blue);
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget span > a {
+    display: inline-block;
+    padding: 0 0.1em;
+    border-left: 0.1em solid var(--background);
+    border-right: 0.1em solid var(--background);
+    color: var(--background); /* Edge seems to require this */
+    background-color: var(--lcars-red);
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget span > a:hover,
+body > header > div > #header_widgets > #gameserver_status_widget span > a:visited {
+    color: var(--background);
+    text-decoration: none;
+}
+
+body > header > div > #header_widgets > #gameserver_status_widget span:hover > a {
+    background-color: var(--lcars-red);
+}
+
+body > header > div > #header_widgets > #gametime_widget {
+    order: -1;
+}
+
+body > header > div > #header_widgets > #gametime_widget span.time {
+    padding: 0 var(--main_table_gutter);
+}
+
+body > header > div > #header_widgets > #gametime_widget span.day.bloodday,
+body > header > div > #header_widgets > #gametime_widget span.time.bloodmoon {
+    color: var(--lcars-red);
+}
+
+body > header > div > #header_widgets > #gametime_widget span.time.bloodmoon {
+    background-color: var(--background);
+}

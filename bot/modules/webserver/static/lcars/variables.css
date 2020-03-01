@@ -1,0 +1,27 @@
+:root {
+    font-size: 16px;
+    /* colors have to be issued in HEX, so we can use them without trouble inside out JavaScript portion */
+    --background: #000000;
+    --main-bar-color: #939598;
+    --main-bar-border-color: #6F7172;
+
+    /* StarTrek color information found on: http://www.lcarscom.net */
+    --lcars-brown: #FF9966;
+    --lcars-orange: #FF9900;
+    --lcars-yellow: #FFCC99;
+    --lcars-red: #CC6666;
+    --lcars-purple: #CC6699;
+    --lcars-lilac: #CC99CC;
+    --lcars-dark-blue: #9999CC;
+    --lcars-light-blue: #9999FF;
+
+    /* pixel values taken from the used images */
+    --main_shoulder_width: 16.875em;
+    --main_shoulder_height: 4.5em;
+    --main_bar_height: 2.625em;
+    --main_bar_terminator_width: 2.5em;
+    --main_table_gutter: 0.25em;
+
+    /* main area height */
+    --main_area_height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - 1em)
+}
