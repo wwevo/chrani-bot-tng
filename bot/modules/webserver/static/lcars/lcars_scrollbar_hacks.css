@@ -1,4 +1,3 @@
-/* Scrollbar hackz */
 ::-webkit-scrollbar {
     width: var(--main_bar_terminator_width);
 }

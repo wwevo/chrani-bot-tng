@@ -1,7 +1,6 @@
-@import url("scrollbar_hacks.css");
-/* general styling */
+@import url("lcars_scrollbar_hacks.css");
+
 html {
-    font-size: 16px;
     background: var(--background);
 }
 
@@ -101,8 +100,8 @@ body > main > div .single_screen {
     background: linear-gradient(
         to right,
         var(--main-bar-color) 0,
-        var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
-        var(--background) calc(var(--main_shoulder_width) - 1.625em),
+        var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+        var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
         var(--background) 100%
     );
 }

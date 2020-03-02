@@ -237,7 +237,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view in ["frontend", "special_locations"] else False)
+                options_view_toggle=(True if current_view in ["frontend", "special_locations", "modal"] else False)
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
@@ -249,7 +249,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_special_locations_toggle_view,
                 steamid=dispatchers_steamid,
-                special_locations_view_toggle=(True if current_view in ["frontend"] else False)
+                special_locations_view_toggle=(True if current_view in ["frontend", "modal"] else False)
             ),
             control_player_location_view=module.template_render_hook(
                 module,

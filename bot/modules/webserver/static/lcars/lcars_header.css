@@ -16,28 +16,9 @@ body > header > div > hgroup > h1 {
     padding: 0 0.25em;
 }
 
-body > header > div {
-    margin:
-        0 var(--main_bar_terminator_width)
-        0 var(--main_shoulder_width);
-}
-
 body > header > div #header_widgets {
     position: absolute;
     top: var(--main_bar_height);
     right: 0; bottom: 0; left: 0;
     display: flex;
-}
-
-body > header > div > #header_widgets > .widget {
-    padding-right: 0.25em;
-    color: black;
-    padding-top: var(--main_table_gutter)
-}
-
-body > header > div > #header_widgets > .widget > div {
-    background-color: var(--lcars-orange);
-    border-radius: 12px; padding: 0 1em;
-    white-space: nowrap;
-    line-height: 1.5em;
 }

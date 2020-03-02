@@ -119,7 +119,7 @@ def frontend_view(*args, **kwargs):
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=(True if current_view == "frontend" else False),
+            options_view_toggle=(True if current_view in ["frontend", "modal"] else False),
             steamid=dispatchers_steamid
         )
     )

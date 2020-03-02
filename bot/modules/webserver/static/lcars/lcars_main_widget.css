@@ -20,13 +20,23 @@ body > main > div > .widget > main .dialog .modal-content {
     border: var(--main_table_gutter) solid var(--lcars-red);
 
     border-radius: 0 1em 0.5em 1.5em / 0 1em 0.5em 1em;
-    height: calc(100% + 16px);
+    height: calc(100% + 1em);
 }
 
 body > main > div > .widget > main .dialog .modal-content a,
 body > main > div > .widget > main .dialog .modal-content p {
     font-size: 2em;
 }
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal {
+    height: 100%;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal td {
+    text-align: center;
+    vertical-align: top;
+}
+
 
 body > main > div > .widget > main > table > tbody {
     display: block;
@@ -37,8 +47,8 @@ body > main > div > .widget > main > table > tbody {
         - var(--main_bar_height)
         - var(--main_table_gutter)
         - 2em
-        - 18px
-        - 32px
+        - 1em
+        - 2em
     );
     padding-right: 0.5em;
 }
@@ -51,8 +61,8 @@ body > main > div > .widget > main > table.data_table > tbody {
         - var(--main_table_gutter)
         - 0.5em
         - 2em
-        - 18px
-        - 32px
+        - 1em
+        - 2em
         - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
     );
 }
