@@ -314,7 +314,7 @@ class Webserver(Module):
 
             }
             if not current_user.is_authenticated:
-                main_output = '<div id="unauthorized_disclaimer">'
+                main_output = '<div id="unauthorized_disclaimer" class="single_screen">'
                 main_output += '<p>Welcome to the <strong>chrani-bot: The Next Generation</strong></p>'
                 main_output += '<p>You can <a href="/login">use your steam-account to log in</a>!</p>'
                 main_output += '</div>'

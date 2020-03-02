@@ -18,8 +18,10 @@
     /* pixel values taken from the used images */
     --main_shoulder_width: 16.875em;
     --main_shoulder_height: 4.5em;
+
     --main_bar_height: 2.625em;
     --main_bar_terminator_width: 2.5em;
+
     --main_table_gutter: 0.25em;
 
     /* main area height */

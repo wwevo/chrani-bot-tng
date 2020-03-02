@@ -1,116 +1,12 @@
+body > main > div #unauthorized_disclaimer p {
+    font-size: 1.5em;
+    padding-bottom: 1em;
+}
+
 body > main > div #unauthorized_disclaimer a,
 body > main > div #unauthorized_disclaimer a:visited {
     color: var(--lcars-light-blue);
     text-decoration: None;
-}
-
-body > main > div #unauthorized_disclaimer a:hover {
-    text-decoration: underline;
-}
-
-body > main > div > .widget > header {
-    background-color: var(--lcars-purple);
-    border-top-left-radius: 1.5em;
-    border-top-right-radius: 1.5em;
-    border-bottom-right-radius: 1.5em;
-}
-
-body > main > div > .widget > header > div > span {
-    font-size: 3em; line-height: 1em;
-    color: var(--background);
-    margin-left: 1.5em;
-}
-
-body > main > div > .widget > aside {
-    float: left;
-
-    background:
-        linear-gradient(
-            to right,
-            var(--main-bar-color) 0,
-            var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
-            var(--background) calc(var(--main_shoulder_width) - 1.625em),
-            var(--background) 100%
-        );
-    height: calc(100% - 3em);
-}
-
-body > main > div > .widget > main {
-    overflow-y: auto;
-}
-
-body > main > div > .widget > aside > div {
-    width: var(--main_shoulder_width);
-}
-
-body > main > div > .widget > aside > div > div {
-    border-top: 0.5em solid black;
-}
-
-body > main > div > .widget > aside > div > div:last-child {
-    border-bottom: 0.5em solid black;
-}
-
-body > main > div > .widget > aside > div > div > span {
-    display: block;
-    background-color: var(--lcars-purple);
-    margin-right: 1.625em;
-    line-height: 4.5em;
-}
-
-body > main > div > .widget {
-    flex: 1 1 auto;
-    min-width: 640px;
-    max-width: 1920px;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - (var(--main_table_gutter) * 4));
-    scroll-snap-align: start;
-    padding: 0 calc(var(--main_table_gutter) * 2) 0.5em 0;
-}
-
-body > main > div > #telnet_log_widget {
-    padding-bottom: 0;
-}
-
-body > main > div > .widget > main {
-    position: relative;
-    margin-top: calc(var(--main_table_gutter) * 2);
-}
-
-body > main > div > .widget > main .dialog {
-    position: absolute;
-    top: 0; right: 0; bottom: 5.5em; left: 0;
-    display: none;
-}
-
-body > main > div > .widget > main .dialog.open {
-    display: block;
-}
-
-body > main > div > .widget > main .dialog .modal-content {
-    padding: 1em;
-    color: var(--lcars-dark-blue);
-    background-color: var(--background);
-    border: var(--main_table_gutter) solid var(--lcars-red);
-    border-top-right-radius: 1.25em;
-    border-bottom-right-radius: calc(1.25em / 2);
-    border-bottom-left-radius: 2.5em calc(2.5em / 2);
-    height: calc(100% + 18px);
-}
-
-body > main > div > .widget > main .dialog .modal-content a,
-body > main > div > .widget > main .dialog .modal-content p {
-    font-size: 2em;
-}
-
-body > main > div > .widget > main > table > tbody {
-    display: block;
-    overflow: auto;
-    height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 2em - 18px - 32px);
-    padding-right: 0.5em;
-}
-
-body > main > div > .widget > main > table.data_table > tbody {
-    max-height: calc(100vh - var(--main_shoulder_height) - var(--main_shoulder_height) - var(--main_bar_height) - var(--main_table_gutter) - 0.5em - 2em - 18px - 32px - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2));
 }
 
 .widget > main > table > thead > tr {
@@ -134,7 +30,6 @@ body > main > div > .widget > main > table.data_table > tbody {
 .widget > main > table.data_table > thead > tr > th:last-child {
     margin-right: var(--main_bar_terminator_width);
 }
-
 
 .widget > main table.box_input,
 .widget > main table.box_select {
@@ -218,6 +113,9 @@ main > div > #manage_locations_widget { order: -2 }
 main > div > #webserver_status_widget { order: 0 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
+main > div > #telnet_log_widget {
+    padding-bottom: 0;
+}
 /* Widget positions -> end */
 
 #manage_entities_widget tbody#entity_table > tr:hover *,
@@ -394,9 +292,7 @@ footer > div > p {
     margin: 0;
     padding-left: 5.25em;
     height: 1.25em; line-height: 1.25em;
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 1em;
-    border-bottom-left-radius: 3em 2em;
+    border-radius: 0 1em 1em 2em / 0 1em 1em 2em;
 }
 
 /* */
@@ -485,11 +381,7 @@ footer > div > p {
     tr[id^="player_table_row_"] td[class="position"],
     td[id^="player_table_row_"][id$="_ping"],
     td[id^="player_table_row_"][id$="_last_updated_servertime"],
-    td[id^="player_table_row_"][id$="_last_seen_gametime"],
-    td[id^="location_table_row_"][id$="_id"],
-    td[id^="location_table_row_"][id$="_last_changed"],
-    td[id^="location_table_row_"][id$="_coordinates"],
-    td[id^="location_table_row_"][id$="_owner"] {
+    td[id^="player_table_row_"][id$="_last_seen_gametime"] {
         font-size: 0.90em;
         vertical-align: middle;
     }
@@ -520,3 +412,12 @@ td[id^="player_table_row_"][id$="_zombies"]:before {
     padding-left: calc(var(--main_table_gutter) * 2);
 }
 
+@media only screen {
+    td[id^="location_table_row_"][id$="_id"],
+    td[id^="location_table_row_"][id$="_last_changed"],
+    td[id^="location_table_row_"][id$="_coordinates"],
+    td[id^="location_table_row_"][id$="_owner"] {
+        font-size: 0.90em;
+        vertical-align: middle;
+    }
+}

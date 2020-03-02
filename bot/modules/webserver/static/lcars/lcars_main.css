@@ -1,0 +1,60 @@
+@import url("lcars_main_widget.css");
+body > main > div > .widget > header {
+    background-color: var(--lcars-purple);
+    border-radius: 1.5em 1.5em 1.5em 0;
+}
+
+body > main > div > .widget > header > div > span {
+    font-size: 3em; line-height: 1em;
+    color: var(--background);
+    margin-left: 1.5em;
+}
+
+body > main > div > .widget > aside {
+    float: left;
+    background:
+        linear-gradient(
+            to right,
+            var(--main-bar-color) 0,
+            var(--main-bar-color) calc(var(--main_shoulder_width) - 1.625em),
+            var(--background) calc(var(--main_shoulder_width) - 1.625em),
+            var(--background) 100%
+        );
+    height: calc(100% - 3em);
+}
+
+body > main > div > .widget > main {
+    overflow-y: auto;
+}
+
+body > main > div > .widget > aside > div {
+    width: var(--main_shoulder_width);
+}
+
+body > main > div > .widget > aside > div > div {
+    border-top: 0.5em solid black;
+}
+
+body > main > div > .widget > aside > div > div:last-child {
+    border-bottom: 0.5em solid black;
+}
+
+body > main > div > .widget > aside > div > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    margin-right: 1.625em;
+    line-height: 4.5em;
+}
+
+body > main > div > .widget {
+    flex: 1 1 auto;
+    min-width: 640px;
+    max-width: 1920px;
+    height: calc(
+        100vh
+        - var(--main_shoulder_height) * 2
+        - var(--main_table_gutter) * 4
+    );
+    scroll-snap-align: start;
+    padding: 0 calc(var(--main_table_gutter) * 2) 0.5em 0;
+}

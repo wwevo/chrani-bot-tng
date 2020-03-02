@@ -26,8 +26,13 @@ body > footer, body > footer > div, body > footer > div:before {
 }
 
 body > header {
-    border-top-left-radius: calc(var(--main_bar_height) * 2.66) calc(var(--main_bar_height) * 1.33);
-    border-top-right-radius: calc(var(--main_bar_height) / 2);
+    border-top-left-radius: calc(
+        var(--main_bar_height) * 2.66)
+        calc(var(--main_bar_height) * 1.33
+    );
+    border-top-right-radius: calc(
+        var(--main_bar_height) / 2
+    );
     margin-bottom: 0.5em;
     background: var(--main-bar-color);
 }
@@ -49,8 +54,8 @@ body > header > div {
 body > header,
 body > footer {
     background:
-            url(ui/main_shoulder.png) no-repeat top left,
-            url(ui/main_horizontal_bar_end.png) no-repeat top right;
+        url(ui/main_shoulder.png) no-repeat top left,
+        url(ui/main_horizontal_bar_end.png) no-repeat top right;
 }
 
 body > footer,
@@ -65,13 +70,17 @@ body > footer > div:before {
     content: "";
     z-index: -1;
     position: absolute;
-    background: url(ui/main_horizontal_bar.png) repeat-x;
+    background:
+        url(ui/main_horizontal_bar.png)
+        repeat-x;
 }
 
 body > footer > div {
     display: flex;
     align-items: flex-end;
-    margin: 0 var(--main_bar_terminator_width) 0 var(--main_shoulder_width);
+    margin:
+        0 var(--main_bar_terminator_width)
+        0 var(--main_shoulder_width);
     overflow: hidden;
 }
 
@@ -85,7 +94,7 @@ body > main > div {
     scroll-snap-type: y mandatory;
 }
 
-body > main > div #unauthorized_disclaimer {
+body > main > div .single_screen {
     width: 100%;
     height: var(--main_area_height);
     padding-left: calc(var(--main_shoulder_width));
@@ -98,7 +107,6 @@ body > main > div #unauthorized_disclaimer {
     );
 }
 
-body > main > div #unauthorized_disclaimer p {
-    font-size: 1.5em;
-    padding-bottom: 1em;
+body > main > div .single_screen a:hover {
+    text-decoration: underline;
 }
