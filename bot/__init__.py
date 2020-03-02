@@ -11,6 +11,23 @@ root_dir = path.dirname(path.abspath(__file__))
 chdir(root_dir)
 
 loaded_modules_dict = {}  # this will be populated by the imports done next:
+telnet_prefixes = {
+    "telnet_log": {
+        "timestamp": r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+    },
+    "BCM": {
+        "chat": (
+            r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+            r"to\s\'(?P<target_room>.*)\'\)\:\s"
+        )
+    },
+    "Allocs": {
+        "chat": (
+            r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
+            r"to \'(?P<target_room>.*)\'\)\:\s"
+        )
+    }
+}
 modules_to_start_list = deque()
 module_loading_order = []
 started_modules_dict = {}
