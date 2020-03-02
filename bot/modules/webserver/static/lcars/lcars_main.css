@@ -33,11 +33,11 @@ body > main > div > .widget > aside > div {
 }
 
 body > main > div > .widget > aside > div > div {
-    border-top: 0.5em solid black;
+    border-top: 0.5em solid var(--background);
 }
 
 body > main > div > .widget > aside > div > div:last-child {
-    border-bottom: 0.5em solid black;
+    border-bottom: 0.5em solid  var(--background);
 }
 
 body > main > div > .widget > aside > div > div > span {

@@ -3,6 +3,35 @@ body > main > div > .widget > main {
     margin-top: calc(var(--main_table_gutter) * 2);
 }
 
+/* */
+body > main > div > .widget > main > table > tfoot > tr > td > div > span.active,
+body > main > div > .widget .pull_out > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+body > main > div > .widget > main > table > tfoot > tr > td > span.inactive,
+body > main > div > .widget .pull_out > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+body > main > div > .widget .pull_out > div > span.info {
+    background-color: var(--lcars-yellow);
+}
+
+body > main > div > .widget .pull_out > div > span.info > div > span {
+    margin-left: 0.5em;
+    flex: 1;
+    text-align: left;
+}
+
+body > main > div > .widget .pull_out span a,
+body > main > div > .widget .pull_out span a:visited,
+body > main > div > .widget .pull_out span > div {
+    text-decoration: none;
+    display: block; margin-right: 0.5em;
+    color: var(--background);
+}
+
 body > main > div > .widget > main .dialog {
     position: absolute;
     top: 0; right: 0; bottom: 5.5em; left: 0;
@@ -36,7 +65,6 @@ body > main > div > .widget > main .dialog.open .modal-content .delete_modal td 
     text-align: center;
     vertical-align: top;
 }
-
 
 body > main > div > .widget > main > table > tbody {
     display: block;

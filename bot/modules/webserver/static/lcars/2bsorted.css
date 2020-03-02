@@ -108,8 +108,9 @@ body > main > div #unauthorized_disclaimer a:visited {
 /* Widget positions -> start */
 .widget { order: 500 } /* making the standard order the middle instead of 0 */
 
-main > div > #manage_players_widget { order: -1 }
+main > div > #manage_players_widget { order: -3 }
 main > div > #manage_locations_widget { order: -2 }
+main > div > #manage_entities_widget { order: -1 }
 main > div > #webserver_status_widget { order: 0 }
 main > div > #widget_handling { order: 998 }
 main > div > #telnet_log_widget { order: 999 }
@@ -293,35 +294,6 @@ footer > div > p {
     padding-left: 5.25em;
     height: 1.25em; line-height: 1.25em;
     border-radius: 0 1em 1em 2em / 0 1em 1em 2em;
-}
-
-/* */
-.widget > main > table > tfoot > tr > td > div > span.active,
-.widget .pull_out > div > span.active {
-    background-color: var(--lcars-lilac);
-}
-
-.widget > main > table > tfoot > tr > td > span.inactive,
-.widget .pull_out > div > span.inactive {
-    background-color: var(--lcars-purple);
-}
-
-.widget .pull_out > div > span.info {
-    background-color: var(--lcars-yellow);
-}
-
-.widget .pull_out > div > span.info > div > span {
-    margin-left: 0.5em;
-    flex: 1;
-    text-align: left;
-}
-
-.widget .pull_out span a,
-.widget .pull_out span a:visited,
-.widget .pull_out span > div {
-    text-decoration: none;
-    display: block; margin-right: 0.5em;
-    color: var(--background);
 }
 
 .widget main .delete_button {
