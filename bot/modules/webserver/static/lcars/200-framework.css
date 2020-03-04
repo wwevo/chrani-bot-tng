@@ -1,4 +1,4 @@
-@import url("11-scrollbar_hacks.css");
+@import url("210-scrollbar_hacks.css");
 
 html {
     background: var(--background);
@@ -83,7 +83,7 @@ body > footer > div {
     overflow: hidden;
 }
 
-/* every element inside main is a widget! */
+/* every element inside main > div is a widget! */
 body > main > div {
     color: var(--lcars-orange);
     display: flex;
@@ -91,6 +91,22 @@ body > main > div {
     height: var(--main_area_height);
     overflow-y: scroll; /* this has to stay for scroll-snapping to work */
     scroll-snap-type: y mandatory;
+}
+
+body > main > div > .widget {
+    flex: 0 0 calc(
+            100%
+            - var(--main_table_gutter) * 2
+    );
+    height: calc(
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_table_gutter) * 4
+    );
+    scroll-snap-align: start;
+
+    padding-right: calc(var(--main_table_gutter) * 2);
+    padding-bottom: 0.5em;
 }
 
 body > main > div .single_screen {

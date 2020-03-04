@@ -1,0 +1,16 @@
+body > main > div > #telnet_log_widget {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+body > main > div > #telnet_log_widget .log_line {
+    /* log entries seem to be traditionally blue in LCARS ^^ */
+    color: var(--lcars-dark-blue);
+}
+
+body > main > div > #telnet_log_widget .log_line td {
+    white-space: normal;
+    padding-left: calc(var(--main_shoulder_width) / 3);
+    text-indent: calc(-1 * calc(var(--main_shoulder_width) / 3));
+}
+

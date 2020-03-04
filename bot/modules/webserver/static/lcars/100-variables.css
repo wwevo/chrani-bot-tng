@@ -1,3 +1,5 @@
+@import url("110-fonts.css");
+
 :root {
     font-size: 16px;
     /* colors have to be issued in HEX, so we can use them without trouble inside out JavaScript portion */
@@ -33,4 +35,10 @@
         - var(--main_shoulder_height) * 2
         - 1em
     )
+}
+
+@keyframes blinker {
+  33% {
+    opacity: 33%;
+  }
 }

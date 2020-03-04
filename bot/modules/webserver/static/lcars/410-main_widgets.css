@@ -1,0 +1,346 @@
+@import url("411-main_widgets_webserver_status_widget.css");
+@import url("412-main_widgets_telnet_log_widget.css");
+@import url("413-main_widgets_manage_players_widget.css");
+@import url("414-main_widgets_manage_locations_widget.css");
+@import url("415-main_widgets_manage_entities_widget.css");
+
+body > main > div > .widget > main {
+    position: relative;
+    margin-top: calc(var(--main_table_gutter) * 2);
+}
+
+body > main > div > .widget main a {
+    border-radius: 0.5em;
+    font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
+    padding: 0 0.5em;
+}
+
+body > main > div > .widget main a,
+body > main > div > .widget main a:visited {
+    background-color: var(--lcars-light-blue);
+    color: black;
+}
+
+body > main > div > .widget main a:hover {
+    text-decoration: none;
+}
+
+body > main > div > .widget main span.active a {
+    background-color: var(--lcars-yellow);
+}
+
+body > main > div > .widget main span.inactive a {
+    background-color: var(--lcars-red);
+}
+
+body > main > div > .widget main .select_button a {
+    border-radius: 0;
+    padding: 0 0.75em;
+}
+
+body > main > div > .widget > main > table > tbody > tr > td {
+    font-size: 1em;
+    line-height: 1.5em;
+    padding: 0 calc(var(--main_table_gutter) / 2);
+}
+
+body > main > div > .widget > main > table > tbody > tr > td:last-child {
+    padding-right: var(--main_table_gutter);
+}
+
+body > main > div > .widget > main > table > thead tr:last-child {
+    /* this contains the header stuff for the widget-content */
+    background: var(--background);
+}
+
+body > main > div > .widget > main > table.data_table > tbody > tr > td {
+    white-space: nowrap;
+}
+
+body > main > div > .widget > main > table > tfoot > tr > td > div > span.active,
+body > main > div > .widget .pull_out > div > span.active {
+    background-color: var(--lcars-lilac);
+}
+
+body > main > div > .widget > main > table > tfoot > tr > td > span.inactive,
+body > main > div > .widget .pull_out > div > span.inactive {
+    background-color: var(--lcars-purple);
+}
+
+body > main > div > .widget .pull_out > div > span.info {
+    background-color: var(--lcars-yellow);
+}
+
+body > main > div > .widget .pull_out > div > span.info > div > span {
+    margin-left: 0.5em;
+    flex: 1;
+    text-align: left;
+}
+
+body > main > div > .widget .pull_out span a,
+body > main > div > .widget .pull_out span a:visited,
+body > main > div > .widget .pull_out span > div {
+    text-decoration: none;
+    display: block;
+    margin-right: 0.5em;
+    color: var(--background);
+}
+
+body > main > div > .widget > main .dialog {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 5.5em;
+    left: 0;
+    display: none;
+}
+
+body > main > div > .widget > main .dialog.open {
+    display: block;
+}
+
+body > main > div > .widget > main .dialog .modal-content {
+    padding: 1em;
+    color: var(--lcars-dark-blue);
+    background-color: var(--background);
+    border: var(--main_table_gutter) solid var(--lcars-red);
+
+    border-radius: 0 1em 0.5em 1.5em / 0 1em 0.5em 1em;
+    height: calc(100% + 1em);
+}
+
+body > main > div > .widget > main .dialog .modal-content a,
+body > main > div > .widget > main .dialog .modal-content p {
+    font-size: 2em;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal {
+    height: 100%;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal td {
+    text-align: center;
+    vertical-align: top;
+}
+
+body > main > div > .widget > main > table > tbody {
+    display: block;
+    overflow: auto;
+    height: calc(
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_bar_height)
+            - var(--main_table_gutter)
+            - 2em
+            - 1em
+            - 2em
+    );
+    padding-right: 0.5em;
+}
+
+body > main > div > .widget > main > table.data_table > tbody {
+    max-height: calc(
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_bar_height)
+            - var(--main_table_gutter)
+            - 0.5em
+            - 2em
+            - 1em
+            - 2em
+            - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
+    );
+}
+
+body > main > div > .widget > main > table > thead > tr {
+    display: none;
+}
+
+body > main > div > .widget > main > table.data_table > thead > tr {
+    display: inline-block;
+    width: 100%;
+    margin: calc(0 - var(--main_table_gutter));
+    text-align: right;
+}
+
+body > main > div > .widget > main > table.data_table > thead > tr > th {
+    display: inline-block;
+    margin: var(--main_table_gutter);
+    font-size: 1.25em;
+    height: calc(var(--main_bar_height) / 2);
+}
+
+body > main > div > .widget > main > table.data_table > thead > tr > th:last-child {
+    margin-right: var(--main_bar_terminator_width);
+}
+
+body > main > div > .widget > main table.box_input,
+body > main > div > .widget > main table.box_select {
+    margin-bottom: 1.5em;
+}
+
+body > main > div > .widget > main table.box_select tfoot td,
+body > main > div > .widget > main table.box_input tfoot td {
+    white-space: normal;
+}
+
+body > main > div > .widget > main table.box_select input[disabled],
+body > main > div > .widget > main table.box_input input[disabled] {
+    background-color: var(--lcars-red);
+}
+
+body > main > div > .widget > main table.box_select tfoot tr td,
+body > main > div > .widget > main table.box_input tfoot tr td {
+    color: var(--background);
+    padding: 0.5em 0;
+}
+
+body > main > div > .widget > main table.box_select tfoot tr td > div,
+body > main > div > .widget > main table.box_input tfoot tr td > div {
+     /* background-image: linear-gradient(to right, var(--background),  var(--lcars-light-blue), var(--lcars-light-blue), var(--lcars-light-blue)); */
+    background-color: var(--lcars-light-blue);
+    text-align: right;
+    line-height: 1em;
+    font-size: 0.9em;
+    padding: 0.8em;
+    /* display: none; */
+}
+
+body > main > div > .widget > main table.box_select td {
+    width: 50%;
+}
+
+/* checkbox styling */
+body > main > div > .widget > main table.box_select label.slider {
+    position: relative;
+    cursor: pointer;
+}
+
+body > main > div > .widget > main table.box_select label.slider [type="checkbox"] {
+    display: none;
+}
+
+body > main > div > .widget > main table.box_select .slider [type="checkbox"] + span {
+    color: var(--background);
+    display: block;
+    background: var(--lcars-red);
+    padding: var(--main_table_gutter);
+    margin: var(--main_table_gutter);
+    border-radius: 0.5em;
+}
+
+body > main > div > .widget > main table.box_select .slider:hover [type="checkbox"] + span,
+body > main > div > .widget > main table.box_select .slider :checked + span {
+    background: var(--lcars-yellow);
+}
+
+body > main > div > .widget > main table.box_select .slider [type="checkbox"][disabled] + span {
+    background: var(--lcars-brown);
+}
+
+body > main > div > .widget > main > table > caption {
+    /* display: none; */
+    border-top: 0.5em solid var(--background);
+    border-bottom: 0.5em solid var(--background);
+    color: var(--lcars-light-blue);
+    margin-right: 1em;
+}
+
+body > main > div > .widget > header {
+    background-color: var(--lcars-purple);
+    border-radius: 1.5em 1.5em 1.5em 0;
+}
+
+body > main > div > .widget > header > div > span {
+    font-size: 3em; line-height: 1em;
+    color: var(--background);
+    margin-left: 1.5em;
+}
+
+body > main > div > .widget > aside {
+    float: left;
+    background:
+        linear-gradient(
+            to right,
+            var(--main-bar-color) 0,
+            var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+            var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+            var(--background) 100%
+        );
+    height: calc(100% - 3em);
+}
+
+body > main > div > .widget > main {
+    overflow-y: auto;
+}
+
+body > main > div > .widget > aside > div {
+    width: var(--main_shoulder_width);
+}
+
+body > main > div > .widget > aside > div > div {
+    border-top: 0.5em solid var(--background);
+}
+
+body > main > div > .widget > aside > div > div:last-child {
+    border-bottom: 0.5em solid  var(--background);
+}
+
+body > main > div > .widget > aside > div > div > span {
+    display: block;
+    background-color: var(--lcars-purple);
+    margin-right: var(--main_shoulder_gap);
+    line-height: var(--main_shoulder_height);
+}
+
+body > main > div > .widget > main > table > tfoot > tr {
+    height: calc(1.25em + var(--main_table_gutter));
+    line-height: 1.25em;
+}
+
+body > main > div > .widget > main > table > tfoot > tr > td {
+    vertical-align: bottom;
+}
+
+body > main > div > .widget > main > table > tfoot > tr > td > div {
+    background-color: var(--lcars-yellow);
+    margin: 0;
+    padding-left: 5.25em;
+    height: 1.25em; line-height: 1.25em;
+    border-radius: 0 1em 1em 2em / 0 1em 1em 2em;
+}
+
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button {
+    display: inline-block;
+    height: 1.25em; line-height: 1.25em;
+    border-left: 0.25em solid var(--background);
+    border-right: 0.25em solid var(--background);
+}
+
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span a,
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span {
+    display: inline-block;
+}
+
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.active a,
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.active {
+    background-color: var(--lcars-red);
+}
+
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.inactive a,
+body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.inactive {
+    background-color: var(--lcars-yellow);
+}
+
+body > main > div > .widget { order: 500 } /* making the standard order the middle instead of 0 */
+
+body > main > div > #manage_players_widget {
+    order: -3
+}
+body > main > div > #manage_locations_widget { order: -2 }
+body > main > div > #manage_entities_widget { order: -1 }
+body > main > div > #webserver_status_widget { order: 0 }
+body > main > div > #telnet_log_widget { order: 999 }
+body > main > div > #telnet_log_widget {
+    padding-bottom: 0;  /* last element by order needs to get this one */
+}

@@ -1,0 +1,54 @@
+body > main > div > #manage_locations_widget > main > table > tbody > tr > td[id$='_name'] {
+    width: 100%;
+}
+
+body > main > div > #manage_locations_widget tbody#location_table > tr:hover * {
+    background-color: var(--lcars-yellow);
+    color: var(--background)
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div {
+    display: flex;
+    justify-content: flex-end;
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div > div {
+    margin-right: 0.5em;
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div > div:last-child {
+    margin-right: 0;
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div > label {
+    flex: 0;
+    white-space: nowrap;
+    margin-right: 0.5em;
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div > label:last-child {
+    margin-right: 0;
+}
+
+body > main > div > #manage_locations_widget #current_player_pos > span > div > label input {
+    border: 0;
+    display: inline-block;
+    margin: 0; padding: 0;
+    width: 2.5em;
+    text-align: right;
+    background-color: transparent;
+}
+
+body > main > div > main > div > #manage_locations_widget #current_player_pos > span > div > label:nth-child(2) input {
+    width: 2em;
+}
+
+@media only screen {
+    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_id"],
+    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_last_changed"],
+    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_coordinates"],
+    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_owner"] {
+        font-size: 0.90em;
+        vertical-align: middle;
+    }
+}
