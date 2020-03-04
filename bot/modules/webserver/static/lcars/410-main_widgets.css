@@ -335,11 +335,35 @@ body > main > div > .widget main > table > tfoot > tr > td > div .delete_button 
 body > main > div > .widget { order: 500 } /* making the standard order the middle instead of 0 */
 
 body > main > div > #manage_players_widget {
-    order: -3
+    order: -4;
+    flex: 0 0 calc(
+            66.66%
+            - var(--main_table_gutter) * 2
+    );
 }
-body > main > div > #manage_locations_widget { order: -2 }
-body > main > div > #manage_entities_widget { order: -1 }
-body > main > div > #webserver_status_widget { order: 0 }
+
+body > main > div > #webserver_status_widget {
+    order: -3;
+    flex: 0 0 calc(
+            33.33%
+            - var(--main_table_gutter) * 2
+    );
+}
+body > main > div > #manage_locations_widget {
+    order: -2;
+    flex: 0 0 calc(
+            50%
+            - var(--main_table_gutter) * 2
+    );
+}
+
+body > main > div > #manage_entities_widget {
+    order: -1;
+    flex: 0 0 calc(
+            50%
+            - var(--main_table_gutter) * 2
+    );
+}
 body > main > div > #telnet_log_widget { order: 999 }
 body > main > div > #telnet_log_widget {
     padding-bottom: 0;  /* last element by order needs to get this one */
