@@ -1,0 +1,6 @@
+@import url("21-header_widgets.css");
+
+footer > div > p {
+    position: absolute;
+    right: 0;
+}

@@ -1,3 +1,19 @@
+body > main > div > .widget {
+    flex: 0 0 calc(
+            100%
+            - var(--main_table_gutter) * 2
+    );
+    height: calc(
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_table_gutter) * 4
+    );
+    scroll-snap-align: start;
+
+    padding-right: calc(var(--main_table_gutter) * 2);
+    padding-bottom: 0.5em;
+}
+
 body > main > div > .widget > main {
     position: relative;
     margin-top: calc(var(--main_table_gutter) * 2);
@@ -28,13 +44,17 @@ body > main > div > .widget .pull_out span a,
 body > main > div > .widget .pull_out span a:visited,
 body > main > div > .widget .pull_out span > div {
     text-decoration: none;
-    display: block; margin-right: 0.5em;
+    display: block;
+    margin-right: 0.5em;
     color: var(--background);
 }
 
 body > main > div > .widget > main .dialog {
     position: absolute;
-    top: 0; right: 0; bottom: 5.5em; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 5.5em;
+    left: 0;
     display: none;
 }
 
@@ -70,27 +90,43 @@ body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
     height: calc(
-        100vh
-        - var(--main_shoulder_height) * 2
-        - var(--main_bar_height)
-        - var(--main_table_gutter)
-        - 2em
-        - 1em
-        - 2em
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_bar_height)
+            - var(--main_table_gutter)
+            - 2em
+            - 1em
+            - 2em
     );
     padding-right: 0.5em;
 }
 
 body > main > div > .widget > main > table.data_table > tbody {
     max-height: calc(
-        100vh
-        - var(--main_shoulder_height) * 2
-        - var(--main_bar_height)
-        - var(--main_table_gutter)
-        - 0.5em
-        - 2em
-        - 1em
-        - 2em
-        - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
+            100vh
+            - var(--main_shoulder_height) * 2
+            - var(--main_bar_height)
+            - var(--main_table_gutter)
+            - 0.5em
+            - 2em
+            - 1em
+            - 2em
+            - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
     );
 }
+
+/* Widget positions -> start */
+main > div > .widget { order: 500 } /* making the standard order the middle instead of 0 */
+
+main > div > #manage_players_widget {
+    order: -3
+}
+main > div > #manage_locations_widget { order: -2 }
+main > div > #manage_entities_widget { order: -1 }
+main > div > #webserver_status_widget { order: 0 }
+main > div > #telnet_log_widget { order: 999 }
+main > div > #telnet_log_widget {
+    padding-bottom: 0;
+}
+/* Widget positions -> end */
+

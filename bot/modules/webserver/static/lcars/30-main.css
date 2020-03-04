@@ -1,4 +1,4 @@
-@import url("lcars_main_widget.css");
+@import url("31-main_widgets.css");
 
 body > main > div > .widget > header {
     background-color: var(--lcars-purple);
@@ -44,18 +44,5 @@ body > main > div > .widget > aside > div > div > span {
     display: block;
     background-color: var(--lcars-purple);
     margin-right: var(--main_shoulder_gap);
-    line-height: 4.5em;
-}
-
-body > main > div > .widget {
-    flex: 1 1 auto;
-    min-width: 640px;
-    max-width: 1920px;
-    height: calc(
-        100vh
-        - var(--main_shoulder_height) * 2
-        - var(--main_table_gutter) * 4
-    );
-    scroll-snap-align: start;
-    padding: 0 calc(var(--main_table_gutter) * 2) 0.5em 0;
+    line-height: var(--main_shoulder_height);
 }

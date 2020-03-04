@@ -105,20 +105,6 @@ body > main > div #unauthorized_disclaimer a:visited {
 /* specific layout-rules for certain modules/widgets */
 
 /* region main_widgets -> start */
-/* Widget positions -> start */
-.widget { order: 500 } /* making the standard order the middle instead of 0 */
-
-main > div > #manage_players_widget { order: -3 }
-main > div > #manage_locations_widget { order: -2 }
-main > div > #manage_entities_widget { order: -1 }
-main > div > #webserver_status_widget { order: 0 }
-main > div > #widget_handling { order: 998 }
-main > div > #telnet_log_widget { order: 999 }
-main > div > #telnet_log_widget {
-    padding-bottom: 0;
-}
-/* Widget positions -> end */
-
 #manage_entities_widget tbody#entity_table > tr:hover *,
 #manage_locations_widget tbody#location_table > tr:hover *,
 #manage_players_widget tbody#player_table > tr:hover * {
@@ -234,10 +220,6 @@ main > div > #manage_locations_widget #current_player_pos > span > div > label:n
 /* region main_widgets -> end */
 
 /* region footer_widgets -> start */
-footer > div > p {
-    position: absolute;
-    right: 0;
-}
 /* region footer_widgets -> end */
 
 /* debug options -> start */

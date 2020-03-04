@@ -30,8 +30,7 @@
     /* main area height */
     --main_area_height: calc(
         100vh
-        - var(--main_shoulder_height)
-        - var(--main_shoulder_height)
+        - var(--main_shoulder_height) * 2
         - 1em
     )
 }

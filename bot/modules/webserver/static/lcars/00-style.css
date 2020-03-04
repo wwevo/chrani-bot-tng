@@ -1,0 +1,9 @@
+@import url("01-variables.css"); /* contains css-variables for most major elements */
+@import url("01-fonts.css");
+
+@import url("xx-2bsorted.css"); /* stuff from the old file-structure that still needs to be included properly */
+
+@import url("10-framework.css");
+@import url("20-header.css");
+@import url("30-main.css");
+@import url("40-footer.css");
