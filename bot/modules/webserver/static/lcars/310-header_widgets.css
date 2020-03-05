@@ -34,9 +34,9 @@ body > header > div > #header_widgets > #gameserver_status_widget span > a:visit
 
 body > header > div > #header_widgets > #gameserver_status_widget span > a {
     display: inline-block;
-    padding: 0 0.1em;
-    border-left: 0.1em solid var(--background);
-    border-right: 0.1em solid var(--background);
+    padding: 0 calc(var(--main_table_gutter) / 2);
+    border-left: calc(var(--main_table_gutter) / 2) solid var(--background);
+    border-right: calc(var(--main_table_gutter) / 2) solid var(--background);
     color: var(--background); /* Edge seems to require this */
     background-color: var(--lcars-red);
 }

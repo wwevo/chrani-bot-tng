@@ -279,11 +279,11 @@ body > main > div > .widget > aside > div {
 }
 
 body > main > div > .widget > aside > div > div {
-    border-top: 0.5em solid var(--background);
+    border-top: var(--main_table_gutter) solid var(--background);
 }
 
 body > main > div > .widget > aside > div > div:last-child {
-    border-bottom: 0.5em solid  var(--background);
+    border-bottom: var(--main_table_gutter) solid  var(--background);
 }
 
 body > main > div > .widget > aside > div > div > span {
@@ -291,6 +291,10 @@ body > main > div > .widget > aside > div > div > span {
     background-color: var(--lcars-purple);
     margin-right: var(--main_shoulder_gap);
     line-height: var(--main_shoulder_height);
+}
+
+body > main > div > .widget > aside > div > div > span.info {
+    line-height: calc(var(--main_shoulder_height) / 2);
 }
 
 body > main > div > .widget > main > table > tfoot > tr {
@@ -349,6 +353,7 @@ body > main > div > #webserver_status_widget {
             - var(--main_table_gutter) * 2
     );
 }
+
 body > main > div > #manage_locations_widget {
     order: -2;
     flex: 0 0 calc(
@@ -365,6 +370,7 @@ body > main > div > #manage_entities_widget {
     );
 }
 body > main > div > #telnet_log_widget { order: 999 }
+
 body > main > div > #telnet_log_widget {
     padding-bottom: 0;  /* last element by order needs to get this one */
 }
