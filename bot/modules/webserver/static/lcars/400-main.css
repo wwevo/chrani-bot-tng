@@ -7,6 +7,6 @@ body > main > div #unauthorized_disclaimer p {
 
 body > main > div #unauthorized_disclaimer a,
 body > main > div #unauthorized_disclaimer a:visited {
-    color: var(--lcars-light-blue);
+    color: var(--lcars-melrose);
     text-decoration: None;
 }

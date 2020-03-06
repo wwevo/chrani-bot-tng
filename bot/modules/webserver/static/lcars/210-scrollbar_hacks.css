@@ -7,9 +7,9 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--lcars-yellow);
+    background: var(--lcars-tanoi);
     border-radius: 1.25em;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--lcars-orange);
+    background: var(--lcars-atomic-tangerine);
 }

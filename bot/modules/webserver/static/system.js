@@ -116,29 +116,29 @@ document.addEventListener("DOMContentLoaded", function(event) {
     let lcars_colors = []
     function load_lcars_colors() {
         /* https://davidwalsh.name/css-variables-javascript */
-        lcars_colors["lcars-brown"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-brown').trim()
+        lcars_colors["lcars-orange-peel"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-orange-peel').trim()
         );
-        lcars_colors["lcars-orange"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-orange').trim()
+        lcars_colors["lcars-atomic-tangerine"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-atomic-tangerine').trim()
         );
-        lcars_colors["lcars-yellow"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-yellow').trim()
+        lcars_colors["lcars-tanoi"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-tanoi').trim()
         );
-        lcars_colors["lcars-red"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-red').trim()
+        lcars_colors["lcars-chestnut-rose"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-chestnut-rose').trim()
         );
-        lcars_colors["lcars-purple"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-purple').trim()
+        lcars_colors["lcars-hopbush"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-hopbush').trim()
         );
         lcars_colors["lcars-lilac"] = hexToRgb(
             getComputedStyle(document.documentElement).getPropertyValue('--lcars-lilac').trim()
         );
-        lcars_colors["lcars-dark-blue"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-dark-blue').trim()
+        lcars_colors["lcars-blue-bell"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-blue-bell').trim()
         );
-        lcars_colors["lcars-light-blue"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('--lcars-light-blue').trim()
+        lcars_colors["lcars-melrose"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-melrose').trim()
         );
         lcars_colors["background"] = hexToRgb(
             getComputedStyle(document.documentElement).getPropertyValue('--background').trim()
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     let flash = function(elements, color=false) {
         let opacity = 40;
         if (color === false) {
-            color = lcars_colors["lcars-yellow"]; // has to be in this format since we use rgba
+            color = lcars_colors["lcars-tanoi"]; // has to be in this format since we use rgba
         }
         let interval = setInterval(function() {
             opacity -= 2.5;
@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         play_audio_file("computerbeep_11");
                     } else if (status === "fail") {
                         play_audio_file("computer_error");
-                        flash(document.body, lcars_colors["lcars-red"])
+                        flash(document.body, lcars_colors["lcars-chestnut-rose"])
                     }
                     console.log(
                         "received status\n\"" + status + ":" + json["uuid4"] + "\"\n" +

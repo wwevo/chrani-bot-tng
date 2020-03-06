@@ -3,7 +3,7 @@ body > main > div > #manage_locations_widget > main > table > tbody > tr > td[id
 }
 
 body > main > div > #manage_locations_widget tbody#location_table > tr:hover * {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
     color: var(--background)
 }
 

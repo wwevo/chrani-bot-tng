@@ -8,14 +8,44 @@
     --main-bar-border-color: #6F7172;
 
     /* StarTrek color information found on: https://web.archive.org/web/20190717130329/http://www.lcarscom.net/ */
-    --lcars-brown: #FF9966;
-    --lcars-orange: #FF9900;
-    --lcars-yellow: #FFCC99;
-    --lcars-red: #CC6666;
-    --lcars-purple: #CC6699;
+    --lcars-pale-canary: #FF9999;
+    --lcars-tanoi: #FFCC99;
+    --lcars-golden-tanoi: #FFCC66;
+    --lcars-neon-carrot: #FF9933;
+
+    --lcars-eggplant: #664466;
     --lcars-lilac: #CC99CC;
-    --lcars-dark-blue: #9999CC;
-    --lcars-light-blue: #9999FF;
+    --lcars-anakiwa: #99CCFF;
+    --lcars-mariner: #3366CC;
+
+    --lcars-bahama-blue: #006699;
+    --lcars-blue-bell: #9999CC;
+    --lcars-melrose: #9999FF;
+    --lcars-hopbush: #CC6699;
+
+    --lcars-chestnut-rose: #CC6666;
+    --lcars-orange-peel: #FF9966;
+    --lcars-atomic-tangerine: #FF9900;
+    --lcars-danub: #6688CC;
+
+    --lcars-indigo: #4455BB;
+    --lcars-lavender-purple: #9977AA;
+    --lcars-cosmic: #774466;
+    --lcars-red-damask: #DD6644;
+
+    --lcars-medium-carmine: #AA5533;
+    --lcars-bourbon: #BB6622;
+    --lcars-sandy-brown: #EE9955;
+    --lcars-periwinkle: #CCDDFF;
+
+    --lcars-dodger-pale: #5599FF;
+    --lcars-dodger-soft: #3366FF;
+    --lcars-near-blue: #0011EE;
+    --lcars-navy-blue: #000088;
+
+    --lcars-husk: #BBAA55;
+    --lcars-rust: #BB4411;
+    --lcars-tamarillo: #882211;
 
     /* pixel values taken from the used images */
     --main_shoulder_width: 16.875em;

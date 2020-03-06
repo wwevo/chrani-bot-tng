@@ -3,7 +3,7 @@ body > main > div > #manage_players_widget > main > table > tbody > tr > td[id$=
 }
 
 body > main > div > #manage_players_widget tbody#player_table > tr:hover * {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
     color: var(--background)
 }
 
@@ -12,14 +12,14 @@ body > main > div > #manage_players_widget tbody#player_table > tr:hover * {
 body > main > div > #manage_players_widget caption span:not(.is_online):not(.is_initialized),
 body > main > div > #manage_players_widget tbody > span:not(.is_online):not(.is_initialized),
 body > main > div > #manage_players_widget tbody > tr:not(.is_online):not(.is_initialized) {
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
 }
 
 /* offline and dead */
 body > main > div > #manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
 body > main > div > #manage_players_widget tbody > span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
 body > main > div > #manage_players_widget tbody > tr.in_limbo:not(.is_online):not(.is_initialized):not(.has_health) {
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
 }
 /* special fading animation for offline players currently dead */
 body > main > div > #manage_players_widget caption span.in_limbo:not(.is_online):not(.is_initialized):not(.has_health),
@@ -32,7 +32,7 @@ body > main > div > #manage_players_widget tbody > tr.in_limbo:not(.is_online):n
 body > main > div > #manage_players_widget caption span.is_online:not(.is_initialized).in_limbo,
 body > main > div > #manage_players_widget tbody > span.is_online:not(.is_initialized).in_limbo,
 body > main > div > #manage_players_widget tbody > tr.is_online:not(.is_initialized).in_limbo {
-    color: var(--lcars-yellow);
+    color: var(--lcars-tanoi);
 }
 /* special fading animation for players currently logging in */
 body > main > div > #manage_players_widget caption span.is_online:not(.is_initialized).in_limbo,
@@ -45,13 +45,13 @@ body > main > div > #manage_players_widget tbody > tr.is_online:not(.is_initiali
 body > main > div > #manage_players_widget caption span.is_online.is_initialized:not(.in_limbo),
 body > main > div > #manage_players_widget tbody > span.is_online.is_initialized:not(.in_limbo),
 body > main > div > #manage_players_widget tbody > tr.is_online.is_initialized:not(.in_limbo) {
-    color: var(--lcars-yellow);
+    color: var(--lcars-tanoi);
 }
 /* online and dead */
 body > main > div > #manage_players_widget caption span.is_online.is_initialized.in_limbo,
 body > main > div > #manage_players_widget tbody > span.is_online.is_initialized.in_limbo,
 body > main > div > #manage_players_widget tbody > tr.is_online.is_initialized.in_limbo {
-    color: var(--lcars-orange);
+    color: var(--lcars-atomic-tangerine);
 }
 
 @media only screen {
@@ -69,7 +69,7 @@ body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_hea
     content: "\2665";
     padding-right: var(--main_table_gutter);
     padding-left: calc(var(--main_table_gutter) * 2);
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
 }
 
 body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_pos"] span {
@@ -79,12 +79,12 @@ body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_pos
 
 body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_pos"]:before {
     padding-left: calc(var(--main_table_gutter) * 2);
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
     content: "\2691";
 }
 
 body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_zombies"]:before {
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
     content: "\2620";
     padding-right: var(--main_table_gutter);
     padding-left: calc(var(--main_table_gutter) * 2);

@@ -17,7 +17,7 @@ body > main > div > .widget main a {
 
 body > main > div > .widget main a,
 body > main > div > .widget main a:visited {
-    background-color: var(--lcars-light-blue);
+    background-color: var(--lcars-melrose);
     color: black;
 }
 
@@ -26,11 +26,11 @@ body > main > div > .widget main a:hover {
 }
 
 body > main > div > .widget main span.active a {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
 }
 
 body > main > div > .widget main span.inactive a {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > main > div > .widget main .select_button a {
@@ -64,11 +64,11 @@ body > main > div > .widget .pull_out > div > span.active {
 
 body > main > div > .widget > main > table > tfoot > tr > td > span.inactive,
 body > main > div > .widget .pull_out > div > span.inactive {
-    background-color: var(--lcars-purple);
+    background-color: var(--lcars-hopbush);
 }
 
 body > main > div > .widget .pull_out > div > span.info {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
 }
 
 body > main > div > .widget .pull_out > div > span.info > div > span {
@@ -101,9 +101,9 @@ body > main > div > .widget > main .dialog.open {
 
 body > main > div > .widget > main .dialog .modal-content {
     padding: 1em;
-    color: var(--lcars-dark-blue);
+    color: var(--lcars-blue-bell);
     background-color: var(--background);
-    border: var(--main_table_gutter) solid var(--lcars-red);
+    border: var(--main_table_gutter) solid var(--lcars-chestnut-rose);
 
     border-radius: 0 1em 0.5em 1.5em / 0 1em 0.5em 1em;
     height: calc(100% + 1em);
@@ -186,7 +186,7 @@ body > main > div > .widget > main table.box_input tfoot td {
 
 body > main > div > .widget > main table.box_select input[disabled],
 body > main > div > .widget > main table.box_input input[disabled] {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > main > div > .widget > main table.box_select tfoot tr td,
@@ -197,8 +197,8 @@ body > main > div > .widget > main table.box_input tfoot tr td {
 
 body > main > div > .widget > main table.box_select tfoot tr td > div,
 body > main > div > .widget > main table.box_input tfoot tr td > div {
-     /* background-image: linear-gradient(to right, var(--background),  var(--lcars-light-blue), var(--lcars-light-blue), var(--lcars-light-blue)); */
-    background-color: var(--lcars-light-blue);
+     /* background-image: linear-gradient(to right, var(--background),  var(--lcars-melrose), var(--lcars-melrose), var(--lcars-melrose)); */
+    background-color: var(--lcars-melrose);
     text-align: right;
     line-height: 1em;
     font-size: 0.9em;
@@ -223,7 +223,7 @@ body > main > div > .widget > main table.box_select label.slider [type="checkbox
 body > main > div > .widget > main table.box_select .slider [type="checkbox"] + span {
     color: var(--background);
     display: block;
-    background: var(--lcars-red);
+    background: var(--lcars-chestnut-rose);
     padding: var(--main_table_gutter);
     margin: var(--main_table_gutter);
     border-radius: 0.5em;
@@ -231,23 +231,23 @@ body > main > div > .widget > main table.box_select .slider [type="checkbox"] + 
 
 body > main > div > .widget > main table.box_select .slider:hover [type="checkbox"] + span,
 body > main > div > .widget > main table.box_select .slider :checked + span {
-    background: var(--lcars-yellow);
+    background: var(--lcars-tanoi);
 }
 
 body > main > div > .widget > main table.box_select .slider [type="checkbox"][disabled] + span {
-    background: var(--lcars-brown);
+    background: var(--lcars-orange-peel);
 }
 
 body > main > div > .widget > main > table > caption {
     /* display: none; */
     border-top: 0.5em solid var(--background);
     border-bottom: 0.5em solid var(--background);
-    color: var(--lcars-light-blue);
+    color: var(--lcars-melrose);
     margin-right: 1em;
 }
 
 body > main > div > .widget > header {
-    background-color: var(--lcars-purple);
+    background-color: var(--lcars-hopbush);
     border-radius: 1.5em 1.5em 1.5em 0;
 }
 
@@ -280,6 +280,7 @@ body > main > div > .widget > aside > div {
 
 body > main > div > .widget > aside > div > div {
     border-top: var(--main_table_gutter) solid var(--background);
+    background-color: var(--background);
 }
 
 body > main > div > .widget > aside > div > div:last-child {
@@ -288,12 +289,16 @@ body > main > div > .widget > aside > div > div:last-child {
 
 body > main > div > .widget > aside > div > div > span {
     display: block;
-    background-color: var(--lcars-purple);
+    background-color: var(--lcars-hopbush);
     margin-right: var(--main_shoulder_gap);
     line-height: var(--main_shoulder_height);
 }
+body > main > div > .widget > aside > div > div > span {
+    border-radius: var(--main_table_gutter);
+}
 
 body > main > div > .widget > aside > div > div > span.info {
+    border-radius: unset;
     line-height: calc(var(--main_shoulder_height) / 2);
 }
 
@@ -307,7 +312,7 @@ body > main > div > .widget > main > table > tfoot > tr > td {
 }
 
 body > main > div > .widget > main > table > tfoot > tr > td > div {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
     margin: 0;
     padding-left: 5.25em;
     height: 1.25em; line-height: 1.25em;
@@ -328,12 +333,12 @@ body > main > div > .widget main > table > tfoot > tr > td > div .delete_button 
 
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.active a,
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.active {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.inactive a,
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button span.inactive {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
 }
 
 body > main > div > .widget { order: 500 } /* making the standard order the middle instead of 0 */

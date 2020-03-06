@@ -8,7 +8,7 @@ body > header > div > hgroup {
 
 body > header > div > hgroup > h1 {
     font-size: var(--main_bar_height);
-    color: var(--lcars-yellow);
+    color: var(--lcars-tanoi);
     background-color: var(--background);
 
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;

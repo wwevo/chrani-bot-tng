@@ -5,7 +5,7 @@ body > main > div > #telnet_log_widget {
 
 body > main > div > #telnet_log_widget .log_line {
     /* log entries seem to be traditionally blue in LCARS ^^ */
-    color: var(--lcars-dark-blue);
+    color: var(--lcars-blue-bell);
 }
 
 body > main > div > #telnet_log_widget .log_line td {

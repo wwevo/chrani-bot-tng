@@ -85,7 +85,7 @@ body > footer > div {
 
 /* every element inside main > div is a widget! */
 body > main > div {
-    color: var(--lcars-orange);
+    color: var(--lcars-atomic-tangerine);
     display: flex;
     flex-wrap: wrap;
     height: var(--main_area_height);

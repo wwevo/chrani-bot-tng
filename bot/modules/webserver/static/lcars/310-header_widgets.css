@@ -5,7 +5,7 @@ body > header > div > #header_widgets > .widget {
 }
 
 body > header > div > #header_widgets > .widget > div {
-    background-color: var(--lcars-orange);
+    background-color: var(--lcars-atomic-tangerine);
     border-radius: 12px; padding: 0 1em;
     white-space: nowrap;
     line-height: 1.5em;
@@ -20,16 +20,16 @@ body > header > div > #header_widgets > #login_logout_widget a {
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget > div.active {
-    background-color: var(--lcars-yellow);
+    background-color: var(--lcars-tanoi);
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget > div.inactive {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget span > a,
 body > header > div > #header_widgets > #gameserver_status_widget span > a:visited {
-    color: var(--lcars-dark-blue);
+    color: var(--lcars-blue-bell);
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget span > a {
@@ -38,7 +38,7 @@ body > header > div > #header_widgets > #gameserver_status_widget span > a {
     border-left: calc(var(--main_table_gutter) / 2) solid var(--background);
     border-right: calc(var(--main_table_gutter) / 2) solid var(--background);
     color: var(--background); /* Edge seems to require this */
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget span > a:hover,
@@ -48,7 +48,7 @@ body > header > div > #header_widgets > #gameserver_status_widget span > a:visit
 }
 
 body > header > div > #header_widgets > #gameserver_status_widget span:hover > a {
-    background-color: var(--lcars-red);
+    background-color: var(--lcars-chestnut-rose);
 }
 
 body > header > div > #header_widgets > #gametime_widget {
@@ -61,7 +61,7 @@ body > header > div > #header_widgets > #gametime_widget span.time {
 
 body > header > div > #header_widgets > #gametime_widget span.day.bloodday,
 body > header > div > #header_widgets > #gametime_widget span.time.bloodmoon {
-    color: var(--lcars-red);
+    color: var(--lcars-chestnut-rose);
 }
 
 body > header > div > #header_widgets > #gametime_widget span.time.bloodmoon {
