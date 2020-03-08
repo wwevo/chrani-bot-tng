@@ -197,7 +197,7 @@ body > main > div > .widget > main table.box_input tfoot tr td {
 
 body > main > div > .widget > main table.box_select tfoot tr td > div,
 body > main > div > .widget > main table.box_input tfoot tr td > div {
-     /* background-image: linear-gradient(to right, var(--background),  var(--lcars-melrose), var(--lcars-melrose), var(--lcars-melrose)); */
+    /* background-image: linear-gradient(to right, var(--background),  var(--lcars-melrose), var(--lcars-melrose), var(--lcars-melrose)); */
     background-color: var(--lcars-melrose);
     text-align: right;
     line-height: 1em;
@@ -252,21 +252,21 @@ body > main > div > .widget > header {
 }
 
 body > main > div > .widget > header > div > span {
-    font-size: 3em; line-height: 1em;
+    font-size: 3em;
+    line-height: 1em;
     color: var(--background);
     margin-left: 1.5em;
 }
 
 body > main > div > .widget > aside {
     float: left;
-    background:
-        linear-gradient(
+    background: linear-gradient(
             to right,
             var(--main-bar-color) 0,
             var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
             var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
             var(--background) 100%
-        );
+    );
     height: calc(100% - 3em);
 }
 
@@ -284,7 +284,7 @@ body > main > div > .widget > aside > div > div {
 }
 
 body > main > div > .widget > aside > div > div:last-child {
-    border-bottom: var(--main_table_gutter) solid  var(--background);
+    border-bottom: var(--main_table_gutter) solid var(--background);
 }
 
 body > main > div > .widget > aside > div > div > span {
@@ -293,6 +293,7 @@ body > main > div > .widget > aside > div > div > span {
     margin-right: var(--main_shoulder_gap);
     line-height: var(--main_shoulder_height);
 }
+
 body > main > div > .widget > aside > div > div > span {
     border-radius: var(--main_table_gutter);
 }
@@ -315,13 +316,15 @@ body > main > div > .widget > main > table > tfoot > tr > td > div {
     background-color: var(--lcars-tanoi);
     margin: 0;
     padding-left: 5.25em;
-    height: 1.25em; line-height: 1.25em;
+    height: 1.25em;
+    line-height: 1.25em;
     border-radius: 0 1em 1em 2em / 0 1em 1em 2em;
 }
 
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button {
     display: inline-block;
-    height: 1.25em; line-height: 1.25em;
+    height: 1.25em;
+    line-height: 1.25em;
     border-left: 0.25em solid var(--background);
     border-right: 0.25em solid var(--background);
 }
@@ -341,7 +344,11 @@ body > main > div > .widget main > table > tfoot > tr > td > div .delete_button 
     background-color: var(--lcars-tanoi);
 }
 
-body > main > div > .widget { order: 500 } /* making the standard order the middle instead of 0 */
+body > main > div > .widget {
+    order: 500
+}
+
+/* making the standard order the middle instead of 0 */
 
 body > main > div > #manage_players_widget {
     order: -4;
@@ -374,8 +381,11 @@ body > main > div > #manage_entities_widget {
             - var(--main_table_gutter) * 2
     );
 }
-body > main > div > #telnet_log_widget { order: 999 }
 
 body > main > div > #telnet_log_widget {
-    padding-bottom: 0;  /* last element by order needs to get this one */
+    order: 999
+}
+
+body > main > div > #telnet_log_widget {
+    padding-bottom: 0; /* last element by order needs to get this one */
 }
