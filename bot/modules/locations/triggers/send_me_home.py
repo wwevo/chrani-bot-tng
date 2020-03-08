@@ -18,9 +18,9 @@ def main_function(origin_module, module, regex_result):
     if found_home is True and len(location_dict) >= 1:
         event_data = ['management_tools', {
             'location_coordinates': {
-                "x": location_dict["coordinates"]["x"],
-                "y": location_dict["coordinates"]["y"],
-                "z": location_dict["coordinates"]["z"]
+                "x": location_dict.get("teleport_entry", {}).get("x", location_dict["coordinates"]["x"]),
+                "y": location_dict.get("teleport_entry", {}).get("y", location_dict["coordinates"]["y"]),
+                "z": location_dict.get("teleport_entry", {}).get("z", location_dict["coordinates"]["z"])
             },
             'action': 'teleport'
         }]

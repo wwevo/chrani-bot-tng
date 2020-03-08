@@ -17,6 +17,7 @@ def main_function(module, event_data, dispatchers_steamid):
         location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
         location_types = event_data[1].get("location_type", None)
         location_coordinates = event_data[1].get("location_coordinates", {})
+        location_teleport_entry = event_data[1].get("location_teleport_entry", {})
         location_dimensions = event_data[1].get("location_dimensions", {})
         location_enabled = event_data[1].get("location_enabled", False)
         last_changed = event_data[1].get("last_changed", False)
@@ -42,6 +43,7 @@ def main_function(module, event_data, dispatchers_steamid):
                                     "shape": location_shape,
                                     "type": location_types,
                                     "coordinates": location_coordinates,
+                                    "teleport_entry": location_teleport_entry,
                                     "dimensions": location_dimensions,
                                     "owner": str(location_owner),
                                     "is_enabled": location_enabled,

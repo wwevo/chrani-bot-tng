@@ -20,10 +20,11 @@
                     {% with location_dict=location_to_edit_dict, is_edit=is_edit %}
                     {% include "manage_locations_widget/view_create_new_set_name.html" %}
                     {% include "manage_locations_widget/view_create_new_identifier.html" %}
-                    {% include "manage_locations_widget/view_create_new_set_coordinates.html" %}
-                    {% include "manage_locations_widget/view_create_new_select_type.html" %}
                     {% include "manage_locations_widget/view_create_new_select_shape.html" %}
                     {% include "manage_locations_widget/view_create_new_set_dimensions.html" %}
+                    {% include "manage_locations_widget/view_create_new_set_coordinates.html" %}
+                    {% include "manage_locations_widget/view_create_new_set_teleport_coordinates.html" %}
+                    {% include "manage_locations_widget/view_create_new_select_type.html" %}
                     {% include "manage_locations_widget/view_create_new_control_send_data.html" %}
                     {% endwith %}
                 </td>
