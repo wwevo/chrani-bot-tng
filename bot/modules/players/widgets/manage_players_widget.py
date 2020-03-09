@@ -17,6 +17,11 @@ def get_player_table_row_css_class(player_dict):
         css_classes.append("has_health")
     if player_dict.get("is_initialized", False):
         css_classes.append("is_initialized")
+    permission_level = player_dict.get("permission_level", False)
+    if permission_level:
+        css_classes.append("has_level_" + permission_level.zfill(4))
+    else:
+        css_classes.append("has_no_level")
 
     return " ".join(css_classes)
 
@@ -394,10 +399,17 @@ def table_rows(*args, ** kwargs):
 def update_widget(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     method = kwargs.get("method", None)
     if method in ["update"]:
-        player_dict = updated_values_dict
+        original_player_dict = (
+            module.dom.data
+            .get("module_players", {})
+            .get("elements", {})
+            .get(active_dataset, {})
+            .get(updated_values_dict.get("steamid", None), {})
+        )
         player_clients_to_update = list(module.webserver.connected_clients.keys())
 
         for clientid in player_clients_to_update:
@@ -410,14 +422,14 @@ def update_widget(*args, **kwargs):
                     .get("current_view", None)
                 )
                 table_row_id = "player_table_row_{}_{}".format(
-                    str(player_dict.get("dataset", None)),
-                    str(player_dict.get("steamid", None))
+                    str(original_player_dict.get("dataset", None)),
+                    str(original_player_dict.get("steamid", None))
 
                 )
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        payload=player_dict,
+                        payload=updated_values_dict,
                         data_type="table_row_content",
                         clients=[clientid],
                         method="update",
@@ -427,13 +439,13 @@ def update_widget(*args, **kwargs):
                             "module": "players",
                             "type": "tr",
                             "selector": "body > main > div > div#manage_players_widget",
-                            "class": get_player_table_row_css_class(player_dict),
+                            "class": get_player_table_row_css_class(original_player_dict),
                         }
                     )
                 elif current_view == "info":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        payload=player_dict,
+                        payload=updated_values_dict,
                         data_type="table_row_content",
                         clients=[clientid],
                         method="update",
@@ -443,7 +455,7 @@ def update_widget(*args, **kwargs):
                             "module": "players",
                             "type": "tr",
                             "selector": "body > main > div > div#manage_players_widget",
-                            "class": get_player_table_row_css_class(player_dict),
+                            "class": get_player_table_row_css_class(updated_values_dict),
                         }
                     )
             except AttributeError as error:

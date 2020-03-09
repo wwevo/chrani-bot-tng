@@ -4,8 +4,8 @@
         <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
     <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_actions">
-        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_info_link" class="info">{{ control_info_link }}</span>
-        <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_kick_link" class="info">{{ control_kick_link }}</span>
+        {{ control_info_link }}
+        {{ control_kick_link }}
     </td>
     <td class="center" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_level">{{ player.level }}</td>
     <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>

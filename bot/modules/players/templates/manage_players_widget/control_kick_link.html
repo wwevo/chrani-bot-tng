@@ -1,10 +1,12 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
 {%- if player.is_initialized == true -%}
-{{ construct_toggle_link(
+<span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_kick_link" class="info">
+{{- construct_toggle_link(
     player.is_initialized,
     "kick", ['widget_event', ['players', ['manage_players', {
         'action': 'kick player',
         'steamid': player.steamid
     }]]]
-)}}
+)-}}
+</span>
 {%- endif -%}
