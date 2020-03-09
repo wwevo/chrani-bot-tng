@@ -344,11 +344,18 @@ body > main > div > .widget main > table > tfoot > tr > td > div .delete_button 
     background-color: var(--lcars-tanoi);
 }
 
-body > main > div > .widget {
-    order: 500
+body > main > div > .widget > main tr td[id$="_actions"] > span {
+    padding-right: var(--main_table_gutter);
+}
+
+body > main > div > .widget > main tr td[id$="_actions"] > span:last-child {
+    padding-right: 0;
 }
 
 /* making the standard order the middle instead of 0 */
+body > main > div > .widget {
+    order: 500
+}
 
 body > main > div > #manage_players_widget {
     order: -4;

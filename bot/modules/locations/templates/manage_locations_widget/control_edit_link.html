@@ -1,5 +1,6 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-{{ construct_toggle_link(
+<span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_edit_link" class="toggle_button">
+{{- construct_toggle_link(
     True,
     "edit", ['widget_event', ['locations', ['toggle_locations_widget_view', {
         "dom_element_owner": location.owner,
@@ -7,4 +8,5 @@
         "dom_element_origin": location.dataset,
         "action": "edit_location_entry"
     }]]]
-) }}
+) -}}
+</span>

@@ -3,10 +3,7 @@
     <td>
         <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
-    <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_actions">
-        {{ control_info_link }}
-        {{ control_kick_link }}
-    </td>
+    <td class="nobr" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_actions">{{ control_info_link }}{{ control_kick_link }}</td>
     <td class="center" id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_level">{{ player.level }}</td>
     <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_name" onclick="$(this).selectText();">{{ player.name }}</td>
     <td id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_health">{{ player.health }}</td>

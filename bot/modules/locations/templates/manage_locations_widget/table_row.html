@@ -5,10 +5,7 @@
     <td>
         <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_select_link" class="select_button">{{ control_select_link }}</span>
     </td>
-    <td class="right" id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_actions">
-        <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_edit_link" class="toggle_button">{{ control_edit_link }}</span>
-        <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_enabled_link" class="toggle_button">{{ control_enabled_link }}</span>
-    </td>
+    <td class="right" id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_actions">{{ control_edit_link }}{{ control_enabled_link }}</td>
     <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_name" onclick="$(this).selectText();">{{ location.name }}</td>
     <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_owner_name" onclick="$(this).selectText();">{{ player_dict.name }}</td>
     <td id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_id" onclick="$(this).selectText();">{{ location.identifier }}</td>
