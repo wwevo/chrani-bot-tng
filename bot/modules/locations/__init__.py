@@ -101,43 +101,49 @@ class Locations(Module):
             position_dict is not None,
             boundary_dict is not None
         ]):
-            x = float(position_dict.get("pos", {}).get("x", None))
-            y = float(position_dict.get("pos", {}).get("y", None))
-            z = float(position_dict.get("pos", {}).get("z", None))
+            player_pos_x = float(position_dict.get("pos", {}).get("x", None))
+            player_pos_y = float(position_dict.get("pos", {}).get("y", None))
+            player_pos_z = float(position_dict.get("pos", {}).get("z", None))
 
-            cx = float(boundary_dict.get("coordinates", {}).get("x", 0))
-            cy = float(boundary_dict.get("coordinates", {}).get("y", 0))
-            cz = float(boundary_dict.get("coordinates", {}).get("z", 0))
+            """ round areas have to be treated differently from rectangular ones """
+            if shape in ["spherical", "circle"]:
+                location_radius = float(dimensions.get("radius", 0))
 
-            if shape == "spherical":
-                radius = float(dimensions.get("radius", 0))
-                distance_to_location_center = math.sqrt(
-                    (x - cx) ** 2 +
-                    (y - cy) ** 2 +
-                    (z - cz) ** 2
-                )
+                cx = float(boundary_dict.get("coordinates", {}).get("x", 0))
+                cy = float(boundary_dict.get("coordinates", {}).get("y", 0))
+                cz = float(boundary_dict.get("coordinates", {}).get("z", 0))
 
-                position_is_inside_boundary = distance_to_location_center <= radius
-            elif shape == "box":
-                radius = float(dimensions.get("width", 0))
-                position_is_inside_boundary = all([
-                    x - radius <= cx <= x + radius,
-                    y - radius <= cy <= y + radius,
-                    z - radius <= cz <= z + radius
-                ])
-            elif shape == "circle":
-                radius = float(dimensions.get("radius", 0))
-                distance_to_location_center = math.sqrt(
-                    (x - cx) ** 2 +
-                    (z - cz) ** 2
-                )
-                position_is_inside_boundary = distance_to_location_center <= radius
-            elif shape == "rectangular":
-                radius = float(dimensions.get("width", 0))
-                position_is_inside_boundary = all([
-                    x - radius <= cx <= x + radius,
-                    z - radius <= cz <= z + radius
-                ])
+                if shape == "spherical":  # (3D)
+                    distance_to_location_center = math.sqrt(
+                        (player_pos_x - cx) ** 2 + (player_pos_y - cy) ** 2 + (player_pos_z - cz) ** 2
+                    )
+                    position_is_inside_boundary = distance_to_location_center <= location_radius
+                elif shape == "circle":  # (2D)
+                    distance_to_location_center = math.sqrt(
+                        (player_pos_x - cx) ** 2 + (player_pos_z - cz) ** 2
+                    )
+                    position_is_inside_boundary = distance_to_location_center <= location_radius
+
+            elif shape in ["box", "rectangular"]:
+                location_width = float(dimensions.get("width", 0))
+                location_height = float(dimensions.get("height", 0))
+                location_length = float(dimensions.get("length", 0))
+
+                south_east_x = float(boundary_dict.get("coordinates", {}).get("x", 0))
+                south_east_y = float(boundary_dict.get("coordinates", {}).get("y", 0))
+                south_east_z = float(boundary_dict.get("coordinates", {}).get("z", 0))
+
+                if shape == "box":  # (3D)
+                    position_is_inside_boundary = all([
+                        player_pos_x - location_width <= south_east_x <= player_pos_x + location_width,
+                        player_pos_y - location_height <= south_east_y <= player_pos_y + location_height,
+                        player_pos_z - location_length <= south_east_z <= player_pos_z + location_length
+                    ])
+                elif shape == "rectangular":  # (2D)
+                    position_is_inside_boundary = all([
+                        player_pos_x - location_width <= south_east_x <= player_pos_x + location_width,
+                        player_pos_z - location_length <= south_east_z <= player_pos_z + location_length
+                    ])
 
         return position_is_inside_boundary
 
