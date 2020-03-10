@@ -8,9 +8,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     command = regex_result.group("command")
-    player_name = regex_result.group("player_name")
-    entity_id = regex_result.group("entity_id")
-    steamid = regex_result.group("player_steamid")
+    player_steamid = regex_result.group("player_steamid")
 
     result = re.match(r"^.*send\sme\sto\slocation\s(?P<location_identifier>.*)", command)
     if result:
@@ -24,7 +22,7 @@ def main_function(origin_module, module, regex_result):
         module.dom.data.get("module_locations", {})
         .get("elements", {})
         .get(active_dataset, {})
-        .get(steamid, {})
+        .get(player_steamid, {})
         .get(location_identifier, {})
     )
 
@@ -32,7 +30,7 @@ def main_function(origin_module, module, regex_result):
         module.dom.data.get("module_players", {})
         .get("elements", {})
         .get(active_dataset, {})
-        .get(steamid, {})
+        .get(player_steamid, {})
     )
 
     if len(player_dict) >= 1 and len(location_dict) >= 1:
@@ -44,7 +42,7 @@ def main_function(origin_module, module, regex_result):
             },
             'action': 'teleport'
         }]
-        module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
+        module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=player_steamid)
 
 
 trigger_meta = {

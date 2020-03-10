@@ -17,7 +17,8 @@ telnet_prefixes = {
     },
     "BCM": {
         "chat": (
-            r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+            r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
+            "Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
             r"to\s\'(?P<target_room>.*)\'\)\:\s"
         )
     },
