@@ -101,42 +101,43 @@ class Locations(Module):
             position_dict is not None,
             boundary_dict is not None
         ]):
-            if shape == "spherical":
-                radius = dimensions.get("radius", None)
-                """ we determine the location by the locations radius and the distance of the player from it's center,
-                spheres make this especially easy, so I picked them first ^^
-                """
+            x = float(position_dict.get("pos", {}).get("x", None))
+            y = float(position_dict.get("pos", {}).get("y", None))
+            z = float(position_dict.get("pos", {}).get("z", None))
 
-                distance_to_location_center = float(math.sqrt(
-                    (float(position_dict.get("pos", {}).get("x", None)) - float(boundary_dict.get("coordinates", {}).get("x", 0))) ** 2 + (
-                            float(position_dict.get("pos", {}).get("y", None)) - float(boundary_dict.get("coordinates", {}).get("y", 0))) ** 2 + (
-                            float(position_dict.get("pos", {}).get("z", None)) - float(boundary_dict.get("coordinates", {}).get("z", 0))) ** 2))
-                position_is_inside_boundary = distance_to_location_center <= float(radius)
+            cx = float(boundary_dict.get("coordinates", {}).get("x", 0))
+            cy = float(boundary_dict.get("coordinates", {}).get("y", 0))
+            cz = float(boundary_dict.get("coordinates", {}).get("z", 0))
+
+            if shape == "spherical":
+                radius = float(dimensions.get("radius", 0))
+                distance_to_location_center = math.sqrt(
+                    (x - cx) ** 2 +
+                    (y - cy) ** 2 +
+                    (z - cz) ** 2
+                )
+
+                position_is_inside_boundary = distance_to_location_center <= radius
             elif shape == "box":
-                """ we determine the area of the location by the locations center and it's radius (half a sides-length)
-                """
-                radius = dimensions.get("width", None)
-                if (float(position_dict.get("pos", {}).get("x", None)) - float(radius)) <= float(boundary_dict.get("coordinates", {}).get("x", 0)) <= (
-                        float(position_dict.get("pos", {}).get("x", None)) + float(radius)) and (float(position_dict.get("pos", {}).get("y", None)) - float(radius)) <= float(
-                        boundary_dict.get("coordinates", {}).get("y", 0)) <= (float(position_dict.get("pos", {}).get("y", None)) + float(radius)) and (
-                        float(position_dict.get("pos", {}).get("z", None)) - float(radius)) <= float(boundary_dict.get("coordinates", {}).get("z", 0)) <= (
-                        float(position_dict.get("pos", {}).get("z", None)) + float(radius)):
-                    position_is_inside_boundary = True
+                radius = float(dimensions.get("width", 0))
+                position_is_inside_boundary = all([
+                    x - radius <= cx <= x + radius,
+                    y - radius <= cy <= y + radius,
+                    z - radius <= cz <= z + radius
+                ])
             elif shape == "circle":
-                """ we determine the location by the locations radius and the distance of the player from it's center ^^
-                """
-                radius = dimensions.get("radius", None)
-                distance_to_location_center = float(math.sqrt(
-                    (float(position_dict.get("pos", {}).get("x", None)) - float(boundary_dict.get("coordinates", {}).get("x", 0))) ** 2 +
-                    (float(position_dict.get("pos", {}).get("z", None)) - float(boundary_dict.get("coordinates", {}).get("z", 0))) ** 2
-                ))
-                position_is_inside_boundary = distance_to_location_center <= float(radius)
+                radius = float(dimensions.get("radius", 0))
+                distance_to_location_center = math.sqrt(
+                    (x - cx) ** 2 +
+                    (z - cz) ** 2
+                )
+                position_is_inside_boundary = distance_to_location_center <= radius
             elif shape == "rectangular":
-                radius = dimensions.get("width", None)
-                if (float(position_dict.get("pos", {}).get("x", None)) - float(radius)) <= float(boundary_dict.get("coordinates", {}).get("x", 0)) <= (
-                        float(position_dict.get("pos", {}).get("x", None)) + float(radius)) and (float(position_dict.get("pos", {}).get("z", None)) - float(radius)) <= float(
-                        boundary_dict.get("coordinates", {}).get("z", 0)) <= (float(position_dict.get("pos", {}).get("z", None)) + float(radius)):
-                    position_is_inside_boundary = True
+                radius = float(dimensions.get("width", 0))
+                position_is_inside_boundary = all([
+                    x - radius <= cx <= x + radius,
+                    z - radius <= cz <= z + radius
+                ])
 
         return position_is_inside_boundary
 
