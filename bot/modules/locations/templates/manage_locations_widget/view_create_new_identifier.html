@@ -3,7 +3,7 @@
         <tr>
             <td>
                 <div>{%- if not is_edit %}
-                    <script language="javascript">
+                    <script>
                         $("input[name='location_name']").on('input', function() {
                             let location_name = $("input[name='location_name']").val();
                             let location_identifier = location_name.replace(/[^a-zA-Z0-9]/g, '');

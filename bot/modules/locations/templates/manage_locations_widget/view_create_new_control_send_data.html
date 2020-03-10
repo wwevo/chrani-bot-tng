@@ -1,6 +1,6 @@
 {% set action = "edit" if is_edit else "create_new" %}
 <!-- This logic is for the UX experience only, all values are checked for validity in the bots backend //-->
-<script language="javascript">
+<script>
     function send_location_data_to_bot() {
         let location_shape = $("input[name='location_shape']:checked").val();
         let checked_location_types = new Array();

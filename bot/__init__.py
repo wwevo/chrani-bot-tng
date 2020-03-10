@@ -43,14 +43,18 @@ for module in available_modules_list:
 
 
 def batch_setup_modules(modules_list):
+
+    def get_options_dict(module_name):
+        try:
+            options_dir = "{}/{}".format(root_dir, "options")
+            with open(path.join(options_dir, module_name + ".json")) as open_file:
+                return json.load(open_file)
+        except FileNotFoundError:
+            return dict
+
     if len(module_loading_order) >= 1:
         for module_to_setup in module_loading_order:
-            try:
-                options_dir = "{}/{}".format(root_dir, "options")
-                with open(path.join(options_dir, module_to_setup + ".json")) as open_file:
-                    module_options_dict = json.load(open_file)
-            except FileNotFoundError as error:
-                module_options_dict = dict
+            module_options_dict = get_options_dict(module_to_setup)
 
             loaded_modules_dict[module_to_setup].setup(module_options_dict)
             modules_to_start_list.append(loaded_modules_dict[module_to_setup])
@@ -65,12 +69,7 @@ def batch_setup_modules(modules_list):
                     raise AttributeError
             except AttributeError:  # raised by isinstance = has no dependencies, load right away
                 if loaded_modules_dict[module_to_setup] not in modules_to_start_list:
-                    try:
-                        options_dir = "{}/{}".format(root_dir, "options")
-                        with open(path.join(options_dir, module_to_setup + ".json")) as open_file:
-                            module_options_dict = json.load(open_file)
-                    except FileNotFoundError as error:
-                        module_options_dict = dict
+                    module_options_dict = get_options_dict(module_to_setup)
 
                     loaded_modules_dict[module_to_setup].setup(module_options_dict)
                     modules_to_start_list.append(loaded_modules_dict[module_to_setup])

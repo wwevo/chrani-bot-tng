@@ -124,7 +124,10 @@ class Telnet(Module):
             while displayed_welcome is not True:  # loop until ready, it's required
                 telnet_response = connection.read_until(b"\r\n").decode("utf-8")
                 full_banner += telnet_response.rstrip("\r\n")
-                if re.match(r"Press 'help' to get a list of all commands. Press 'exit' to end session.", telnet_response):
+                if re.match(
+                    r"Press 'help' to get a list of all commands. Press 'exit' to end session.",
+                    telnet_response
+                ):
                     displayed_welcome = True
 
         except Exception as e:
@@ -316,7 +319,9 @@ class Telnet(Module):
                             "'lp'", "'gettime'", "'listents'",  # system calls
                             "INF Time: ", "SleeperVolume", " killed by "  # irrelevant lines for now
                         ]
-                        if not any(exclude_element in valid_telnet_line for exclude_element in elements_excluded_from_logs):
+                        if not any(
+                            exclude_element in valid_telnet_line for exclude_element in elements_excluded_from_logs
+                        ):
                             if len(self.webserver.connected_clients) >= 1:
                                 self.dom.data.append({
                                     self.get_module_identifier(): {
