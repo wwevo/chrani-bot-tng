@@ -16,6 +16,7 @@ Specially for Admins/Moderators, and Builders. The casual player may not even no
 from the authentication process of course ^^
 
 ### Current state
+#### Core Functions
 
 * Module based functionality
 * Monitor the games telnet-log
@@ -25,28 +26,23 @@ from the authentication process of course ^^
 * Widget system to easily extend the webinterface
 * Multiple Servers can be managed with one bot (simplified for now)
 * Epic **LCARS**-Style Interface :)
-* Entities are being tracked (Players, Vehicles, Animals, Zombies)
-  * Screamer protection can be activated for locations, all screamer will get killed after spawning
-  * Locations can function as a Lobby
-  * Locations can be a Home
-  * Locations can be a Village 
 
-* The following widgets are (partly) implemented
-  * Telnet-log widget
-  * Player-table widget (delete, login-status, info, kick)
-  * Location widget (create, edit, delete, records time and place of death)
-  * (Timed) Remote shutdown procedure
-  * Simple gametime display
-    * Will show the next Bloodmoon
-  * Entity widget
-  * permissions widget to gate commands
-    * a location can be designated as a Lobby to keep people in
-    * a password can be used to authenticate a player, for example, to give them the ability to leave the Lobby 
+#### Modules:
 
+* Telnet-log widget
+* Player-table widget (delete, login-status, info, kick)
+  * kicking is very simple, with a fixed message for now
+* Location widget (create, edit, delete, records time and place of death)
+  * a location can be designated as a Lobby to keep people in
+  * locations can be made screamer-proof, all screamers will be killed on spawn
+  * locations can be set up as a home, with a dedicated teleport entry
+  * locations can be set up as a village, there's no attached functionality as of yet
+  * a place of death location will be updated on every player-death
+* (Timed) Remote shutdown procedure
+  * timer is fixed to 30 seconds currently
+* Simple gametime display
+  * Will show the next Bloodmoon
+* Entity widget
+* permissions widget to gate commands
+  * a password can be used to authenticate a player, for example, to give them the ability to leave the Lobby 
   
-### Future
-Functions will gradually be added. One at a time
-
-Next on the list is kicking and banning, which will require a framework for modal boxes. Which will then
-also be used for deletion and other actions. Stuff like confirmation, or list of affected elements while
-doing batch-processing and all that 
