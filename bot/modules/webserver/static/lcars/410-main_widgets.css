@@ -359,38 +359,42 @@ body > main > div > .widget {
 
 body > main > div > #manage_players_widget {
     order: -4;
-    flex: 0 0 calc(
-            66.66%
+    flex: 1 0 calc(
+            1024px
             - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #webserver_status_widget {
     order: -3;
-    flex: 0 0 calc(
-            33.33%
+    flex: 1 0 calc(
+            480px
             - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #manage_locations_widget {
     order: -2;
-    flex: 0 0 calc(
-            50%
+    flex: 1 0 calc(
+            860px
             - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #manage_entities_widget {
     order: -1;
-    flex: 0 0 calc(
-            50%
+    flex: 1 0 calc(
+            768px
             - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #telnet_log_widget {
-    order: 999
+    order: 999;
+    flex: 1 0 calc(
+            768px
+            - var(--main_table_gutter) * 2
+    );
 }
 
 body > main > div > #telnet_log_widget {
