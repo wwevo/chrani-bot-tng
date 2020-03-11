@@ -12,6 +12,8 @@ def get_log_line_css_class(log_line):
 
     if r"INF Chat" in log_line:
         css_classes.append("game_chat")
+    if r"(BCM) Command from" in log_line:
+        css_classes.append("bot_command")
     if any([
         r"joined the game" in log_line,
         r"left the game" in log_line

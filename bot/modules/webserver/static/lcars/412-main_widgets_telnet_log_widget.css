@@ -23,3 +23,8 @@ body > main > div > #telnet_log_widget tr.player_logged,
 body > main > div > #telnet_log_widget caption span.player_logged {
     color: var(--lcars-anakiwa);
 }
+
+body > main > div > #telnet_log_widget tr.bot_command,
+body > main > div > #telnet_log_widget caption span.bot_command {
+    color: var(--lcars-cosmic);
+}
