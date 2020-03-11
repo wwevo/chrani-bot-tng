@@ -34,13 +34,12 @@ def main_function(origin_module, module, regex_result):
     )
 
     if len(player_dict) >= 1 and len(location_dict) >= 1:
-        event_data = ['management_tools', {
+        event_data = ['teleport_to_coordinates', {
             'location_coordinates': {
                 "x": location_dict["coordinates"]["x"],
                 "y": location_dict["coordinates"]["y"],
                 "z": location_dict["coordinates"]["z"]
-            },
-            'action': 'teleport'
+            }
         }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=player_steamid)
 

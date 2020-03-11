@@ -41,13 +41,12 @@ def main_function(*args, **kwargs):
         # print("player {} is unauthenticated and outside the lobby oO". format(updated_values_dict.get("name", "NAME NOT FOUND")))
         # no early exits, seems like the player is outside an active lobby without any authentication!
         # seems like we should port ^^
-        event_data = ['management_tools', {
+        event_data = ['teleport_to_coordinates', {
             'location_coordinates': {
                 "x": lobby_dict["coordinates"]["x"],
                 "y": lobby_dict["coordinates"]["y"],
                 "z": lobby_dict["coordinates"]["z"]
             },
-            'action': 'teleport',
             'steamid': on_the_move_player_dict.get("steamid")
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)

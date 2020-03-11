@@ -29,7 +29,7 @@ def main_function(origin_module, module, regex_result):
         minute=servertime_player_joined.get("minute", "00")
     )
 
-    event_data = ['manage_locations', {
+    event_data = ['edit_location', {
         'location_coordinates': {
             "x": player_dict["pos"]["x"],
             "y": player_dict["pos"]["y"],

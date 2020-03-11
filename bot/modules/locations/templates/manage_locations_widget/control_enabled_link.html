@@ -2,13 +2,13 @@
 <span id="location_table_row_{{ location.dataset }}_{{ location.owner}}_{{ location.identifier }}_control_enabled_link" class="toggle_button">
 {{- construct_toggle_link(
     location.is_enabled,
-    "enabled", ['widget_event', ['locations', ['management_tools', {
+    "enabled", ['widget_event', ['locations', ['toggle_enabled_flag', {
         "dom_element_owner": location.owner,
         "dom_element_identifier": location.identifier,
         "dom_element_origin": location.dataset,
         "action": "disable_location_entry"
     }]]],
-    "enabled", ['widget_event', ['locations', ['management_tools', {
+    "enabled", ['widget_event', ['locations', ['toggle_enabled_flag', {
         "dom_element_owner": location.owner,
         "dom_element_identifier": location.identifier,
         "dom_element_origin": location.dataset,

@@ -16,13 +16,12 @@ def main_function(origin_module, module, regex_result):
             found_home = True
 
     if found_home is True and len(location_dict) >= 1:
-        event_data = ['management_tools', {
+        event_data = ['teleport_to_coordinates', {
             'location_coordinates': {
                 "x": location_dict.get("teleport_entry", {}).get("x", location_dict["coordinates"]["x"]),
                 "y": location_dict.get("teleport_entry", {}).get("y", location_dict["coordinates"]["y"]),
                 "z": location_dict.get("teleport_entry", {}).get("z", location_dict["coordinates"]["z"])
-            },
-            'action': 'teleport'
+            }
         }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=player_steamid)
 

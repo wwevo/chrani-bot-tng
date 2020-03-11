@@ -98,7 +98,7 @@ class Permissions(Module):
 
         if module_identifier == "module_locations":
             if any([
-                event_data[0] == "manage_locations",
+                event_data[0] == "edit_location",
                 event_data[0] == "management_tools",
                 event_data[0] == "toggle_locations_widget_view"
             ]):

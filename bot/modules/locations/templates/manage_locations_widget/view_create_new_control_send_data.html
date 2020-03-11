@@ -39,7 +39,7 @@
         let location_identifier = $("input[name='location_identifier']").val();
         window.socket.emit(
             'widget_event',
-            ['locations', ['manage_locations', {
+            ['locations', ['edit_location', {
                 'location_identifier': location_identifier,
                 'location_shape': location_shape,
                 'location_type': checked_location_types,
@@ -48,6 +48,7 @@
                 'location_dimensions': location_dimensions,
                 'location_name': location_name,
                 'location_owner': "{{ location_dict.owner }}",
+                'is_enabled': "{{ location_dict.is_enabled }}",
                 'action': "{{ action }}"
             }]]
         );
