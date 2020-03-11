@@ -28,23 +28,20 @@ def main_function(origin_module, module, regex_result):
         location_identifier = "None"
 
     if location_dict is not None:
-        event_data = ['say_to_player', {
-            'steamid': player_steamid,
-            'message': '[FFFFFF]Location [66FF66]{location_name} ({location_identifier})[FFFFFF] has been exported[-]'.format(
-                location_name=location_name,
-                location_identifier=location_identifier
-            )
+        event_data = ['bc_export', {
+            "location_identifier": location_identifier
         }]
+        module.trigger_action_hook(origin_module.locations, event_data=event_data, dispatchers_steamid=player_steamid)
+
     else:
         event_data = ['say_to_player', {
             'steamid': player_steamid,
-            'message': '[FFFFFF]Something went wrong trying to save [66FF66]{location_name} ({location_identifier})[-]'.format(
+            'message': '[FFFFFF]Could not find [66FF66]{location_name} ({location_identifier})[-]'.format(
                 location_name=location_name,
                 location_identifier=location_identifier
             )
         }]
-
-    module.trigger_action_hook(origin_module.players, event_data=event_data)
+        module.trigger_action_hook(origin_module.players, event_data=event_data)
 
 
 trigger_meta = {

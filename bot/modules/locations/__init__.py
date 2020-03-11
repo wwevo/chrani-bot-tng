@@ -26,6 +26,7 @@ class Locations(Module):
             'module_dom_management',
             'module_game_environment',
             'module_players',
+            'module_telnet',
             'module_webserver'
         ])
 
