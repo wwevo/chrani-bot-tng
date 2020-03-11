@@ -5,6 +5,22 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
+def get_log_line_css_class(log_line):
+    css_classes = [
+        "log_line"
+    ]
+
+    if r"INF Chat" in log_line:
+        css_classes.append("game_chat")
+    if any([
+        r"joined the game" in log_line,
+        r"left the game" in log_line
+    ]):
+        css_classes.append("player_logged")
+
+    return " ".join(css_classes)
+
+
 def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
@@ -39,10 +55,12 @@ def frontend_view(*args, **kwargs):
         telnet_lines = module.dom.data.get("module_telnet", {}).get("telnet_lines", {})
         if len(telnet_lines) >= 1:
             for line in reversed(telnet_lines):
+                css_class = get_log_line_css_class(line)
                 log_lines += module.template_render_hook(
                     module,
                     template=log_line,
-                    log_line=line
+                    log_line=line,
+                    css_class=css_class
                 )
 
             current_view = (
@@ -151,10 +169,12 @@ def update_widget(*args, **kwargs):
 
         if current_view == "frontend":
             telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
+            css_class = get_log_line_css_class(updated_values_dict["telnet_lines"])
             data_to_emit = module.template_render_hook(
                 module,
                 template=telnet_log_line,
-                log_line=updated_values_dict["telnet_lines"]
+                log_line=updated_values_dict["telnet_lines"],
+                css_class=css_class
             )
 
             module.webserver.send_data_to_client_hook(

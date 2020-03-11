@@ -14,3 +14,12 @@ body > main > div > #telnet_log_widget .log_line td {
     text-indent: calc(-1 * calc(var(--main_shoulder_width) / 3));
 }
 
+body > main > div > #telnet_log_widget tr.game_chat,
+body > main > div > #telnet_log_widget caption span.game_chat {
+    color: var(--lcars-hopbush);
+}
+
+body > main > div > #telnet_log_widget tr.player_logged,
+body > main > div > #telnet_log_widget caption span.player_logged {
+    color: var(--lcars-anakiwa);
+}
