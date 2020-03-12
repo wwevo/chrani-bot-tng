@@ -16,29 +16,8 @@ def main_function(module, event_data, dispatchers_steamid):
         .get(dispatchers_steamid, {})
         .get(location_identifier, None)
     )
-    shape = location_dict.get("shape", None)
-    dimensions = location_dict.get("dimensions", None)
-    location_coordinates = location_dict.get("coordinates", None)
-    coordinates = None
-    if shape == "box":
-        coordinates = {
-            "pos_x": location_coordinates["x"],
-            "pos_y": location_coordinates["y"],
-            "pos_z": location_coordinates["z"],
-            "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
-            "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"])),
-            "pos_z2": int(float(location_coordinates["z"]) - float(dimensions["length"])),
-        }
-    elif shape == "spherical":
-        coordinates = {
-            "pos_x": int(float(location_coordinates["x"]) + float(dimensions["radius"])),
-            "pos_y": int(float(location_coordinates["y"]) - float(dimensions["radius"])),
-            "pos_z": int(float(location_coordinates["z"]) - float(dimensions["radius"])),
-            "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["radius"])),
-            "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["radius"])),
-            "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["radius"])),
-        }
 
+    coordinates = module.get_location_volume(location_dict)
     if coordinates is not None:
         command = (
             "bc-export {location_to_be_exported} {pos_x} {pos_y} {pos_z} {pos_x2} {pos_y2} {pos_z2}"
@@ -48,7 +27,7 @@ def main_function(module, event_data, dispatchers_steamid):
         )
 
         print(command)
-        # module.telnet.add_telnet_command_to_queue(command)
+        module.telnet.add_telnet_command_to_queue(command)
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
 
@@ -65,7 +44,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "Teleports a player to a set of coordinates",
+    "description": "Will export everything inside the locations Volume.",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,

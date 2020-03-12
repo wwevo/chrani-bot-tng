@@ -91,6 +91,46 @@ class Locations(Module):
                             yield result
 
     @staticmethod
+    def get_location_volume(location_dict):
+        shape = location_dict.get("shape", None)
+        dimensions = location_dict.get("dimensions", None)
+        location_coordinates = location_dict.get("coordinates", None)
+
+        if shape == "box":
+            if int(float(location_coordinates["x"])) < 0 and int(float(location_coordinates["z"])) < 0:  # SW quadrant
+                return {
+                    "pos_x": int(float(location_coordinates["x"]) - 1),
+                    "pos_y": int(float(location_coordinates["y"])),
+                    "pos_z": int(float(location_coordinates["z"]) - 1),
+                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
+                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
+                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 2)
+                }
+            if int(float(location_coordinates["x"])) >= 0 and int(float(location_coordinates["z"])) < 0:  # SE quadrant
+                return {
+                    "pos_x": int(float(location_coordinates["x"])),
+                    "pos_y": int(float(location_coordinates["y"])),
+                    "pos_z": int(float(location_coordinates["z"]) - 1),
+                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
+                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
+                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 2)
+                }
+            if any([
+                int(float(location_coordinates["x"])) >= 0 and int(float(location_coordinates["z"])) >= 0,  # NE quadrant
+                int(float(location_coordinates["x"])) < 0 and int(float(location_coordinates["z"])) >= 0  # NW quadrant
+            ]):
+                return {
+                    "pos_x": int(float(location_coordinates["x"])),
+                    "pos_y": int(float(location_coordinates["y"])),
+                    "pos_z": int(float(location_coordinates["z"]) - 1),
+                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
+                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
+                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 1)
+                }
+
+        return None
+
+    @staticmethod
     def position_is_inside_boundary(position_dict=None, boundary_dict=None):
         position_is_inside_boundary = False
 
