@@ -11,7 +11,8 @@ def main_function(origin_module, module, regex_result):
     player_steamid = regex_result.group("player_steamid")
 
     location_dict = None
-    result = re.match(r"^.*import\slocation\s(?P<location_identifier>.*)", command)
+    spawn_in_place = False
+    result = re.match(r"^.*import\slocation\s(?P<location_identifier>\S+)(?:\s)?(?P<spawn_in_place>here)?", command)
     if result:
         active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
         location_identifier = result.group("location_identifier")
@@ -23,10 +24,12 @@ def main_function(origin_module, module, regex_result):
             .get(player_steamid, {})
             .get(location_identifier, None)
         )
+        spawn_in_place = True if result.group("spawn_in_place") == "here" else False
 
     if location_dict is not None:
         event_data = ['bc-import', {
-            "location_identifier": location_identifier
+            "location_identifier": location_identifier,
+            "spawn_in_place": spawn_in_place
         }]
         module.trigger_action_hook(origin_module.locations, event_data=event_data, dispatchers_steamid=player_steamid)
 

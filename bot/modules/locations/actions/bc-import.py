@@ -6,21 +6,30 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def fix_coordinates_for_bc_import(location_dict, coordinates):
+def fix_coordinates_for_bc_import(location_dict, coordinates, player_dict=None):
     shape = location_dict.get("shape", None)
     dimensions = location_dict.get("dimensions", None)
     location_coordinates = location_dict.get("coordinates", None)
 
     if shape == "box":
-        if int(float(location_coordinates["x"])) < 0:  # W Half
-            coordinates["pos_x"] = int(float(coordinates["pos_x"]) - float(location_dict["dimensions"]["width"]) + 1)
-        if int(float(location_coordinates["x"])) >= 0:  # E Half
-            coordinates["pos_x"] = int(float(coordinates["pos_x"]) - float(location_dict["dimensions"]["width"]))
+        if player_dict is None:
+            if int(float(location_coordinates["x"])) < 0:  # W Half
+                coordinates["pos_x"] = int(float(coordinates["pos_x"]) - float(dimensions["width"]) + 1)
+            if int(float(location_coordinates["x"])) >= 0:  # E Half
+                coordinates["pos_x"] = int(float(coordinates["pos_x"]) - float(dimensions["width"]))
+        else:
+            if int(float(player_dict.get("pos", {}).get("x"))) < 0:  # W Half
+                coordinates["pos_x"] = int(float(player_dict.get("pos", {}).get("x")) - float(dimensions["width"]) + 1)
+            if int(float(player_dict.get("pos", {}).get("x"))) >= 0:  # E Half
+                coordinates["pos_x"] = int(float(player_dict.get("pos", {}).get("x")) - float(dimensions["width"]))
+            coordinates["pos_y"] = int(float(player_dict.get("pos", {}).get("y")) - 1)
+            coordinates["pos_z"] = player_dict.get("pos", {}).get("z")
 
 
 def main_function(module, event_data, dispatchers_steamid):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     location_identifier = event_data[1].get("location_identifier")
+    spawn_in_place = event_data[1].get("spawn_in_place")
     location_dict = (
         module.dom.data.get("module_locations", {})
         .get("elements", {})
@@ -30,9 +39,19 @@ def main_function(module, event_data, dispatchers_steamid):
     )
 
     coordinates = module.get_location_volume(location_dict)
-    fix_coordinates_for_bc_import(location_dict, coordinates)
 
     if coordinates is not None:
+        if spawn_in_place:
+            player_dict = (
+                module.dom.data.get("module_players", {})
+                    .get("elements", {})
+                    .get(active_dataset, {})
+                    .get(dispatchers_steamid, {})
+            )
+            fix_coordinates_for_bc_import(location_dict, coordinates, player_dict)
+        else:
+            fix_coordinates_for_bc_import(location_dict, coordinates)
+
         command = (
             "bc-import {location_to_be_imported} {pos_x} {pos_y} {pos_z}"
         ).format(

@@ -11,7 +11,7 @@ def main_function(origin_module, module, regex_result):
     player_steamid = regex_result.group("player_steamid")
 
     location_dict = None
-    result = re.match(r"^.*export\slocation\s(?P<location_identifier>.*)", command)
+    result = re.match(r"^.*export\slocation\s(?P<location_identifier>.*)(?:\s)?(?P<spawn_in_place>.*)?", command)
     if result:
         active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
         location_identifier = result.group("location_identifier")
