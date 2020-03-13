@@ -19,11 +19,16 @@ def fix_coordinates_for_bc_import(location_dict, coordinates, player_dict=None):
                 coordinates["pos_x"] = int(float(coordinates["pos_x"]) - float(dimensions["width"]))
         else:
             if int(float(player_dict.get("pos", {}).get("x"))) < 0:  # W Half
-                coordinates["pos_x"] = int(float(player_dict.get("pos", {}).get("x")) - float(dimensions["width"]) + 1)
+                coordinates["pos_x"] = int(float(player_dict.get("pos", {}).get("x")) - float(dimensions["width"]) - 1)
             if int(float(player_dict.get("pos", {}).get("x"))) >= 0:  # E Half
                 coordinates["pos_x"] = int(float(player_dict.get("pos", {}).get("x")) - float(dimensions["width"]))
-            coordinates["pos_y"] = int(float(player_dict.get("pos", {}).get("y")) - 1)
-            coordinates["pos_z"] = player_dict.get("pos", {}).get("z")
+
+            coordinates["pos_y"] = int(float(player_dict.get("pos", {}).get("y")))
+
+            if int(float(player_dict.get("pos", {}).get("z"))) < 0:  # S Half
+                coordinates["pos_z"] = int(float(player_dict.get("pos", {}).get("z")) - 1)
+            if int(float(player_dict.get("pos", {}).get("z"))) >= 0:  # N Half
+                coordinates["pos_z"] = int(float(player_dict.get("pos", {}).get("z")))
 
 
 def main_function(module, event_data, dispatchers_steamid):
