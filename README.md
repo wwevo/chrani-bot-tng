@@ -16,33 +16,36 @@ Specially for Admins/Moderators, and Builders. The casual player may not even no
 from the authentication process of course ^^
 
 ### Current state
+The bot works on any Vanilla install, and basic functions will work right out of the box.
+For more advanced stuff like hiding chat-commands or exporting prefabs, you will need add a few server-side mods.
 #### Core Functions
 
 * Module based functionality
-* Monitor the games telnet-log
 * Simple triggers to react to the telnet-log
-* Central Database with access triggers
-* Socket/Push based webinterface that is triggered by changes to the database
-* Widget system to easily extend the webinterface
-* Multiple Servers can be managed with one bot (simplified for now)
-* Epic **LCARS**-Style Interface :)
+* Access triggers for the central database
+
+* Socket/Push based, **LCARS**-Style Interface :)
+  * Steam-login for authentication
+  * Widget system to easily extend the webinterface
+  * Multiple Servers can be managed with one bot (simplified for now)
 
 #### Modules:
 
 * Telnet-log widget
 * Player-table widget (delete, login-status, info, kick)
-  * kicking is very simple, with a fixed message for now
+  * kicking is very rudimentary, with a fixed message for now
 * Location widget (create, edit, delete, records time and place of death)
   * a location can be designated as a Lobby to keep people in
   * locations can be made screamer-proof, all screamers will be killed on spawn
   * locations can be set up as a home, with a dedicated teleport entry
   * locations can be set up as a village, there's no attached functionality as of yet
   * a place of death location will be updated on every player-death
+  * locations can be exported and restored if they are of the 'box' type
 * (Timed) Remote shutdown procedure
   * timer is fixed to 30 seconds currently
 * Simple gametime display
   * Will show the next Bloodmoon
 * Entity widget
-* permissions widget to gate commands
+* Permissions widget to gate commands
   * a password can be used to authenticate a player, for example, to give them the ability to leave the Lobby 
   
