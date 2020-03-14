@@ -14,7 +14,7 @@ def main_function(module, event_data, dispatchers_steamid):
     if location_identifier is None:
         location_identifier = ''.join(e for e in location_name if e.isalnum())
     location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
-    location_types = event_data[1].get("location_type", None)
+    location_types = event_data[1].get("location_type", [])
     location_coordinates = event_data[1].get("location_coordinates", {})
     location_teleport_entry = event_data[1].get("location_teleport_entry", {})
     location_dimensions = event_data[1].get("location_dimensions", {})
@@ -26,7 +26,6 @@ def main_function(module, event_data, dispatchers_steamid):
         location_name is not None and len(location_name) >= 3,
         location_identifier is not None,
         location_shape is not None,
-        location_types is not None,
         active_dataset is not None
     ]):
         module.dom.data.upsert({
