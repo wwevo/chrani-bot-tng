@@ -2,7 +2,8 @@
 Flexible, modern, and easy to extend bot/webinterface for the game 7dtd
 
 ### *Important!*
-`Do use the development branch for updates, testing for bleeding edge - master is rarely updated and only meant for stable (not necessarily usable ^^)`
+`Do use the development branch for updates, testing for bleeding edge - master is rarely updated and only meant for
+stable (not necessarily usable ^^)`
 
 ### Vision
 After running a gameserver for several years, and using several managers and bots, I have realized one thing: They
