@@ -12,22 +12,25 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout_start = time()
 
     if not module.telnet.add_telnet_command_to_queue("lp"):
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        # module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
     poll_is_finished = False
     regex = (
         r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
         r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
-        r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<playercount>\d{1,2})\sin\sthe\sgame"
+        r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
     )
+
+    player_count = 0
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer):
             poll_is_finished = True
+            player_count = int(match.group("player_count"))
 
-        if match:
+        if match and player_count > 0:
             module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
             return
 

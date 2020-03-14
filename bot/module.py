@@ -104,5 +104,6 @@ class Module(Thread, Action, Trigger, Template, Widget):
     @staticmethod
     def callback_fail(callback, module, event_data, dispatchers_steamid):
         event_data[1]["status"] = "fail"
+        print("FAILED ACTION:", module.getName(), event_data)
         module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
         callback(module, event_data, dispatchers_steamid)

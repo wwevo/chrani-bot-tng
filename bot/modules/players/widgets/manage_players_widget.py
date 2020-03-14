@@ -419,7 +419,7 @@ def update_widget(*args, **kwargs):
                     module_players
                     .get("visibility", {})
                     .get(clientid, {})
-                    .get("current_view", None)
+                    .get("current_view", "frontend")
                 )
                 table_row_id = "player_table_row_{}_{}".format(
                     str(original_player_dict.get("dataset", None)),
@@ -554,7 +554,7 @@ widget_meta = {
         "module_players/elements/%map_identifier%/%steamid%/selected_by":
             update_selection_status,
         "module_players/elements/%map_identifier%/%steamid%/is_initialized":
-            update_actions_status,
+            update_actions_status
         # "module_players/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
         #     update_enabled_flag,
     },

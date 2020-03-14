@@ -10,7 +10,8 @@ class Environment(Module):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "dom_element_root": [],
-            "dom_element_select_root": ["id"]
+            "dom_element_select_root": ["id"],
+            "run_observer_interval": 3
         })
 
         setattr(self, "required_modules", [
@@ -21,7 +22,6 @@ class Environment(Module):
         ])
 
         self.next_cycle = 0
-        self.run_observer_interval = 3
         Module.__init__(self)
 
     @staticmethod
@@ -37,14 +37,16 @@ class Environment(Module):
     # region Standard module stuff
     def setup(self, options=dict):
         Module.setup(self, options)
-
         self.dom_element_root = self.options.get(
             "dom_element_root", self.default_options.get("dom_element_root", None)
         )
-
         self.dom_element_select_root = self.options.get(
             "dom_element_select_root", self.default_options.get("dom_element_select_root", None)
         )
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
+
     # endregion
 
     def get_last_recorded_gametime(self):
