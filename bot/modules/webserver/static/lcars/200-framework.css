@@ -1,7 +1,7 @@
 @import url("210-scrollbar_hacks.css");
 
 html {
-    background-color: var(--background);
+    background: var(--background);
 }
 
 a, a:visited {
@@ -16,7 +16,7 @@ a:hover {
 body {
     margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
-    background-color: var(--background);
+    background: var(--background);
 }
 
 /* header and footer are special due to their graphical shoulders */
