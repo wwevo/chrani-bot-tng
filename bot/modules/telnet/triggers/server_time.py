@@ -7,7 +7,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(origin_module, module, regex_result):
     datetime = regex_result.group("datetime")
-    last_recorded_datetime = module.dom.data.get("module_telnet", {}).get("last_recorded_servertime", None)
+    last_recorded_datetime = module.dom.data.get("module_telnet", {}).get("last_recorded_servertime", 0)
     executed_trigger = False
     if datetime is not None:
         executed_trigger = True
