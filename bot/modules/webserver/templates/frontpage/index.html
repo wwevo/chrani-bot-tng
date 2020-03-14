@@ -15,7 +15,7 @@
         {% endif %}
         {%- if head -%}{{ head }}{%- endif -%}
     </head>
-    <body{%- if instance_token %} data-instance-identifier="{{ instance_token }}"{% endif %}>
+    <body style="background-color: var(--background)" {%- if instance_token %} data-instance-identifier="{{ instance_token }}"{% endif %}>
         <header>
             <div>
                 {{ header }}
