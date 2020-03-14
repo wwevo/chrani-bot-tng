@@ -16,7 +16,6 @@ a:hover {
 body {
     margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
-    background: var(--background);
 }
 
 /* header and footer are special due to their graphical shoulders */
