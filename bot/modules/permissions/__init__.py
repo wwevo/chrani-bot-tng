@@ -6,7 +6,8 @@ class Permissions(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "default_player_password": None
         })
 
         setattr(self, "required_modules", [
@@ -44,98 +45,97 @@ class Permissions(Module):
         module = args[0]
         event_data = kwargs.get("event_data", [])
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-        if dispatchers_steamid is None:
-            # no sense in checking system-calls
-            action_result = module.trigger_action(module, event_data=event_data)
-            return action_result
+        if dispatchers_steamid is not None:
+            """ Manually for now, this will be handled by a permissions widget. """
+            # even_data may contain a "has_permission" data-field.
+            # this will be overwritten with the actual permissions, if a rule exists
+            # all permissions default to Allowed if no rules are set here
+            permission_denied = False
+            dispatchers_permission_level = int(
+                module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
+            )
+            module_identifier = module.get_module_identifier()
 
-        """ Manually for now, this will be handled by a permissions widget. """
-        # even_data may contain a "has_permission" data-field.
-        # this will be overwritten with the actual permissions, if a rule exists
-        # all permissions default to Allowed if no rules are set here
-        permission_denied = False
-        dispatchers_permission_level = int(
-            module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
-        )
-        module_identifier = module.get_module_identifier()
-
-        if all([
-            event_data[0].startswith("toggle_"),
-            event_data[0].endswith("_widget_view")
-        ]):
-            if event_data[1]["action"] == "show_options":
-                if dispatchers_permission_level >= 1:
-                    permission_denied = True
-
-        if module_identifier == "module_dom_management":
-            if any([
-                event_data[0] == "delete",
-                event_data[0] == "select"
+            if all([
+                event_data[0].startswith("toggle_"),
+                event_data[0].endswith("_widget_view")
             ]):
-                if any([
-                    event_data[1]["action"] == "select_dom_element",
-                    event_data[1]["action"] == "deselect_dom_element"
-                ]):
-                    if dispatchers_permission_level >= 2:
-                        permission_denied = True
-                    if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
-                        permission_denied = False
-                if any([
-                    event_data[1]["action"] == "delete_selected_dom_elements"
-                ]):
-                    if dispatchers_permission_level >= 2:
+                if event_data[1]["action"] == "show_options":
+                    if dispatchers_permission_level >= 1:
                         permission_denied = True
 
-        if module_identifier == "module_players":
-            if any([
-                event_data[0] == "manage_players"
-            ]):
+            if module_identifier == "module_dom_management":
                 if any([
-                    event_data[1]["action"] == "kick player"
+                    event_data[0] == "delete",
+                    event_data[0] == "select"
                 ]):
-                    if dispatchers_permission_level >= 2:
-                        permission_denied = True
+                    if any([
+                        event_data[1]["action"] == "select_dom_element",
+                        event_data[1]["action"] == "deselect_dom_element"
+                    ]):
+                        if dispatchers_permission_level >= 2:
+                            permission_denied = True
+                        if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
+                            permission_denied = False
+                    if any([
+                        event_data[1]["action"] == "delete_selected_dom_elements"
+                    ]):
+                        if dispatchers_permission_level >= 2:
+                            permission_denied = True
 
-        if module_identifier == "module_locations":
-            if any([
-                event_data[0] == "edit_location",
-                event_data[0] == "management_tools",
-                event_data[0] == "toggle_locations_widget_view"
-            ]):
+            if module_identifier == "module_players":
                 if any([
-                    event_data[1]["action"] == "edit_location_entry",
-                    event_data[1]["action"] == "enable_location_entry",
-                    event_data[1]["action"] == "disable_location_entry"
+                    event_data[0] == "manage_players"
+                ]):
+                    if any([
+                        event_data[1]["action"] == "kick player"
+                    ]):
+                        if dispatchers_permission_level >= 2:
+                            permission_denied = True
+
+            if module_identifier == "module_locations":
+                if any([
+                    event_data[0] == "edit_location",
+                    event_data[0] == "management_tools",
+                    event_data[0] == "toggle_locations_widget_view"
+                ]):
+                    if any([
+                        event_data[1]["action"] == "edit_location_entry",
+                        event_data[1]["action"] == "enable_location_entry",
+                        event_data[1]["action"] == "disable_location_entry"
+                    ]):
+                        if dispatchers_permission_level > 2:
+                            permission_denied = True
+                        if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
+                            permission_denied = False
+                    if any([
+                        event_data[1]["action"] == "show_create_new"
+                    ]):
+                        if dispatchers_permission_level > 4:
+                            permission_denied = True
+
+            if module_identifier == "module_telnet":
+                if any([
+                        event_data[0] == "shutdown"
                 ]):
                     if dispatchers_permission_level > 2:
                         permission_denied = True
-                    if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
-                        permission_denied = False
-                if any([
-                    event_data[1]["action"] == "show_create_new"
-                ]):
-                    if dispatchers_permission_level > 4:
-                        permission_denied = True
 
-        if module_identifier == "module_telnet":
-            if any([
-                    event_data[0] == "shutdown"
-            ]):
-                if dispatchers_permission_level > 2:
-                    permission_denied = True
+            if permission_denied:
+                print("permissions:", "permission denied for {} ({}:{})".format(
+                    event_data[0],
+                    dispatchers_steamid,
+                    dispatchers_permission_level
+                ))
 
-        if permission_denied:
-            print("permissions:", "permission denied for {} ({})".format(event_data[0], dispatchers_steamid))
+            event_data[1]["has_permission"] = not permission_denied
 
-        event_data[1]["has_permission"] = not permission_denied
         action_result = module.trigger_action(module, event_data=event_data, dispatchers_steamid=dispatchers_steamid)
         return action_result
 
     @staticmethod
     def template_render_hook_with_permission(*args, **kwargs):
         module = args[0]
-        template = kwargs.get("template", None)
-        # print(module_identifier, args, kwargs)
         return module.template_render(*args, **kwargs)
 
     def set_permission_hooks(self):

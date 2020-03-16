@@ -16,10 +16,9 @@ def main_function(*args, **kwargs):
             is_authenticated is not None,
             player_steamid is not None
         ]):
-            event_data = ['manage_player_muting', {
+            event_data = ['set_player_mute', {
                 'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
-                'player_steamid': player_steamid,
-                'action': 'set mute status'
+                'player_steamid': player_steamid
             }]
 
             if is_authenticated:

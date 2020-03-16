@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 import re
 
@@ -16,11 +17,10 @@ def main_function(origin_module, module, regex_result):
     else:
         return
 
-    event_data = ['manage_authentication', {
+    event_data = ['set_authentication', {
         'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
         'player_steamid': steamid,
-        'entered_password': entered_password,
-        'action': 'set authentication'
+        'entered_password': entered_password
     }]
     module.trigger_action_hook(origin_module, event_data=event_data)
 
@@ -32,9 +32,8 @@ trigger_meta = {
         {
             "identifier": "password (Alloc)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["Allocs"]["chat"] +
                 r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
             ),
             "callback": main_function
@@ -42,10 +41,8 @@ trigger_meta = {
         {
             "identifier": "password (BCM)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["BCM"]["chat"] +
                 r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
             ),
             "callback": main_function

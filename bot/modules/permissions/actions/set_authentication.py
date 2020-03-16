@@ -6,14 +6,12 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
-    action = event_data[1].get("action", None)
     player_steamid = event_data[1].get("player_steamid", None)
     dataset = event_data[1].get("dataset", None)
     entered_password = event_data[1].get("entered_password", None)
     default_player_password = module.default_options.get("default_player_password", None)
 
     if all([
-        action is not None and action == "set authentication",
         dataset is not None,
         player_steamid is not None,
         entered_password is not None,
@@ -48,7 +46,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     if player_steamid is not None:
         event_data = ['say_to_player', {
             'steamid': player_steamid,
-            'message': '[66FF66]Thank you for playing along[-][FFFFFF], you may now leave the Crater[-]'
+            'message': '[66FF66]Thank you for playing along[-][FFFFFF], you may now leave the Lobby-area[-]'
         }]
         module.trigger_action_hook(module.players, event_data=event_data)
 
@@ -65,7 +63,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "tools to help managing permissions",
+    "description": "sets a players authenticated flag",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,

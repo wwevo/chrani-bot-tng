@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -25,11 +26,10 @@ def main_function(origin_module, module, regex_result):
             else:
                 is_muted = False
 
-            event_data = ['manage_player_muting', {
+            event_data = ['set_player_mute', {
                 'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
                 'player_steamid': player_steamid,
-                'is_muted': is_muted,
-                'action': 'set mute status'
+                'is_muted': is_muted
             }]
             module.trigger_action_hook(origin_module, event_data=event_data)
 
@@ -40,7 +40,7 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"\[Steamworks.NET\]\s"
                 r"(?P<command>.*)\s"
                 r"player:\s(?P<player_name>.*)\s"
@@ -49,7 +49,7 @@ trigger_meta = {
             "callback": main_function
         }, {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"Player (?P<command>.*), "
                 r"entityid=(?P<entity_id>.*), "
                 r"name=(?P<player_name>.*), "
