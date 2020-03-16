@@ -28,9 +28,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
         match = False
         for match in re.finditer(regex, module.telnet.telnet_buffer):
             poll_is_finished = True
-            player_count = int(match.group("player_count"))
 
-        if match and player_count > 0:
+        if match:
             module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
             return
 
@@ -40,8 +39,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     """ without a place to store this, why bother """
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    player_count = int(match.group("player_count"))
     if all([
-        active_dataset is None
+        active_dataset is None,
+        player_count <= 0
     ]):
         return False
 
