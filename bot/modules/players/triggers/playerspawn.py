@@ -29,11 +29,13 @@ def main_function(origin_module, module, regex_result):
         payload = '{} joined the a18 test-server at {}'.format(player_name, last_recorded_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
-        webhook = DiscordWebhook(
-            url=discord_payload_url,
-            content=payload
-        )
-        webhook.execute()
+        if discord_payload_url is not None:
+            webhook = DiscordWebhook(
+                url=discord_payload_url,
+                content=payload
+            )
+
+            webhook.execute()
 
     elif any([
         command == "EnterMultiplayer",
