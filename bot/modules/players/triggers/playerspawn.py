@@ -63,15 +63,18 @@ def main_function(origin_module, module, regex_result):
                 }
             })
         elif command == "JoinMultiplayer":
-            if player_dict.get("is_authenticated", False) is True:
+            default_player_password = module.default_options.get("default_player_password", None)
+            if player_dict.get("is_authenticated", False) is True or default_player_password is None:
                 message = "[66FF66]Welcome back[-] [FFFFFF]{}[-]".format(player_name)
             else:
                 message = (
-                    "[66FF66]Welcome to the server[-] [FFFFFF]{player_name}[-], "
-                    "[FF6666]please authenticate[-] [FFFFFF]and make yourself at home[-]"
+                    "[66FF66]Welcome to the server[-] [FFFFFF]{player_name}[-]"
                 ).format(
                     player_name=player_name
                 )
+                if default_player_password is not None:
+                    message += ", [FF6666]please authenticate[-] [FFFFFF]and make yourself at home[-]"
+
             event_data = ['say_to_player', {
                 'steamid': steamid,
                 'message': message

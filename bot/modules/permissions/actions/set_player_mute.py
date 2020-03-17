@@ -25,7 +25,8 @@ def main_function(module, event_data, dispatchers_steamid):
         player_is_currently_muted = player_dict.get("is_muted", False)
 
         if not flag_player_to_be_muted:
-            if player_is_currently_muted:
+            default_player_password = module.default_options.get("default_player_password", None)
+            if player_is_currently_muted or default_player_password is None:
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
             return
@@ -38,11 +39,13 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     active_dataset = event_data[1].get("dataset", None)
 
     if player_steamid is not None:
-        event_data = ['say_to_player', {
-            'steamid': player_steamid,
-            'message': '[66FF66]Free speech[-][FFFFFF], you may now chat. Say hello ^^[-]'
-        }]
-        module.trigger_action_hook(module.players, event_data=event_data)
+        default_player_password = module.default_options.get("default_player_password", None)
+        if default_player_password is not None:
+            event_data = ['say_to_player', {
+                'steamid': player_steamid,
+                'message': '[66FF66]Free speech[-][FFFFFF], you may now chat. Say hello ^^[-]'
+            }]
+            module.trigger_action_hook(module.players, event_data=event_data)
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,
@@ -57,11 +60,13 @@ def callback_fail(module, event_data, dispatchers_steamid):
     active_dataset = event_data[1].get("dataset", None)
 
     if player_steamid is not None:
-        event_data = ['say_to_player', {
-            'steamid': player_steamid,
-            'message': '[FF6666]You have been automatically muted[-][FFFFFF], until you have authenticated![-]'
-        }]
-        module.trigger_action_hook(module.players, event_data=event_data)
+        default_player_password = module.default_options.get("default_player_password", None)
+        if default_player_password is not None:
+            event_data = ['say_to_player', {
+                'steamid': player_steamid,
+                'message': '[FF6666]You have been automatically muted[-][FFFFFF], until you have authenticated![-]'
+            }]
+            module.trigger_action_hook(module.players, event_data=event_data)
 
         event_data = ['toggle_player_mute', {
             'steamid': player_steamid,

@@ -21,7 +21,9 @@ def main_function(origin_module, module, regex_result):
     if command == "connected":
         # we want to mute completely new players and players that are not authenticated on login.
         if existing_player_dict is not None:
-            if existing_player_dict.get("is_authenticated", False) is False:
+            default_player_password = module.default_options.get("default_player_password", None)
+            player_is_authenticated = existing_player_dict.get("is_authenticated", False)
+            if not player_is_authenticated and default_player_password is not None:
                 is_muted = True
             else:
                 is_muted = False
