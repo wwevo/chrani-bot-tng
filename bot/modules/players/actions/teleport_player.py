@@ -63,8 +63,6 @@ def main_function(module, event_data, dispatchers_steamid=None):
             r"PlayerName='(?P<player_name>.*)'"
         )
 
-        print(regex)
-
         while not poll_is_finished and (time() < timeout_start + timeout):
             match = False
             for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
