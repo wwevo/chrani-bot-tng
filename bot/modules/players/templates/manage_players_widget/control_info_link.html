@@ -2,6 +2,9 @@
 <span id="player_table_row_{{ player.dataset }}_{{ player.steamid }}_control_info_link" class="info">
 {{- construct_toggle_link(
     True,
-    "i", ['widget_event', ['players', ['toggle_players_widget_view', {'steamid': player.steamid, 'action': 'show_info_view'}]]]
+    "i", ['widget_event', ['players', ['toggle_players_widget_view', {
+        'steamid': player.steamid,
+        'action': 'show_info_view'
+    }]]]
 )-}}
 </span>

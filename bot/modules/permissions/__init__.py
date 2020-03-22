@@ -85,10 +85,10 @@ class Permissions(Module):
 
             if module_identifier == "module_players":
                 if any([
-                    event_data[0] == "manage_players"
+                    event_data[0] == "kick_player"
                 ]):
                     if any([
-                        event_data[1]["action"] == "kick player"
+                        event_data[1]["action"] == "kick_player"
                     ]):
                         if dispatchers_permission_level >= 2:
                             permission_denied = True

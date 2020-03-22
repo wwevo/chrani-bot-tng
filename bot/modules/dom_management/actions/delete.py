@@ -40,8 +40,8 @@ def main_function(module, event_data, dispatchers_steamid):
                     }
                 }
             }, dispatchers_steamid=dispatchers_steamid)
-
             return
+
     elif action == "cancel_delete_selected_dom_elements":
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
@@ -61,8 +61,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
         }
     }, dispatchers_steamid=dispatchers_steamid)
-
-    pass
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

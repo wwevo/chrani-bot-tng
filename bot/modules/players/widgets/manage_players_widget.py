@@ -39,6 +39,9 @@ def select_view(*args, **kwargs):
     elif current_view == "modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
         modal_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "kick-modal":
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+        kick_modal_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
@@ -73,6 +76,43 @@ def modal_view(*args, **kwargs):
     module.webserver.send_data_to_client_hook(
         module,
         payload=data_to_emit,
+        data_type="modal_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "manage_players_widget_modal",
+            "type": "div",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def kick_modal_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    current_view_steamid = (
+        module.dom.data
+        .get("module_players", {})
+        .get("visibility", {})
+        .get(dispatchers_steamid, {})
+        .get("current_view_steamid", None)
+    )
+
+    modal_confirm_kick = module.template_render_hook(
+        module,
+        template=module.templates.get_template('manage_players_widget/modal_confirm_kick.html'),
+        confirmed=kwargs.get("confirmed", "False"),
+        reason=(
+            "no reason provided, "
+            "try again in a few minutes and check if perhaps a bloodmoon is in progress ^^ "
+            "or something ^^"
+        ),
+        steamid=current_view_steamid
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=modal_confirm_kick,
         data_type="modal_content",
         clients=[dispatchers_steamid],
         target_element={
