@@ -6,6 +6,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
+    event_data[1]["action_identifier"] = action_name
     location_coordinates = event_data[1].get("location_coordinates", {})
     player_steamid = event_data[1].get("steamid", dispatchers_steamid)
     if location_coordinates:

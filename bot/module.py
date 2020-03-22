@@ -71,15 +71,9 @@ class Module(Thread, Action, Trigger, Template, Widget):
         return self
 
     def on_socket_connect(self, dispatchers_steamid):
-        # print("'{}' connected to module {}".format(
-        #     dispatchers_steamid, self.options['module_name']
-        # ))
         Widget.on_socket_connect(self, dispatchers_steamid)
 
     def on_socket_disconnect(self, dispatchers_steamid):
-        # print("'{}' disconnected from module {}".format(
-        #     dispatchers_steamid, self.options['module_name']
-        # ))
         Widget.on_socket_disconnect(self, dispatchers_steamid)
 
     def on_socket_event(self, event_data, dispatchers_steamid):
@@ -98,6 +92,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
     @staticmethod
     def callback_success(callback, module, event_data, dispatchers_steamid, match=None):
         event_data[1]["status"] = "success"
+        action_identifier = event_data[1]["action_identifier"]
+        if event_data[1].get("disable_after_success"):
+            module.disable_action(action_identifier)
+
         module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
         callback(module, event_data, dispatchers_steamid, match)
 

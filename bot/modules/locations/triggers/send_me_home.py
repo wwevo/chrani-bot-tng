@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -26,6 +27,10 @@ def main_function(origin_module, module, regex_result):
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=player_steamid)
 
 
+triggers = {
+    "send me home": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
+}
+
 trigger_meta = {
     "description": "sends the player to his home, if available",
     "main_function": main_function,
@@ -33,21 +38,18 @@ trigger_meta = {
         {
             "identifier": "send me home",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["Allocs"]["chat"] +
+                triggers["send me home"]
             ),
             "callback": main_function
         },
         {
             "identifier": "send me home",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/send\sme\shome)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["BCM"]["chat"] +
+                triggers["send me home"]
             ),
             "callback": main_function
         }

@@ -10,6 +10,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid):
     timeout = 3  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     cancel_shutdown = event_data[1].get("cancel", False)
     force_shutdown = event_data[1].get("force", False)

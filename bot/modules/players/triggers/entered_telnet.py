@@ -1,5 +1,6 @@
 from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -88,14 +89,13 @@ def main_function(origin_module, module, regex_result):
             }
         })
 
-
 trigger_meta = {
     "description": "reacts to telnets player discovery messages for real time responses!",
     "main_function": main_function,
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"\[Steamworks.NET\]\s"
                 r"(?P<command>.*)\s"
                 r"player:\s(?P<player_name>.*)\s"
@@ -104,8 +104,9 @@ trigger_meta = {
             "callback": main_function
         }, {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Player (?P<command>.*), "
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                r"Player\s"
+                r"(?P<command>.*), "
                 r"entityid=(?P<entity_id>.*), "
                 r"name=(?P<player_name>.*), "
                 r"steamid=(?P<player_steamid>.*), "

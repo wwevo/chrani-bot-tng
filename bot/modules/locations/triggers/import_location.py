@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 import re
 
@@ -44,28 +45,30 @@ def main_function(origin_module, module, regex_result):
         module.trigger_action_hook(origin_module.players, event_data=event_data)
 
 
+triggers = {
+    "import location": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/import location.*)"
+}
+
+
 trigger_meta = {
     "description": "will issue the BCM mods bc-import command on the specified location",
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "import location",
+            "identifier": "import location (Allocs)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/import location.*)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["Allocs"]["chat"] +
+                triggers["import location"]
             ),
             "callback": main_function
         },
         {
-            "identifier": "import location",
+            "identifier": "import location (BCM)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/import location.*)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["BCM"]["chat"] +
+                triggers["import location"]
             ),
             "callback": main_function
         }

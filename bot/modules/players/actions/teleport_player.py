@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 from time import sleep, time
 import re
@@ -8,8 +9,9 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 5  # [seconds]
+    timeout = 6  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     target_coordinates = event_data[1].get("coordinates", None)
     player_to_be_teleported_steamid = event_data[1].get("steamid", None)
@@ -30,8 +32,6 @@ def main_function(module, event_data, dispatchers_steamid=None):
         target_coordinates is not None,
         player_coordinates is not None
     ]) and all([
-        # don't try to teleport a player that's already being handled by something
-        # player_to_be_teleported_dict.get("skip_processing", False) is False,
         # no sense in porting a player to a place they are already standing on ^^
         target_coordinates != player_coordinates
     ]):
@@ -51,20 +51,21 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
         poll_is_finished = False
         regex = (
-            r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        )
-        regex +=(
-            r"INF\sPlayerSpawnedInWorld\s"
-            r"\(reason:\sTeleport,\sposition:\s(?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)\):\s"
-            r"EntityID={entity_id},\sPlayerID='{player_to_be_teleported}',\sOwnerID='{player_to_be_teleported}',\s"
+            telnet_prefixes["telnet_log"]["timestamp"] +
+            r"PlayerSpawnedInWorld\s"
+            r"\("
+            r"reason: (?P<command>.+?),\s"
+            r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
+            r"\):\s"
+            r"EntityID={entity_id},\s".format(entity_id=player_to_be_teleported_dict.get("id")) +
+            r"PlayerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_dict.get("steamid")) +
+            r"OwnerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_dict.get("steamid")) +
             r"PlayerName='(?P<player_name>.*)'"
-        ).format(
-            player_to_be_teleported=player_to_be_teleported_dict.get("steamid"),
-            entity_id=player_to_be_teleported_dict.get("id")
         )
 
+        print(regex)
+
         while not poll_is_finished and (time() < timeout_start + timeout):
-            sleep(0.25)
             match = False
             for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
                 poll_is_finished = True
@@ -72,6 +73,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
             if match:
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
                 return
+
+            sleep(0.25)
 
         event_data[1]["fail_reason"] = "action timed out"
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)

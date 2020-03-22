@@ -6,6 +6,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
+    event_data[1]["action_identifier"] = action_name
     player_steamid = event_data[1].get("player_steamid", None)
     active_dataset = event_data[1].get("dataset", None)
     flag_player_to_be_muted = event_data[1].get("is_muted", None)

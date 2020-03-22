@@ -9,6 +9,7 @@ def main_function(module, event_data, dispatchers_steamid):
     action = event_data[1].get("action", None)
     target_module = event_data[1].get("target_module", None)
     action_is_confirmed = event_data[1].get("confirmed", "False")
+    event_data[1]["action_identifier"] = action_name
 
     if action == "delete_selected_dom_elements":
         if action_is_confirmed == "True":

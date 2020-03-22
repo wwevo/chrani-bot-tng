@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -49,8 +50,8 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\sGMSG:\s"
-                r"Player\s\'(?P<player_name>.*)\'\s(?P<command>.*)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["GMSG"]["command"]
             ),
             "callback": main_function
         }

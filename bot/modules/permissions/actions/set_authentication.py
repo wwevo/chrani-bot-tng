@@ -6,6 +6,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
+    event_data[1]["action_identifier"] = action_name
     player_steamid = event_data[1].get("player_steamid", None)
     dataset = event_data[1].get("dataset", None)
     entered_password = event_data[1].get("entered_password", None)

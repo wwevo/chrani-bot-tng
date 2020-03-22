@@ -1,5 +1,8 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
+
+from bot.modules.locations.triggers.add_location import triggers
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
@@ -31,6 +34,10 @@ def main_function(origin_module, module, regex_result):
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 
+triggers = {
+    "take me to my grave": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/take me to my grave)"
+}
+
 trigger_meta = {
     "description": "sends the player to his final resting place, if available",
     "main_function": main_function,
@@ -38,21 +45,18 @@ trigger_meta = {
         {
             "identifier": "take me to my grave",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/take me to my grave)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["Allocs"]["chat"] +
+                triggers["take me to my grave"]
             ),
             "callback": main_function
         },
         {
             "identifier": "take me to my grave",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/take me to my grave)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["BCM"]["chat"] +
+                triggers["take me to my grave"]
             ),
             "callback": main_function
         }

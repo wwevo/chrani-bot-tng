@@ -11,6 +11,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def kill_entity(module, event_data, dispatchers_steamid=None):
     timeout = 8  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     entity_to_be_killed = event_data[1].get("entity_id", None)
 

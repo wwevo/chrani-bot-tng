@@ -61,6 +61,7 @@ def is_currently_bloodmoon(module: object, day: int, hour: int = -1) -> bool:
 def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     if not module.telnet.add_telnet_command_to_queue("gettime"):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)

@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -22,28 +23,29 @@ def main_function(origin_module, module, regex_result):
     module.trigger_action_hook(module, event_data=event_data)
 
 
+triggers = {
+    "when is hordenight": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/when\sis\shordenight)"
+}
+
 trigger_meta = {
     "description": "tells the player when the next bloodmoon will hit",
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "when is hordenight",
+            "identifier": "when is hordenight (Allocs)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/when\sis\shordenight)"
+                    telnet_prefixes["telnet_log"]["timestamp"] +
+                    telnet_prefixes["Allocs"]["chat"] +
+                    triggers["when is hordenight"]
             ),
             "callback": main_function
         },
         {
-            "identifier": "when is hordenight",
+            "identifier": "when is hordenight (BCM)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-                r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/when\sis\shordenight)"
+                    telnet_prefixes["telnet_log"]["timestamp"] +
+                    telnet_prefixes["BCM"]["chat"] +
+                    triggers["when is hordenight"]
             ),
             "callback": main_function
         }

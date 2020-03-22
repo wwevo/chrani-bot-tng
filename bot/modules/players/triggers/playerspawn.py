@@ -1,5 +1,6 @@
 from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -112,7 +113,7 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"PlayerSpawnedInWorld\s"
                 r"\("
                 r"reason: (?P<command>.+?),\s"
@@ -126,7 +127,7 @@ trigger_meta = {
             "callback": main_function
         }, {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"Player (?P<command>.*): "
                 r"EntityID=(?P<entity_id>.*), "
                 r"PlayerID=\'(?P<player_steamid>.*)\', "
@@ -136,8 +137,8 @@ trigger_meta = {
             "callback": main_function
         }, {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"GMSG:\sPlayer\s\'(?P<player_name>.*)\'\s(?P<command>.*)$"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["GMSG"]["command"]
             ),
             "callback": main_function
         }

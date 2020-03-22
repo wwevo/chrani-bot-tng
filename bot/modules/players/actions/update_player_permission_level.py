@@ -8,6 +8,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
+    event_data[1]["action_identifier"] = action_name
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_to_be_updated_steamid = event_data[1].get("steamid", None)
     permission_level = event_data[1].get("level", 1000)

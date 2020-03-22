@@ -6,6 +6,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
+    event_data[1]["action_identifier"] = action_name
     action = event_data[1].get("action", None)
     location_origin = event_data[1].get("dom_element_origin", None)
     location_owner = event_data[1].get("dom_element_owner", None)

@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 import re
 
@@ -31,6 +32,10 @@ def main_function(origin_module, module, regex_result):
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 
+triggers = {
+    "add location": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
+}
+
 trigger_meta = {
     "description": "catches location commands from the players chat and then adds them to the database",
     "main_function": main_function,
@@ -38,21 +43,18 @@ trigger_meta = {
         {
             "identifier": "add location (Alloc)",
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\s\(from \'(?P<player_steamid>.*)\',\sentity\sid\s\'(?P<entity_id>.*)\',\s"
-                r"to \'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["Allocs"]["chat"] +
+                triggers["add location"]
             ),
             "callback": main_function
         },
         {
             "identifier": "add location (BCM)",
             "regex": (
-
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\sChat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
-                r"to\s\'(?P<target_room>.*)\'\)\:\s"
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/add location.*)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                telnet_prefixes["BCM"]["chat"] +
+                triggers["add location"]
             ),
             "callback": main_function
         }

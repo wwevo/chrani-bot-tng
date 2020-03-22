@@ -1,5 +1,6 @@
 from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -71,8 +72,9 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"Player\s(?P<command>.*):\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                r"Player\s"
+                r"(?P<command>.*):\s"
                 r"EntityID=(?P<entity_id>.*),\s"
                 r"PlayerID='(?P<player_steamid>\d{17})',\s"
                 r"OwnerID='(?P<owner_id>\d{17})',\s"

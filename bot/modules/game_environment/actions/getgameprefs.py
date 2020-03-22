@@ -10,6 +10,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 3  # give the command 3 seconds to come through
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     if not module.telnet.add_telnet_command_to_queue("getgamepref"):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
@@ -80,9 +81,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 "active_dataset": current_game_name
             }
         })
-
-        if event_data[1]["disable_after_success"]:
-            module.disable_action(action_name)
 
         print("system:", "working with the \"{}\" dataset".format(current_game_name))
     else:

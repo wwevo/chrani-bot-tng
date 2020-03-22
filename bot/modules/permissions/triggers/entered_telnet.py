@@ -52,7 +52,8 @@ trigger_meta = {
         }, {
             "regex": (
                 telnet_prefixes["telnet_log"]["timestamp"] +
-                r"Player (?P<command>.*), "
+                r"Player\s"
+                r"(?P<command>.*), "
                 r"entityid=(?P<entity_id>.*), "
                 r"name=(?P<player_name>.*), "
                 r"steamid=(?P<player_steamid>.*), "

@@ -32,6 +32,8 @@ def fix_coordinates_for_bc_import(location_dict, coordinates, player_dict=None):
 
 
 def main_function(module, event_data, dispatchers_steamid):
+    event_data[1]["action_identifier"] = action_name
+
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     location_identifier = event_data[1].get("location_identifier")
     spawn_in_place = event_data[1].get("spawn_in_place")

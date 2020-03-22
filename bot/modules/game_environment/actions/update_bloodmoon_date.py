@@ -1,13 +1,13 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-from time import sleep, time
-import re
+
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
+    event_data[1]["action_identifier"] = action_name
     next_bloodmoon_date = event_data[1].get("blood_moon_date", None)
     if next_bloodmoon_date is not None:
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)

@@ -7,6 +7,8 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(*args, **kwargs):
     module = args[0]
+    event_data = args[1]
+    event_data[1]["action_identifier"] = action_name
 
     try:
         connected_clients = list(module.connected_clients.keys())

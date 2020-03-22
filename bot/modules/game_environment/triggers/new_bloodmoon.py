@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -13,14 +14,18 @@ def main_function(origin_module, module, regex_result):
     module.trigger_action_hook(origin_module, event_data=event_data)
 
 
+triggers = {
+    "BloodMoon SetDay": r"BloodMoon\sSetDay:\sday\s(?P<next_BloodMoon>\d+)"
+}
+
 trigger_meta = {
-    "description": "reacts to updated BloodmMoon date in the telnet-stream",
+    "description": "reacts to updated BloodMoon date in the telnet-stream",
     "main_function": main_function,
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
-                r"BloodMoon\sSetDay:\sday\s(?P<next_BloodMoon>\d+)"
+                telnet_prefixes["telnet_log"]["timestamp"] +
+                triggers["BloodMoon SetDay"]
             ),
             "callback": main_function
         }

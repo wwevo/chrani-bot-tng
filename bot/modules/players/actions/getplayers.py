@@ -10,6 +10,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 2  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     if not module.telnet.add_telnet_command_to_queue("lp"):
         # module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)

@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot import telnet_prefixes
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -6,6 +7,10 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(origin_module, module, regex_result):
+    command = regex_result.group("command")
+    if command != "EnterMultiplayer":
+        return
+
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     player_dict = {
@@ -49,10 +54,10 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+                telnet_prefixes["telnet_log"]["timestamp"] +
                 r"PlayerSpawnedInWorld\s"
                 r"\("
-                r"reason: EnterMultiplayer,\s"
+                r"reason: (?P<command>.+?),\s"
                 r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
                 r"\):\s"
                 r"EntityID=(?P<entity_id>.*),\s"

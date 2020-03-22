@@ -13,12 +13,21 @@ chdir(root_dir)
 loaded_modules_dict = {}  # this will be populated by the imports done next:
 telnet_prefixes = {
     "telnet_log": {
-        "timestamp": r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\sINF\s"
+        "timestamp": r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>\d+\.\d+)\sINF\s"
+    },
+    "GMSG": {
+        "command": (
+            r"GMSG:\s"
+            r"Player\s\'"
+            r"(?P<player_name>.*)"
+            r"\'\s"
+            r"(?P<command>.*)$"
+        )
     },
     "BCM": {
         "chat": (
             r"Chat\shandled\sby\smod\s\'(?P<used_mod>.*?)\':\s"
-            "Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
+            r"Chat\s\(from\s\'(?P<player_steamid>.*?)\',\sentity\sid\s\'(?P<entity_id>.*?)\',\s"
             r"to\s\'(?P<target_room>.*)\'\)\:\s"
         )
     },

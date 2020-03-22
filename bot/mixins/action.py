@@ -2,6 +2,7 @@ from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
 from bot import loaded_modules_dict
+from time import sleep
 import string
 import random
 
@@ -56,10 +57,11 @@ class Action(object):
         action_identifier = event_data[0]
         if action_identifier in target_module.available_actions_dict:
             server_is_online = target_module.dom.data.get("module_telnet", {}).get("server_is_online", False)
-            action_requires_server_to_be_online = target_module.available_actions_dict[action_identifier].get(
+            active_action = target_module.available_actions_dict[action_identifier]
+            action_requires_server_to_be_online = active_action.get(
                 "requires_telnet_connection", False
             )
-            action_is_enabled = target_module.available_actions_dict[action_identifier]["enabled"]
+            action_is_enabled = active_action.get("enabled", False)
             user_has_permission = event_data[1].get("has_permission", None)
             # permission is None = no status has been set, so it's allowed (default)
             # permission is True = Permission has been set by some other process
@@ -78,15 +80,16 @@ class Action(object):
                         user_has_permission is True
                     ]):
                         Thread(
-                            target=target_module.available_actions_dict[action_identifier]["main_function"],
+                            target=active_action.get("main_function"),
                             args=(target_module, event_data, dispatchers_steamid)
                         ).start()
                     else:
                         # in case we don't have permission, we call the fail callback. it then can determine what to do
                         # next
+                        fail_callback = active_action.get("callback_fail")
                         Thread(
                             target=target_module.callback_fail(
-                                target_module.available_actions_dict[action_identifier]["callback_fail"],
+                                fail_callback,
                                 target_module,
                                 event_data,
                                 dispatchers_steamid
@@ -95,12 +98,10 @@ class Action(object):
                         ).start()
                 else:
                     try:
-                        skip_it_callback = target_module.available_actions_dict[action_identifier]["skip_it"]
-                    except KeyError:
-                        skip_it_callback = None
-
-                    if skip_it_callback is not None:
+                        skip_it_callback = active_action.get("skip_it")
                         Thread(
-                            target=target_module.available_actions_dict[action_identifier]["skip_it"],
+                            target=skip_it_callback,
                             args=(target_module, event_data)
                         ).start()
+                    except KeyError:
+                        pass

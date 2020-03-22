@@ -8,14 +8,14 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-
     # we can't save the gamestats without knowing the game-name, as each game can have different stats.
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
     timeout = 3  # [seconds]
     timeout_start = time()
+    event_data[1]["action_identifier"] = action_name
 
     if not module.telnet.add_telnet_command_to_queue("getgamestat"):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
@@ -67,9 +67,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
         }
     })
-
-    if event_data[1]["disable_after_success"]:
-        module.disable_action(action_name)
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

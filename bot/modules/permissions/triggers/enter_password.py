@@ -25,6 +25,10 @@ def main_function(origin_module, module, regex_result):
     module.trigger_action_hook(origin_module, event_data=event_data)
 
 
+triggers = {
+    "password": r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
+}
+
 trigger_meta = {
     "description": "validates a players password",
     "main_function": main_function,
@@ -34,7 +38,7 @@ trigger_meta = {
             "regex": (
                 telnet_prefixes["telnet_log"]["timestamp"] +
                 telnet_prefixes["Allocs"]["chat"] +
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
+                triggers["password"]
             ),
             "callback": main_function
         },
@@ -43,7 +47,7 @@ trigger_meta = {
             "regex": (
                 telnet_prefixes["telnet_log"]["timestamp"] +
                 telnet_prefixes["BCM"]["chat"] +
-                r"\'(?P<player_name>.*)\'\:\s(?P<command>\/password.*)"
+                triggers["password"]
             ),
             "callback": main_function
         }
