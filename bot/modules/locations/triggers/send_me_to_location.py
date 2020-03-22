@@ -35,12 +35,35 @@ def main_function(origin_module, module, regex_result):
     )
 
     if len(player_dict) >= 1 and len(location_dict) >= 1:
-        event_data = ['teleport_to_coordinates', {
-            'location_coordinates': {
-                "x": location_dict.get("teleport_entry", {}).get("x", location_dict["coordinates"]["x"]),
-                "y": location_dict.get("teleport_entry", {}).get("y", location_dict["coordinates"]["y"]),
-                "z": location_dict.get("teleport_entry", {}).get("z", location_dict["coordinates"]["z"])
+        teleport_entry = location_dict.get("teleport_entry", {})
+        teleport_entry_x = teleport_entry.get("x", None)
+        teleport_entry_y = teleport_entry.get("y", None)
+        teleport_entry_z = teleport_entry.get("z", None)
+
+        if any([
+            teleport_entry_x is None,
+            teleport_entry_y is None,
+            teleport_entry_z is None,
+            all([
+                int(teleport_entry_x) == 0,
+                int(teleport_entry_y) == 0,
+                int(teleport_entry_z) == 0,
+            ])
+        ]):
+            location_coordinates = {
+                "x": location_dict["coordinates"]["x"],
+                "y": location_dict["coordinates"]["y"],
+                "z": location_dict["coordinates"]["z"]
             }
+        else:
+            location_coordinates = {
+                "x": teleport_entry_x,
+                "y": teleport_entry_y,
+                "z": teleport_entry_z
+            }
+
+        event_data = ['teleport_to_coordinates', {
+            'location_coordinates': location_coordinates
         }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=player_steamid)
 

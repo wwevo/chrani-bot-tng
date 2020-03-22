@@ -38,7 +38,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
         command = (
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
-            player_to_be_teleported=player_to_be_teleported_dict.get("steamid"),
+            player_to_be_teleported=player_to_be_teleported_steamid,
             pos_x=target_coordinates["x"],
             pos_y=target_coordinates["y"],
             pos_z=target_coordinates["z"]
@@ -58,8 +58,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
             r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
             r"\):\s"
             r"EntityID={entity_id},\s".format(entity_id=player_to_be_teleported_dict.get("id")) +
-            r"PlayerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_dict.get("steamid")) +
-            r"OwnerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_dict.get("steamid")) +
+            r"PlayerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_steamid) +
+            r"OwnerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_steamid) +
             r"PlayerName='(?P<player_name>.*)'"
         )
 
