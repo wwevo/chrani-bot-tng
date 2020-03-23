@@ -28,8 +28,13 @@ class Widget(object):
 
     @staticmethod
     def template_render(*args, **kwargs):
-        template = kwargs.get("template", None)
-        return template.render(**kwargs)
+        try:
+            template = kwargs.get("template", None)
+            rendered_template = template.render(**kwargs)
+        except AttributeError as error:
+            rendered_template = ""
+
+        return rendered_template
 
     @staticmethod
     def get_all_available_widgets_dict():
@@ -71,3 +76,12 @@ class Widget(object):
             .get(dispatchers_steamid, {})
             .get("current_view", "frontend")
         )
+
+    def set_current_view(self, dispatchers_steamid, options):
+        self.dom.data.upsert({
+            self.get_module_identifier(): {
+                "visibility": {
+                    dispatchers_steamid: options
+                }
+            }
+        }, dispatchers_steamid=dispatchers_steamid)

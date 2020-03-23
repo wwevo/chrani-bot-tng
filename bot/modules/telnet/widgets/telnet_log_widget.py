@@ -26,15 +26,7 @@ def get_log_line_css_class(log_line):
 def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
-
-    current_view = (
-        module.dom.data
-        .get("module_telnet", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
+    current_view = module.get_current_view(dispatchers_steamid)
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
@@ -65,14 +57,7 @@ def frontend_view(*args, **kwargs):
                     css_class=css_class
                 )
 
-            current_view = (
-                module.dom.data
-                .get("module_telnet", {})
-                .get("visibility", {})
-                .get(dispatchers_steamid, {})
-                .get("current_view", "frontend")
-            )
-
+            current_view = module.get_current_view(dispatchers_steamid)
             options_toggle = module.template_render_hook(
                 module,
                 template=template_options_toggle,
@@ -115,17 +100,10 @@ def options_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('telnet_log_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('telnet_log_widget/control_switch_options_view.html')
 
-    current_view = (
-        module.dom.data
-        .get("module_telnet", {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
+    current_view = module.get_current_view(dispatchers_steamid)
     options_toggle = module.template_render_hook(
         module,
-        template_options_toggle,
+        template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
@@ -161,14 +139,7 @@ def update_widget(*args, **kwargs):
 
     player_clients_to_update = list(module.webserver.connected_clients.keys())
     for clientid in player_clients_to_update:
-        current_view = (
-            module.dom.data
-            .get("module_telnet", {})
-            .get("visibility", {})
-            .get(clientid, {})
-            .get("current_view", "frontend")
-        )
-
+        current_view = module.get_current_view(clientid)
         if current_view == "frontend":
             telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
             css_class = get_log_line_css_class(updated_values_dict["telnet_lines"])

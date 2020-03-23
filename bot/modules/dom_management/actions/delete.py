@@ -30,16 +30,9 @@ def main_function(module, event_data, dispatchers_steamid):
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
         else:
-            # show the modal!
-            module.dom.data.upsert({
-                target_module: {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": "modal"
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
+            loaded_modules_dict[target_module].set_current_view(dispatchers_steamid, {
+                "current_view": "modal"
+            })
             return
 
     elif action == "cancel_delete_selected_dom_elements":
@@ -52,15 +45,9 @@ def main_function(module, event_data, dispatchers_steamid):
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
     target_module = event_data[1].get("target_module", None)
-    module.dom.data.upsert({
-        target_module: {
-            "visibility": {
-                dispatchers_steamid: {
-                    "current_view": "frontend"
-                }
-            }
-        }
-    }, dispatchers_steamid=dispatchers_steamid)
+    loaded_modules_dict[target_module].set_current_view(dispatchers_steamid, {
+        "current_view": "frontend",
+    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

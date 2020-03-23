@@ -48,16 +48,10 @@ def main_function(module, event_data, dispatchers_steamid):
                     return
 
         else:
-            module.dom.data.upsert({
-                "module_players": {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": "kick-modal",
-                            "current_view_steamid": player_to_be_kicked
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
+            module.set_current_view(dispatchers_steamid, {
+                "current_view": "kick-modal",
+                "current_view_steamid": player_to_be_kicked
+            })
             return
 
     elif action == "cancel_kick_player":
@@ -68,16 +62,9 @@ def main_function(module, event_data, dispatchers_steamid):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    module.dom.data.upsert({
-        "module_players": {
-            "visibility": {
-                dispatchers_steamid: {
-                    "current_view": "frontend",
-                    "current_view_steamid": None
-                }
-            }
-        }
-    }, dispatchers_steamid=dispatchers_steamid)
+    module.set_current_view(dispatchers_steamid, {
+        "current_view": "frontend",
+    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):

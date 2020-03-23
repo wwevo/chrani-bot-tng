@@ -12,41 +12,27 @@ def main_function(module, event_data, dispatchers_steamid):
     location_identifier = event_data[1].get("dom_element_identifier", None)
     location_origin = event_data[1].get("dom_element_origin", None)
 
-    if action is not None:
-        either_true = True
-        if action == "show_options":
-            current_view = "options"
-        elif action == "show_frontend":
-            current_view = "frontend"
-        elif action == "show_create_new":
-            current_view = "create_new"
-        elif action == "edit_location_entry":
-            current_view = "edit_location_entry"
-        elif action == "show_special_locations":
-            current_view = "special_locations"
-            current_view_steamid = None
-        else:
-            current_view = "frontend"
-            either_true = False
-
-        if either_true:
-            module.dom.data.upsert({
-                module.get_module_identifier(): {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": current_view,
-                            "location_owner": location_owner,
-                            "location_identifier": location_identifier,
-                            "location_origin": location_origin
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+    if action == "show_options":
+        current_view = "options"
+    elif action == "show_frontend":
+        current_view = "frontend"
+    elif action == "show_create_new":
+        current_view = "create_new"
+    elif action == "edit_location_entry":
+        current_view = "edit_location_entry"
+    elif action == "show_special_locations":
+        current_view = "special_locations"
+    else:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    module.set_current_view(dispatchers_steamid, {
+        "current_view": current_view,
+        "location_owner": location_owner,
+        "location_identifier": location_identifier,
+        "location_origin": location_origin
+    })
+    module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):

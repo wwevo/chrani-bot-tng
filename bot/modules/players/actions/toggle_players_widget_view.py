@@ -10,36 +10,24 @@ def main_function(module, event_data, dispatchers_steamid):
     event_data[1]["action_identifier"] = action_name
     player_steamid = event_data[1].get("steamid", None)
 
-    if action is not None:
-        either_true = True
-        if action == "show_options":
-            current_view = "options"
-            current_view_steamid = None
-        elif action == "show_frontend":
-            current_view = "frontend"
-            current_view_steamid = None
-        elif action == "show_info_view":
-            current_view = "info"
-            current_view_steamid = player_steamid
-        else:
-            either_true = False
-
-        if either_true:
-            module.dom.data.upsert({
-                "module_players": {
-                    "visibility": {
-                        dispatchers_steamid: {
-                            "current_view": current_view,
-                            "current_view_steamid": current_view_steamid
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid)
-
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid)
+    if action == "show_options":
+        current_view = "options"
+        current_view_steamid = None
+    elif action == "show_frontend":
+        current_view = "frontend"
+        current_view_steamid = None
+    elif action == "show_info_view":
+        current_view = "info"
+        current_view_steamid = player_steamid
+    else:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    module.set_current_view(dispatchers_steamid, {
+        "current_view": current_view,
+        "current_view_steamid": current_view_steamid
+    })
+    module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):

@@ -9,14 +9,7 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
+    current_view = module.get_current_view(dispatchers_steamid)
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
@@ -42,14 +35,7 @@ def frontend_view(*args, **kwargs):
     except AttributeError:
         server_is_online = True
 
-    current_view = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
+    current_view = module.get_current_view(dispatchers_steamid)
     webserver_logged_in_users = (
         module.dom.data
         .get(module.get_module_identifier(), {})
@@ -107,13 +93,7 @@ def options_view(*args, **kwargs):
         'webserver_status_widget/control_switch_options_view.html'
     )
 
-    current_view = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
+    current_view = module.get_current_view(dispatchers_steamid)
 
     data_to_emit = module.template_render_hook(
         module,

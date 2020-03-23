@@ -212,13 +212,7 @@ def table_rows(*args, ** kwargs):
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():
-            current_view = (
-                module.dom.data
-                .get("module_game_environment", {})
-                .get("visibility", {})
-                .get(clientid, {})
-                .get("current_view", "frontend")
-            )
+            current_view = module.get_current_view(clientid)
             if current_view == "frontend":
                 template_table_rows = module.templates.get_template('manage_entities_widget/table_row.html')
 
@@ -303,13 +297,7 @@ def update_widget(*args, **kwargs):
 
         for clientid in player_clients_to_update:
             try:
-                current_view = (
-                    module.dom.data
-                    .get("module_game_environment", {})
-                    .get("visibility", {})
-                    .get(clientid, {})
-                    .get("current_view", "frontend")
-                )
+                current_view = module.get_current_view(clientid)
                 table_row_id = "entity_table_row_{}_{}".format(
                     str(entity_dict.get("dataset", None)),
                     str(entity_dict.get("id", None))

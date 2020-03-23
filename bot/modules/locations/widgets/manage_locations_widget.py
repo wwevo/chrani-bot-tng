@@ -20,35 +20,16 @@ def select_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    current_view = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("visibility", {})
-        .get(dispatchers_steamid, {})
-        .get("current_view", "frontend")
-    )
-
+    current_view = module.get_current_view(dispatchers_steamid)
     if current_view == "options":
-        options_view(
-            module,
-            dispatchers_steamid=dispatchers_steamid,
-            current_view=current_view
-        )
+        options_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "special_locations":
-        frontend_view(
-            module,
-            dispatchers_steamid=dispatchers_steamid,
-            current_view=current_view
-        )
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
         modal_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "create_new":
-        edit_view(
-            module,
-            dispatchers_steamid=dispatchers_steamid,
-            current_view=current_view
-        )
+        edit_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "edit_location_entry":
         location_owner = (
             module.dom.data
@@ -494,13 +475,7 @@ def table_row(*args, **kwargs):
                 .get("GameName", None)
             )
             for clientid in module.webserver.connected_clients.keys():
-                current_view = (
-                    module.dom.data
-                    .get(module.get_module_identifier(), {})
-                    .get("visibility", {})
-                    .get(clientid, {})
-                    .get("current_view", "frontend")
-                )
+                current_view = module.get_current_view(clientid)
                 visibility_conditions = [
                     current_view == "frontend"
                 ]

@@ -353,13 +353,7 @@ def table_rows(*args, ** kwargs):
 
     if method in ["upsert", "edit", "insert"]:
         for clientid in module.webserver.connected_clients.keys():
-            current_view = (
-                module.dom.data
-                .get("module_players", {})
-                .get("visibility", {})
-                .get(clientid, {})
-                .get("current_view", "frontend")
-            )
+            current_view = module.get_current_view(clientid)
             if current_view == "frontend":
                 template_table_rows = module.templates.get_template('manage_players_widget/table_row.html')
                 control_info_link = module.templates.get_template('manage_players_widget/control_info_link.html')
@@ -455,12 +449,7 @@ def update_widget(*args, **kwargs):
         for clientid in player_clients_to_update:
             try:
                 module_players = module.dom.data.get("module_players", {})
-                current_view = (
-                    module_players
-                    .get("visibility", {})
-                    .get(clientid, {})
-                    .get("current_view", "frontend")
-                )
+                current_view = module.get_current_view(clientid)
                 table_row_id = "player_table_row_{}_{}".format(
                     str(original_player_dict.get("dataset", None)),
                     str(original_player_dict.get("steamid", None))
