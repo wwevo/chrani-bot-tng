@@ -1,44 +1,75 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
-<table class="delete_modal">
-    <tr>
-        <td colspan="2">
-            <p>Make sure you've got the right stuff selected! Deletions can not be undone.</p>
-            <p>You have {{ count|string }} elements selected for deletion!</p>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <p>By clicking [confirm] you will continue to proceed deleting {{ count|string }} elements.</p>
-        </td>
-        <td>
-            <p>Clicking [cancel] will abort the deletion process, it will keep the selection intact.</p>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <div id="{{ dom_element_id }}_confirm" class="modal_delete_button">
-            {{ construct_toggle_link(
-                delete_selected_entries_active,
-                "confirm", ['widget_event', ['dom_management', ['delete', {
-                    "target_module": target_module,
-                    "dom_element_root": dom_element_root,
-                    'action': dom_action,
-                    'confirmed': confirmed
-                }]]]
-            ) }}
-            </div>
-        </td>
-        <td>
-            <div id="{{ dom_element_id }}_cancel" class="modal_cancel_button">
-            {{ construct_toggle_link(
-                delete_selected_entries_active,
-                "cancel", ['widget_event', ['dom_management', ['delete', {
-                    "target_module": target_module,
-                    "dom_element_root": dom_element_root,
-                    'action': "cancel_delete_selected_dom_elements"
-                }]]]
-            ) }}
-            </div>
-        </td>
-    </tr>
-</table>
+{% set count_string = count|string %}
+<div class="delete_modal">
+    <header>
+        <p>Make sure you've got the right stuff selected! Deletions can not be undone.</p>
+    </header>
+    <div>
+        <p>You have <span class="selected_dom_elements">{{ count_string }} elements</span> selected for deletion:</p>
+    </div>
+    <div class="dynamic_content_size">
+        <p>This will soon be an actual  list of actual elements to delete</p>
+        <ul>
+            <li>Element 1</li>
+            <li>Element 2</li>
+            <li>Element 3</li>
+            <li>Element 4</li>
+            <li>Element 5</li>
+            <li>Element 6</li>
+            <li>Element 7</li>
+            <li>Element 8</li>
+            <li>Element 9</li>
+            <li>Element 10</li>
+            <li>Element 11</li>
+            <li>Element 12</li>
+            <li>Element 13</li>
+            <li>Element 14</li>
+            <li>Element 15</li>
+            <li>Element 16</li>
+            <li>Element 17</li>
+            <li>Element 18</li>
+            <li>Element 19</li>
+            <li>Element 20</li>
+            <li>Element 21</li>
+            <li>Element 22</li>
+            <li>Element 23</li>
+            <li>Element 24</li>
+            <li>Element 25</li>
+            <li>Element 26</li>
+            <li>Element 27</li>
+            <li>Element 28</li>
+            <li>Element 29</li>
+            <li>Element 30</li>
+            <li>Element 31</li>
+            <li>Element 32</li>
+            <li>Element 33</li>
+            <li>Element 34</li>
+            <li>Element 35</li>
+            <li>Element 36</li>
+            <li>Element 37</li>
+            <li>Element 38</li>
+            <li>Element 39</li>
+            <li>Element 40</li>
+        </ul>
+    </div>
+    <div>
+        <section>
+            <p>
+                By clicking [confirm] you will continue to proceed deleting
+                <span class="selected_dom_elements">{{ count_string }} elements</span>.
+            </p>
+            <p>
+                {% include "modal_confirm_delete_confirm_button.html" %}
+            </p>
+        </section>
+        <section>
+            <p>
+                Clicking [cancel] will abort the deletion process,
+                it will keep the selection intact.
+            </p>
+            <p>
+                {% include "modal_confirm_delete_cancel_button.html" %}
+            </p>
+        </section>
+    </div>
+</div>

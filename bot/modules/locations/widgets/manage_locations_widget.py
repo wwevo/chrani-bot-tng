@@ -25,9 +25,9 @@ def select_view(*args, **kwargs):
         options_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "special_locations":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
-    elif current_view == "modal":
+    elif current_view == "delete-modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
-        modal_view(module, dispatchers_steamid=dispatchers_steamid)
+        delete_modal_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "create_new":
         edit_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "edit_location_entry":
@@ -65,7 +65,7 @@ def select_view(*args, **kwargs):
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
 
-def modal_view(*args, **kwargs):
+def delete_modal_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
@@ -218,7 +218,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view in ["frontend", "special_locations", "modal"] else False)
+                options_view_toggle=(True if current_view in ["frontend", "special_locations", "delete-modal"] else False)
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
@@ -230,7 +230,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_special_locations_toggle_view,
                 steamid=dispatchers_steamid,
-                special_locations_view_toggle=(True if current_view in ["frontend", "modal"] else False)
+                special_locations_view_toggle=(True if current_view in ["frontend", "delete-modal"] else False)
             ),
             control_player_location_view=module.template_render_hook(
                 module,

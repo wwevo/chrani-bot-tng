@@ -15,9 +15,6 @@ def main_function(module, event_data, dispatchers_steamid):
     elif action == "show_frontend":
         current_view = "frontend"
         current_view_steamid = None
-    elif action == "show_modal":
-        current_view = "modal"
-        current_view_steamid = None
     else:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return

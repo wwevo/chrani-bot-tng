@@ -36,9 +36,9 @@ def select_view(*args, **kwargs):
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "info":
         show_info_view(module, dispatchers_steamid=dispatchers_steamid)
-    elif current_view == "modal":
+    elif current_view == "delete-modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
-        modal_view(module, dispatchers_steamid=dispatchers_steamid)
+        delete_modal_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "kick-modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
         kick_modal_view(module, dispatchers_steamid=dispatchers_steamid)
@@ -46,7 +46,7 @@ def select_view(*args, **kwargs):
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
 
-def modal_view(*args, **kwargs):
+def delete_modal_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
@@ -201,7 +201,7 @@ def frontend_view(*args, **kwargs):
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=(True if current_view in ["frontend", "modal"] else False),
+            options_view_toggle=(True if current_view in ["frontend", "delete-modal"] else False),
             steamid=dispatchers_steamid
         )
     )

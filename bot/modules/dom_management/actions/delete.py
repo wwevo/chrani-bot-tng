@@ -31,7 +31,7 @@ def main_function(module, event_data, dispatchers_steamid):
             return
         else:
             loaded_modules_dict[target_module].set_current_view(dispatchers_steamid, {
-                "current_view": "modal"
+                "current_view": "delete-modal"
             })
             return
 

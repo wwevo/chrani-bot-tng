@@ -115,12 +115,42 @@ body > main > div > .widget > main .dialog .modal-content p {
 }
 
 body > main > div > .widget > main .dialog.open .modal-content .delete_modal {
+    color: var(--lcars-tanoi);
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-body > main > div > .widget > main .dialog.open .modal-content .delete_modal td {
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal header,
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div {
     text-align: center;
-    vertical-align: top;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal header {
+    flex: 0 0 auto;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div {
+    flex: 1 1 auto;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div.dynamic_content_size {
+    overflow: auto;
+    margin: calc(var(--main_bar_height) / 2) 0;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div.dynamic_content_size::-webkit-scrollbar {
+    width: calc(var(--main_bar_terminator_width) / 1.66);
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div:last-child {
+    flex: 0 0 auto;
+    display: flex;
+}
+
+body > main > div > .widget > main .dialog.open .modal-content .delete_modal div section {
+    flex: 1 1 auto;
+    width: 50%;
 }
 
 body > main > div > .widget > main > table > tbody {
