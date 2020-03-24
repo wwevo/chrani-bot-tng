@@ -57,6 +57,14 @@ class Permissions(Module):
             module_identifier = module.get_module_identifier()
 
             if all([
+                event_data[0] == "toggle_enabled_flag"
+            ]):
+                if dispatchers_permission_level >= 2:
+                    permission_denied = True
+                if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
+                    permission_denied = False
+
+            if all([
                 event_data[0].startswith("toggle_"),
                 event_data[0].endswith("_widget_view")
             ]):
@@ -87,11 +95,8 @@ class Permissions(Module):
                 if any([
                     event_data[0] == "kick_player"
                 ]):
-                    if any([
-                        event_data[1]["action"] == "kick_player"
-                    ]):
-                        if dispatchers_permission_level >= 2:
-                            permission_denied = True
+                    if dispatchers_permission_level > 2:
+                        permission_denied = True
 
             if module_identifier == "module_locations":
                 if any([
@@ -104,7 +109,7 @@ class Permissions(Module):
                         event_data[1]["action"] == "enable_location_entry",
                         event_data[1]["action"] == "disable_location_entry"
                     ]):
-                        if dispatchers_permission_level > 2:
+                        if dispatchers_permission_level >= 2:
                             permission_denied = True
                         if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
                             permission_denied = False
@@ -118,7 +123,7 @@ class Permissions(Module):
                 if any([
                         event_data[0] == "shutdown"
                 ]):
-                    if dispatchers_permission_level > 2:
+                    if dispatchers_permission_level >= 2:
                         permission_denied = True
 
             if permission_denied:
