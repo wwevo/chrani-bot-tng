@@ -1,0 +1,17 @@
+{% set action = "edit" if is_edit else "create_new" %}
+<!-- This logic is for the UX experience only, all values are checked for validity in the bots backend //-->
+<script>
+    function send_kick_data_to_bot() {
+        let kick_reason = $("input[name='kick_player_reason']").val();
+        window.socket.emit(
+            'widget_event',
+            ['players', ['kick_player', {
+                'action': 'kick_player',
+                'steamid': {{ steamid }},
+                'reason': kick_reason,
+                'confirmed': 'True'
+            }]]
+        );
+    }
+</script>
+<a href="#" onclick="send_kick_data_to_bot(); return false;">confirm</a>

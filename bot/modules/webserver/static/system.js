@@ -306,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 let modal_container = target_element.parentElement;
                 modal_container.classList.toggle("open");
 
-                target_element.innerHTML = data["payload"];
+                $(target_element).html(data["payload"])
                 // flash(target_element);
                 // console.log("element content replaced");
             }
