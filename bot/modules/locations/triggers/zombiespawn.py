@@ -18,6 +18,7 @@ def main_function(origin_module, module, regex_result):
     zombie_name = regex_result.group("zombie_name")
 
     screamer_safe_locations = []
+    found_screamer_safe_location = False
     for screamer_safe_location in origin_module.get_elements_by_type("is_screamerfree"):
         screamer_safe_locations.append(screamer_safe_location)
         found_screamer_safe_location = True
@@ -49,15 +50,16 @@ def main_function(origin_module, module, regex_result):
                 # we still only have to kill it once :)
                 break
         else:
-            event_data = ['say_to_all', {
-                'message': (
-                    '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
-                    '[CCCCFF]somewhere[FFFFFF]...[-]'.format(
-                        entity_id=zombie_id
+            if found_screamer_safe_location:
+                event_data = ['say_to_all', {
+                    'message': (
+                        '[FF6666]Screamer ([FFFFFF]{entity_id}[FF6666]) spawned[-] '
+                        '[CCCCFF]somewhere[FFFFFF]...[-]'.format(
+                            entity_id=zombie_id
+                        )
                     )
-                )
-            }]
-            module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
+                }]
+                module.trigger_action_hook(origin_module.game_environment, event_data=event_data)
 
 
 trigger_meta = {
