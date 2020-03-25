@@ -86,6 +86,7 @@ body > main > div {
     flex-wrap: wrap;
     height: var(--main_area_height);
     overflow-y: scroll; /* this has to stay for scroll-snapping to work */
+    overflow-x: hidden;
     scroll-snap-type: y mandatory;
 }
 
