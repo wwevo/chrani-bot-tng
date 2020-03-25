@@ -63,7 +63,7 @@
     --main_area_height: calc(
         100vh
         - var(--main_shoulder_height) * 2
-        - 1em
+        - var(--main_table_gutter) * 2
     )
 }
 

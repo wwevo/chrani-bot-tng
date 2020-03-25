@@ -25,19 +25,11 @@ body > footer, body > footer > div, body > footer > div:before {
 }
 
 body > header {
-    border-top-left-radius: calc(
-        var(--main_bar_height) * 2.66)
-        calc(var(--main_bar_height) * 1.33
-    );
-    border-top-right-radius: calc(
-        var(--main_bar_height) / 2
-    );
-    margin-bottom: 0.5em;
-    background: var(--main-bar-color);
+    margin-bottom: var(--main_table_gutter);
 }
 
 body > footer {
-    margin-top: 0.5em;
+    margin-top: var(--main_table_gutter);
 }
 
 body > header > div {
@@ -52,6 +44,10 @@ body > header > div {
 
 body > header,
 body > footer {
+    border-top-left-radius: calc(
+        var(--main_bar_height) * 2.66)
+        calc(var(--main_bar_height) * 1.33
+    );
     background:
         url(ui/main_shoulder.png) no-repeat top left,
         url(ui/main_horizontal_bar_end.png) no-repeat top right;
@@ -101,12 +97,12 @@ body > main > div > .widget {
     height: calc(
             100vh
             - var(--main_shoulder_height) * 2
-            - var(--main_table_gutter) * 4
+            - var(--main_table_gutter) * 2
     );
     scroll-snap-align: start;
 
     padding-right: calc(var(--main_table_gutter) * 2);
-    padding-bottom: 0.5em;
+    padding-bottom: calc(var(--main_table_gutter) * 2);
 }
 
 body > main > div .single_screen {

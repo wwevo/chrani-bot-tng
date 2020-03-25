@@ -65,6 +65,10 @@ body > main > div > #manage_players_widget tbody > tr.is_online.is_initialized.i
     }
 }
 
+body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_name"] {
+    max-width: 10em;
+}
+
 body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_health"]:before {
     content: "\2665";
     padding-right: var(--main_table_gutter);

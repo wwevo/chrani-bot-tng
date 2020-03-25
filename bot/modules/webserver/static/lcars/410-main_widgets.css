@@ -6,7 +6,6 @@
 
 body > main > div > .widget > main {
     position: relative;
-    margin-top: calc(var(--main_table_gutter) * 2);
 }
 
 body > main > div > .widget main a {
@@ -88,10 +87,8 @@ body > main > div > .widget .pull_out span > div {
 
 body > main > div > .widget > main .dialog {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: var(--main_table_gutter);
     bottom: 5.5em;
-    left: 0;
     display: none;
 }
 
@@ -297,7 +294,7 @@ body > main > div > .widget > aside {
             var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
             var(--background) 100%
     );
-    height: calc(100% - 3em);
+    height: calc(100vh - var(--main_shoulder_height) * 2 - var(--main_table_gutter) * 3 - var(--main_bar_height));
 }
 
 body > main > div > .widget > main {
