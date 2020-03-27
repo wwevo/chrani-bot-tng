@@ -64,7 +64,10 @@
         100vh
         - var(--main_shoulder_height) * 2
         - var(--main_table_gutter) * 2
-    )
+    );
+
+    --main_widget_height: var(--main_area_height);
+    --main_widget_bar_height: var(--main_bar_height)
 }
 
 @keyframes blinker {

@@ -154,13 +154,12 @@ body > main > div > .widget > main > table > tbody {
     display: block;
     overflow: auto;
     height: calc(
-            100vh
-            - var(--main_shoulder_height) * 2
-            - var(--main_bar_height)
-            - var(--main_table_gutter)
-            - 2em
-            - 1em
-            - 2em
+        var(--main_widget_height)
+        - var(--main_widget_bar_height)
+        - var(--main_table_gutter)
+        - 2em
+        - 1em
+        - 2em
     );
     padding-right: 0.5em;
 }
@@ -185,8 +184,7 @@ body > main > div > .widget > main > table > thead > tr {
 
 body > main > div > .widget > main > table.data_table > thead > tr {
     display: inline-block;
-    width: 100%;
-    margin: calc(0 - var(--main_table_gutter));
+    width: 100%; height: calc(var(--main_bar_height) / 2);
     text-align: right;
 }
 
@@ -274,31 +272,42 @@ body > main > div > .widget > main > table > caption {
 }
 
 body > main > div > .widget > header {
+    width: 100%;
     background-color: var(--lcars-hopbush);
     border-radius: 1.5em 1.5em 1.5em 0;
+    height: var(--main_bar_height);
 }
 
 body > main > div > .widget > header > div > span {
-    font-size: 3em;
+    font-size: var(--main_widget_bar_height);
     line-height: 1em;
     color: var(--background);
     margin-left: 1.5em;
 }
 
 body > main > div > .widget > aside {
-    float: left;
+    flex: 0 0 var(--main_shoulder_width);
     background: linear-gradient(
-            to right,
-            var(--main-bar-color) 0,
-            var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
-            var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
-            var(--background) 100%
+        to right,
+        var(--main-bar-color) 0,
+        var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+        var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+        var(--background) 100%
     );
-    height: calc(100vh - var(--main_shoulder_height) * 2 - var(--main_table_gutter) * 3 - var(--main_bar_height));
+    height: calc(
+        var(--main_widget_height) - var(--main_widget_bar_height)
+    );
 }
 
 body > main > div > .widget > main {
+    flex: 1 0 calc(
+        100%
+        - var(--main_shoulder_width)
+    );
     overflow-y: auto;
+    height: calc(
+        var(--main_widget_height) - var(--main_widget_bar_height)
+    );
 }
 
 body > main > div > .widget > aside > div {
@@ -381,49 +390,45 @@ body > main > div > .widget > main tr td[id$="_actions"] > span:last-child {
 
 /* making the standard order the middle instead of 0 */
 body > main > div > .widget {
-    order: 500
+    order: 500;
 }
 
 body > main > div > #manage_players_widget {
     order: -4;
     flex: 1 0 calc(
-            1024px
-            - var(--main_table_gutter) * 2
+        1024px
+        - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #webserver_status_widget {
     order: -3;
     flex: 1 0 calc(
-            480px
-            - var(--main_table_gutter) * 2
+        480px
+        - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #manage_locations_widget {
     order: -2;
     flex: 1 0 calc(
-            860px
-            - var(--main_table_gutter) * 2
+        860px
+        - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #manage_entities_widget {
     order: -1;
     flex: 1 0 calc(
-            768px
-            - var(--main_table_gutter) * 2
+        768px
+        - var(--main_table_gutter) * 2
     );
 }
 
 body > main > div > #telnet_log_widget {
     order: 999;
     flex: 1 0 calc(
-            768px
-            - var(--main_table_gutter) * 2
+        768px
+        - var(--main_table_gutter) * 2
     );
-}
-
-body > main > div > #telnet_log_widget {
-    padding-bottom: 0; /* last element by order needs to get this one */
 }

@@ -16,11 +16,21 @@ a:hover {
 body {
     margin: 0 auto;
     font-family: "SWISS 911 Extra Compressed BT", sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+body > header, body > footer {
+    flex: 0 0 auto;
+}
+
+body > main {
+    flex: 1 1 auto;
 }
 
 /* header and footer are special due to their graphical shoulders */
-body > header, body > header > div, body > header > div:before,
-body > footer, body > footer > div, body > footer > div:before {
+body > header > div, body > header > div:before,
+body > footer > div, body > footer > div:before {
     height: var(--main_shoulder_height);
 }
 
@@ -63,8 +73,6 @@ body > header > div:before,
 body > footer > div:before {
     width: 100%;
     content: "";
-    z-index: -1;
-    position: absolute;
     background:
         url(ui/main_horizontal_bar.png)
         repeat-x;
@@ -91,19 +99,13 @@ body > main > div {
 }
 
 body > main > div > .widget {
-    flex: 0 0 calc(
-            100%
-            - var(--main_table_gutter) * 2
-    );
-    height: calc(
-            100vh
-            - var(--main_shoulder_height) * 2
-            - var(--main_table_gutter) * 2
-    );
+    display: flex;
+    flex-wrap: wrap;
+    flex: 0 0 auto;
+    height: var(--main_widget_height);
     scroll-snap-align: start;
-
-    padding-right: calc(var(--main_table_gutter) * 2);
-    padding-bottom: calc(var(--main_table_gutter) * 2);
+    border-bottom: var(--main_table_gutter) solid var(--background);
+    border-right: calc(var(--main_table_gutter) * 2) solid var(--background);
 }
 
 body > main > div .single_screen {

@@ -3,7 +3,6 @@
 body > header > div > hgroup {
     position: absolute;
     right: 0; top: 0;
-    height: var(--main_bar_height);
 }
 
 body > header > div > hgroup > h1 {
@@ -18,7 +17,7 @@ body > header > div > hgroup > h1 {
 
 body > header > div #header_widgets {
     position: absolute;
-    top: var(--main_bar_height);
+    height: calc(var(--main_shoulder_height) - var(--main_bar_height));
     right: 0; bottom: 0; left: 0;
     display: flex;
 }
