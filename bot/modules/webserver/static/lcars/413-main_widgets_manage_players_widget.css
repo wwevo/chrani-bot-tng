@@ -61,7 +61,6 @@ body > main > div > #manage_players_widget tbody > tr.is_online.is_initialized.i
     body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_updated_servertime"],
     body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_seen_gametime"] {
         font-size: 0.90em;
-        vertical-align: middle;
     }
 }
 

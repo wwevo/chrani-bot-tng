@@ -111,12 +111,12 @@ body > main > div > .widget {
 body > main > div .single_screen {
     width: 100%;
     height: var(--main_area_height);
-    padding-left: calc(var(--main_shoulder_width));
+    padding-left: calc(var(--main_widget_shoulder_width));
     background: linear-gradient(
         to right,
         var(--main-bar-color) 0,
-        var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
-        var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+        var(--main-bar-color) calc(var(--main_widget_shoulder_width) - var(--main_shoulder_gap)),
+        var(--background) calc(var(--main_widget_shoulder_width) - var(--main_shoulder_gap)),
         var(--background) 100%
     );
 }

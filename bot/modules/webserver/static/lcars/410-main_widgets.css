@@ -41,6 +41,7 @@ body > main > div > .widget > main > table > tbody > tr > td {
     font-size: 1em;
     line-height: 1.5em;
     padding: 0 calc(var(--main_table_gutter) / 2);
+    vertical-align: middle;
 }
 
 body > main > div > .widget > main > table > tbody > tr > td:last-child {
@@ -166,15 +167,22 @@ body > main > div > .widget > main > table > tbody {
 
 body > main > div > .widget > main > table.data_table > tbody {
     max-height: calc(
-            100vh
-            - var(--main_shoulder_height) * 2
-            - var(--main_bar_height)
-            - var(--main_table_gutter)
-            - 0.5em
-            - 2em
-            - 1em
-            - 2em
-            - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
+        100vh
+        - var(--main_shoulder_height) * 2
+        - var(--main_bar_height)
+        - var(--main_table_gutter)
+        - 0.5em
+        - 2em
+        - 1em
+        - 2em
+        - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
+    );
+
+    max-width: calc(
+        100vw
+        - var(--main_widget_shoulder_width)
+        - var(--main_bar_terminator_width)
+        - 2em
     );
 }
 
@@ -286,12 +294,12 @@ body > main > div > .widget > header > div > span {
 }
 
 body > main > div > .widget > aside {
-    flex: 0 0 var(--main_shoulder_width);
+    flex: 0 0 var(--main_widget_shoulder_width);
     background: linear-gradient(
         to right,
         var(--main-bar-color) 0,
-        var(--main-bar-color) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
-        var(--background) calc(var(--main_shoulder_width) - var(--main_shoulder_gap)),
+        var(--main-bar-color) calc(var(--main_widget_shoulder_width) - var(--main_shoulder_gap)),
+        var(--background) calc(var(--main_widget_shoulder_width) - var(--main_shoulder_gap)),
         var(--background) 100%
     );
     height: calc(
@@ -302,7 +310,7 @@ body > main > div > .widget > aside {
 body > main > div > .widget > main {
     flex: 1 0 calc(
         100%
-        - var(--main_shoulder_width)
+        - var(--main_widget_shoulder_width)
     );
     overflow-y: auto;
     height: calc(
@@ -311,7 +319,7 @@ body > main > div > .widget > main {
 }
 
 body > main > div > .widget > aside > div {
-    width: var(--main_shoulder_width);
+    width: var(--main_widget_shoulder_width);
 }
 
 body > main > div > .widget > aside > div > div {
@@ -396,8 +404,9 @@ body > main > div > .widget {
 body > main > div > #manage_players_widget {
     order: -4;
     flex: 1 0 calc(
-        1024px
+        960px
         - var(--main_table_gutter) * 2
+        - var(--main_bar_terminator_width)
     );
 }
 

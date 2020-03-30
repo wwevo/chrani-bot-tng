@@ -116,105 +116,105 @@ document.addEventListener("DOMContentLoaded", function(event) {
     let lcars_colors = [];
     function load_lcars_colors() {
         /* https://davidwalsh.name/css-variables-javascript */
-        lcars_color["lcars-pale-canary"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-pale-canary').trim()
+        lcars_colors["lcars-pale-canary"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-pale-canary').trim()
         );
-        lcars_color["lcars-tanoi"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-tanoi').trim()
+        lcars_colors["lcars-tanoi"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-tanoi').trim()
         );
-        lcars_color["lcars-golden-tanoi"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-golden-tanoi').trim()
+        lcars_colors["lcars-golden-tanoi"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-golden-tanoi').trim()
         );
-        lcars_color["lcars-neon-carrot"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-neon-carrot').trim()
-        );
-
-        lcars_color["lcars-eggplant"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-eggplant').trim()
-        );
-        lcars_color["lcars-lilac"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-lilac').trim()
-        );
-        lcars_color["lcars-anakiwa"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-anakiwa').trim()
-        );
-        lcars_color["lcars-mariner"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-mariner').trim()
+        lcars_colors["lcars-neon-carrot"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-neon-carrot').trim()
         );
 
-        lcars_color["lcars-bahama-blue"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-bahama-blue').trim()
+        lcars_colors["lcars-eggplant"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-eggplant').trim()
         );
-        lcars_color["lcars-blue-bell"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-blue-bell').trim()
+        lcars_colors["lcars-lilac"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-lilac').trim()
         );
-        lcars_color["lcars-melrose"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-melrose').trim()
+        lcars_colors["lcars-anakiwa"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-anakiwa').trim()
         );
-        lcars_color["lcars-hopbush"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-hopbush').trim()
-        );
-
-        lcars_color["lcars-chestnut-rose"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-chestnut-rose').trim()
-        );
-        lcars_color["lcars-orange-peel"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-orange-peel').trim()
-        );
-        lcars_color["lcars-atomic-tangerine"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-atomic-tangerine').trim()
-        );
-        lcars_color["lcars-danub"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-danub').trim()
+        lcars_colors["lcars-mariner"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-mariner').trim()
         );
 
-        lcars_color["lcars-indigo"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-indigo').trim()
+        lcars_colors["lcars-bahama-blue"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-bahama-blue').trim()
         );
-        lcars_color["lcars-lavender-purple"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-lavender-purple').trim()
+        lcars_colors["lcars-blue-bell"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-blue-bell').trim()
         );
-        lcars_color["lcars-cosmic"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-cosmic').trim()
+        lcars_colors["lcars-melrose"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-melrose').trim()
         );
-        lcars_color["lcars-red-damask"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-red-damask').trim()
-        );
-
-        lcars_color["lcars-medium-carmine"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-medium-carmine').trim()
-        );
-        lcars_color["lcars-bourbon"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-bourbon').trim()
-        );
-        lcars_color["lcars-sandy-brown"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-sandy-brown').trim()
-        );
-        lcars_color["lcars-periwinkle"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-periwinkle').trim()
+        lcars_colors["lcars-hopbush"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-hopbush').trim()
         );
 
-        lcars_color["lcars-dodger-pale"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-dodger-pale').trim()
+        lcars_colors["lcars-chestnut-rose"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-chestnut-rose').trim()
         );
-        lcars_color["lcars-dodger-soft"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-dodger-soft').trim()
+        lcars_colors["lcars-orange-peel"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-orange-peel').trim()
         );
-        lcars_color["lcars-near-blue"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-near-blue').trim()
+        lcars_colors["lcars-atomic-tangerine"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-atomic-tangerine').trim()
         );
-        lcars_color["lcars-navy-blue"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-navy-blue').trim()
+        lcars_colors["lcars-danub"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-danub').trim()
         );
 
-        lcars_color["lcars-husk"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-husk').trim()
+        lcars_colors["lcars-indigo"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-indigo').trim()
         );
-        lcars_color["lcars-rust"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-rust').trim()
+        lcars_colors["lcars-lavender-purple"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-lavender-purple').trim()
         );
-        lcars_color["lcars-tamarillo"] = hexToRgb(
-            getComputedStyle(document.documentElement).getPropertyValue('lcars-tamarillo').trim()
+        lcars_colors["lcars-cosmic"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-cosmic').trim()
+        );
+        lcars_colors["lcars-red-damask"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-red-damask').trim()
+        );
+
+        lcars_colors["lcars-medium-carmine"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-medium-carmine').trim()
+        );
+        lcars_colors["lcars-bourbon"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-bourbon').trim()
+        );
+        lcars_colors["lcars-sandy-brown"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-sandy-brown').trim()
+        );
+        lcars_colors["lcars-periwinkle"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-periwinkle').trim()
+        );
+
+        lcars_colors["lcars-dodger-pale"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-dodger-pale').trim()
+        );
+        lcars_colors["lcars-dodger-soft"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-dodger-soft').trim()
+        );
+        lcars_colors["lcars-near-blue"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-near-blue').trim()
+        );
+        lcars_colors["lcars-navy-blue"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-navy-blue').trim()
+        );
+
+        lcars_colors["lcars-husk"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-husk').trim()
+        );
+        lcars_colors["lcars-rust"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-rust').trim()
+        );
+        lcars_colors["lcars-tamarillo"] = hexToRgb(
+            getComputedStyle(document.documentElement).getPropertyValue('--lcars-tamarillo').trim()
         );
     }
 

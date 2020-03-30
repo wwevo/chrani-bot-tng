@@ -13,6 +13,8 @@ body > header > div > hgroup > h1 {
     font-family: "SWISS 911 Ultra Compressed BT", sans-serif;
     text-transform: uppercase;
     padding: 0 0.25em;
+
+    white-space: nowrap;
 }
 
 body > header > div #header_widgets {
