@@ -157,32 +157,25 @@ body > main > div > .widget > main > table > tbody {
     height: calc(
         var(--main_widget_height)
         - var(--main_widget_bar_height)
-        - var(--main_table_gutter)
-        - 2em
-        - 1em
-        - 2em
+        - var(--main_table_caption_height)
     );
     padding-right: 0.5em;
 }
 
 body > main > div > .widget > main > table.data_table > tbody {
-    max-height: calc(
-        100vh
-        - var(--main_shoulder_height) * 2
-        - var(--main_bar_height)
-        - var(--main_table_gutter)
-        - 0.5em
-        - 2em
-        - 1em
-        - 2em
-        - (var(--main_bar_height) / 2) - (var(--main_table_gutter) * 2)
+    height: calc(
+        var(--main_widget_height)
+        - var(--main_widget_bar_height)
+        - var(--main_table_header_height)
+        - var(--main_table_footer_height)
+        - var(--main_table_caption_height)
     );
 
     max-width: calc(
         100vw
         - var(--main_widget_shoulder_width)
         - var(--main_bar_terminator_width)
-        - 2em
+        - 1em
     );
 }
 
@@ -192,15 +185,22 @@ body > main > div > .widget > main > table > thead > tr {
 
 body > main > div > .widget > main > table.data_table > thead > tr {
     display: inline-block;
-    width: 100%; height: calc(var(--main_bar_height) / 2);
+    width: 100%;
+    height: var(--main_table_header_height);
     text-align: right;
 }
 
 body > main > div > .widget > main > table.data_table > thead > tr > th {
     display: inline-block;
     margin: var(--main_table_gutter);
-    font-size: 1.25em;
-    height: calc(var(--main_bar_height) / 2);
+    height: calc(
+        var(--main_table_header_height)
+        - (var(--main_table_gutter) * 2)
+    );
+    line-height: calc(
+        var(--main_table_header_height)
+        - (var(--main_table_gutter) * 2)
+    );
 }
 
 body > main > div > .widget > main > table.data_table > thead > tr > th:last-child {
@@ -348,27 +348,30 @@ body > main > div > .widget > aside > div > div > span.info {
 }
 
 body > main > div > .widget > main > table > tfoot > tr {
-    height: calc(1.25em + var(--main_table_gutter));
-    line-height: 1.25em;
+    height: var(--main_table_footer_height);
+    line-height: var(--main_table_footer_height);
 }
 
 body > main > div > .widget > main > table > tfoot > tr > td {
+    height: calc(
+        var(--main_table_footer_height)
+        - var(--main_table_gutter)
+    );
+    line-height: calc(
+        var(--main_table_footer_height)
+        - var(--main_table_gutter)
+    );
     vertical-align: bottom;
 }
 
 body > main > div > .widget > main > table > tfoot > tr > td > div {
     background-color: var(--lcars-tanoi);
-    margin: 0;
-    padding-left: 5.25em;
-    height: 1.25em;
-    line-height: 1.25em;
+    padding-left: calc(var(--main_shoulder_width) / 2);
     border-radius: 0 1em 1em 2em / 0 1em 1em 2em;
 }
 
 body > main > div > .widget main > table > tfoot > tr > td > div .delete_button {
     display: inline-block;
-    height: 1.25em;
-    line-height: 1.25em;
     border-left: 0.25em solid var(--background);
     border-right: 0.25em solid var(--background);
 }

@@ -58,6 +58,9 @@
     --main_bar_terminator_width: 2.5em;
 
     --main_table_gutter: 0.25em;
+    --main_table_header_height: 2em;
+    --main_table_footer_height: 1.5em;
+    --main_table_caption_height: 2em;
 
     /* main area height */
     --main_area_height: calc(
