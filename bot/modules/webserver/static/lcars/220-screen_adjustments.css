@@ -1,0 +1,19 @@
+/* This file contains some nasty style adjustments to accommodate ridiculously small screens.
+ * I don't care how it looks like there as long as it's usable.
+ */
+
+@media only screen and (max-width: 960px) {
+	:root {
+        --main_widget_shoulder_width: calc(
+            var(--main_shoulder_width) / 2
+        )
+	}
+}
+
+/* this one will remove table-cell restrictions and kinda condense the table-row. This will be a bit untidy in looks,
+but more data will be available on very small screens */
+@media only screen and (max-width: 960px) {
+    body > main > div > .widget > main > table.data_table > tbody > tr {
+        display: unset;
+    }
+}

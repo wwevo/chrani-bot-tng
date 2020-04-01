@@ -54,14 +54,12 @@ body > main > div > #manage_players_widget tbody > tr.is_online.is_initialized.i
     color: var(--lcars-atomic-tangerine);
 }
 
-@media only screen {
-    body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_id"],
-    body > main > div > #manage_players_widget tr[id^="player_table_row_"] td[class="position"],
-    body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_ping"],
-    body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_updated_servertime"],
-    body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_seen_gametime"] {
-        font-size: 0.90em;
-    }
+body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_id"],
+body > main > div > #manage_players_widget tr[id^="player_table_row_"] td[class="position"],
+body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_ping"],
+body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_updated_servertime"],
+body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_last_seen_gametime"] {
+    font-size: 0.90em;
 }
 
 body > main > div > #manage_players_widget td[id^="player_table_row_"][id$="_name"] {

@@ -60,7 +60,7 @@
     --main_table_gutter: 0.25em;
     --main_table_header_height: 2em;
     --main_table_footer_height: 1.5em;
-    --main_table_caption_height: 2em;
+    --main_table_caption_height: 1.5em;
 
     /* main area height */
     --main_area_height: calc(
@@ -71,15 +71,7 @@
 
     --main_widget_shoulder_width: var(--main_shoulder_width);
     --main_widget_height: var(--main_area_height);
-    --main_widget_bar_height: var(--main_bar_height)
-}
-
-@media only screen and (max-width: 960px){
-	:root {
-        --main_widget_shoulder_width: calc(
-            var(--main_shoulder_width) / 2
-        )
-	}
+    --main_widget_bar_height: var(--main_bar_height);
 }
 
 @keyframes blinker {

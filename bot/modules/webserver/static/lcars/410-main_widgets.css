@@ -179,6 +179,16 @@ body > main > div > .widget > main > table.data_table > tbody {
     );
 }
 
+body > main > div > .widget > main > table.data_table > tbody tr {
+    max-width: calc(
+        100vw
+        - var(--main_widget_shoulder_width)
+        - var(--main_bar_terminator_width)
+        - 1em
+        - var(--main_bar_terminator_width)
+    );
+}
+
 body > main > div > .widget > main > table > thead > tr {
     display: none;
 }
@@ -271,12 +281,22 @@ body > main > div > .widget > main table.box_select .slider [type="checkbox"][di
     background: var(--lcars-orange-peel);
 }
 
+body > main > div > .widget > main > table > thead {
+    max-height: var(--main_table_header_height);
+}
+
+body > main > div > .widget > main > table > tfoot {
+    max-height: var(--main_table_footer_height);
+}
+
 body > main > div > .widget > main > table > caption {
     /* display: none; */
+    max-height: var(--main_table_caption_height);
     border-top: 0.5em solid var(--background);
-    border-bottom: 0.5em solid var(--background);
-    color: var(--lcars-melrose);
-    margin-right: 1em;
+    margin-right: calc(
+        var(--main_bar_terminator_width) / 2
+    );
+    overflow: hidden;
 }
 
 body > main > div > .widget > header {

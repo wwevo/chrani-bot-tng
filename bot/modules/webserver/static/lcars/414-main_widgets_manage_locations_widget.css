@@ -43,12 +43,10 @@ body > main > div > main > div > #manage_locations_widget #current_player_pos > 
     width: 2em;
 }
 
-@media only screen {
-    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_id"],
-    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_last_changed"],
-    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_coordinates"],
-    body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_owner"] {
-        font-size: 0.90em;
-        vertical-align: middle;
-    }
+body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_id"],
+body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_last_changed"],
+body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_coordinates"],
+body > main > div > main > div > #manage_locations_widget td[id^="location_table_row_"][id$="_owner"] {
+    font-size: 0.90em;
+    vertical-align: middle;
 }
