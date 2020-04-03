@@ -21,20 +21,10 @@ def main_function(origin_module, module, regex_result):
         }
     }
     player_steamid = regex_result.group("player_steamid")
-
-    servertime_player_joined = (
-        module.dom.data
-        .get("module_game_environment", {})
-        .get(active_dataset, {})
-        .get("last_recorded_gametime", {})
-    )
-    first_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-        day=servertime_player_joined.get("day", "00"),
-        hour=servertime_player_joined.get("hour", "00"),
-        minute=servertime_player_joined.get("minute", "00")
-    )
+    first_seen_gametime_string = module.game_environment.get_last_recorded_gametime()
 
     event_data = ['edit_location', {
+        'location_owner': player_steamid,
         'location_coordinates': {
             "x": player_dict["pos"]["x"],
             "y": player_dict["pos"]["y"],

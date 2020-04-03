@@ -381,7 +381,19 @@ def edit_view(*args, **kwargs):
             location_identifier is not None,
             location_origin is not None
         ]):
-            location_to_edit_dict = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {}).get(location_origin).get(location_owner).get(location_identifier)
+            location_to_edit_dict = (
+                module.dom.data
+                .get(module.get_module_identifier(), {})
+                .get("elements", {})
+                .get(location_origin)
+                .get(location_owner)
+                .get(location_identifier)
+            )
+    if edit_mode == "create_new":
+        location_to_edit_dict = {
+            "owner": str(dispatchers_steamid),
+            "is_enabled": False
+        }
 
     template_frontend = module.templates.get_template('manage_locations_widget/view_create_new.html')
 

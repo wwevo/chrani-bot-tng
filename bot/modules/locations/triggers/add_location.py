@@ -20,15 +20,15 @@ def main_function(origin_module, module, regex_result):
     player_dict = module.dom.data.get("module_players", {}).get("elements", {}).get(active_dataset, {}).get(steamid, {})
     if len(player_dict) >= 1 and result:
         event_data = ['edit_location', {
-                        'location_coordinates': {
-                            "x": player_dict["pos"]["x"],
-                            "y": player_dict["pos"]["y"],
-                            "z": player_dict["pos"]["z"]
-                        },
-                        'location_name': location_name,
-                        'action': 'create_new',
-                        'last_changed': "n/A"
-                    }]
+            'location_coordinates': {
+                "x": player_dict["pos"]["x"],
+                "y": player_dict["pos"]["y"],
+                "z": player_dict["pos"]["z"]
+            },
+            'location_name': location_name,
+            'action': 'create_new',
+            'last_changed': module.game_environment.get_last_recorded_gametime()
+        }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 
 

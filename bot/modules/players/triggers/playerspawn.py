@@ -12,22 +12,11 @@ def main_function(origin_module, module, regex_result):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     update_player_pos = False
-
-    last_recorded_gametime = (
-        module.dom.data
-        .get("module_game_environment", {})
-        .get(active_dataset, {})
-        .get("last_recorded_gametime", {})
-    )
-    last_recorded_gametime_string = "Day {day}, {hour}:{minute}".format(
-        day=last_recorded_gametime.get("day", "00"),
-        hour=last_recorded_gametime.get("hour", "00"),
-        minute=last_recorded_gametime.get("minute", "00")
-    )
+    last_recorded_gametime_string = module.game_environment.get_last_recorded_gametime()
 
     if command == "joined the game":
         player_name = regex_result.group("player_name")
-        payload = '{} joined the a18 test-server at {}'.format(player_name, last_recorded_gametime_string)
+        payload = '{} joined {} at {}'.format(player_name, active_dataset, last_recorded_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
         if discord_payload_url is not None:
@@ -35,7 +24,6 @@ def main_function(origin_module, module, regex_result):
                 url=discord_payload_url,
                 content=payload
             )
-
             webhook.execute()
 
     elif any([
@@ -51,7 +39,9 @@ def main_function(origin_module, module, regex_result):
             .get(steamid, {})
         )
 
-        player_dict = {}
+        player_dict = {
+            "name": player_name
+        }
         player_dict.update(existing_player_dict)
 
         if command == "EnterMultiplayer":

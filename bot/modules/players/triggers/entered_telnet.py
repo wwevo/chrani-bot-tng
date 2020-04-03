@@ -19,6 +19,8 @@ def main_function(origin_module, module, regex_result):
         .get(player_steamid, None)
     )
 
+    last_seen_gametime_string = module.game_environment.get_last_recorded_gametime()
+
     executed_trigger = False
     player_dict = {}
     if command in ["Authenticating", "connected"]:
@@ -33,7 +35,7 @@ def main_function(origin_module, module, regex_result):
                 },
                 "dataset": active_dataset,
                 "owner": player_steamid,
-                "last_seen_gametime": module.game_environment.get_last_recorded_gametime()
+                "last_seen_gametime": last_seen_gametime_string
             }
         else:
             player_dict.update(existing_player_dict)
@@ -47,22 +49,13 @@ def main_function(origin_module, module, regex_result):
         if command == "connected":
             player_dict.update({
                 "id": regex_result.group("entity_id"),
-                "ip": regex_result.group("player_ip")
+                "ip": regex_result.group("player_ip"),
+                "steamid": player_steamid,
+                "owner": player_steamid
             })
 
         player_name = player_dict.get("name", regex_result.group("player_name"))
-        servertime_player_joined = (
-            module.dom.data
-            .get("module_game_environment", {})
-            .get(active_dataset, {})
-            .get("last_recorded_gametime", {})
-        )
-        last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=servertime_player_joined.get("day", "00"),
-            hour=servertime_player_joined.get("hour", "00"),
-            minute=servertime_player_joined.get("minute", "00")
-        )
-        payload = '{} is logging into the a18 test-server at {}'.format(player_name, last_seen_gametime_string)
+        payload = '{} is logging into {} at {}'.format(player_name, active_dataset, last_seen_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
         if discord_payload_url is not None:
@@ -88,6 +81,7 @@ def main_function(origin_module, module, regex_result):
                 }
             }
         })
+
 
 trigger_meta = {
     "description": "reacts to telnets player discovery messages for real time responses!",

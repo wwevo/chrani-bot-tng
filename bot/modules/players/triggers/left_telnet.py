@@ -42,7 +42,7 @@ def main_function(origin_module, module, regex_result):
             hour=servertime_player_left.get("hour", "00"),
             minute=servertime_player_left.get("minute", "00")
         )
-        payload = '{} left the a18 test-server at {}'.format(player_name, last_seen_gametime_string)
+        payload = '{} left {} at {}'.format(player_name, active_dataset, last_seen_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)
         if discord_payload_url is not None:
