@@ -11,26 +11,28 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 1.5  # [seconds]
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
+    event_data[1]["fail_reason"] = []
 
-    if not module.telnet.add_telnet_command_to_queue("admin list"):
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
-        return
+    if module.telnet.add_telnet_command_to_queue("admin list"):
+        poll_is_finished = False
+        regex = (
+            r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
+            r"INF Executing\scommand\s\'admin list\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"
+            r"(?P<raw_adminlist>Defined Permissions\:.*\d{17})"
+        )
+        while not poll_is_finished and (time() < timeout_start + timeout):
+            sleep(0.25)
+            match = False
+            for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
+                poll_is_finished = True
 
-    poll_is_finished = False
-    regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'admin list\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"
-        r"(?P<raw_adminlist>Defined Permissions\:.*\d{17})"
-    )
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
-            poll_is_finished = True
+            if match:
+                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
+                return
 
-        if match:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-            return
+        event_data[1]["fail_reason"].append("action timed out")
+    else:
+        event_data[1]["fail_reason"].append("action already queued up")
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 

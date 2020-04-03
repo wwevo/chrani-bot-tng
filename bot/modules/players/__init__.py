@@ -10,7 +10,7 @@ class Players(Module):
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
-            "run_observer_interval": 2,
+            "run_observer_interval": 3,
             "dom_element_root": [],
             "dom_element_select_root": ["selected_by"]
         })

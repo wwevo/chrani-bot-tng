@@ -11,28 +11,29 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 2  # [seconds]
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
+    event_data[1]["fail_reason"] = []
 
-    if not module.telnet.add_telnet_command_to_queue("lp"):
-        # module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
-        return
+    if module.telnet.add_telnet_command_to_queue("lp"):
+        poll_is_finished = False
+        regex = (
+            r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
+            r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
+            r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
+        )
 
-    poll_is_finished = False
-    regex = (
-        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
-        r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
-        r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
-    )
+        while not poll_is_finished and (time() < timeout_start + timeout):
+            sleep(0.25)
+            match = False
+            for match in re.finditer(regex, module.telnet.telnet_buffer):
+                poll_is_finished = True
 
-    player_count = 0
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer):
-            poll_is_finished = True
+            if match:
+                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
+                return
 
-        if match:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-            return
+        event_data[1]["fail_reason"].append("timed out waiting for response")
+    else:
+        event_data[1]["fail_reason"].append("action already queued up")
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
