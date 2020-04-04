@@ -61,17 +61,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             return
 
         for m in re.finditer(regex, raw_entity_data):
-            last_recorded_gametime = (
-                 module.dom.data
-                 .get("module_game_environment", {})
-                 .get(active_dataset, {})
-                 .get("last_recorded_gametime", {})
-            )
-            last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-                day=last_recorded_gametime.get("day", "00"),
-                hour=last_recorded_gametime.get("hour", "00"),
-                minute=last_recorded_gametime.get("minute", "00")
-            )
+            last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
             entity_dict = {
                 "id": m.group("id"),
                 "owner": m.group("id"),

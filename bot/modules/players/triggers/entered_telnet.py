@@ -19,7 +19,7 @@ def main_function(origin_module, module, regex_result):
         .get(player_steamid, None)
     )
 
-    last_seen_gametime_string = module.game_environment.get_last_recorded_gametime()
+    last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
 
     executed_trigger = False
     player_dict = {}

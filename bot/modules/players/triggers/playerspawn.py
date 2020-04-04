@@ -12,7 +12,7 @@ def main_function(origin_module, module, regex_result):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     update_player_pos = False
-    last_recorded_gametime_string = module.game_environment.get_last_recorded_gametime()
+    last_recorded_gametime_string = module.game_environment.get_last_recorded_gametime_string()
 
     if command == "joined the game":
         player_name = regex_result.group("player_name")

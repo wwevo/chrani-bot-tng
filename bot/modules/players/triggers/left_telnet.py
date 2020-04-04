@@ -31,17 +31,7 @@ def main_function(origin_module, module, regex_result):
         })
 
         player_name = player_dict.get("name", regex_result.group("player_name"))
-        servertime_player_left = (
-            module.dom.data
-            .get("module_game_environment", {})
-            .get(active_dataset, {})
-            .get("last_recorded_gametime", {})
-        )
-        last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-            day=servertime_player_left.get("day", "00"),
-            hour=servertime_player_left.get("hour", "00"),
-            minute=servertime_player_left.get("minute", "00")
-        )
+        last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
         payload = '{} left {} at {}'.format(player_name, active_dataset, last_seen_gametime_string)
 
         discord_payload_url = origin_module.options.get("discord_webhook", None)

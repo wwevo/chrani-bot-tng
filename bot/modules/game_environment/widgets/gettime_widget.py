@@ -11,10 +11,8 @@ def main_widget(*args, **kwargs):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
-    gametime = module.dom.data.get("module_game_environment", {}).get(active_dataset, {}).get("last_recorded_gametime", {
-        "day": "00",
-        "hour": "00",
-        "minute": "00",
+    gametime = module.game_environment.get_last_recorded_gametime_dict()
+    gametime.update({
         "weekday": "n/a",
         "is_bloodmoon": "",
         "is_bloodday": ""

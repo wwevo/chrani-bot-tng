@@ -27,7 +27,7 @@ def main_function(origin_module, module, regex_result):
             },
             'location_name': location_name,
             'action': 'create_new',
-            'last_changed': module.game_environment.get_last_recorded_gametime()
+            'last_changed': module.game_environment.get_last_recorded_gametime_string()
         }]
         module.trigger_action_hook(origin_module, event_data=event_data, dispatchers_steamid=steamid)
 

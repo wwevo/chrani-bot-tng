@@ -21,7 +21,7 @@ def main_function(origin_module, module, regex_result):
         }
     }
     player_steamid = regex_result.group("player_steamid")
-    first_seen_gametime_string = module.game_environment.get_last_recorded_gametime()
+    first_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
 
     event_data = ['edit_location', {
         'location_owner': player_steamid,

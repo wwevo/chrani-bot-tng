@@ -49,17 +49,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         return False
 
     """ get some basic stuff needed later """
-    last_recorded_gametime = (
-        module.dom.data
-        .get("module_game_environment", {})
-        .get(active_dataset, {})
-        .get("last_recorded_gametime", {})
-    )
-    last_seen_gametime_string = "Day {day}, {hour}:{minute}".format(
-        day=last_recorded_gametime.get("day", {}),
-        hour=last_recorded_gametime.get("hour", {}),
-        minute=last_recorded_gametime.get("minute", {})
-    )
+    last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
 
     """ lets extract all data the game provides!! """
     telnet_datetime = match.group("datetime")

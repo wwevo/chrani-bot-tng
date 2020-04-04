@@ -19,6 +19,7 @@ class Players(Module):
             "module_webserver",
             "module_dom",
             "module_dom_management",
+            "module_game_environment",
             "module_telnet"
         ])
 
