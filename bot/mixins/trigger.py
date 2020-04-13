@@ -27,14 +27,22 @@ class Trigger(object):
     def import_triggers(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
 
-        module_triggers_root_dir = path.join(modules_root_dir, self.options['module_name'], "triggers")
+        module_triggers_root_dir = path.join(modules_root_dir, self.options['module_name'])
         try:
-            for module_trigger in listdir(module_triggers_root_dir):
+            for module_trigger in listdir(path.join(module_triggers_root_dir, "triggers")):
                 if module_trigger == 'common.py' or module_trigger == '__init__.py' or module_trigger[-3:] != '.py':
                     continue
                 import_module("bot.modules." + self.options['module_name'] + ".triggers." + module_trigger[:-3])
-        except FileNotFoundError as error:
-            # module does not have triggers
+
+            for module_trigger in listdir(path.join(module_triggers_root_dir, "commands")):
+                if module_trigger == 'common.py' or module_trigger == '__init__.py' or module_trigger[-3:] != '.py':
+                    continue
+                import_module("bot.modules." + self.options['module_name'] + ".commands." + module_trigger[:-3])
+
+        except FileNotFoundError:
+            pass
+
+        except ModuleNotFoundError:
             pass
 
     def execute_telnet_triggers(self):

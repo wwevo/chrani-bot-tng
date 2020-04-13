@@ -2,8 +2,6 @@ from bot import loaded_modules_dict
 from bot import telnet_prefixes
 from os import path, pardir
 
-from bot.modules.locations.triggers.add_location import triggers
-
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
