@@ -207,11 +207,11 @@ class Telnet(Module):
                 current_queue_length += 1
             except IndexError:
                 done = True
-        remaining_queue_length = len(self.telnet_command_queue)
 
+        remaining_queue_length = len(self.telnet_command_queue)
         # print(initial_queue_length, ":", remaining_queue_length)
 
-        for telnet_command in telnet_command_list:
+        for telnet_command in reversed(telnet_command_list):
             command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
             try:
