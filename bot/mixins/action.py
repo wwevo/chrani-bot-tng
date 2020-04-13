@@ -2,7 +2,6 @@ from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
 from bot import loaded_modules_dict
-from time import sleep
 import string
 import random
 
