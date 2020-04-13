@@ -41,7 +41,7 @@ trigger_meta = {
     "main_function": main_function,
     "triggers": [
         {
-            "identifier": "take me to my grave",
+            "identifier": "take me to my grave (Allocs)",
             "regex": (
                 telnet_prefixes["telnet_log"]["timestamp"] +
                 telnet_prefixes["Allocs"]["chat"] +
@@ -50,7 +50,7 @@ trigger_meta = {
             "callback": main_function
         },
         {
-            "identifier": "take me to my grave",
+            "identifier": "take me to my grave (BCM)",
             "regex": (
                 telnet_prefixes["telnet_log"]["timestamp"] +
                 telnet_prefixes["BCM"]["chat"] +

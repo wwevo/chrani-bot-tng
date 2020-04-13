@@ -17,7 +17,7 @@ class Locations(Module):
             "dom_element_select_root": ["%dom_element_identifier%", "selected_by"],
             "default_max_locations": 3,
             "standard_location_shape": "rectangular",
-            "run_observer_interval": 5,
+            "run_observer_interval": 3,
             "run_observer_interval_idle": 10
         })
 

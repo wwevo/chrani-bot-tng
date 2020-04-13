@@ -14,9 +14,9 @@ def main_function(origin_module, module, regex_result):
 
     player_dict = (
         module.dom.data.get("module_players", {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get(steamid, {})
+        .get("elements", {})
+        .get(active_dataset, {})
+        .get(steamid, {})
     )
 
     if len(player_dict) < 1:
