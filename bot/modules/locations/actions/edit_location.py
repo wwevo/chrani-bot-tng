@@ -5,7 +5,6 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
-    action = event_data[1].get("action", None)
     location_identifier = event_data[1].get("location_identifier", None)
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
@@ -16,6 +15,7 @@ def main_function(module, event_data, dispatchers_steamid):
     location_name = event_data[1].get("location_name", None)
     if location_identifier is None or location_identifier == "":
         location_identifier = ''.join(e for e in location_name if e.isalnum())
+
     location_shape = event_data[1].get("location_shape", module.default_options.get("standard_location_shape", None))
     location_types = event_data[1].get("location_type", [])
     location_coordinates = event_data[1].get("location_coordinates", {})
@@ -25,7 +25,6 @@ def main_function(module, event_data, dispatchers_steamid):
     last_changed = event_data[1].get("last_changed", False)
 
     if all([
-        action is not None,
         location_name is not None and len(location_name) >= 3,
         location_identifier is not None,
         location_shape is not None,

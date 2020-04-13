@@ -471,7 +471,6 @@ def table_row(*args, **kwargs):
     module = args[0]
     method = kwargs.get("method", None)
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    original_values_dict = kwargs.get("original_values_dict", None)
 
     template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
 
@@ -479,13 +478,8 @@ def table_row(*args, **kwargs):
     control_enabled_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
     if updated_values_dict is not None:
-        if method == "upsert" or method == "edit":
-            active_dataset = (
-                module.dom.data
-                .get("module_game_environment", {})
-                .get("gameprefs", {})
-                .get("GameName", None)
-            )
+        if method in ["upsert", "update", "edit"]:
+            active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
             for clientid in module.webserver.connected_clients.keys():
                 current_view = module.get_current_view(clientid)
                 visibility_conditions = [
@@ -558,7 +552,7 @@ def table_row(*args, **kwargs):
                             )
                 else:  # table is not visible or current user, skip it!
                     continue
-        elif method == "remove":  # callback_dict sent us here with a removal notification!
+        elif method in ["remove"]:  # callback_dict sent us here with a removal notification!
             location_origin = updated_values_dict[2]
             player_steamid = updated_values_dict[3]
             location_identifier = updated_values_dict[-1]
