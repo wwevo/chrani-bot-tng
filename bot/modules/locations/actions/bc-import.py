@@ -1,12 +1,11 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-from time import sleep, time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def fix_coordinates_for_bc_import(location_dict, coordinates, player_dict=None):
+def fix_coordinates_for_bc_import(location_dict: dict, coordinates: dict, player_dict=None) -> bool:
     shape = location_dict.get("shape", None)
     dimensions = location_dict.get("dimensions", None)
     location_coordinates = location_dict.get("coordinates", None)
@@ -30,6 +29,10 @@ def fix_coordinates_for_bc_import(location_dict, coordinates, player_dict=None):
             if int(float(player_dict.get("pos", {}).get("z"))) >= 0:  # N Half
                 coordinates["pos_z"] = int(float(player_dict.get("pos", {}).get("z")))
 
+        return True
+    else:
+        return False
+
 
 def main_function(module, event_data, dispatchers_steamid):
     event_data[1]["action_identifier"] = action_name
@@ -51,9 +54,9 @@ def main_function(module, event_data, dispatchers_steamid):
         if spawn_in_place:
             player_dict = (
                 module.dom.data.get("module_players", {})
-                    .get("elements", {})
-                    .get(active_dataset, {})
-                    .get(dispatchers_steamid, {})
+                .get("elements", {})
+                .get(active_dataset, {})
+                .get(dispatchers_steamid, {})
             )
             fix_coordinates_for_bc_import(location_dict, coordinates, player_dict)
         else:
@@ -66,7 +69,7 @@ def main_function(module, event_data, dispatchers_steamid):
             **coordinates
         )
 
-        print(command)
+        # print(command)
         module.telnet.add_telnet_command_to_queue(command)
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
@@ -84,7 +87,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "imports a saved prefab. Needs to have a location first!",
+    "description": "Imports a saved prefab. Needs to have a location first!",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,

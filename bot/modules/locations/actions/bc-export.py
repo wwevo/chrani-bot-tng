@@ -1,6 +1,5 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-from time import sleep, time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
@@ -45,7 +44,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "Will export everything inside the locations Volume.",
+    "description": "Will export everything inside the locations Volume. Will only work for 'box' locations",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,
