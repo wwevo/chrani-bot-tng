@@ -12,7 +12,13 @@ def main_widget(*args, **kwargs):
     template_frontend = module.templates.get_template('gameserver_status_widget/view_frontend.html')
 
     server_is_online = module.dom.data.get("module_telnet", {}).get("server_is_online", True)
-    shutdown_in_seconds = module.dom.data.get("module_telnet", {}).get("shutdown_in_seconds", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    shutdown_in_seconds = (
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("shutdown_in_seconds", None)
+    )
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
@@ -44,7 +50,7 @@ def update_widget(*args, **kwargs):
     )
 
     shutdown_in_seconds = module.dom.get_updated_or_default_value(
-        "module_telnet", "shutdown_in_seconds", updated_values_dict, None
+        "module_game_environment", "shutdown_in_seconds", updated_values_dict, None
     )
 
     data_to_emit = module.template_render_hook(
@@ -72,9 +78,9 @@ widget_meta = {
     "main_widget": main_widget,
     "handlers": {
         "module_telnet/server_is_online": update_widget,
-        "module_telnet/shutdown_in_seconds": update_widget,
-        "module_telnet/cancel_shutdown": update_widget,
-        "module_telnet/force_shutdown": update_widget
+        "module_game_environment/%map_identifier%/shutdown_in_seconds": update_widget,
+        "module_game_environment/%map_identifier%/cancel_shutdown": update_widget,
+        "module_game_environment/%map_identifier%/force_shutdown": update_widget
     },
     "enabled": True
 }

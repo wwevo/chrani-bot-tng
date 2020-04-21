@@ -13,7 +13,6 @@ def main_widget(*args, **kwargs):
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     gametime = module.game_environment.get_last_recorded_gametime_dict()
     gametime.update({
-        "weekday": "n/a",
         "is_bloodmoon": "",
         "is_bloodday": ""
     })
