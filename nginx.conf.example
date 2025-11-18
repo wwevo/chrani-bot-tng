@@ -1,0 +1,156 @@
+# nginx configuration for chrani-bot-tng
+#
+# INSTALLATION:
+# 1. Copy this file to /etc/nginx/sites-available/chrani-bot-tng
+# 2. Update the server_name to match your domain
+# 3. Update the paths to SSL certificates if using HTTPS
+# 4. Create a symlink: sudo ln -s /etc/nginx/sites-available/chrani-bot-tng /etc/nginx/sites-enabled/
+# 5. Test config: sudo nginx -t
+# 6. Reload nginx: sudo systemctl reload nginx
+
+# Upstream configuration for gunicorn
+upstream chrani_bot_app {
+    # Use Unix socket for better performance (recommended)
+    # Make sure this matches the bind setting in gunicorn.conf.py
+    server 127.0.0.1:5000 fail_timeout=0;
+
+    # Alternative: Unix socket (requires changing gunicorn bind setting)
+    # server unix:/var/run/chrani-bot-tng/gunicorn.sock fail_timeout=0;
+}
+
+# HTTP Server (redirects to HTTPS)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your-domain.com www.your-domain.com;
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+# HTTPS Server
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name your-domain.com www.your-domain.com;
+
+    # SSL Configuration
+    # Update these paths with your actual certificate paths
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+
+    # SSL Security Settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Logging
+    access_log /var/log/nginx/chrani-bot-tng-access.log;
+    error_log /var/log/nginx/chrani-bot-tng-error.log;
+
+    # Max upload size (adjust as needed)
+    client_max_body_size 4M;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Main location block - proxy to gunicorn
+    location / {
+        proxy_pass http://chrani_bot_app;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+
+        # Disable buffering for better real-time response
+        proxy_buffering off;
+        proxy_redirect off;
+    }
+
+    # WebSocket support for Socket.IO
+    location /socket.io/ {
+        proxy_pass http://chrani_bot_app/socket.io/;
+        proxy_http_version 1.1;
+
+        # WebSocket specific headers
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Standard proxy headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts for WebSocket
+        proxy_connect_timeout 7d;
+        proxy_send_timeout 7d;
+        proxy_read_timeout 7d;
+
+        # Disable buffering for WebSocket
+        proxy_buffering off;
+    }
+
+    # Static files (if you have any)
+    location /static/ {
+        alias /path/to/chrani-bot-tng/static/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Favicon
+    location = /favicon.ico {
+        access_log off;
+        log_not_found off;
+    }
+
+    # Robots.txt
+    location = /robots.txt {
+        access_log off;
+        log_not_found off;
+    }
+}
+
+# Alternative: HTTP-only configuration (for local/dev use)
+# Uncomment this and comment out the HTTPS server above if not using SSL
+#
+# server {
+#     listen 80;
+#     listen [::]:80;
+#     server_name your-domain.com www.your-domain.com;
+#
+#     access_log /var/log/nginx/chrani-bot-tng-access.log;
+#     error_log /var/log/nginx/chrani-bot-tng-error.log;
+#
+#     client_max_body_size 4M;
+#
+#     location / {
+#         proxy_pass http://chrani_bot_app;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto $scheme;
+#         proxy_buffering off;
+#         proxy_redirect off;
+#     }
+#
+#     location /socket.io/ {
+#         proxy_pass http://chrani_bot_app/socket.io/;
+#         proxy_http_version 1.1;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "upgrade";
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_buffering off;
+#     }
+# }

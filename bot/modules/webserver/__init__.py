@@ -1,4 +1,5 @@
 import functools
+import os
 from bot import started_modules_dict
 from flask_socketio import disconnect
 
@@ -160,7 +161,7 @@ class Webserver(Module):
                 "data_type": data_type,
                 "target_element": target_element,
             }
-            if clients is "all":
+            if clients == "all":
                 emit_options = {
                     "broadcast": True
                 }
@@ -362,23 +363,35 @@ class Webserver(Module):
             self.dispatch_socket_event(data[0], data[1], current_user.id)
         # endregion
 
-        websocket_instance = Thread(
-            target=self.websocket.run,
-            args=[self.app],
-            kwargs={
-                "host": self.options.get("host", self.default_options.get("host")),
-                "port": self.options.get("port", self.default_options.get("port"))
-            }
-        )
-        websocket_instance.start()
+        # Check if we're running under a WSGI server (like gunicorn)
+        # If so, don't start our own server thread - the WSGI server will handle it
+        running_under_wsgi = os.environ.get('RUNNING_UNDER_WSGI', 'false').lower() == 'true'
 
-        while not self.stopped.wait(self.next_cycle):
-            profile_start = time()
+        if not running_under_wsgi:
+            # Running standalone with Flask development server
+            websocket_instance = Thread(
+                target=self.websocket.run,
+                args=[self.app],
+                kwargs={
+                    "host": self.options.get("host", self.default_options.get("host")),
+                    "port": self.options.get("port", self.default_options.get("port"))
+                }
+            )
+            websocket_instance.start()
 
-            self.trigger_action_hook(self, event_data=["logged_in_users", {}])
+            while not self.stopped.wait(self.next_cycle):
+                profile_start = time()
 
-            self.last_execution_time = time() - profile_start
-            self.next_cycle = self.run_observer_interval - self.last_execution_time
+                self.trigger_action_hook(self, event_data=["logged_in_users", {}])
+
+                self.last_execution_time = time() - profile_start
+                self.next_cycle = self.run_observer_interval - self.last_execution_time
+        else:
+            # Running under WSGI server - just register routes and return
+            # The module will keep running in its thread for background tasks
+            print("{}: Running under WSGI server mode".format(
+                self.options.get("module_name", self.default_options.get("module_name"))
+            ))
 
 
 loaded_modules_dict[Webserver().get_module_identifier()] = Webserver()

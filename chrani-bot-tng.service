@@ -1,0 +1,51 @@
+[Unit]
+Description=chrani-bot-tng - 7 Days to Die Server Management Bot
+After=network.target
+
+[Service]
+Type=notify
+# The specific user that our service will run as
+# CHANGE THIS to your actual username
+User=your-username
+Group=your-username
+
+# Set working directory
+WorkingDirectory=/path/to/chrani-bot-tng
+
+# Environment variables
+Environment="PATH=/path/to/chrani-bot-tng/venv/bin"
+Environment="RUNNING_UNDER_WSGI=true"
+
+# If you're using a .env file for configuration
+# EnvironmentFile=/path/to/chrani-bot-tng/.env
+
+# The command to start the service
+ExecStart=/path/to/chrani-bot-tng/venv/bin/gunicorn -c gunicorn.conf.py wsgi:application
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Performance and security settings
+RuntimeDirectory=chrani-bot-tng
+RuntimeDirectoryMode=755
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=chrani-bot-tng
+
+# Security hardening (optional but recommended)
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Resource limits (adjust as needed)
+LimitNOFILE=65536
+LimitNPROC=512
+
+# Timeout for start/stop
+TimeoutStartSec=300
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
