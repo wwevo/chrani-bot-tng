@@ -81,18 +81,21 @@ def main_function(module, event_data, dispatchers_steamid):
             I'm sure with better design this could be done automatically, feel free to contribute if you know how :)
             """
             # DEBUG: Log upsert operation
-            print(f"[DEBUG SELECT] Calling upsert with min_callback_level: {3 + max_discovered_level}")
+            print(f"[DEBUG SELECT] Calling upsert with min_callback_level: {4 + max_discovered_level}")
             print(f"[DEBUG SELECT] Updated selected_by list: {selected_by_dict_element}")
 
-            module.dom.data.upsert({
-                target_module: {
-                    "elements": {
-                        dom_element_origin: {
-                            dom_element_owner: selected_by_dict
-                        }
-                    }
-                }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + max_discovered_level)
+            # Build the full path to selected_by to trigger the right callback level
+            upsert_dict = selected_by_dict
+            for path_elem in reversed([dom_element_owner, dom_element_origin, "elements", target_module]):
+                upsert_dict = {path_elem: upsert_dict}
+
+            print(f"[DEBUG SELECT] Upsert structure (first 200 chars): {str(upsert_dict)[:200]}")
+
+            module.dom.data.upsert(
+                upsert_dict,
+                dispatchers_steamid=dispatchers_steamid,
+                min_callback_level=4 + max_discovered_level
+            )
 
             print(f"[DEBUG SELECT] Upsert completed, calling callback_success")
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
