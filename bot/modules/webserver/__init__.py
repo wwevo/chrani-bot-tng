@@ -326,15 +326,18 @@ class Webserver(Module):
         @self.app.route('/map_tiles/<int:z>/<int:x>/<int:y>.png')
         def map_tile_proxy(z, x, y):
             """Proxy map tiles from game server to avoid CORS issues"""
-            # Get game server host from telnet module config
+            # Get game server host and port from telnet module config
             telnet_module = loaded_modules_dict.get("module_telnet")
             if telnet_module:
                 game_host = telnet_module.options.get("host", "localhost")
+                telnet_port = telnet_module.options.get("port", 8081)
+                # Web interface port is always telnet port + 1
+                web_port = telnet_port + 1
             else:
                 game_host = "localhost"
+                web_port = 8082  # Default 7D2D web port
 
-            # Map tiles are served on port 26902 (game server web interface)
-            tile_url = f'http://{game_host}:26902/map/{z}/{x}/{y}.png'
+            tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y}.png'
             try:
                 response = get(tile_url, timeout=5)
                 return Response(
