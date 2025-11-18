@@ -18,10 +18,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
         poll_is_finished = False
         # Updated regex for modern 7D2D server format (V 2.x+)
         # New format: "Defined User Permissions:" and SteamIDs have "Steam_" prefix
+        # Timestamps are still present in "Executing command" lines
         regex = (
             r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
             r"INF Executing\scommand\s\'admin list\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
-            r"(?P<raw_adminlist>Defined User Permissions\:.*?(?=Defined Group Permissions|$))"
+            r"(?P<raw_adminlist>Defined User Permissions:[\s\S]*?(?=Defined Group Permissions:))"
         )
         while not poll_is_finished and (time() < timeout_start + timeout):
             sleep(0.25)

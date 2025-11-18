@@ -1,4 +1,4 @@
-from bot import loaded_modules_dict
+from bot import loaded_modules_dict, telnet_prefixes
 from os import path, pardir
 from time import sleep, time
 import re
@@ -21,8 +21,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
         return
 
     poll_is_finished = False
-    # Modern format - no datetime/stardate prefix
+    # Modern format: timestamps ARE present in "Executing command" lines
     regex = (
+        telnet_prefixes["telnet_log"]["timestamp"] +
         r"Executing\scommand\s\'" + command + r"\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
     )
     while not poll_is_finished and (time() < timeout_start + timeout):

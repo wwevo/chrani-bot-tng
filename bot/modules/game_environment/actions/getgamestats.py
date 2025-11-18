@@ -22,10 +22,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    # Modern format - no datetime/stardate prefix
-    # Matches: "Executing command 'getgamestat' by Telnet from ..." followed by GameStat lines
+    # Modern format: timestamps ARE present in "Executing command" lines
+    # Format: 2025-11-18T20:21:02 4854.528 INF Executing command 'getgamestat'...
     regex = (
-        r"Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
+        r"INF Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
         r"(?P<raw_gamestats>(?:GameStat\..*?\r?\n)+)"
     )
 

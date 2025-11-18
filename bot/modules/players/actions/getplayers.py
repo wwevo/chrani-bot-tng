@@ -83,6 +83,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     from datetime import datetime
     telnet_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     raw_playerdata = match.group("raw_playerdata").lstrip()
+    # Modern 7D2D format includes pltfmid (platform ID) and crossid (Epic cross-platform ID)
+    # Format: pltfmid=Steam_76561198040658370, crossid=EOS_..., ip=..., ping=...
     regex = (
         r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "
         r"pos=\((?P<pos_x>.?\d+.\d), (?P<pos_y>.?\d+.\d), (?P<pos_z>.?\d+.\d)\), "
@@ -94,7 +96,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         r"players=(?P<players>\d+), "
         r"score=(?P<score>\d+), "
         r"level=(?P<level>\d+), "
-        r"steamid=(?P<steamid>\d+), "
+        r"pltfmid=Steam_(?P<steamid>\d+), crossid=(?P<crossid>[\w_]+), "
         r"ip=(?P<ip>.*), "
         r"ping=(?P<ping>\d+)"
         r"\r\n"
