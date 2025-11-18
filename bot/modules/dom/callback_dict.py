@@ -67,6 +67,18 @@ class CallbackDict(dict):
             return 0
         return 1 + max((self._calculate_depth(v) for v in d.values()), default=0)
 
+    @staticmethod
+    def _flatten_dict(d: dict, parent_key: str = '') -> List[Tuple[str, Any]]:
+        """Flatten a nested dictionary for debugging purposes."""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}/{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(CallbackDict._flatten_dict(v, new_key))
+            else:
+                items.append((new_key, v))
+        return items
+
     # ==================== Pattern Matching ====================
 
     def _compile_pattern(self, path_pattern: str) -> re.Pattern:
@@ -235,12 +247,19 @@ class CallbackDict(dict):
         if not isinstance(updates, Mapping) or not updates:
             return
 
+        # DEBUG: Log upsert call for selected_by
+        if any("selected_by" in str(k) or "selected_by" in str(v) for k, v in self._flatten_dict(updates)):
+            print(f"[DEBUG UPSERT MAIN] Called with min_callback_level={min_callback_level}, max_callback_level={max_callback_level}")
+            print(f"[DEBUG UPSERT MAIN] Updates keys: {list(updates.keys())}")
+
         # Make a snapshot of current state before any changes
         original_state = deepcopy(dict(self))
 
         # Determine max depth if not specified
         if max_callback_level is None:
             max_callback_level = self._calculate_depth(updates)
+            if any("selected_by" in str(k) or "selected_by" in str(v) for k, v in self._flatten_dict(updates)):
+                print(f"[DEBUG UPSERT MAIN] Calculated max_callback_level: {max_callback_level}")
 
         # Collect all callbacks that will be triggered
         all_callbacks = []
@@ -258,6 +277,9 @@ class CallbackDict(dict):
         )
 
         # Execute all collected callbacks
+        if any("selected_by" in str(k) or "selected_by" in str(v) for k, v in self._flatten_dict(updates)):
+            print(f"[DEBUG UPSERT MAIN] Total callbacks collected: {len(all_callbacks)}")
+
         self._execute_callbacks(all_callbacks)
 
     def _upsert_recursive(
@@ -279,9 +301,17 @@ class CallbackDict(dict):
             full_path_components = path_components + [key]
             full_path = self._join_path(full_path_components)
 
+            # DEBUG: Log path traversal for selected_by
+            if "selected_by" in full_path or key == "selected_by":
+                print(f"[DEBUG UPSERT] Processing key: {key}, full_path: {full_path}")
+                print(f"[DEBUG UPSERT] Path depth: {len(full_path_components)}, min: {min_depth}, max: {max_depth}")
+
             # Determine the operation type
             key_exists = key in current_dict
             old_value = current_dict.get(key)
+
+            if "selected_by" in full_path or key == "selected_by":
+                print(f"[DEBUG UPSERT] Key exists: {key_exists}, old_value type: {type(old_value)}, new_value type: {type(new_value)}")
 
             if key_exists:
                 # Update case
@@ -325,6 +355,9 @@ class CallbackDict(dict):
 
             # Collect callbacks for this change (skip if unchanged)
             if method != "unchanged":
+                if "selected_by" in full_path or key == "selected_by":
+                    print(f"[DEBUG UPSERT] Method: {method}, calling _collect_callbacks for path: {full_path}")
+
                 callbacks = self._collect_callbacks(
                     path=full_path,
                     method=method,
@@ -334,7 +367,13 @@ class CallbackDict(dict):
                     min_depth=min_depth,
                     max_depth=max_depth
                 )
+
+                if "selected_by" in full_path or key == "selected_by":
+                    print(f"[DEBUG UPSERT] Collected {len(callbacks)} callbacks")
+
                 callbacks_accumulator.extend(callbacks)
+            elif "selected_by" in full_path or key == "selected_by":
+                print(f"[DEBUG UPSERT] Method: {method}, SKIPPING callbacks")
 
     def append(
         self,
