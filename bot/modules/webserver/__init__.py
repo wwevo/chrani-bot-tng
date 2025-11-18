@@ -327,6 +327,8 @@ class Webserver(Module):
         @login_required
         def map_tile_proxy(z, x, y):
             """Proxy map tiles from game server to avoid CORS issues"""
+            print(f"[MAP PROXY] Request for tile {z}/{x}/{y} from user {current_user.id if current_user.is_authenticated else 'anonymous'}")
+
             # Get game server host and port from telnet module config
             telnet_module = loaded_modules_dict.get("module_telnet")
             if telnet_module:
