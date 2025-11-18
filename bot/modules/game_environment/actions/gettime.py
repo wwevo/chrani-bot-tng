@@ -69,10 +69,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
         return
 
     poll_is_finished = False
-    regex = (
-        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
-        r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2}).*"
-    )
+    # Modern format: simple "Day 447, 00:44" response
+    regex = r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})"
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
         match = False

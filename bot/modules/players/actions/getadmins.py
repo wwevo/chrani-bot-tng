@@ -16,10 +16,12 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     if module.telnet.add_telnet_command_to_queue("admin list"):
         poll_is_finished = False
+        # Updated regex for modern 7D2D server format (V 2.x+)
+        # New format: "Defined User Permissions:" and SteamIDs have "Steam_" prefix
         regex = (
             r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-            r"INF Executing\scommand\s\'admin list\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"
-            r"(?P<raw_adminlist>Defined Permissions\:.*\d{17})"
+            r"INF Executing\scommand\s\'admin list\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+            r"(?P<raw_adminlist>Defined User Permissions\:.*?(?=Defined Group Permissions|$))"
         )
         while not poll_is_finished and (time() < timeout_start + timeout):
             sleep(0.25)
@@ -39,8 +41,10 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
+    # Updated regex for modern format with "Steam_" prefix
+    # Example: "      0: Steam_76561198040658370 (stored name: MOTKU)"
     regex = (
-        r"(?:^\s{0,7})(?P<level>\d{1,2})\:\s(?P<steamid>\d{17})(?P<name>(?:\s)(?:\()(?:\w+)(?:\)))?"
+        r"(?:^\s{0,7})(?P<level>\d{1,2})\:\s+Steam_(?P<steamid>\d{17})"
     )
     raw_adminlist = match.group("raw_adminlist")
     admin_dict = {}

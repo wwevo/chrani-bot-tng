@@ -18,11 +18,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
         return
 
     poll_is_finished = False
+    # Modern format - matches both empty and populated entity lists
     regex = (
-        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'listents\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
-        r"(?P<raw_entity_data>[\s\S]+?)"
-        r"Total\sof\s(?P<entity_count>\d{1,2})\sin\sthe\sgame"
+        r"Executing\scommand\s\'listents\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+        r"(?P<raw_entity_data>[\s\S]*?)"
+        r"Total\sof\s(?P<entity_count>\d{1,3})\sin\sthe\sgame"
     )
 
     while not poll_is_finished and (time() < timeout_start + timeout):

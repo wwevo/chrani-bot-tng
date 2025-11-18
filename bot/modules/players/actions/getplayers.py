@@ -40,10 +40,12 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     if module.telnet.add_telnet_command_to_queue("lp"):
         poll_is_finished = False
+        # Modern format - matches both empty and populated player lists
         regex = (
-            r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
             r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
-            r"(?P<called_by>.*)(?P<raw_playerdata>[\s\S]+?)Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
+            r"(?P<called_by>.*?)\r?\n"
+            r"(?P<raw_playerdata>[\s\S]*?)"
+            r"Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
         )
 
         while not poll_is_finished and (time() < timeout_start + timeout):
