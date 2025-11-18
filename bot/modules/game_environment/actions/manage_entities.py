@@ -22,9 +22,9 @@ def kill_entity(module, event_data, dispatchers_steamid=None):
         return
 
     poll_is_finished = False
+    # Modern format - no datetime/stardate prefix
     regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF\sEntity\s(?P<zombie_name>.*)\s" + str(entity_to_be_killed) + r"\skilled"
+        r"Entity\s(?P<zombie_name>.*)\s" + str(entity_to_be_killed) + r"\skilled"
     )
     number_of_attempts = 0
     while not poll_is_finished and (time() < timeout_start + timeout):

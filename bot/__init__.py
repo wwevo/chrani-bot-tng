@@ -13,7 +13,8 @@ chdir(root_dir)
 loaded_modules_dict = {}  # this will be populated by the imports done next:
 telnet_prefixes = {
     "telnet_log": {
-        "timestamp": r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>\d+\.\d+)\sINF\s"
+        # Modern 7D2D (V 2.x+) no longer includes datetime/stardate/INF prefix in telnet responses
+        "timestamp": r""
     },
     "GMSG": {
         "command": (

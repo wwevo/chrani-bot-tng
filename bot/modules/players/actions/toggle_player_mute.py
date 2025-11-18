@@ -22,9 +22,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
         return
 
     poll_is_finished = False
+    # Modern format - no datetime/stardate prefix
     regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'" + command + r"\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
+        r"Executing\scommand\s\'" + command + r"\'\sby\sTelnet\sfrom\s(?P<called_by>.*)"
     )
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)

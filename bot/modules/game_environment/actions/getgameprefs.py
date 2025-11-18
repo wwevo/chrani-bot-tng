@@ -17,10 +17,11 @@ def main_function(module, event_data, dispatchers_steamid=None):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
+    # Modern format - no datetime/stardate prefix
+    # Matches: "Executing command 'getgamepref' by Telnet from ..." followed by GamePref lines
     regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'getgamepref\'\sby\sTelnet\sfrom\s(?P<called_by>.*)\s"
-        r"(?P<raw_gameprefs>^(GamePref\..*\s)+)"
+        r"Executing\scommand\s\'getgamepref\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+        r"(?P<raw_gameprefs>(?:GamePref\..*?\r?\n)+)"
     )
 
     match = None

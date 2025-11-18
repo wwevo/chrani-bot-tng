@@ -15,10 +15,8 @@ def main_function(module, event_data, dispatchers_steamid):
         return
 
     poll_is_finished = False
-    regex = (
-        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
-        r"INF Disconnect.*"
-    )
+    # Modern format - no datetime/stardate prefix, just look for "Disconnect"
+    regex = r"Disconnect.*"
 
     timeout_start = time()
     while not poll_is_finished and (time() < timeout_start + timeout):
