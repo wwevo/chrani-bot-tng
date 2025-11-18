@@ -86,9 +86,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     # Modern 7D2D format includes pltfmid (platform ID) and crossid (Epic cross-platform ID)
     # Format: pltfmid=Steam_76561198040658370, crossid=EOS_..., ip=..., ping=...
     regex = (
-        r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "
-        r"pos=\((?P<pos_x>.?\d+.\d), (?P<pos_y>.?\d+.\d), (?P<pos_z>.?\d+.\d)\), "
-        r"rot=\((?P<rot_x>.?\d+.\d), (?P<rot_y>.?\d+.\d), (?P<rot_z>.?\d+.\d)\), "
+        r"\d{1,2}\. id=(?P<id>\d+), (?P<name>[^,]+), "
+        r"pos=\((?P<pos_x>-?\d+\.\d+), (?P<pos_y>-?\d+\.\d+), (?P<pos_z>-?\d+\.\d+)\), "
+        r"rot=\((?P<rot_x>-?\d+\.\d+), (?P<rot_y>-?\d+\.\d+), (?P<rot_z>-?\d+\.\d+)\), "
         r"remote=(?P<remote>\w+), "
         r"health=(?P<health>\d+), "
         r"deaths=(?P<deaths>\d+), "
@@ -97,7 +97,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         r"score=(?P<score>\d+), "
         r"level=(?P<level>\d+), "
         r"pltfmid=Steam_(?P<steamid>\d+), crossid=(?P<crossid>[\w_]+), "
-        r"ip=(?P<ip>.*), "
+        r"ip=(?P<ip>[^,]+), "
         r"ping=(?P<ping>\d+)"
         r"\r\n"
     )
