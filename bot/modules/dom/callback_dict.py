@@ -156,16 +156,33 @@ class CallbackDict(dict):
         """
         depth = path.count('/')
 
+        # DEBUG: Log callback collection attempt
+        if "selected_by" in path:
+            print(f"[DEBUG CALLBACKDICT] Checking path: {path}")
+            print(f"[DEBUG CALLBACKDICT] Path depth: {depth}, min_depth: {min_depth}, max_depth: {max_depth}")
+            print(f"[DEBUG CALLBACKDICT] Registered depths: {list(self._callbacks.keys())}")
+            if depth in self._callbacks:
+                print(f"[DEBUG CALLBACKDICT] Patterns at depth {depth}: {list(self._callbacks[depth].keys())}")
+
         # Check depth constraints
         if max_depth is not None and depth > max_depth:
+            if "selected_by" in path:
+                print(f"[DEBUG CALLBACKDICT] REJECTED: depth {depth} > max_depth {max_depth}")
             return []
         if depth < min_depth:
+            if "selected_by" in path:
+                print(f"[DEBUG CALLBACKDICT] REJECTED: depth {depth} < min_depth {min_depth}")
             return []
 
         # Find matching patterns
         matching_patterns = self._match_path(path, depth)
         if not matching_patterns:
+            if "selected_by" in path:
+                print(f"[DEBUG CALLBACKDICT] REJECTED: No matching patterns found")
             return []
+
+        if "selected_by" in path:
+            print(f"[DEBUG CALLBACKDICT] MATCHED patterns: {matching_patterns}")
 
         # Build callback packages
         packages = []
