@@ -112,14 +112,24 @@ class DomManagement(Module):
         dom_element_select_root = kwargs.get("dom_element_select_root", ["selected_by"])
         dom_element_id = kwargs.get("dom_element_id", None)
 
+        # DEBUG: Log callback invocation
+        print(f"[DEBUG CALLBACK] update_selection_status called")
+        print(f"[DEBUG CALLBACK] updated_values_dict: {updated_values_dict}")
+        print(f"[DEBUG CALLBACK] target_module: {target_module.get_module_identifier() if target_module else None}")
+        print(f"[DEBUG CALLBACK] dom_element_id: {dom_element_id}")
+
         # Use unsanitized dataset_original for DOM lookups (if available)
         dom_element_origin = updated_values_dict.get("dataset_original", updated_values_dict.get("dataset"))
         dom_element_owner = updated_values_dict["owner"]
+
+        print(f"[DEBUG CALLBACK] Using origin: {dom_element_origin} (original vs sanitized)")
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
         # getting the base root for all elements. it's always this path if the module wants to use these built
         # in functions
+        print(f"[DEBUG CALLBACK] Looking up path: {target_module.get_module_identifier()}/elements/{dom_element_origin}/{dom_element_owner}")
+
         dom_element = (
             module.dom.data
             .get(target_module.get_module_identifier(), {})
@@ -127,14 +137,22 @@ class DomManagement(Module):
             .get(dom_element_origin, {})
             .get(dom_element_owner, {})
         )
+
+        print(f"[DEBUG CALLBACK] Found dom_element: {dom_element}")
+
         # get the individual element path, as provided by the module
         for sub_dict in dom_element_root:
             dom_element = dom_element.get(sub_dict)
+
+        print(f"[DEBUG CALLBACK] After traversing root: {dom_element}")
 
         dom_element_is_selected_by = dom_element.get("selected_by", [])
         dom_element_entry_selected = False
         if dispatchers_steamid in dom_element_is_selected_by:
             dom_element_entry_selected = True
+
+        print(f"[DEBUG CALLBACK] Selected by: {dom_element_is_selected_by}")
+        print(f"[DEBUG CALLBACK] Entry selected: {dom_element_entry_selected}")
 
         control_select_link = module.dom_management.get_selection_dom_element(
             module,
@@ -146,6 +164,10 @@ class DomManagement(Module):
             dom_action_active=dom_action_active
         )
 
+        print(f"[DEBUG CALLBACK] Generated control_select_link: {control_select_link[:100]}...")
+        print(f"[DEBUG CALLBACK] Sending to client: {dispatchers_steamid}")
+        print(f"[DEBUG CALLBACK] Target element: {dom_element_id}")
+
         module.webserver.send_data_to_client_hook(
             module,
             payload=control_select_link,
@@ -154,6 +176,8 @@ class DomManagement(Module):
             method="update",
             target_element=dom_element_id
         )
+
+        print(f"[DEBUG CALLBACK] Update sent to client")
 
     def update_delete_button_status(self, *args, **kwargs):
         module = args[0]

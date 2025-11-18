@@ -16,6 +16,11 @@ def main_function(module, event_data, dispatchers_steamid):
     dom_element_owner = event_data[1].get("dom_element_owner", None)
     dom_element_identifier = event_data[1].get("dom_element_identifier", None)
 
+    # DEBUG: Log incoming request
+    print(f"[DEBUG SELECT] Action: {action}, Module: {target_module}")
+    print(f"[DEBUG SELECT] Origin: {dom_element_origin}, Owner: {dom_element_owner}, ID: {dom_element_identifier}")
+    print(f"[DEBUG SELECT] Select root: {dom_element_select_root}")
+
     if all([
         action is not None,
         dom_element_origin is not None,
@@ -29,7 +34,15 @@ def main_function(module, event_data, dispatchers_steamid):
             general_root = [target_module, "elements", dom_element_origin, dom_element_owner]
             full_root = general_root + dom_element_select_root
 
+            # DEBUG: Log path construction
+            print(f"[DEBUG SELECT] Full path: {full_root}")
+
             selected_by_dict_element = module.dom_management.get_dict_element_by_path(module.dom.data, full_root)
+
+            # DEBUG: Log lookup result
+            print(f"[DEBUG SELECT] Found selected_by list: {selected_by_dict_element}")
+            print(f"[DEBUG SELECT] Type: {type(selected_by_dict_element)}")
+
             try:
                 if action == "select_dom_element":
                     if dispatchers_steamid not in selected_by_dict_element:
@@ -67,6 +80,10 @@ def main_function(module, event_data, dispatchers_steamid):
             This way we will only trigger on changes from dom_element_owner and deeper, which is what we want.
             I'm sure with better design this could be done automatically, feel free to contribute if you know how :)
             """
+            # DEBUG: Log upsert operation
+            print(f"[DEBUG SELECT] Calling upsert with min_callback_level: {3 + max_discovered_level}")
+            print(f"[DEBUG SELECT] Updated selected_by list: {selected_by_dict_element}")
+
             module.dom.data.upsert({
                 target_module: {
                     "elements": {
@@ -77,12 +94,16 @@ def main_function(module, event_data, dispatchers_steamid):
                 }
             }, dispatchers_steamid=dispatchers_steamid, min_callback_level=3 + max_discovered_level)
 
+            print(f"[DEBUG SELECT] Upsert completed, calling callback_success")
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 
         else:
+            print(f"[DEBUG SELECT] FAIL: Unknown action: {action}")
             event_data[1]["fail_reason"].append("unknown action")
     else:
+        print(f"[DEBUG SELECT] FAIL: Required options not set")
+        print(f"[DEBUG SELECT] Action: {action}, Origin: {dom_element_origin}, Owner: {dom_element_owner}, ID: {dom_element_identifier}")
         event_data[1]["fail_reason"].append("required options not set")
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
