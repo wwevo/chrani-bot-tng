@@ -1,365 +1,487 @@
-from bot import loaded_modules_dict
-from collections import Mapping, deque
+"""
+Reactive Dictionary with Callbacks
+
+A dictionary implementation that triggers callbacks when values are modified.
+Similar to React's state management but for Python dictionaries.
+
+Features:
+- Monitors nested dictionary changes (insert, update, delete, append)
+- Path-based callback registration with wildcard support
+- Thread-safe callback execution
+- Efficient path matching using pre-compiled patterns
+"""
+
+from typing import Dict, List, Any, Optional, Callable, Tuple
+from collections.abc import Mapping
+from collections import deque
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from functools import reduce
 import operator
+import re
+
+from bot import loaded_modules_dict
 
 
-class CallbackDict(dict, object):
+class CallbackDict(dict):
+    """
+    A dictionary that triggers registered callbacks when its values change.
 
-    registered_callbacks = dict
+    Callbacks can be registered for specific paths (e.g., "players/76561198012345678/name")
+    or with wildcards (e.g., "players/%steamid%/name").
+    """
 
     def __init__(self, *args, **kwargs):
-        self.registered_callbacks = {}
         super().__init__(*args, **kwargs)
+        # Structure: {depth: {path_pattern: [callback_info, ...]}}
+        self._callbacks: Dict[int, Dict[str, List[Dict]]] = {}
+        # Compiled regex patterns for fast matching: {path_pattern: compiled_regex}
+        self._compiled_patterns: Dict[str, re.Pattern] = {}
+        # Thread pool for callback execution (reuse threads instead of creating new ones)
+        self._executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix="callback")
 
-    def __setitem__(self, key, value):
-        super().__setitem__(key, value)
-
-    @staticmethod
-    def get_from_dict(data_dict, map_list):
-        return reduce(operator.getitem, map_list[:-1], data_dict)
-
-    @staticmethod
-    def get_callback_package(
-            updated_values=dict,
-            original_values_dict=dict,
-            dispatchers_steamid=None,
-            callback=None,
-            method=None,
-            matched_path=None
-    ):
-        try:
-            callback_kwargs = {
-                "updated_values_dict": updated_values,
-                "original_values_dict": original_values_dict,
-                "dispatchers_steamid": dispatchers_steamid,
-                "method": method,
-                "matched_path": matched_path
-            }
-
-            return {
-                "target": callback["callback"],
-                "args": [callback["module"]],
-                "kwargs": callback_kwargs
-            }
-        except TypeError as error:
-            print(error)
+    # ==================== Path Utilities ====================
 
     @staticmethod
-    def construct_full_path(current_path, new_key, current_layer):
-        try:
-            current_path[current_layer] = new_key
-        except IndexError:
-            current_path.append(new_key)
+    def _split_path(path: str) -> List[str]:
+        """Split a path string into components."""
+        return path.split("/") if path else []
 
-        try:
-            current_path_string = "/".join(current_path)
-        except TypeError:
-            current_path_string = None
+    @staticmethod
+    def _join_path(components: List[str]) -> str:
+        """Join path components into a string."""
+        return "/".join(components)
 
-        return current_path_string
+    @staticmethod
+    def _get_nested_value(data: dict, keys: List[str]) -> Any:
+        """Get a value from a nested dictionary using a list of keys."""
+        if not keys:
+            return data
+        return reduce(operator.getitem, keys, data)
 
-    def get_matching_callback_path(self, path, **kwargs):
-        exploded_path = path.split("/")
-        max_callback_level = kwargs.get("max_callback_level")
-        min_callback_level = kwargs.get("min_callback_level")
-        layer = kwargs.get("layer")
-        if not (max_callback_level >= layer >= min_callback_level):
-            return None
+    def _calculate_depth(self, d: Any) -> int:
+        """Calculate the maximum depth of a nested dictionary."""
+        if not isinstance(d, dict) or not d:
+            return 0
+        return 1 + max((self._calculate_depth(v) for v in d.values()), default=0)
 
-        matching_callbacks = []
-        try:
-            for callback in self.registered_callbacks[len(exploded_path) - 1]:
-                exploded_callback = callback.split("/")
-                """ if they have the same length or given path is bigger, then it's a candidate """
-                if len(exploded_callback) == len(exploded_path):
-                    """ let's compare the individual elements """
-                    its_a_match = False
-                    for element in range(len(exploded_callback)):
-                        if exploded_callback[element] == exploded_path[element]:
-                            its_a_match = True
-                        elif exploded_callback[element].startswith("%") and exploded_callback[element].endswith("%"):
-                            its_a_match = True
-                        else:
-                            its_a_match = False
-                            break
+    # ==================== Pattern Matching ====================
 
-                    if its_a_match is True:
-                        # callback matches all required fields after testing for each spot/wildcard
-                        matching_callbacks.append(callback)
-        except KeyError:
-            # no callbacks with that level available!
-            pass
+    def _compile_pattern(self, path_pattern: str) -> re.Pattern:
+        """
+        Compile a path pattern into a regex for efficient matching.
 
-        if len(matching_callbacks) >= 1:
-            return matching_callbacks
-        else:
-            return None
+        Wildcards like %steamid% become regex capture groups.
+        Example: "players/%steamid%/name" -> r"^players/([^/]+)/name$"
+        """
+        if path_pattern in self._compiled_patterns:
+            return self._compiled_patterns[path_pattern]
 
-    def dict_depth(self, d):
-        if isinstance(d, dict):
-            return 1 + (max(map(self.dict_depth, d.values())) if d else 0)
-        return 0
+        # Escape special regex characters except our wildcard markers
+        escaped = re.escape(path_pattern)
+        # Convert %wildcard% to regex capture group
+        regex_pattern = re.sub(r'%[^%]+%', r'([^/]+)', escaped)
+        # Anchor the pattern
+        regex_pattern = f"^{regex_pattern}$"
 
-    def remove_key_by_path(self, *args, **kwargs):
-        key_to_remove = args[0]
-        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-        target_module_delete_root = loaded_modules_dict[key_to_remove[0]].dom_element_select_root
-        keys_to_ignore = len(target_module_delete_root) - 1
-        if keys_to_ignore >= 1:
-            path_to_delete = "/".join(key_to_remove[:-(keys_to_ignore)])
-        else:
-            path_to_delete = "/".join(key_to_remove)
+        compiled = re.compile(regex_pattern)
+        self._compiled_patterns[path_pattern] = compiled
+        return compiled
 
-        matching_callback_path = self.get_matching_callback_path(
-            path_to_delete,
-            min_callback_level=len(key_to_remove),
-            max_callback_level=len(key_to_remove),
-            layer=len(key_to_remove)
+    def _match_path(self, path: str, depth: int) -> List[str]:
+        """
+        Find all registered callback patterns that match the given path.
+
+        Returns list of matching pattern strings.
+        """
+        if depth not in self._callbacks:
+            return []
+
+        matching_patterns = []
+        for pattern in self._callbacks[depth].keys():
+            compiled_pattern = self._compile_pattern(pattern)
+            if compiled_pattern.match(path):
+                matching_patterns.append(pattern)
+
+        return matching_patterns
+
+    # ==================== Callback Management ====================
+
+    def register_callback(
+        self,
+        module: Any,
+        path_pattern: str,
+        callback: Callable
+    ) -> None:
+        """
+        Register a callback for a specific path pattern.
+
+        Args:
+            module: The module that owns this callback
+            path_pattern: Path to monitor (e.g., "players/%steamid%/name")
+            callback: Function to call when path changes
+        """
+        depth = path_pattern.count('/')
+
+        # Initialize depth level if needed
+        if depth not in self._callbacks:
+            self._callbacks[depth] = {}
+
+        # Initialize pattern list if needed
+        if path_pattern not in self._callbacks[depth]:
+            self._callbacks[depth][path_pattern] = []
+
+        # Add callback info
+        self._callbacks[depth][path_pattern].append({
+            "callback": callback,
+            "module": module
+        })
+
+    def _collect_callbacks(
+        self,
+        path: str,
+        method: str,
+        updated_values: Any,
+        original_values: Any,
+        dispatchers_steamid: Optional[str],
+        min_depth: int = 0,
+        max_depth: Optional[int] = None
+    ) -> List[Dict]:
+        """
+        Collect all callbacks that should be triggered for a path change.
+
+        Returns list of callback packages ready for execution.
+        """
+        depth = path.count('/')
+
+        # Check depth constraints
+        if max_depth is not None and depth > max_depth:
+            return []
+        if depth < min_depth:
+            return []
+
+        # Find matching patterns
+        matching_patterns = self._match_path(path, depth)
+        if not matching_patterns:
+            return []
+
+        # Build callback packages
+        packages = []
+        for pattern in matching_patterns:
+            for callback_info in self._callbacks[depth][pattern]:
+                packages.append({
+                    "target": callback_info["callback"],
+                    "args": (callback_info["module"],),
+                    "kwargs": {
+                        "updated_values_dict": updated_values,
+                        "original_values_dict": original_values,
+                        "dispatchers_steamid": dispatchers_steamid,
+                        "method": method,
+                        "matched_path": pattern
+                    }
+                })
+
+        return packages
+
+    def _execute_callbacks(self, callback_packages: List[Dict]) -> None:
+        """Execute a list of callback packages in separate threads."""
+        for package in callback_packages:
+            self._executor.submit(
+                package["target"],
+                *package["args"],
+                **package["kwargs"]
+            )
+
+    # ==================== Dictionary Operations ====================
+
+    def upsert(
+        self,
+        updates: Dict,
+        dispatchers_steamid: Optional[str] = None,
+        min_callback_level: int = 0,
+        max_callback_level: Optional[int] = None
+    ) -> None:
+        """
+        Update or insert values into the dictionary.
+
+        This is the main method for modifying the dictionary. It handles nested
+        updates intelligently and triggers appropriate callbacks.
+
+        Args:
+            updates: Dictionary of values to upsert
+            dispatchers_steamid: ID of the user who triggered this change
+            min_callback_level: Minimum depth level for callbacks
+            max_callback_level: Maximum depth level for callbacks
+        """
+        if not isinstance(updates, Mapping) or not updates:
+            return
+
+        # Make a snapshot of current state before any changes
+        original_state = deepcopy(dict(self))
+
+        # Determine max depth if not specified
+        if max_callback_level is None:
+            max_callback_level = self._calculate_depth(updates)
+
+        # Collect all callbacks that will be triggered
+        all_callbacks = []
+
+        # Process updates recursively
+        self._upsert_recursive(
+            current_dict=self,
+            updates=updates,
+            original_state=original_state,
+            path_components=[],
+            callbacks_accumulator=all_callbacks,
+            dispatchers_steamid=dispatchers_steamid,
+            min_depth=min_callback_level,
+            max_depth=max_callback_level
         )
 
-        callbacks = []
-        if matching_callback_path is not None:
-            for working_path in matching_callback_path:
-                for callback in self.registered_callbacks[len(key_to_remove) - (1 + keys_to_ignore)][working_path]:
-                    callbacks.append(
-                        self.get_callback_package(
-                            updated_values=key_to_remove,
-                            original_values_dict={},
-                            dispatchers_steamid=dispatchers_steamid,
-                            callback=callback,
-                            method="remove",
-                            matched_path=working_path
-                        )
+        # Execute all collected callbacks
+        self._execute_callbacks(all_callbacks)
+
+    def _upsert_recursive(
+        self,
+        current_dict: dict,
+        updates: Dict,
+        original_state: Dict,
+        path_components: List[str],
+        callbacks_accumulator: List[Dict],
+        dispatchers_steamid: Optional[str],
+        min_depth: int,
+        max_depth: int
+    ) -> None:
+        """Recursive helper for upsert operation."""
+        current_depth = len(path_components)
+
+        for key, new_value in updates.items():
+            # Build the full path for this key
+            full_path_components = path_components + [key]
+            full_path = self._join_path(full_path_components)
+
+            # Determine the operation type
+            key_exists = key in current_dict
+            old_value = current_dict.get(key)
+
+            if key_exists:
+                # Update case
+                if isinstance(old_value, dict) and isinstance(new_value, dict):
+                    # Both are dicts - recurse deeper
+                    method = "update"
+                    self._upsert_recursive(
+                        current_dict=current_dict[key],
+                        updates=new_value,
+                        original_state=original_state.get(key, {}),
+                        path_components=full_path_components,
+                        callbacks_accumulator=callbacks_accumulator,
+                        dispatchers_steamid=dispatchers_steamid,
+                        min_depth=min_depth,
+                        max_depth=max_depth
+                    )
+                elif old_value == new_value:
+                    # Value unchanged - skip callbacks
+                    method = "unchanged"
+                else:
+                    # Value changed - update it
+                    method = "update"
+                    current_dict[key] = new_value
+            else:
+                # Insert case
+                method = "insert"
+                current_dict[key] = new_value
+
+                # If inserted value is a dict, recurse through it
+                if isinstance(new_value, dict):
+                    self._upsert_recursive(
+                        current_dict=current_dict[key],
+                        updates=new_value,
+                        original_state={},
+                        path_components=full_path_components,
+                        callbacks_accumulator=callbacks_accumulator,
+                        dispatchers_steamid=dispatchers_steamid,
+                        min_depth=min_depth,
+                        max_depth=max_depth
                     )
 
-        try:
-            # print(target_module_delete_root, "remove:", key_to_remove[-1])
-            del self.get_from_dict(self, key_to_remove)[key_to_remove[-1]]
-            # del working_copy_dict[k]
-        except KeyError:
-            pass
-        except TypeError:
-            pass
+            # Collect callbacks for this change (skip if unchanged)
+            if method != "unchanged":
+                callbacks = self._collect_callbacks(
+                    path=full_path,
+                    method=method,
+                    updated_values=updates,
+                    original_values=original_state,
+                    dispatchers_steamid=dispatchers_steamid,
+                    min_depth=min_depth,
+                    max_depth=max_depth
+                )
+                callbacks_accumulator.extend(callbacks)
 
-        """ we've reached the end of all recursions """
-        for callback in callbacks:
-            Thread(
-                target=callback["target"],
-                args=callback["args"],
-                kwargs=callback["kwargs"]
-            ).start()
+    def append(
+        self,
+        updates: Dict,
+        dispatchers_steamid: Optional[str] = None,
+        maxlen: Optional[int] = None,
+        min_callback_level: int = 0,
+        max_callback_level: Optional[int] = None
+    ) -> None:
+        """
+        Append values to list entries in the dictionary.
 
-    def append(self, *args, **kwargs):
-        updated_values_dict = args[0]
-        working_copy_dict = kwargs.get("dict_to_update", self)
-        original_values_dict = kwargs.get("original_values_dict", {})
-        if len(original_values_dict) <= 0:
-            original_values_dict = deepcopy(dict(working_copy_dict))
+        If the target key doesn't exist, creates a new list.
+        If maxlen is specified, creates a deque with that maxlen.
 
-        path = kwargs.get("path", [])
-        max_callback_level = kwargs.get("max_callback_level", self.dict_depth(updated_values_dict))
-        min_callback_level = kwargs.get("min_callback_level", 0)
-        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-        layer = kwargs.get("layer", 0)
-        callbacks = kwargs.get("callbacks", None)
-        maxlen = kwargs.get("maxlen", None)
+        Args:
+            updates: Dictionary mapping paths to values to append
+            dispatchers_steamid: ID of user who triggered this
+            maxlen: Maximum length for created lists (uses deque)
+            min_callback_level: Minimum depth for callbacks
+            max_callback_level: Maximum depth for callbacks
+        """
+        if not isinstance(updates, Mapping) or not updates:
+            return
 
-        if layer == 0 and callbacks is None:
-            callbacks = []
+        original_state = deepcopy(dict(self))
 
-        path = path[0:layer]
+        if max_callback_level is None:
+            max_callback_level = self._calculate_depth(updates)
 
-        """" recursion happens in this section """
-        for k, v in updated_values_dict.items():
-            matching_callback_path = self.get_matching_callback_path(
-                self.construct_full_path(path, k, layer),
-                min_callback_level=min_callback_level,
-                max_callback_level=max_callback_level,
-                layer=layer
+        all_callbacks = []
+
+        self._append_recursive(
+            current_dict=self,
+            updates=updates,
+            original_state=original_state,
+            path_components=[],
+            callbacks_accumulator=all_callbacks,
+            dispatchers_steamid=dispatchers_steamid,
+            maxlen=maxlen,
+            min_depth=min_callback_level,
+            max_depth=max_callback_level
+        )
+
+        self._execute_callbacks(all_callbacks)
+
+    def _append_recursive(
+        self,
+        current_dict: dict,
+        updates: Dict,
+        original_state: Dict,
+        path_components: List[str],
+        callbacks_accumulator: List[Dict],
+        dispatchers_steamid: Optional[str],
+        maxlen: Optional[int],
+        min_depth: int,
+        max_depth: int
+    ) -> None:
+        """Recursive helper for append operation."""
+        current_depth = len(path_components)
+
+        for key, value in updates.items():
+            full_path_components = path_components + [key]
+            full_path = self._join_path(full_path_components)
+
+            # Collect callbacks before making changes
+            callbacks = self._collect_callbacks(
+                path=full_path,
+                method="append",
+                updated_values=updates,
+                original_values=original_state,
+                dispatchers_steamid=dispatchers_steamid,
+                min_depth=min_depth,
+                max_depth=max_depth
             )
+            callbacks_accumulator.extend(callbacks)
 
-            if matching_callback_path is not None:
-                for working_path in matching_callback_path:
-                    for callback in self.registered_callbacks[layer][working_path]:
-                        callbacks.append(
-                            self.get_callback_package(
-                                updated_values=updated_values_dict,
-                                original_values_dict=original_values_dict,
-                                dispatchers_steamid=dispatchers_steamid,
-                                callback=callback,
-                                method="append",
-                                matched_path=working_path
-                            ))
-
+            # Perform the append operation
+            if key in current_dict:
                 try:
-                    working_copy_dict[k].append(v)
-
-                except KeyError:
-                    if maxlen is not None:
-                        working_copy_dict[k] = deque(maxlen=maxlen)
-                    else:
-                        working_copy_dict[k] = []
-
-                    working_copy_dict[k].append(v)
+                    current_dict[key].append(value)
                 except AttributeError:
+                    # Not a list/deque, can't append
                     pass
+            else:
+                # Create new list or deque
+                if maxlen is not None:
+                    current_dict[key] = deque(maxlen=maxlen)
+                else:
+                    current_dict[key] = []
+                current_dict[key].append(value)
 
+            # If we found callbacks, don't recurse deeper (callback is at this level)
+            if callbacks:
                 return
 
-            d_v = working_copy_dict.get(k)
-            if isinstance(v, Mapping) and isinstance(d_v, Mapping):
-                self.append(
-                    v,
-                    dict_to_update=d_v,
-                    original_values_dict=original_values_dict[k],
-                    path=path,
-                    layer=layer + 1,
-                    callbacks=callbacks,
-                    maxlen=maxlen,
+            # Otherwise, recurse if both are dicts
+            old_value = current_dict.get(key)
+            if isinstance(value, Mapping) and isinstance(old_value, Mapping):
+                self._append_recursive(
+                    current_dict=old_value,
+                    updates=value,
+                    original_state=original_state.get(key, {}),
+                    path_components=full_path_components,
+                    callbacks_accumulator=callbacks_accumulator,
                     dispatchers_steamid=dispatchers_steamid,
-                    max_callback_level=max_callback_level,
-                    min_callback_level=min_callback_level
+                    maxlen=maxlen,
+                    min_depth=min_depth,
+                    max_depth=max_depth
                 )
 
-        if layer != 0:
+    def remove_key_by_path(
+        self,
+        key_path: List[str],
+        dispatchers_steamid: Optional[str] = None
+    ) -> None:
+        """
+        Remove a key from the dictionary by its path.
+
+        Args:
+            key_path: List of keys representing the path (e.g., ['players', '12345', 'name'])
+            dispatchers_steamid: ID of user who triggered this
+        """
+        if not key_path:
             return
 
-        """ we've reached the end of all recursions """
-        for callback in callbacks:
-            Thread(
-                target=callback["target"],
-                args=callback["args"],
-                kwargs=callback["kwargs"]
-            ).start()
-
-    def upsert(self, *args, **kwargs):
-        updated_values_dict = args[0]
-        dict_to_update = kwargs.get("dict_to_update", self)
-        if isinstance(updated_values_dict, Mapping) and len(updated_values_dict) < 1:
-            # early exit: nothing to update!
-            return
-
-        path = kwargs.get("path", [])
-        layer = len(path)
-
-        original_values_dict = kwargs.get("original_values_dict", {})
-        if layer == 0 and len(original_values_dict) == 0:
-            original_values_dict = deepcopy(dict(dict_to_update))
-
-        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-        max_callback_level = kwargs.get("max_callback_level", self.dict_depth(updated_values_dict))
-        min_callback_level = kwargs.get("min_callback_level", 0)
-        callbacks = kwargs.get("callbacks", None)
-
-        if layer == 0 and callbacks is None:
-            callbacks = []
-
-        path = path[0:layer]
-
-        """" recursion happens in this section """
-        for key_to_update, value_to_update in updated_values_dict.items():
-            method = "upsert"
-            full_path = self.construct_full_path(path, key_to_update, layer)
-            working_paths_list = self.get_matching_callback_path(
-                full_path,
-                min_callback_level=min_callback_level,
-                max_callback_level=max_callback_level,
-                layer=layer
-            )
-
-            if key_to_update in dict_to_update:
-                # the key exists in the current dom
-                if all([
-                    isinstance(dict_to_update[key_to_update], (list, dict)),
-                    isinstance(updated_values_dict[key_to_update], (list, dict))
-                ]):
-                    method = "update"
-                    # both the updated values and the original ones are Mappings. Let's dive in
-                    if isinstance(updated_values_dict.get(key_to_update, None), dict):
-                        self.upsert(
-                            updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
-                            original_values_dict=original_values_dict.get(key_to_update, {}),
-                            path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                            max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                        )
-                    elif isinstance(updated_values_dict.get(key_to_update, None), list):
-                        # if the value is a list, we simply replace the entire list. We will not go
-                        # through list items in this dict
-                        dict_to_update[key_to_update] = updated_values_dict[key_to_update]
-
-                elif all([
-                    not isinstance(dict_to_update[key_to_update], (list, dict)),
-                    not isinstance(updated_values_dict[key_to_update], (list, dict))
-                ]):
-                    # both keys are Values, we'll update and continue the loop
-                    if dict_to_update.get(key_to_update) == updated_values_dict[key_to_update]:
-                        method = "unchanged"
-                    else:
-                        method = "update"
-                        dict_to_update[key_to_update] = updated_values_dict[key_to_update]
-
-            else:
-                # the key is not in our current dom
-                method = "insert"
-                original_values_dict = {}
-                dict_to_update[key_to_update] = updated_values_dict[key_to_update]
-                if isinstance(updated_values_dict[key_to_update], dict):
-                    # it's a mapping, it's not present in the current dom. Copy it over and go through it
-                    self.upsert(
-                        updated_values_dict[key_to_update], dict_to_update=dict_to_update[key_to_update],
-                        original_values_dict=original_values_dict,
-                        path=path, callbacks=callbacks, dispatchers_steamid=dispatchers_steamid,
-                        max_callback_level=max_callback_level, min_callback_level=min_callback_level
-                    )
-
-            if working_paths_list is not None:
-                try:
-                    for working_path in working_paths_list:
-                        for callback in self.registered_callbacks[layer][working_path]:
-                            if method != "unchanged":
-                                callbacks.append(
-                                    self.get_callback_package(
-                                        updated_values=updated_values_dict,
-                                        original_values_dict=original_values_dict,
-                                        dispatchers_steamid=dispatchers_steamid,
-                                        callback=callback,
-                                        method=method,
-                                        matched_path=working_path
-                                    )
-                                )
-
-                except KeyError:
-                    pass
-
-        if layer != 0:
-            return
-
-        """ we've reached the end of all recursions """
-        for callback in callbacks:
-            try:
-                Thread(
-                    target=callback["target"],
-                    args=callback["args"],
-                    kwargs=callback["kwargs"]
-                ).start()
-            except TypeError as error:
-                print(error)
-
-    def register_callback(self, module, dict_to_monitor, callback):
-        callback_depth = dict_to_monitor.count('/')
-        depth_already_exists = self.registered_callbacks.get(callback_depth, False)
-        if not depth_already_exists:
-            self.registered_callbacks[callback_depth] = {}
+        # Get module's delete root to determine how much of the path to use
         try:
-            self.registered_callbacks[callback_depth][dict_to_monitor].append({
-                "callback": callback,
-                "module": module
-            })
-        except KeyError as error:
-            self.registered_callbacks[callback_depth][dict_to_monitor] = [{
-                "callback": callback,
-                "module": module
-            }]
+            module = loaded_modules_dict[key_path[0]]
+            delete_root = getattr(module, 'dom_element_select_root', [])
+            keys_to_ignore = len(delete_root) - 1 if delete_root else 0
+        except (KeyError, AttributeError):
+            keys_to_ignore = 0
+
+        # Build the path for callback matching
+        if keys_to_ignore >= 1:
+            path_for_callbacks = self._join_path(key_path[:-keys_to_ignore])
+        else:
+            path_for_callbacks = self._join_path(key_path)
+
+        # Collect callbacks
+        callbacks = self._collect_callbacks(
+            path=path_for_callbacks,
+            method="remove",
+            updated_values=key_path,
+            original_values={},
+            dispatchers_steamid=dispatchers_steamid,
+            min_depth=len(key_path),
+            max_depth=len(key_path)
+        )
+
+        # Perform the deletion
+        try:
+            parent = self._get_nested_value(self, key_path[:-1])
+            del parent[key_path[-1]]
+        except (KeyError, TypeError, IndexError):
+            # Key doesn't exist or path is invalid
+            pass
+
+        # Execute callbacks
+        self._execute_callbacks(callbacks)
+
+    def __del__(self):
+        """Cleanup: shutdown the thread pool when the object is destroyed."""
+        try:
+            self._executor.shutdown(wait=False)
+        except:
+            pass
