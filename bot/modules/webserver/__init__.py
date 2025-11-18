@@ -76,18 +76,14 @@ class Webserver(Module):
 
         return wrapped
 
-    @staticmethod
-    def random_string(length):
-        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    # Reusable SystemRandom instance for efficient token generation
+    _random = random.SystemRandom()
 
-    def validate_token(self, f):
-        @functools.wraps(f)
-        def wrapped(*args, **kwargs):
-            new_token = self.random_string(20)
-
-            return f(*args, **kwargs)
-
-        return wrapped
+    @classmethod
+    def random_string(cls, length):
+        """Generate a random string of given length using uppercase letters and digits."""
+        chars = string.ascii_uppercase + string.digits
+        return ''.join(cls._random.choice(chars) for _ in range(length))
     # endregion
 
     # region Standard module stuff
@@ -278,7 +274,7 @@ class Webserver(Module):
         @login_required
         def logout():
             print("client {} disconnected".format(current_user.id))
-            del self.connected_clients[current_user.id]
+            self.connected_clients.pop(current_user.id, None)  # Safe deletion
             for module in loaded_modules_dict.values():
                 module.on_socket_disconnect(current_user.id)
             logout_user()
@@ -293,7 +289,6 @@ class Webserver(Module):
             return redirect("/")
 
         @self.app.route('/')
-        @self.validate_token
         def protected():
             header_markup = self.template_render_hook(
                 self,
@@ -315,10 +310,12 @@ class Webserver(Module):
 
             }
             if not current_user.is_authenticated:
-                main_output = '<div id="unauthorized_disclaimer" class="single_screen">'
-                main_output += '<p>Welcome to the <strong>chrani-bot: The Next Generation</strong></p>'
-                main_output += '<p>You can <a href="/login">use your steam-account to log in</a>!</p>'
-                main_output += '</div>'
+                main_output = (
+                    '<div id="unauthorized_disclaimer" class="single_screen">'
+                    '<p>Welcome to the <strong>chrani-bot: The Next Generation</strong></p>'
+                    '<p>You can <a href="/login">use your steam-account to log in</a>!</p>'
+                    '</div>'
+                )
                 main_markup = Markup(main_output)
                 template_options['main'] = main_markup
 

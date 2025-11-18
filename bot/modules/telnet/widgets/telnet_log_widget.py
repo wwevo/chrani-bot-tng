@@ -45,17 +45,19 @@ def frontend_view(*args, **kwargs):
     template_options_toggle_view = module.templates.get_template('telnet_log_widget/control_switch_options_view.html')
 
     if len(module.webserver.connected_clients) >= 1:
-        log_lines = ""
         telnet_lines = module.dom.data.get("module_telnet", {}).get("telnet_lines", {})
         if len(telnet_lines) >= 1:
+            # Build log lines efficiently using list comprehension
+            log_lines_list = []
             for line in reversed(telnet_lines):
                 css_class = get_log_line_css_class(line)
-                log_lines += module.template_render_hook(
+                log_lines_list.append(module.template_render_hook(
                     module,
                     template=log_line,
                     log_line=line,
                     css_class=css_class
-                )
+                ))
+            log_lines = ''.join(log_lines_list)
 
             current_view = module.get_current_view(dispatchers_steamid)
             options_toggle = module.template_render_hook(
@@ -137,8 +139,8 @@ def update_widget(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    player_clients_to_update = list(module.webserver.connected_clients.keys())
-    for clientid in player_clients_to_update:
+    # Iterate directly over connected clients (no need to convert to list)
+    for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
         if current_view == "frontend":
             telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
