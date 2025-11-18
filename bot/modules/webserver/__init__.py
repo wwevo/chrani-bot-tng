@@ -170,11 +170,8 @@ class Webserver(Module):
                             "room": self.connected_clients[steamid].sid
                         }
                         data_packages_to_send.append([widget_options, emit_options])
-                    except AttributeError as error:
-                        # print("user has got no session id yet")
-                        pass
-                    except KeyError as error:
-                        # print("user seems to have disappeared")
+                    except (AttributeError, KeyError):
+                        # User connection state is inconsistent - skip this client
                         pass
 
             for data_package in data_packages_to_send:
@@ -267,7 +264,6 @@ class Webserver(Module):
                     steamid = p.group("steamid")
                     webserver_user = User(steamid)
                     login_user(webserver_user, remember=True)
-                    # print("user {} connected...".format(webserver_user.id))
 
             return redirect("/")
 

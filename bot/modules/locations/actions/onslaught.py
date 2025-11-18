@@ -25,10 +25,7 @@ def main_function(module, event_data, dispatchers_steamid):
         }]
         module.trigger_action_hook(module.players, event_data=event_data)
 
-    if True:
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid)
-    else:
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
