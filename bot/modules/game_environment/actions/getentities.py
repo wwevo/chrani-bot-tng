@@ -101,7 +101,10 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                 target_module=module.get_module_identifier(),
                 query="id"
             ):
-                if dom_element not in entities_to_update_dict or entities_to_update_dict.get(dom_element).get("health" <= "0"):
+                # Delete entities that are no longer in the update or have health <= 0 (dead)
+                entity_data = entities_to_update_dict.get(dom_element, {})
+                health = entity_data.get("health", 0)
+                if dom_element not in entities_to_update_dict or health <= 0:
                     stuff_to_delete.append([module.get_module_identifier(), "elements"] + path)
 
             for dom_element_to_delete in stuff_to_delete:

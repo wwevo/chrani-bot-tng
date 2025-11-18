@@ -141,7 +141,8 @@ def frontend_view(*args, **kwargs):
     template_table_rows = module.templates.get_template('manage_locations_widget/table_row.html')
     template_table_footer = module.templates.get_template('manage_locations_widget/table_footer.html')
 
-    table_rows = ""
+    # Build table rows efficiently using list + join (avoids O(n²) with string +=)
+    table_rows_list = []
     all_available_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     all_selected_elements_count = 0
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
@@ -156,7 +157,7 @@ def frontend_view(*args, **kwargs):
                     .get(player_steamid, {})
                 )
                 for identifier, location_dict in player_locations.items():
-                    location_has_special_properties = True if len(location_dict.get("type", [])) >= 1 else False
+                    location_has_special_properties = len(location_dict.get("type", [])) >= 1
                     if not location_has_special_properties and current_view == "special_locations":
                         continue
 
@@ -177,7 +178,7 @@ def frontend_view(*args, **kwargs):
                         dom_action_active="deselect_dom_element"
                     )
 
-                    table_rows += module.template_render_hook(
+                    table_rows_list.append(module.template_render_hook(
                         module,
                         template=template_table_rows,
                         location=location_dict,
@@ -194,7 +195,9 @@ def frontend_view(*args, **kwargs):
                             dispatchers_steamid=dispatchers_steamid,
                             location=location_dict,
                         )
-                    )
+                    ))
+
+    table_rows = ''.join(table_rows_list)
 
     dom_element_delete_button = module.dom_management.get_delete_button_dom_element(
         module,

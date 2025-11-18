@@ -144,7 +144,8 @@ def frontend_view(*args, **kwargs):
 
     all_available_player_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
 
-    rendered_table_rows = ""
+    # Build table rows efficiently using list + join
+    table_rows_list = []
     all_selected_elements_count = 0
     for map_identifier, player_dicts in all_available_player_dicts.items():
         if active_dataset == map_identifier:
@@ -175,7 +176,7 @@ def frontend_view(*args, **kwargs):
                     dom_action_inactive="select_dom_element"
                 )
 
-                rendered_table_rows += module.template_render_hook(
+                table_rows_list.append(module.template_render_hook(
                     module,
                     template=template_table_rows,
                     player=player_dict,
@@ -191,7 +192,9 @@ def frontend_view(*args, **kwargs):
                         player=player_dict,
                     ),
                     control_select_link=control_select_link
-                )
+                ))
+
+    rendered_table_rows = ''.join(table_rows_list)
 
     current_view = module.get_current_view(dispatchers_steamid)
 
