@@ -50,6 +50,7 @@ def main_function(module, event_data, dispatchers_steamid):
                     selected_by_dict = {
                         path_fragment: selected_by_dict_element,
                         "dataset": dom_element_origin,
+                        "dataset_original": dom_element_origin,  # Store original for callbacks
                         "owner": dom_element_owner,
                         "identifier": dom_element_identifier
                     }

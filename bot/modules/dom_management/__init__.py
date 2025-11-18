@@ -98,7 +98,8 @@ class DomManagement(Module):
         dom_element_select_root = kwargs.get("dom_element_select_root", ["selected_by"])
         dom_element_id = kwargs.get("dom_element_id", None)
 
-        dom_element_origin = updated_values_dict["dataset"]
+        # Use unsanitized dataset_original for DOM lookups (if available)
+        dom_element_origin = updated_values_dict.get("dataset_original", updated_values_dict.get("dataset"))
         dom_element_owner = updated_values_dict["owner"]
 
         dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
