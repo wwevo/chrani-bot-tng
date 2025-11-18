@@ -79,7 +79,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
 
     """ lets extract all data the game provides!! """
-    telnet_datetime = match.group("datetime")
+    # Note: Modern regex doesn't capture datetime, using current time instead
+    from datetime import datetime
+    telnet_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     raw_playerdata = match.group("raw_playerdata").lstrip()
     regex = (
         r"\d{1,2}. id=(?P<id>\d+), (?P<name>.+), "

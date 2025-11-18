@@ -55,7 +55,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         module.get_module_identifier(): {
             "admins": admin_dict
         }
-    }, overwrite=True)
+    })
 
     disable_after_success = event_data[1]["disable_after_success"]
     if disable_after_success:
