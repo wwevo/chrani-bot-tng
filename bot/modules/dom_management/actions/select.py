@@ -43,6 +43,12 @@ def main_function(module, event_data, dispatchers_steamid):
             print(f"[DEBUG SELECT] Found selected_by list: {selected_by_dict_element}")
             print(f"[DEBUG SELECT] Type: {type(selected_by_dict_element)}")
 
+            # CRITICAL: Make a COPY of the list! Otherwise we modify the original list,
+            # and then upsert sees old_value == new_value (both are references to the same list)
+            # This would cause the callback to NOT fire because method="unchanged"
+            selected_by_dict_element = list(selected_by_dict_element)
+            print(f"[DEBUG SELECT] Made copy of list")
+
             try:
                 if action == "select_dom_element":
                     if dispatchers_steamid not in selected_by_dict_element:
