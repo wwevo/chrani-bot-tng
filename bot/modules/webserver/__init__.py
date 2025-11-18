@@ -340,6 +340,7 @@ class Webserver(Module):
                 web_port = 8082  # Default 7D2D web port
 
             tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y}.png'
+            print(f"[MAP PROXY] Fetching from game server: {tile_url}")
 
             # Forward relevant headers from browser to game server
             headers = {}
@@ -350,6 +351,10 @@ class Webserver(Module):
 
             try:
                 response = get(tile_url, headers=headers, timeout=5)
+                print(f"[MAP PROXY] Game server response: {response.status_code}")
+                if response.status_code != 200:
+                    print(f"[MAP PROXY] Response headers: {dict(response.headers)}")
+                    print(f"[MAP PROXY] Response body (first 200 chars): {response.text[:200]}")
                 return Response(
                     response.content,
                     status=response.status_code,
