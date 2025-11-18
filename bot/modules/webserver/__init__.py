@@ -11,11 +11,11 @@ from .user import User
 import re
 from time import time
 from socket import socket, AF_INET, SOCK_DGRAM
-from flask import Flask, request, redirect, session
+from flask import Flask, request, redirect, session, Response
 from markupsafe import Markup
 from flask_login import LoginManager, login_required, login_user, current_user, logout_user
 from flask_socketio import SocketIO, emit
-from requests import post
+from requests import post, get
 from urllib.parse import urlencode
 from collections.abc import KeysView
 from threading import Thread
@@ -322,6 +322,22 @@ class Webserver(Module):
                 template=template_frontend,
                 **template_options
             )
+
+        @self.app.route('/map_tiles/<int:z>/<int:x>/<int:y>.png')
+        def map_tile_proxy(z, x, y):
+            """Proxy map tiles from game server to avoid CORS issues"""
+            tile_url = f'http://95.216.65.202:26902/map/{z}/{x}/{y}.png'
+            try:
+                response = get(tile_url, timeout=5)
+                return Response(
+                    response.content,
+                    status=response.status_code,
+                    content_type='image/png'
+                )
+            except Exception as e:
+                print(f"[MAP PROXY] Error fetching tile {z}/{x}/{y}: {e}")
+                return Response(status=404)
+
         # endregion
 
         # region Websocket handling

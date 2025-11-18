@@ -70,7 +70,7 @@
     // 7 Days to Die uses a simple coordinate system (not lat/lon)
     // We need to transform game coordinates to pixel coordinates
     const MAP_BOUNDS = [[-4096, -4096], [4096, 4096]]; // Typical 7D2D map size
-    const TILE_SERVER = 'http://95.216.65.202:26902/map/{z}/{x}/{y}.png';
+    const TILE_SERVER = '/map_tiles/{z}/{x}/{y}.png'; // Proxied through bot to avoid CORS
 
     // Create custom CRS for 7D2D coordinates
     const crs = L.extend({}, L.CRS.Simple, {
