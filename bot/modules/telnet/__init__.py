@@ -224,116 +224,206 @@ class Telnet(Module):
                 ))
     # endregion
 
+    # ==================== Line Processing Helper Methods ====================
+
+    def _should_exclude_from_logs(self, telnet_line: str) -> bool:
+        """Check if a telnet line should be excluded from logs."""
+        elements_excluded_from_logs = [
+            "'lp'", "'gettime'", "'listents'",  # system calls
+            "INF Time: ", "SleeperVolume", " killed by "  # irrelevant lines for now
+        ]
+        return any(exclude in telnet_line for exclude in elements_excluded_from_logs)
+
+    def _store_valid_line(self, valid_line: str) -> None:
+        """Store a valid telnet line in DOM and print it."""
+        # Store in DOM if clients are connected and line is relevant
+        if not self._should_exclude_from_logs(valid_line):
+            if len(self.webserver.connected_clients) >= 1:
+                self.dom.data.append({
+                    self.get_module_identifier(): {
+                        "telnet_lines": valid_line
+                    }
+                }, maxlen=150)
+
+        print(valid_line)
+        self.valid_telnet_lines.append(valid_line)
+
+    def _process_first_component(self, component: str) -> str:
+        """
+        Process the first component of telnet response.
+
+        This might be the remainder of the previous run combined with new data.
+        Returns the validated line or None.
+        """
+        if self.recent_telnet_response is not None:
+            # Try to combine with previous incomplete response
+            combined_line = f"{self.recent_telnet_response}{component}"
+            if self.is_a_valid_line(combined_line):
+                self.recent_telnet_response = None
+                return combined_line.rstrip("\r\n")
+            else:
+                # Combined line still doesn't make sense
+                stripped = combined_line.rstrip("\r\n")
+                print(f"WRN {stripped}")
+                self.recent_telnet_response = None
+                return None
+        else:
+            # No previous response - check if this is an incomplete line to store
+            if self.has_valid_start(component):
+                self.recent_telnet_response = component
+            else:
+                # Invalid start - warn if not empty
+                stripped = component.rstrip("\r\n")
+                if len(stripped) != 0:
+                    print(f"WRN {stripped}")
+            return None
+
+    def _process_last_component(self, component: str) -> str:
+        """
+        Process the last component of telnet response.
+
+        This might be the start of the next run.
+        Returns the validated line or None.
+        """
+        if self.has_valid_start(component):
+            # Store for next run
+            self.recent_telnet_response = component
+        # else: part of a telnet-command response, ignore
+        return None
+
+    def _process_middle_component(self, component: str) -> str:
+        """
+        Process a middle component (neither first nor last).
+
+        These are usually incomplete lines or command responses.
+        Returns None as these are typically not valid complete lines.
+        """
+        # Middle components are usually fragmented, ignore them
+        return None
+
+    def _process_line_component(
+        self,
+        component: str,
+        component_index: int,
+        total_components: int
+    ) -> str:
+        """
+        Process a single component of the telnet response.
+
+        Args:
+            component: The line component to process
+            component_index: 1-based index of this component
+            total_components: Total number of components
+
+        Returns:
+            Validated telnet line or None
+        """
+        # Check if it's a complete, valid line first
+        if self.is_a_valid_line(component):
+            return component.rstrip("\r\n")
+
+        # Handle incomplete lines based on position
+        is_first = (component_index == 1)
+        is_last = (component_index == total_components)
+        is_single = (total_components == 1)
+
+        if is_first and is_single:
+            # Single incomplete component - special handling
+            return self._process_first_component(component)
+        elif is_first:
+            # First of multiple - might combine with previous
+            return self._process_first_component(component)
+        elif is_last:
+            # Last component - might be start of next
+            return self._process_last_component(component)
+        else:
+            # Middle component - usually fragmented
+            return self._process_middle_component(component)
+
+    def _process_telnet_response_lines(self) -> None:
+        """
+        Process telnet response and extract valid lines.
+
+        Handles line fragmentation across multiple reads and stores
+        valid lines for further processing.
+        """
+        telnet_response_components = self.extract_lines(self.telnet_response)
+        total_components = len(telnet_response_components)
+
+        for index, component in enumerate(telnet_response_components, start=1):
+            valid_line = self._process_line_component(
+                component,
+                index,
+                total_components
+            )
+
+            if valid_line is not None:
+                self.telnet_lines_to_process.append(valid_line)
+                self._store_valid_line(valid_line)
+
+    def _handle_connection_error(self, error: Exception) -> None:
+        """Handle telnet connection errors and attempt reconnection."""
+        try:
+            self.setup_telnet()
+            self.dom.data.upsert({
+                self.get_module_identifier(): {
+                    "server_is_online": True
+                }
+            })
+        except (OSError, Exception, ConnectionRefusedError):
+            self.dom.data.upsert({
+                self.get_module_identifier(): {
+                    "server_is_online": False
+                }
+            })
+            self.telnet_buffer = ""
+            self.telnet_response = ""
+            self.last_connection_loss = time()
+
+            print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
+            print("Telnet: check if the server is running, it's connectivity and options!")
+
+    def _update_telnet_buffer(self) -> None:
+        """Update the telnet buffer with new response data."""
+        self.telnet_buffer += self.telnet_response.lstrip()
+        max_telnet_buffer = self.options.get(
+            "max_telnet_buffer",
+            self.default_options.get("max_telnet_buffer", 12288)
+        )
+        # Trim buffer to max size
+        self.telnet_buffer = self.telnet_buffer[-max_telnet_buffer:]
+
+        # Expose buffer to other modules via DOM
+        self.dom.data.upsert({
+            self.get_module_identifier(): {
+                "telnet_buffer": self.telnet_buffer
+            }
+        })
+
+    # ==================== Main Run Loop ====================
+
     def run(self):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            if self.last_connection_loss is None or profile_start > self.last_connection_loss + 10:
-                # only execute if server has connection,
-                # or if n seconds have passed after last loss,
-                # to prevent connect hammering
+            # Throttle connection attempts: only try if connected or 10s passed since last failure
+            can_attempt_connection = (
+                self.last_connection_loss is None or
+                profile_start > self.last_connection_loss + 10
+            )
+
+            if can_attempt_connection:
                 try:
                     self.telnet_response = self.tn.read_very_eager().decode("utf-8")
-                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as main_error:
-                    try:
-                        self.setup_telnet()
-                        self.dom.data.upsert({
-                            self.get_module_identifier(): {
-                                "server_is_online": True
-                            }
-                        })
+                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as error:
+                    self._handle_connection_error(error)
+                except Exception as error:
+                    print(f"########### Unforeseen Error: {type(error).__name__}: {error}")
 
-                    except (OSError, Exception, ConnectionRefusedError) as sub_error:
-                        self.dom.data.upsert({
-                            self.get_module_identifier(): {
-                                "server_is_online": False
-                            }
-                        })
-                        self.telnet_buffer = ""
-                        self.telnet_response = ""
-                        self.last_connection_loss = time()
-
-                        print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
-                        print("Telnet: check if the server is running, it's connectivity and options!")
-                except Exception as main_error:
-                    print("########### Unforeseen Error: {}".format(type(main_error)))
-
+            # Process any telnet response data
             if len(self.telnet_response) > 0:
-                self.telnet_buffer += self.telnet_response.lstrip()
-                max_telnet_buffer = self.options.get(
-                    "max_telnet_buffer", self.default_options.get("max_telnet_buffer", 12288)
-                )
-                # cutting buffer down to max-size
-                self.telnet_buffer = self.telnet_buffer[-max_telnet_buffer:]
-
-                # module_dom needs to be in the required modules list!!
-                # let's expose the telnet_buffer to the general module population via our DOM!
-                self.dom.data.upsert({
-                    self.get_module_identifier(): {
-                        "telnet_buffer": self.telnet_buffer
-                    }
-                })
-
-                """ telnet returned data. let's get some information about it"""
-                response_count = 1
-                telnet_response_components = self.extract_lines(self.telnet_response)
-                for component in telnet_response_components:
-                    valid_telnet_line = None
-                    if self.is_a_valid_line(component):  # added complete line
-                        valid_telnet_line = component.rstrip("\r\n")
-                        self.telnet_lines_to_process.append(valid_telnet_line)
-                        # print(valid_telnet_line)
-                    else:
-                        if response_count == 1:  # not a complete line, might be the remainder of last run
-                            if self.recent_telnet_response is not None:
-                                combined_line = "{}{}".format(self.recent_telnet_response, component)
-                                if self.is_a_valid_line(combined_line):  # "added complete combined line"
-                                    valid_telnet_line = combined_line.rstrip("\r\n")
-                                    self.telnet_lines_to_process.append(valid_telnet_line)
-                                    # print(valid_telnet_line)
-                                else:  # "combined line, it doesnt make sense though"
-                                    print("WRN {}".format(combined_line.rstrip("\r\n")))
-
-                                self.recent_telnet_response = None
-                            else:
-                                if len(telnet_response_components) == 1:
-                                    if self.has_valid_start(component):  # "found incomplete line, storing for next run"
-                                        self.recent_telnet_response = component
-                                    else:  # "what happened?"
-                                        if len(component.rstrip("\r\n")) != 0:
-                                            print("WRN {}".format(component.rstrip("\r\n")))
-
-                        elif response_count == len(telnet_response_components):
-                            if self.has_valid_start(component):  # not a complete line, might be the start of next run
-                                self.recent_telnet_response = component
-                            else:  # part of a telnet-command response
-                                # print(component.rstrip("\r\n"))
-                                pass
-
-                        else:  # "found incomplete line smack in the middle"
-                            # print(component.rstrip("\r\n"))
-                            pass
-
-                    if valid_telnet_line is not None:
-                        elements_excluded_from_logs = [
-                            "'lp'", "'gettime'", "'listents'",  # system calls
-                            "INF Time: ", "SleeperVolume", " killed by "  # irrelevant lines for now
-                        ]
-                        if not any(
-                            exclude_element in valid_telnet_line for exclude_element in elements_excluded_from_logs
-                        ):
-                            if len(self.webserver.connected_clients) >= 1:
-                                self.dom.data.append({
-                                    self.get_module_identifier(): {
-                                        "telnet_lines": valid_telnet_line
-                                    }
-                                }, maxlen=150)
-
-                        print(valid_telnet_line)
-
-                        self.valid_telnet_lines.append(valid_telnet_line)
-
-                    response_count += 1
+                self._update_telnet_buffer()
+                self._process_telnet_response_lines()
 
             if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
                 self.execute_telnet_command_queue(self.max_command_queue_execution)
