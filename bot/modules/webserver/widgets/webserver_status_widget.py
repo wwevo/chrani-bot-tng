@@ -57,7 +57,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view == "frontend" else False)
+                options_view_toggle=(current_view == "frontend")
             ),
             control_servertime=module.template_render_hook(
                 module,
@@ -105,7 +105,7 @@ def options_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view == "frontend" else False)
+                options_view_toggle=(current_view == "frontend")
             ),
             control_servertime=module.template_render_hook(
                 module,

@@ -104,7 +104,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
     players_to_update_dict = {}
     for m in re.finditer(regex, raw_playerdata):
-        in_limbo = True if int(m.group("health")) == 0 else False
+        in_limbo = int(m.group("health")) == 0
         player_dict = {
             # data the game provides
             "id": m.group("id"),

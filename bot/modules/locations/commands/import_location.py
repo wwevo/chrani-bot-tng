@@ -25,7 +25,7 @@ def main_function(origin_module, module, regex_result):
             .get(player_steamid, {})
             .get(location_identifier, None)
         )
-        spawn_in_place = True if result.group("spawn_in_place") == "here" else False
+        spawn_in_place = result.group("spawn_in_place") == "here"
 
     if location_dict is not None:
         event_data = ['bc-import', {

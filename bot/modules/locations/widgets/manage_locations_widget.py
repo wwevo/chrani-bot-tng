@@ -221,7 +221,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_options_toggle_view,
                 steamid=dispatchers_steamid,
-                options_view_toggle=(True if current_view in ["frontend", "special_locations", "delete-modal"] else False)
+                options_view_toggle=(current_view in ["frontend", "special_locations", "delete-modal"])
             ),
             control_switch_create_new_view=module.template_render_hook(
                 module,
@@ -233,7 +233,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_special_locations_toggle_view,
                 steamid=dispatchers_steamid,
-                special_locations_view_toggle=(True if current_view in ["frontend", "delete-modal"] else False)
+                special_locations_view_toggle=(current_view in ["frontend", "delete-modal"])
             ),
             control_player_location_view=module.template_render_hook(
                 module,

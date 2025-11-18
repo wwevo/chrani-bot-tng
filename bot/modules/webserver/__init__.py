@@ -255,7 +255,7 @@ class Webserver(Module):
 
                 try:
                     response = post(steam_login_url_base, data=params_dict)
-                    valid_response = True if "is_valid:true" in response.text else False
+                    valid_response = "is_valid:true" in response.text
                 except TypeError as error:
                     valid_response = False
 

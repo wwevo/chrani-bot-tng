@@ -66,7 +66,7 @@ class DomManagement(Module):
             dom_element_root=kwargs.get("dom_element_root"),
             dom_element_select_root=kwargs.get("dom_element_select_root"),
             dom_action=kwargs.get("dom_action"),
-            delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
+            delete_selected_entries_active=kwargs.get("count") >= 1,
             dom_element_id=kwargs.get("dom_element_id"),
             confirmed=kwargs.get("confirmed", "False")
         )
@@ -82,7 +82,7 @@ class DomManagement(Module):
             dom_element_root=kwargs.get("dom_element_root"),
             dom_element_select_root=kwargs.get("dom_element_select_root"),
             dom_action=kwargs.get("dom_action"),
-            delete_selected_entries_active=True if kwargs.get("count") >= 1 else False,
+            delete_selected_entries_active=kwargs.get("count") >= 1,
             dom_element_id=kwargs.get("dom_element_id"),
             confirmed=kwargs.get("confirmed", "False")
         )
@@ -172,7 +172,7 @@ class DomManagement(Module):
                 dom_element_select_root=kwargs.get("dom_element_select_root", []),
                 target_module=target_module.get_module_identifier(),
                 count=all_selected_elements,
-                delete_selected_entries_active=True if all_selected_elements >= 1 else False,
+                delete_selected_entries_active=all_selected_elements >= 1,
                 dom_element_id=dom_element_id["id"],
                 confirmed=kwargs.get("confirmed", "False")
             )

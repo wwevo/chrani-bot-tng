@@ -16,7 +16,7 @@ def main_function(module, event_data, dispatchers_steamid):
         action is not None
     ]):
         if action == "enable_location_entry" or action == "disable_location_entry":
-            element_is_enabled = True if action == "enable_location_entry" else False
+            element_is_enabled = action == "enable_location_entry"
 
             module.dom.data.upsert({
                 "module_locations": {

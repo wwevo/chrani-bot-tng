@@ -54,7 +54,8 @@ class PersistentDict(dict):
         fileobj = open(tempname, 'wb' if self.format == 'pickle' else 'w')
         try:
             self.dump(fileobj)
-        except Exception:
+        except (IOError, OSError, pickle.PickleError, json.JSONEncoder) as e:
+            # Clean up temp file if serialization fails
             os.remove(tempname)
             raise
         finally:
@@ -83,6 +84,12 @@ class PersistentDict(dict):
             raise NotImplementedError('Unknown format: ' + repr(self.format))
 
     def load(self, fileobj):
+        """
+        Try to load file using different formats.
+
+        Attempts pickle, json, then csv in that order. This allows
+        automatic format detection when reading existing files.
+        """
         # try formats from most restrictive to least restrictive
         for loader in (
             (pickle.load, {}),
@@ -94,6 +101,9 @@ class PersistentDict(dict):
             fileobj.seek(0)
             try:
                 return self.update(loader[0](fileobj, **loader[1]))
+            except (KeyboardInterrupt, SystemExit):
+                raise  # Don't suppress these critical exceptions
             except Exception:
+                # Try next loader - expected to fail for wrong formats
                 pass
         raise ValueError('File not in a supported format')
