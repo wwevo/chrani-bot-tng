@@ -103,10 +103,18 @@ def frontend_view(*args, **kwargs):
                     dom_action_active="deselect_dom_element"
                 )
 
+                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                sanitized_dataset = str(entity_dict.get("dataset", "")).replace(" ", "_")
+                sanitized_entity_id = str(entity_id)
+
+                # Update entity_dict with sanitized values for template
+                entity_dict_for_template = entity_dict.copy()
+                entity_dict_for_template["dataset"] = sanitized_dataset
+
                 table_rows += module.template_render_hook(
                     module,
                     template=template_table_rows,
-                    entity=entity_dict,
+                    entity=entity_dict_for_template,
                     css_class=get_entity_table_row_css_class(entity_dict),
                     control_select_link=control_select_link
                 )
@@ -218,10 +226,15 @@ def table_rows(*args, ** kwargs):
 
                 for entity_id, entity_dict in updated_values_dict.items():
                     try:
+                        # Sanitize dataset for HTML ID (replace spaces with underscores)
+                        sanitized_dataset = str(entity_dict["dataset"]).replace(" ", "_")
                         table_row_id = "entity_table_row_{}_{}".format(
-                            str(entity_dict["dataset"]),
+                            sanitized_dataset,
                             str(entity_id)
                         )
+                        # Update entity_dict with sanitized dataset for template
+                        entity_dict = entity_dict.copy()
+                        entity_dict["dataset"] = sanitized_dataset
                     except KeyError:
                         table_row_id = "manage_entities_widget"
 
@@ -271,13 +284,15 @@ def table_rows(*args, ** kwargs):
     elif method == "remove":
         entity_origin = updated_values_dict[2]
         entity_id = updated_values_dict[3]
+        # Sanitize dataset for HTML ID (replace spaces with underscores)
+        sanitized_origin = str(entity_origin).replace(" ", "_")
         module.webserver.send_data_to_client_hook(
             module,
             data_type="remove_table_row",
             clients="all",
             target_element={
                 "id": "entity_table_row_{}_{}".format(
-                    str(entity_origin),
+                    sanitized_origin,
                     str(entity_id)
                 )
             }
@@ -298,11 +313,16 @@ def update_widget(*args, **kwargs):
         for clientid in player_clients_to_update:
             try:
                 current_view = module.get_current_view(clientid)
+                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                sanitized_dataset = str(entity_dict.get("dataset", "")).replace(" ", "_")
                 table_row_id = "entity_table_row_{}_{}".format(
-                    str(entity_dict.get("dataset", None)),
+                    sanitized_dataset,
                     str(entity_dict.get("id", None))
-
                 )
+                # Update entity_dict with sanitized dataset
+                entity_dict = entity_dict.copy()
+                entity_dict["dataset"] = sanitized_dataset
+
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
@@ -329,6 +349,9 @@ def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
+    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
@@ -336,7 +359,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "entity_table_row_{}_{}_control_select_link".format(
-                updated_values_dict["dataset"],
+                sanitized_dataset,
                 updated_values_dict["identifier"]
             )
         }

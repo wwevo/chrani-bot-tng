@@ -166,10 +166,14 @@ def frontend_view(*args, **kwargs):
                     player_entry_selected = True
                     all_selected_elements_count += 1
 
+                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                player_dict_for_template = player_dict.copy()
+                player_dict_for_template["dataset"] = str(player_dict.get("dataset", "")).replace(" ", "_")
+
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
                     target_module="module_players",
-                    dom_element=player_dict,
+                    dom_element=player_dict_for_template,
                     dom_element_select_root=["selected_by"],
                     dom_element_entry_selected=player_entry_selected,
                     dom_action_active="deselect_dom_element",
@@ -179,17 +183,17 @@ def frontend_view(*args, **kwargs):
                 table_rows_list.append(module.template_render_hook(
                     module,
                     template=template_table_rows,
-                    player=player_dict,
+                    player=player_dict_for_template,
                     css_class=get_player_table_row_css_class(player_dict),
                     control_info_link=module.template_render_hook(
                         module,
                         template=control_info_link,
-                        player=player_dict
+                        player=player_dict_for_template
                     ),
                     control_kick_link=module.template_render_hook(
                         module,
                         template=control_kick_link,
-                        player=player_dict,
+                        player=player_dict_for_template,
                     ),
                     control_select_link=control_select_link
                 ))
@@ -364,10 +368,15 @@ def table_rows(*args, ** kwargs):
 
                 for player_steamid, player_dict in updated_values_dict.items():
                     try:
+                        # Sanitize dataset for HTML ID (replace spaces with underscores)
+                        sanitized_dataset = str(player_dict["dataset"]).replace(" ", "_")
                         table_row_id = "player_table_row_{}_{}".format(
-                            str(player_dict["dataset"]),
+                            sanitized_dataset,
                             str(player_steamid)
                         )
+                        # Update player_dict with sanitized dataset for template
+                        player_dict = player_dict.copy()
+                        player_dict["dataset"] = sanitized_dataset
                     except KeyError:
                         table_row_id = "manage_players_widget"
 
@@ -418,13 +427,15 @@ def table_rows(*args, ** kwargs):
     elif method == "remove":
         player_origin = updated_values_dict[2]
         player_steamid = updated_values_dict[3]
+        # Sanitize dataset for HTML ID (replace spaces with underscores)
+        sanitized_origin = str(player_origin).replace(" ", "_")
         module.webserver.send_data_to_client_hook(
             module,
             data_type="remove_table_row",
             clients="all",
             target_element={
                 "id": "player_table_row_{}_{}".format(
-                    str(player_origin),
+                    sanitized_origin,
                     str(player_steamid)
                 )
             }
@@ -453,15 +464,22 @@ def update_widget(*args, **kwargs):
             try:
                 module_players = module.dom.data.get("module_players", {})
                 current_view = module.get_current_view(clientid)
+                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                sanitized_dataset = str(original_player_dict.get("dataset", "")).replace(" ", "_")
                 table_row_id = "player_table_row_{}_{}".format(
-                    str(original_player_dict.get("dataset", None)),
+                    sanitized_dataset,
                     str(original_player_dict.get("steamid", None))
-
                 )
+                # Update dicts with sanitized dataset
+                updated_values_dict_sanitized = updated_values_dict.copy()
+                updated_values_dict_sanitized["dataset"] = sanitized_dataset
+                original_player_dict_sanitized = original_player_dict.copy()
+                original_player_dict_sanitized["dataset"] = sanitized_dataset
+
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        payload=updated_values_dict,
+                        payload=updated_values_dict_sanitized,
                         data_type="table_row_content",
                         clients=[clientid],
                         method="update",
@@ -471,13 +489,13 @@ def update_widget(*args, **kwargs):
                             "module": "players",
                             "type": "tr",
                             "selector": "body > main > div > div#manage_players_widget",
-                            "class": get_player_table_row_css_class(original_player_dict),
+                            "class": get_player_table_row_css_class(original_player_dict_sanitized),
                         }
                     )
                 elif current_view == "info":
                     module.webserver.send_data_to_client_hook(
                         module,
-                        payload=updated_values_dict,
+                        payload=updated_values_dict_sanitized,
                         data_type="table_row_content",
                         clients=[clientid],
                         method="update",
@@ -487,7 +505,7 @@ def update_widget(*args, **kwargs):
                             "module": "players",
                             "type": "tr",
                             "selector": "body > main > div > div#manage_players_widget",
-                            "class": get_player_table_row_css_class(updated_values_dict),
+                            "class": get_player_table_row_css_class(updated_values_dict_sanitized),
                         }
                     )
             except AttributeError as error:
@@ -501,6 +519,9 @@ def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
+    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
@@ -508,7 +529,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "player_table_row_{}_{}_control_select_link".format(
-                updated_values_dict["dataset"],
+                sanitized_dataset,
                 updated_values_dict["owner"]
             )
         }
@@ -541,15 +562,19 @@ def update_actions_status(*args, **kwargs):
 
     player_dict = kwargs.get("updated_values_dict", None)
 
+    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    player_dict_sanitized = player_dict.copy()
+    player_dict_sanitized["dataset"] = str(player_dict.get("dataset", "")).replace(" ", "_")
+
     rendered_control_info_link = module.template_render_hook(
         module,
         template=control_info_link,
-        player=player_dict
+        player=player_dict_sanitized
     )
     rendered_control_kick_link = module.template_render_hook(
         module,
         template=control_kick_link,
-        player=player_dict
+        player=player_dict_sanitized
     )
     payload = rendered_control_info_link + rendered_control_kick_link
     module.webserver.send_data_to_client_hook(
@@ -560,8 +585,8 @@ def update_actions_status(*args, **kwargs):
         method="update",
         target_element={
             "id": "player_table_row_{}_{}_actions".format(
-                player_dict.get("dataset"),
-                player_dict.get("steamid")
+                player_dict_sanitized.get("dataset"),
+                player_dict_sanitized.get("steamid")
             )
         }
     )
