@@ -303,6 +303,16 @@ def map_view(*args, **kwargs):
     template_special_locations_toggle_view = module.templates.get_template(
         'manage_locations_widget/control_switch_special_locations_view.html'
     )
+    template_map_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_map_view.html'
+    )
+    control_player_location_view = module.templates.get_template(
+        'manage_locations_widget/control_player_location.html'
+    )
+
+    player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
 
     # Collect all locations for the map
     all_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
@@ -346,25 +356,37 @@ def map_view(*args, **kwargs):
         control_switch_view=module.template_render_hook(
             module,
             template=template_options_toggle,
-            steamid=dispatchers_steamid,
-            action="frontend"
-        ),
-        control_switch_options_view=module.template_render_hook(
-            module,
-            template=template_options_toggle_view,
-            steamid=dispatchers_steamid,
-            options_view_toggle=True
-        ),
-        control_switch_create_new_view=module.template_render_hook(
-            module,
-            template=template_create_new_toggle_view,
-            steamid=dispatchers_steamid
-        ),
-        control_switch_special_locations_view=module.template_render_hook(
-            module,
-            template=template_special_locations_toggle_view,
-            steamid=dispatchers_steamid,
-            special_locations_view_toggle=True
+            control_switch_options_view=module.template_render_hook(
+                module,
+                template=template_options_toggle_view,
+                steamid=dispatchers_steamid,
+                options_view_toggle=True
+            ),
+            control_switch_create_new_view=module.template_render_hook(
+                module,
+                template=template_create_new_toggle_view,
+                steamid=dispatchers_steamid,
+                create_new_view_toggle=True
+            ),
+            control_switch_special_locations_view=module.template_render_hook(
+                module,
+                template=template_special_locations_toggle_view,
+                steamid=dispatchers_steamid,
+                special_locations_view_toggle=True
+            ),
+            control_switch_map_view=module.template_render_hook(
+                module,
+                template=template_map_toggle_view,
+                steamid=dispatchers_steamid,
+                map_view_toggle=False
+            ),
+            control_player_location_view=module.template_render_hook(
+                module,
+                template=control_player_location_view,
+                pos_x=player_coordinates["x"],
+                pos_y=player_coordinates["y"],
+                pos_z=player_coordinates["z"]
+            )
         ),
         locations_json=json.dumps(locations_for_map),
         players_json=json.dumps(players_for_map)
