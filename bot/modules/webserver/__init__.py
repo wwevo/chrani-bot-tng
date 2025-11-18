@@ -326,7 +326,15 @@ class Webserver(Module):
         @self.app.route('/map_tiles/<int:z>/<int:x>/<int:y>.png')
         def map_tile_proxy(z, x, y):
             """Proxy map tiles from game server to avoid CORS issues"""
-            tile_url = f'http://95.216.65.202:26902/map/{z}/{x}/{y}.png'
+            # Get game server host from telnet module config
+            telnet_module = loaded_modules_dict.get("module_telnet")
+            if telnet_module:
+                game_host = telnet_module.options.get("host", "localhost")
+            else:
+                game_host = "localhost"
+
+            # Map tiles are served on port 26902 (game server web interface)
+            tile_url = f'http://{game_host}:26902/map/{z}/{x}/{y}.png'
             try:
                 response = get(tile_url, timeout=5)
                 return Response(
@@ -335,7 +343,7 @@ class Webserver(Module):
                     content_type='image/png'
                 )
             except Exception as e:
-                print(f"[MAP PROXY] Error fetching tile {z}/{x}/{y}: {e}")
+                print(f"[MAP PROXY] Error fetching tile {z}/{x}/{y} from {tile_url}: {e}")
                 return Response(status=404)
 
         # endregion
