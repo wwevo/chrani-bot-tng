@@ -34,12 +34,7 @@
     }
 </style>
 
-<div class="map-controls">
-    {{ control_switch_view }}
-    {{ control_switch_options_view }}
-    {{ control_switch_create_new_view }}
-    {{ control_switch_special_locations_view }}
-</div>
+{{ control_switch_view }}
 
 <div id="map"></div>
 
@@ -47,7 +42,24 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-(function() {
+// Wait for Leaflet to load
+(function initMap() {
+    if (typeof L === 'undefined') {
+        console.log('Waiting for Leaflet to load...');
+        setTimeout(initMap, 100);
+        return;
+    }
+
+    console.log('[MAP] Initializing 7D2D map...');
+
+    // Check if map container exists
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        console.error('[MAP] Map container #map not found!');
+        return;
+    }
+    console.log('[MAP] Map container found:', mapContainer);
+
     // 7 Days to Die uses a simple coordinate system (not lat/lon)
     // We need to transform game coordinates to pixel coordinates
     const MAP_BOUNDS = [[-4096, -4096], [4096, 4096]]; // Typical 7D2D map size
@@ -59,6 +71,7 @@
     });
 
     // Initialize map
+    console.log('[MAP] Creating Leaflet map instance...');
     const map = L.map('map', {
         crs: crs,
         minZoom: -5,
@@ -67,6 +80,7 @@
         center: [0, 0],
         attributionControl: false
     });
+    console.log('[MAP] Map instance created');
 
     // Add tile layer
     L.tileLayer(TILE_SERVER, {
@@ -81,6 +95,9 @@
 
     // Add location markers
     const locations = {{ locations_json|safe }};
+    console.log('[MAP] Locations data:', locations);
+    console.log('[MAP] Number of locations:', Object.keys(locations).length);
+
     Object.keys(locations).forEach(function(locationId) {
         const loc = locations[locationId];
         const coords = [loc.pos_z, loc.pos_x]; // Leaflet uses [y, x] format
@@ -101,6 +118,9 @@
 
     // Add player markers
     const players = {{ players_json|safe }};
+    console.log('[MAP] Players data:', players);
+    console.log('[MAP] Number of players:', Object.keys(players).length);
+
     Object.keys(players).forEach(function(steamid) {
         const player = players[steamid];
         if (player.pos) {
@@ -150,9 +170,22 @@
 
     // Fit map to show all markers on load
     const allMarkers = Object.values(locationMarkers).concat(Object.values(playerMarkers));
+    console.log('[MAP] Total markers:', allMarkers.length);
+
     if (allMarkers.length > 0) {
         const group = L.featureGroup(allMarkers);
         map.fitBounds(group.getBounds().pad(0.1));
+        console.log('[MAP] Map fitted to bounds');
+    } else {
+        console.log('[MAP] No markers to display, using default center');
     }
+
+    console.log('[MAP] Map initialization complete!');
+
+    // Fix map size after a short delay (in case container was hidden initially)
+    setTimeout(function() {
+        map.invalidateSize();
+        console.log('[MAP] Map size invalidated/refreshed');
+    }, 250);
 })();
 </script>
