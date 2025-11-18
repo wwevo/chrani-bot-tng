@@ -16,11 +16,6 @@ def main_function(module, event_data, dispatchers_steamid):
     dom_element_owner = event_data[1].get("dom_element_owner", None)
     dom_element_identifier = event_data[1].get("dom_element_identifier", None)
 
-    # DEBUG: Log incoming request
-    print(f"[DEBUG SELECT] Action: {action}, Module: {target_module}")
-    print(f"[DEBUG SELECT] Origin: {dom_element_origin}, Owner: {dom_element_owner}, ID: {dom_element_identifier}")
-    print(f"[DEBUG SELECT] Select root: {dom_element_select_root}")
-
     if all([
         action is not None,
         dom_element_origin is not None,
@@ -34,20 +29,12 @@ def main_function(module, event_data, dispatchers_steamid):
             general_root = [target_module, "elements", dom_element_origin, dom_element_owner]
             full_root = general_root + dom_element_select_root
 
-            # DEBUG: Log path construction
-            print(f"[DEBUG SELECT] Full path: {full_root}")
-
             selected_by_dict_element = module.dom_management.get_dict_element_by_path(module.dom.data, full_root)
-
-            # DEBUG: Log lookup result
-            print(f"[DEBUG SELECT] Found selected_by list: {selected_by_dict_element}")
-            print(f"[DEBUG SELECT] Type: {type(selected_by_dict_element)}")
 
             # CRITICAL: Make a COPY of the list! Otherwise we modify the original list,
             # and then upsert sees old_value == new_value (both are references to the same list)
             # This would cause the callback to NOT fire because method="unchanged"
             selected_by_dict_element = list(selected_by_dict_element)
-            print(f"[DEBUG SELECT] Made copy of list")
 
             try:
                 if action == "select_dom_element":
@@ -58,14 +45,6 @@ def main_function(module, event_data, dispatchers_steamid):
                         selected_by_dict_element.remove(dispatchers_steamid)
             except ValueError as error:
                 print(error)
-
-            """ We upsert ONLY the selected_by list to trigger the specific callback.
-            The callback is registered at the selected_by level, so we need to update that specific key.
-            """
-            # DEBUG: Log upsert operation
-            print(f"[DEBUG SELECT] Calling upsert - updating ONLY selected_by list")
-            print(f"[DEBUG SELECT] Updated selected_by list: {selected_by_dict_element}")
-            print(f"[DEBUG SELECT] Path: {target_module}/elements/{dom_element_origin}/{dom_element_owner}/selected_by")
 
             module.dom.data.upsert({
                 target_module: {
@@ -83,16 +62,12 @@ def main_function(module, event_data, dispatchers_steamid):
                 }
             }, dispatchers_steamid=dispatchers_steamid, min_callback_level=4)
 
-            print(f"[DEBUG SELECT] Upsert completed, calling callback_success")
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
 
         else:
-            print(f"[DEBUG SELECT] FAIL: Unknown action: {action}")
             event_data[1]["fail_reason"].append("unknown action")
     else:
-        print(f"[DEBUG SELECT] FAIL: Required options not set")
-        print(f"[DEBUG SELECT] Action: {action}, Origin: {dom_element_origin}, Owner: {dom_element_owner}, ID: {dom_element_identifier}")
         event_data[1]["fail_reason"].append("required options not set")
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
