@@ -7,6 +7,30 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
+def _set_players_offline(players_dict):
+    """
+    Helper function to mark all players in a dictionary as offline.
+
+    Creates a new dictionary with all players set to is_online=False and
+    is_initialized=False. This is used when telnet commands fail or timeout.
+
+    Args:
+        players_dict: Dictionary of player data keyed by steam_id
+
+    Returns:
+        Dictionary with same players but marked as offline
+    """
+    modified_players = {}
+    for steam_id, player_data in players_dict.items():
+        # Create a copy of the player dict
+        updated_player = player_data.copy()
+        updated_player["is_online"] = False
+        updated_player["is_initialized"] = False
+        modified_players[steam_id] = updated_player
+
+    return modified_players
+
+
 def main_function(module, event_data, dispatchers_steamid=None):
     timeout = 2  # [seconds]
     timeout_start = time()
@@ -125,15 +149,11 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             continue
 
         if steamid not in online_players_list and existing_player_dict["is_online"] is True:
-            player_dict = {}
-            player_dict.update(existing_player_dict)
-
-            player_dict["is_online"] = False
-            player_dict["is_initialized"] = False
-
-            players_to_update_dict.update({
-                steamid: player_dict
-            })
+            # Create offline version of player using copy
+            updated_player = existing_player_dict.copy()
+            updated_player["is_online"] = False
+            updated_player["is_initialized"] = False
+            players_to_update_dict[steamid] = updated_player
 
     if len(players_to_update_dict) >= 1:
         module.dom.data.upsert({
@@ -164,14 +184,8 @@ def callback_fail(module, event_data, dispatchers_steamid):
         .get(active_dataset, {})
     )
 
-    all_modified_players_dict = {}
-    for steamid, existing_player_dict in all_existing_players_dict.items():
-        player_dict = {}
-        player_dict.update(existing_player_dict)
-        player_dict["is_online"] = False
-        player_dict["is_initialized"] = False
-
-        all_modified_players_dict.update({steamid: player_dict})
+    # Mark all existing players as offline using helper function
+    all_modified_players_dict = _set_players_offline(all_existing_players_dict)
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
@@ -200,13 +214,8 @@ def skip_it(module, event_data, dispatchers_steamid=None):
         .get(active_dataset, {})
     )
 
-    all_modified_players_dict = {}
-    for steamid, existing_player_dict in all_existing_players_dict.items():
-        player_dict = {}
-        player_dict.update(existing_player_dict)
-        player_dict["is_online"] = False
-        player_dict["is_initialized"] = False
-        all_modified_players_dict.update({steamid: player_dict})
+    # Mark all existing players as offline using helper function
+    all_modified_players_dict = _set_players_offline(all_existing_players_dict)
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
