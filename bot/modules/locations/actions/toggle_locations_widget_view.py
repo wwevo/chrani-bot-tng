@@ -22,6 +22,8 @@ def main_function(module, event_data, dispatchers_steamid):
         current_view = "edit_location_entry"
     elif action == "show_special_locations":
         current_view = "special_locations"
+    elif action == "show_map":
+        current_view = "map"
     else:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return

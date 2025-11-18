@@ -3,11 +3,9 @@
 {{ construct_toggle_link(
     bool,
     "hide map", ['widget_event', ['locations', ['toggle_locations_widget_view', {
-        "action": 'toggle_locations_widget_view',
-        "current_view": 'frontend'
+        "action": 'show_frontend'
     }]]],
     "show map", ['widget_event', ['locations', ['toggle_locations_widget_view', {
-        "action": 'toggle_locations_widget_view',
-        "current_view": 'map'
+        "action": 'show_map'
     }]]]
 ) }}
