@@ -85,8 +85,9 @@ def main_function(module, event_data, dispatchers_steamid):
             print(f"[DEBUG SELECT] Updated selected_by list: {selected_by_dict_element}")
 
             # Build the full path to selected_by to trigger the right callback level
+            # Start with innermost dict and wrap outwards: owner -> origin -> elements -> module
             upsert_dict = selected_by_dict
-            for path_elem in reversed([dom_element_owner, dom_element_origin, "elements", target_module]):
+            for path_elem in [dom_element_owner, dom_element_origin, "elements", target_module]:
                 upsert_dict = {path_elem: upsert_dict}
 
             print(f"[DEBUG SELECT] Upsert structure (first 200 chars): {str(upsert_dict)[:200]}")
