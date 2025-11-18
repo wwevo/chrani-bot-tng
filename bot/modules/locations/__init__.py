@@ -92,101 +92,154 @@ class Locations(Module):
 
     @staticmethod
     def get_location_volume(location_dict):
+        """
+        Calculate the 3D volume coordinates for a box-shaped location.
+
+        Handles different map quadrants (SW, SE, NE, NW) with appropriate
+        coordinate adjustments for the game's coordinate system.
+
+        Args:
+            location_dict: Dictionary containing shape, dimensions, and coordinates
+
+        Returns:
+            Dictionary with pos_x, pos_y, pos_z, pos_x2, pos_y2, pos_z2
+            or None if not a box shape
+        """
         shape = location_dict.get("shape", None)
+        if shape != "box":
+            return None
+
         dimensions = location_dict.get("dimensions", None)
-        location_coordinates = location_dict.get("coordinates", None)
+        coords = location_dict.get("coordinates", None)
 
-        if shape == "box":
-            if int(float(location_coordinates["x"])) < 0 and int(float(location_coordinates["z"])) < 0:  # SW quadrant
-                return {
-                    "pos_x": int(float(location_coordinates["x"]) - 1),
-                    "pos_y": int(float(location_coordinates["y"])),
-                    "pos_z": int(float(location_coordinates["z"]) - 1),
-                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
-                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
-                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 2)
-                }
-            if int(float(location_coordinates["x"])) >= 0 and int(float(location_coordinates["z"])) < 0:  # SE quadrant
-                return {
-                    "pos_x": int(float(location_coordinates["x"])),
-                    "pos_y": int(float(location_coordinates["y"])),
-                    "pos_z": int(float(location_coordinates["z"]) - 1),
-                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
-                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
-                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 2)
-                }
-            if any([
-                int(float(location_coordinates["x"])) >= 0 and int(float(location_coordinates["z"])) >= 0,  # NE quadrant
-                int(float(location_coordinates["x"])) < 0 and int(float(location_coordinates["z"])) >= 0  # NW quadrant
-            ]):
-                return {
-                    "pos_x": int(float(location_coordinates["x"])),
-                    "pos_y": int(float(location_coordinates["y"])),
-                    "pos_z": int(float(location_coordinates["z"]) - 1),
-                    "pos_x2": int(float(location_coordinates["x"]) - float(dimensions["width"])),
-                    "pos_y2": int(float(location_coordinates["y"]) + float(dimensions["height"]) - 1),
-                    "pos_z2": int(float(location_coordinates["z"]) + float(dimensions["length"]) - 1)
-                }
+        # Convert coordinates to integers
+        x = int(float(coords["x"]))
+        y = int(float(coords["y"]))
+        z = int(float(coords["z"]))
 
-        return None
+        width = float(dimensions["width"])
+        height = float(dimensions["height"])
+        length = float(dimensions["length"])
+
+        # Determine quadrant and calculate adjustments
+        is_west = x < 0  # West quadrants (SW, NW)
+        is_south = z < 0  # South quadrants (SW, SE)
+
+        # Base coordinates
+        pos_x = x - 1 if is_west else x
+        pos_z = z - 1
+
+        # Z2 adjustment depends on quadrant
+        z2_offset = -2 if is_south else -1
+
+        return {
+            "pos_x": pos_x,
+            "pos_y": y,
+            "pos_z": pos_z,
+            "pos_x2": int(x - width),
+            "pos_y2": int(y + height - 1),
+            "pos_z2": int(z + length + z2_offset)
+        }
+
+    @staticmethod
+    def _is_inside_sphere(player_pos, center, radius):
+        """Check if position is inside a 3D sphere."""
+        distance = math.sqrt(
+            (player_pos['x'] - center['x']) ** 2 +
+            (player_pos['y'] - center['y']) ** 2 +
+            (player_pos['z'] - center['z']) ** 2
+        )
+        return distance <= radius
+
+    @staticmethod
+    def _is_inside_circle(player_pos, center, radius):
+        """Check if position is inside a 2D circle (ignores Y axis)."""
+        distance = math.sqrt(
+            (player_pos['x'] - center['x']) ** 2 +
+            (player_pos['z'] - center['z']) ** 2
+        )
+        return distance <= radius
+
+    @staticmethod
+    def _is_inside_box(player_pos, corner, dimensions):
+        """Check if position is inside a 3D box."""
+        return all([
+            player_pos['x'] - dimensions['width'] <= corner['x'] <= player_pos['x'] + dimensions['width'],
+            player_pos['y'] - dimensions['height'] <= corner['y'] <= player_pos['y'] + dimensions['height'],
+            player_pos['z'] - dimensions['length'] <= corner['z'] <= player_pos['z'] + dimensions['length']
+        ])
+
+    @staticmethod
+    def _is_inside_rectangle(player_pos, corner, dimensions):
+        """Check if position is inside a 2D rectangle (ignores Y axis)."""
+        return all([
+            player_pos['x'] - dimensions['width'] <= corner['x'] <= player_pos['x'] + dimensions['width'],
+            player_pos['z'] - dimensions['length'] <= corner['z'] <= player_pos['z'] + dimensions['length']
+        ])
 
     @staticmethod
     def position_is_inside_boundary(position_dict=None, boundary_dict=None):
-        position_is_inside_boundary = False
+        """
+        Check if a position is inside a boundary shape.
 
-        shape = boundary_dict.get("shape", None)
-        dimensions = boundary_dict.get("dimensions", None)
-        if all([
-            shape is not None,
-            dimensions is not None,
-            position_dict is not None,
-            boundary_dict is not None
-        ]):
-            player_pos_x = float(position_dict.get("pos", {}).get("x", None))
-            player_pos_y = float(position_dict.get("pos", {}).get("y", None))
-            player_pos_z = float(position_dict.get("pos", {}).get("z", None))
+        Supports multiple shape types: spherical, circle, box, rectangular.
 
-            """ round areas have to be treated differently from rectangular ones """
-            if shape in ["spherical", "circle"]:
-                location_radius = float(dimensions.get("radius", 0))
+        Args:
+            position_dict: Dictionary with 'pos' containing x, y, z coordinates
+            boundary_dict: Dictionary with 'shape', 'dimensions', 'coordinates'
 
-                cx = float(boundary_dict.get("coordinates", {}).get("x", 0))
-                cy = float(boundary_dict.get("coordinates", {}).get("y", 0))
-                cz = float(boundary_dict.get("coordinates", {}).get("z", 0))
+        Returns:
+            bool: True if position is inside boundary, False otherwise
+        """
+        if not all([position_dict, boundary_dict]):
+            return False
 
-                if shape == "spherical":  # (3D)
-                    distance_to_location_center = math.sqrt(
-                        (player_pos_x - cx) ** 2 + (player_pos_y - cy) ** 2 + (player_pos_z - cz) ** 2
-                    )
-                    position_is_inside_boundary = distance_to_location_center <= location_radius
-                elif shape == "circle":  # (2D)
-                    distance_to_location_center = math.sqrt(
-                        (player_pos_x - cx) ** 2 + (player_pos_z - cz) ** 2
-                    )
-                    position_is_inside_boundary = distance_to_location_center <= location_radius
+        shape = boundary_dict.get("shape")
+        dimensions = boundary_dict.get("dimensions")
+        coordinates = boundary_dict.get("coordinates")
 
-            elif shape in ["box", "rectangular"]:
-                location_width = float(dimensions.get("width", 0))
-                location_height = float(dimensions.get("height", 0))
-                location_length = float(dimensions.get("length", 0))
+        if not all([shape, dimensions, coordinates]):
+            return False
 
-                south_east_x = float(boundary_dict.get("coordinates", {}).get("x", 0))
-                south_east_y = float(boundary_dict.get("coordinates", {}).get("y", 0))
-                south_east_z = float(boundary_dict.get("coordinates", {}).get("z", 0))
+        # Extract player position
+        player_pos = {
+            'x': float(position_dict.get("pos", {}).get("x", 0)),
+            'y': float(position_dict.get("pos", {}).get("y", 0)),
+            'z': float(position_dict.get("pos", {}).get("z", 0))
+        }
 
-                if shape == "box":  # (3D)
-                    position_is_inside_boundary = all([
-                        player_pos_x - location_width <= south_east_x <= player_pos_x + location_width,
-                        player_pos_y - location_height <= south_east_y <= player_pos_y + location_height,
-                        player_pos_z - location_length <= south_east_z <= player_pos_z + location_length
-                    ])
-                elif shape == "rectangular":  # (2D)
-                    position_is_inside_boundary = all([
-                        player_pos_x - location_width <= south_east_x <= player_pos_x + location_width,
-                        player_pos_z - location_length <= south_east_z <= player_pos_z + location_length
-                    ])
+        # Extract boundary center/corner coordinates
+        boundary_coords = {
+            'x': float(coordinates.get("x", 0)),
+            'y': float(coordinates.get("y", 0)),
+            'z': float(coordinates.get("z", 0))
+        }
 
-        return position_is_inside_boundary
+        # Check shape type and delegate to appropriate helper
+        if shape == "spherical":
+            radius = float(dimensions.get("radius", 0))
+            return Locations._is_inside_sphere(player_pos, boundary_coords, radius)
+
+        elif shape == "circle":
+            radius = float(dimensions.get("radius", 0))
+            return Locations._is_inside_circle(player_pos, boundary_coords, radius)
+
+        elif shape == "box":
+            dims = {
+                'width': float(dimensions.get("width", 0)),
+                'height': float(dimensions.get("height", 0)),
+                'length': float(dimensions.get("length", 0))
+            }
+            return Locations._is_inside_box(player_pos, boundary_coords, dims)
+
+        elif shape == "rectangular":
+            dims = {
+                'width': float(dimensions.get("width", 0)),
+                'length': float(dimensions.get("length", 0))
+            }
+            return Locations._is_inside_rectangle(player_pos, boundary_coords, dims)
+
+        return False
 
     def run(self):
         while not self.stopped.wait(self.next_cycle):
