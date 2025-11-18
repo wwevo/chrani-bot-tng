@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
 from time import sleep, time
 import re
@@ -59,7 +60,7 @@ def is_currently_bloodmoon(module: object, day: int, hour: int = -1) -> bool:
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 3  # [seconds]
+    timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
 

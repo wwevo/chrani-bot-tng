@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot.constants import TELNET_TIMEOUT_SHORT
 from os import path, pardir
 from time import sleep, time
 import re
@@ -32,7 +33,7 @@ def _set_players_offline(players_dict):
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 2  # [seconds]
+    timeout = TELNET_TIMEOUT_SHORT
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
     event_data[1]["fail_reason"] = []

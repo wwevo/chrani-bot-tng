@@ -1,5 +1,12 @@
 from bot.module import Module
 from bot import loaded_modules_dict
+from bot.constants import (
+    PERMISSION_LEVEL_DEFAULT,
+    PERMISSION_LEVEL_BUILDER,
+    PERMISSION_LEVEL_PLAYER,
+    is_moderator_or_higher,
+    is_builder_or_higher
+)
 
 
 class Permissions(Module):
@@ -52,14 +59,17 @@ class Permissions(Module):
             # all permissions default to Allowed if no rules are set here
             permission_denied = False
             dispatchers_permission_level = int(
-                module.dom.data.get("module_players", {}).get("admins", {}).get(dispatchers_steamid, 2000)
+                module.dom.data.get("module_players", {}).get("admins", {}).get(
+                    dispatchers_steamid, PERMISSION_LEVEL_DEFAULT
+                )
             )
             module_identifier = module.get_module_identifier()
 
             if all([
                 event_data[0] == "toggle_enabled_flag"
             ]):
-                if dispatchers_permission_level >= 2:
+                # Deny if not moderator or admin (builder and below can only edit their own)
+                if dispatchers_permission_level >= PERMISSION_LEVEL_BUILDER:
                     permission_denied = True
                 if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
                     permission_denied = False
@@ -69,7 +79,8 @@ class Permissions(Module):
                 event_data[0].endswith("_widget_view")
             ]):
                 if event_data[1]["action"] == "show_options":
-                    if dispatchers_permission_level >= 1:
+                    # Only moderators and admins can see options
+                    if not is_moderator_or_higher(dispatchers_permission_level):
                         permission_denied = True
 
             if module_identifier == "module_dom_management":
@@ -81,21 +92,24 @@ class Permissions(Module):
                         event_data[1]["action"] == "select_dom_element",
                         event_data[1]["action"] == "deselect_dom_element"
                     ]):
-                        if dispatchers_permission_level >= 2:
+                        # Builders and below can only select/deselect their own elements
+                        if dispatchers_permission_level >= PERMISSION_LEVEL_BUILDER:
                             permission_denied = True
                         if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
                             permission_denied = False
                     if any([
                         event_data[1]["action"] == "delete_selected_dom_elements"
                     ]):
-                        if dispatchers_permission_level >= 2:
+                        # Only moderators and admins can delete elements
+                        if dispatchers_permission_level >= PERMISSION_LEVEL_BUILDER:
                             permission_denied = True
 
             if module_identifier == "module_players":
                 if any([
                     event_data[0] == "kick_player"
                 ]):
-                    if dispatchers_permission_level > 2:
+                    # Only builder and above can kick players
+                    if dispatchers_permission_level > PERMISSION_LEVEL_BUILDER:
                         permission_denied = True
 
             if module_identifier == "module_locations":
@@ -109,21 +123,24 @@ class Permissions(Module):
                         event_data[1]["action"] == "enable_location_entry",
                         event_data[1]["action"] == "disable_location_entry"
                     ]):
-                        if dispatchers_permission_level >= 2:
+                        # Builders and below can only edit their own locations
+                        if dispatchers_permission_level >= PERMISSION_LEVEL_BUILDER:
                             permission_denied = True
                         if str(dispatchers_steamid) == event_data[1]["dom_element_owner"]:
                             permission_denied = False
                     if any([
                         event_data[1]["action"] == "show_create_new"
                     ]):
-                        if dispatchers_permission_level > 4:
+                        # Only players and above can create locations
+                        if dispatchers_permission_level > PERMISSION_LEVEL_PLAYER:
                             permission_denied = True
 
             if module_identifier == "module_telnet":
                 if any([
                         event_data[0] == "shutdown"
                 ]):
-                    if dispatchers_permission_level >= 2:
+                    # Only moderators and admins can shutdown server
+                    if dispatchers_permission_level >= PERMISSION_LEVEL_BUILDER:
                         permission_denied = True
 
             if permission_denied:

@@ -1,6 +1,7 @@
 import functools
 import os
 from bot import started_modules_dict
+from bot.constants import WEBSOCKET_PING_TIMEOUT, WEBSOCKET_PING_INTERVAL
 from flask_socketio import disconnect
 
 from bot.module import Module
@@ -109,8 +110,8 @@ class Webserver(Module):
             engineio_logger=self.options.get("engineio_logger", self.default_options.get("engineio_logger")),
             use_reloader=self.options.get("SocketIO_use_reloader", self.default_options.get("SocketIO_use_reloader")),
             passthrough_errors=True,
-            ping_timeout=15,
-            ping_interval=5
+            ping_timeout=WEBSOCKET_PING_TIMEOUT,
+            ping_interval=WEBSOCKET_PING_INTERVAL
         )
         self.login_manager = login_manager
     # endregion

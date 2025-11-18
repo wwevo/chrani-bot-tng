@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
 from time import sleep, time
 import re
@@ -8,7 +9,7 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 3  # [seconds]
+    timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
 

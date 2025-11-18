@@ -1,6 +1,7 @@
 import re
 from bot.module import Module
 from bot import loaded_modules_dict
+from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_TIMEOUT_RECONNECT
 from time import time
 from collections import deque
 import telnetlib
@@ -84,7 +85,11 @@ class Telnet(Module):
     # region Handling telnet initialization and authentication
     def setup_telnet(self):
         try:
-            connection = telnetlib.Telnet(self.options.get("host"), self.options.get("port"), timeout=3)
+            connection = telnetlib.Telnet(
+                self.options.get("host"),
+                self.options.get("port"),
+                timeout=TELNET_TIMEOUT_NORMAL
+            )
             self.tn = self.authenticate(connection, self.options.get("password"))
         except Exception as error:
             print('trying to establish telnet connection failed: {}'.format(error))
@@ -97,7 +102,7 @@ class Telnet(Module):
             # Waiting for the prompt.
             found_prompt = False
             while found_prompt is not True:
-                telnet_response = connection.read_until(b"\r\n", timeout=3).decode("utf-8")
+                telnet_response = connection.read_until(b"\r\n", timeout=TELNET_TIMEOUT_NORMAL).decode("utf-8")
                 if re.match(r"Please enter password:\r\n", telnet_response):
                     found_prompt = True
                 else:
@@ -406,10 +411,10 @@ class Telnet(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            # Throttle connection attempts: only try if connected or 10s passed since last failure
+            # Throttle connection attempts: only try if connected or timeout passed since last failure
             can_attempt_connection = (
                 self.last_connection_loss is None or
-                profile_start > self.last_connection_loss + 10
+                profile_start > self.last_connection_loss + TELNET_TIMEOUT_RECONNECT
             )
 
             if can_attempt_connection:

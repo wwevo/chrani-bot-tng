@@ -1,4 +1,5 @@
 from bot import loaded_modules_dict
+from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
 from time import sleep, time
 import re
@@ -13,7 +14,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
     if active_dataset is None:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
-    timeout = 3  # [seconds]
+    timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
 

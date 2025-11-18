@@ -22,6 +22,7 @@ import operator
 import re
 
 from bot import loaded_modules_dict
+from bot.constants import CALLBACK_THREAD_POOL_SIZE
 
 
 class CallbackDict(dict):
@@ -39,7 +40,7 @@ class CallbackDict(dict):
         # Compiled regex patterns for fast matching: {path_pattern: compiled_regex}
         self._compiled_patterns: Dict[str, re.Pattern] = {}
         # Thread pool for callback execution (reuse threads instead of creating new ones)
-        self._executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix="callback")
+        self._executor = ThreadPoolExecutor(max_workers=CALLBACK_THREAD_POOL_SIZE, thread_name_prefix="callback")
 
     # ==================== Path Utilities ====================
 
