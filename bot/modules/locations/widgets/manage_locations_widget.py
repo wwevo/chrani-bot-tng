@@ -1,5 +1,6 @@
 from bot import loaded_modules_dict
 from os import path, pardir
+import json
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
@@ -23,6 +24,8 @@ def select_view(*args, **kwargs):
     current_view = module.get_current_view(dispatchers_steamid)
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
+    elif current_view == "map":
+        map_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "special_locations":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid, current_view=current_view)
     elif current_view == "delete-modal":
@@ -124,6 +127,10 @@ def frontend_view(*args, **kwargs):
 
     template_special_locations_toggle_view = module.templates.get_template(
         'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
+    template_map_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_map_view.html'
     )
 
     control_player_location_view = module.templates.get_template(
@@ -240,6 +247,12 @@ def frontend_view(*args, **kwargs):
                 steamid=dispatchers_steamid,
                 special_locations_view_toggle=(current_view in ["frontend", "delete-modal"])
             ),
+            control_switch_map_view=module.template_render_hook(
+                module,
+                template=template_map_toggle_view,
+                steamid=dispatchers_steamid,
+                map_view_toggle=(current_view in ["frontend", "special_locations", "delete-modal"])
+            ),
             control_player_location_view=module.template_render_hook(
                 module,
                 template=control_player_location_view,
@@ -259,6 +272,102 @@ def frontend_view(*args, **kwargs):
             action_delete_button=dom_element_delete_button
         )
 
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "manage_locations_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def map_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+    current_view = kwargs.get("current_view", None)
+
+    template_map = module.templates.get_template('manage_locations_widget/view_map.html')
+    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_options_view.html'
+    )
+    template_create_new_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_create_new_view.html'
+    )
+    template_special_locations_toggle_view = module.templates.get_template(
+        'manage_locations_widget/control_switch_special_locations_view.html'
+    )
+
+    # Collect all locations for the map
+    all_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
+    locations_for_map = {}
+
+    for map_identifier, player_locations in all_locations.items():
+        for identifier, location_dict in player_locations.items():
+            location_id = f"{map_identifier}_{identifier}"
+            locations_for_map[location_id] = {
+                "name": location_dict.get("name", "Unknown"),
+                "pos_x": location_dict.get("pos", {}).get("x", 0),
+                "pos_y": location_dict.get("pos", {}).get("y", 0),
+                "pos_z": location_dict.get("pos", {}).get("z", 0),
+                "type": location_dict.get("type", [])
+            }
+
+    # Collect all online players for the map
+    players_module = loaded_modules_dict.get("module_players")
+    players_for_map = {}
+
+    if players_module:
+        active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+        all_players = players_module.dom.data.get("module_players", {}).get("elements", {})
+
+        if active_dataset and active_dataset in all_players:
+            for steamid, player_dict in all_players[active_dataset].items():
+                if player_dict.get("is_online", False):
+                    players_for_map[steamid] = {
+                        "name": player_dict.get("name", "Player"),
+                        "level": player_dict.get("level", 0),
+                        "pos": {
+                            "x": player_dict.get("pos", {}).get("x", 0),
+                            "y": player_dict.get("pos", {}).get("y", 0),
+                            "z": player_dict.get("pos", {}).get("z", 0)
+                        }
+                    }
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template=template_map,
+        control_switch_view=module.template_render_hook(
+            module,
+            template=template_options_toggle,
+            steamid=dispatchers_steamid,
+            action="frontend"
+        ),
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template=template_options_toggle_view,
+            steamid=dispatchers_steamid,
+            options_view_toggle=True
+        ),
+        control_switch_create_new_view=module.template_render_hook(
+            module,
+            template=template_create_new_toggle_view,
+            steamid=dispatchers_steamid
+        ),
+        control_switch_special_locations_view=module.template_render_hook(
+            module,
+            template=template_special_locations_toggle_view,
+            steamid=dispatchers_steamid,
+            special_locations_view_toggle=True
+        ),
+        locations_json=json.dumps(locations_for_map),
+        players_json=json.dumps(players_for_map)
     )
 
     module.webserver.send_data_to_client_hook(

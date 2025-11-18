@@ -1,0 +1,13 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+{%- set bool = map_view_toggle|default(false) -%}
+{{ construct_toggle_link(
+    bool,
+    "hide map", ['widget_event', ['locations', ['toggle_locations_widget_view', {
+        "action": 'toggle_locations_widget_view',
+        "current_view": 'frontend'
+    }]]],
+    "show map", ['widget_event', ['locations', ['toggle_locations_widget_view', {
+        "action": 'toggle_locations_widget_view',
+        "current_view": 'map'
+    }]]]
+) }}

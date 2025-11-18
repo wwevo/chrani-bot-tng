@@ -1,0 +1,158 @@
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+        background: #1a1a1a;
+        border: 2px solid var(--lcars-hopbush);
+        border-radius: 8px;
+    }
+    .leaflet-container {
+        background: #1a1a1a;
+    }
+    .location-marker {
+        background-color: var(--lcars-golden-tanoi);
+        border: 2px solid var(--lcars-tanoi);
+        border-radius: 50%;
+        width: 12px;
+        height: 12px;
+    }
+    .player-marker {
+        background-color: var(--lcars-anakiwa);
+        border: 2px solid var(--lcars-mariner);
+        border-radius: 50%;
+        width: 10px;
+        height: 10px;
+    }
+    .map-controls {
+        margin-bottom: 10px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+    }
+</style>
+
+<div class="map-controls">
+    {{ control_switch_view }}
+    {{ control_switch_options_view }}
+    {{ control_switch_create_new_view }}
+    {{ control_switch_special_locations_view }}
+</div>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+(function() {
+    // 7 Days to Die uses a simple coordinate system (not lat/lon)
+    // We need to transform game coordinates to pixel coordinates
+    const MAP_BOUNDS = [[-4096, -4096], [4096, 4096]]; // Typical 7D2D map size
+    const TILE_SERVER = 'http://95.216.65.202:26902/map/{z}/{x}/{y}.png';
+
+    // Create custom CRS for 7D2D coordinates
+    const crs = L.extend({}, L.CRS.Simple, {
+        transformation: new L.Transformation(1/32, 128, -1/32, 128)
+    });
+
+    // Initialize map
+    const map = L.map('map', {
+        crs: crs,
+        minZoom: -5,
+        maxZoom: 4,
+        zoom: 0,
+        center: [0, 0],
+        attributionControl: false
+    });
+
+    // Add tile layer
+    L.tileLayer(TILE_SERVER, {
+        tileSize: 256,
+        noWrap: true,
+        bounds: MAP_BOUNDS
+    }).addTo(map);
+
+    // Storage for markers
+    const locationMarkers = {};
+    const playerMarkers = {};
+
+    // Add location markers
+    const locations = {{ locations_json|safe }};
+    Object.keys(locations).forEach(function(locationId) {
+        const loc = locations[locationId];
+        const coords = [loc.pos_z, loc.pos_x]; // Leaflet uses [y, x] format
+
+        const marker = L.circleMarker(coords, {
+            radius: 6,
+            fillColor: '#ff9900',
+            color: '#ffcc00',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8,
+            className: 'location-marker'
+        }).addTo(map);
+
+        marker.bindPopup('<b>' + loc.name + '</b><br>Type: ' + (loc.type || []).join(', '));
+        locationMarkers[locationId] = marker;
+    });
+
+    // Add player markers
+    const players = {{ players_json|safe }};
+    Object.keys(players).forEach(function(steamid) {
+        const player = players[steamid];
+        if (player.pos) {
+            const coords = [player.pos.z, player.pos.x];
+
+            const marker = L.circleMarker(coords, {
+                radius: 5,
+                fillColor: '#66ccff',
+                color: '#0099ff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.9,
+                className: 'player-marker'
+            }).addTo(map);
+
+            marker.bindPopup('<b>' + player.name + '</b><br>Level: ' + player.level);
+            playerMarkers[steamid] = marker;
+        }
+    });
+
+    // Listen for real-time player position updates
+    window.socket.on('data', function(data) {
+        if (data.data_type === 'player_position_update') {
+            const steamid = data.steamid;
+            const pos = data.position;
+
+            if (playerMarkers[steamid]) {
+                // Update existing marker
+                playerMarkers[steamid].setLatLng([pos.z, pos.x]);
+            } else if (pos) {
+                // Create new marker
+                const marker = L.circleMarker([pos.z, pos.x], {
+                    radius: 5,
+                    fillColor: '#66ccff',
+                    color: '#0099ff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9,
+                    className: 'player-marker'
+                }).addTo(map);
+
+                marker.bindPopup('<b>' + (data.name || 'Player') + '</b>');
+                playerMarkers[steamid] = marker;
+            }
+        }
+    });
+
+    // Fit map to show all markers on load
+    const allMarkers = Object.values(locationMarkers).concat(Object.values(playerMarkers));
+    if (allMarkers.length > 0) {
+        const group = L.featureGroup(allMarkers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+})();
+</script>
