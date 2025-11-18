@@ -168,11 +168,15 @@ def frontend_view(*args, **kwargs):
                         location_entry_selected = True
                         all_selected_elements_count += 1
 
+                    # Sanitize dataset for HTML ID (replace spaces with underscores)
+                    location_dict_for_template = location_dict.copy()
+                    location_dict_for_template["dataset"] = str(location_dict.get("dataset", "")).replace(" ", "_")
+
                     control_select_link = module.dom_management.get_selection_dom_element(
                         module,
                         target_module="module_locations",
                         dom_element_select_root=[identifier, "selected_by"],
-                        dom_element=location_dict,
+                        dom_element=location_dict_for_template,
                         dom_element_entry_selected=location_entry_selected,
                         dom_action_inactive="select_dom_element",
                         dom_action_active="deselect_dom_element"
@@ -181,19 +185,19 @@ def frontend_view(*args, **kwargs):
                     table_rows_list.append(module.template_render_hook(
                         module,
                         template=template_table_rows,
-                        location=location_dict,
+                        location=location_dict_for_template,
                         player_dict=player_dict,
                         control_select_link=control_select_link,
                         control_enabled_link=module.template_render_hook(
                             module,
                             template=control_enabled_link,
-                            location=location_dict,
+                            location=location_dict_for_template,
                         ),
                         control_edit_link=module.template_render_hook(
                             module,
                             template=control_edit_link,
                             dispatchers_steamid=dispatchers_steamid,
-                            location=location_dict,
+                            location=location_dict_for_template,
                         )
                     ))
 
@@ -505,11 +509,16 @@ def table_row(*args, **kwargs):
                                 location_entry_selected = True
 
                             try:
+                                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                                sanitized_dataset = str(updated_values_dict[player_steamid][identifier]["dataset"]).replace(" ", "_")
                                 table_row_id = "location_table_row_{}_{}_{}".format(
-                                    str(updated_values_dict[player_steamid][identifier]["dataset"]),
+                                    sanitized_dataset,
                                     str(player_steamid),
                                     str(identifier)
                                 )
+                                # Update location_dict with sanitized dataset for template
+                                location_dict = location_dict.copy()
+                                location_dict["dataset"] = sanitized_dataset
                             except KeyError:
                                 table_row_id = "manage_locations_widget"
 
@@ -560,13 +569,16 @@ def table_row(*args, **kwargs):
             player_steamid = updated_values_dict[3]
             location_identifier = updated_values_dict[-1]
 
+            # Sanitize dataset for HTML ID (replace spaces with underscores)
+            sanitized_origin = str(location_origin).replace(" ", "_")
+
             module.webserver.send_data_to_client_hook(
                 module,
                 data_type="remove_table_row",
                 clients="all",
                 target_element={
                     "id": "location_table_row_{}_{}_{}".format(
-                        str(location_origin),
+                        sanitized_origin,
                         str(player_steamid),
                         str(location_identifier)
                     ),
@@ -618,6 +630,9 @@ def update_selection_status(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", None)
     location_identifier = updated_values_dict["identifier"]
 
+    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
@@ -627,7 +642,7 @@ def update_selection_status(*args, **kwargs):
         dom_action_inactive="select_dom_element",
         dom_element_id={
             "id": "location_table_row_{}_{}_{}_control_select_link".format(
-                updated_values_dict["dataset"],
+                sanitized_dataset,
                 updated_values_dict["owner"],
                 updated_values_dict["identifier"]
             )
@@ -655,11 +670,18 @@ def update_enabled_flag(*args, **kwargs):
         .get(location_identifier, None)
     )
 
+    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    location_dict_sanitized = location_dict.copy()
+    location_dict_sanitized["dataset"] = str(location_origin).replace(" ", "_")
+
     data_to_emit = module.template_render_hook(
         module,
         template=control_enable_link,
-        location=location_dict,
+        location=location_dict_sanitized,
     )
+
+    # Sanitize dataset for HTML ID
+    sanitized_origin = str(location_origin).replace(" ", "_")
 
     module.webserver.send_data_to_client_hook(
         module,
@@ -669,7 +691,7 @@ def update_enabled_flag(*args, **kwargs):
         method="update",
         target_element={
             "id": "location_table_row_{}_{}_{}_control_enabled_link".format(
-                location_origin,
+                sanitized_origin,
                 location_owner,
                 location_identifier
             ),
