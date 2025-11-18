@@ -53,50 +53,29 @@ def main_function(module, event_data, dispatchers_steamid):
             except ValueError as error:
                 print(error)
 
-            """ we want to get to the selected_by list, which can be on a different level for each module
-            since we store the path to it in the settings, we can simply construct it on the go.
-            """
-            max_discovered_level = 0
-            selected_by_dict = {}
-            for path_fragment in reversed(dom_element_select_root):
-                if max_discovered_level == 0:  # the first level will get metadata
-                    selected_by_dict = {
-                        path_fragment: selected_by_dict_element,
-                        "dataset": dom_element_origin,
-                        "dataset_original": dom_element_origin,  # Store original for callbacks
-                        "owner": dom_element_owner,
-                        "identifier": dom_element_identifier
-                    }
-                else:
-                    selected_by_dict = {
-                        path_fragment: selected_by_dict
-                    }
-                max_discovered_level += 1
-
-            """ we do a min_callback_level at # + max_discovered_level so we won't trigger actions associated at lower
-            levels. the 3 in this case translates to
-                "%target_module%(0)/elements(1)/%element_origin%(2)/%dom_element_owner(3)"
-                
-            This way we will only trigger on changes from dom_element_owner and deeper, which is what we want.
-            I'm sure with better design this could be done automatically, feel free to contribute if you know how :)
+            """ We upsert ONLY the selected_by list to trigger the specific callback.
+            The callback is registered at the selected_by level, so we need to update that specific key.
             """
             # DEBUG: Log upsert operation
-            print(f"[DEBUG SELECT] Calling upsert with min_callback_level: {3 + max_discovered_level}")
+            print(f"[DEBUG SELECT] Calling upsert - updating ONLY selected_by list")
             print(f"[DEBUG SELECT] Updated selected_by list: {selected_by_dict_element}")
+            print(f"[DEBUG SELECT] Path: {target_module}/elements/{dom_element_origin}/{dom_element_owner}/selected_by")
 
-            # Build the full path to selected_by to trigger the right callback level
-            # Start with innermost dict and wrap outwards: owner -> origin -> elements -> module
-            upsert_dict = selected_by_dict
-            for path_elem in [dom_element_owner, dom_element_origin, "elements", target_module]:
-                upsert_dict = {path_elem: upsert_dict}
-
-            print(f"[DEBUG SELECT] Upsert structure (first 200 chars): {str(upsert_dict)[:200]}")
-
-            module.dom.data.upsert(
-                upsert_dict,
-                dispatchers_steamid=dispatchers_steamid,
-                min_callback_level=3 + max_discovered_level
-            )
+            module.dom.data.upsert({
+                target_module: {
+                    "elements": {
+                        dom_element_origin: {
+                            dom_element_owner: {
+                                "selected_by": selected_by_dict_element,
+                                "dataset": dom_element_origin,
+                                "dataset_original": dom_element_origin,
+                                "owner": dom_element_owner,
+                                "identifier": dom_element_identifier
+                            }
+                        }
+                    }
+                }
+            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=4)
 
             print(f"[DEBUG SELECT] Upsert completed, calling callback_success")
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
