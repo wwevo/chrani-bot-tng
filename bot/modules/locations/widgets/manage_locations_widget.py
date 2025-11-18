@@ -251,7 +251,7 @@ def frontend_view(*args, **kwargs):
                 module,
                 template=template_map_toggle_view,
                 steamid=dispatchers_steamid,
-                map_view_toggle=(current_view in ["frontend", "special_locations", "delete-modal"])
+                map_view_toggle=(current_view == "map")
             ),
             control_player_location_view=module.template_render_hook(
                 module,
@@ -378,7 +378,7 @@ def map_view(*args, **kwargs):
                 module,
                 template=template_map_toggle_view,
                 steamid=dispatchers_steamid,
-                map_view_toggle=False
+                map_view_toggle=True
             ),
             control_player_location_view=module.template_render_hook(
                 module,
