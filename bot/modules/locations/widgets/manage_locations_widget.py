@@ -171,6 +171,7 @@ def frontend_view(*args, **kwargs):
                     # Sanitize dataset for HTML ID (replace spaces with underscores)
                     location_dict_for_template = location_dict.copy()
                     location_dict_for_template["dataset"] = str(location_dict.get("dataset", "")).replace(" ", "_")
+                    location_dict_for_template["dataset_original"] = location_dict.get("dataset", "")
 
                     control_select_link = module.dom_management.get_selection_dom_element(
                         module,
@@ -519,6 +520,7 @@ def table_row(*args, **kwargs):
                                 # Update location_dict with sanitized dataset for template
                                 location_dict = location_dict.copy()
                                 location_dict["dataset"] = sanitized_dataset
+                                location_dict["dataset_original"] = updated_values_dict[player_steamid][identifier].get("dataset", "")
                             except KeyError:
                                 table_row_id = "manage_locations_widget"
 
@@ -673,6 +675,7 @@ def update_enabled_flag(*args, **kwargs):
     # Sanitize dataset for HTML ID (replace spaces with underscores)
     location_dict_sanitized = location_dict.copy()
     location_dict_sanitized["dataset"] = str(location_origin).replace(" ", "_")
+    location_dict_sanitized["dataset_original"] = location_origin
 
     data_to_emit = module.template_render_hook(
         module,

@@ -2,6 +2,7 @@
 {% set owner = dom_element.owner|default("null") %}
 {% set identifier = dom_element.identifier|default("null") %}
 {% set dataset = dom_element.dataset|default("null") %}
+{% set dataset_original = dom_element.dataset_original|default(dataset) %}
 {{ construct_toggle_link(
     dom_element_entry_selected,
     "&#9745;", ['widget_event', ['dom_management', ['select', {
@@ -9,7 +10,7 @@
         "target_module": target_module,
         "dom_element_owner": owner,
         "dom_element_identifier": identifier,
-        "dom_element_origin": dataset,
+        "dom_element_origin": dataset_original,
         'action': dom_action_active
     }]]],
     "&#9744;", ['widget_event', ['dom_management', ['select', {
@@ -17,7 +18,7 @@
         "target_module": target_module,
         "dom_element_owner": owner,
         "dom_element_identifier": identifier,
-        "dom_element_origin": dataset,
+        "dom_element_origin": dataset_original,
         "action": dom_action_inactive
     }]]]
 ) }}

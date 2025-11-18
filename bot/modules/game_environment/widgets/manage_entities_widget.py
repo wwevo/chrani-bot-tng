@@ -110,6 +110,7 @@ def frontend_view(*args, **kwargs):
                 # Update entity_dict with sanitized values for template
                 entity_dict_for_template = entity_dict.copy()
                 entity_dict_for_template["dataset"] = sanitized_dataset
+                entity_dict_for_template["dataset_original"] = entity_dict.get("dataset", "")
 
                 table_rows += module.template_render_hook(
                     module,
@@ -235,6 +236,7 @@ def table_rows(*args, ** kwargs):
                         # Update entity_dict with sanitized dataset for template
                         entity_dict = entity_dict.copy()
                         entity_dict["dataset"] = sanitized_dataset
+                        entity_dict["dataset_original"] = updated_values_dict[entity_id].get("dataset", "")
                     except KeyError:
                         table_row_id = "manage_entities_widget"
 
@@ -320,8 +322,10 @@ def update_widget(*args, **kwargs):
                     str(entity_dict.get("id", None))
                 )
                 # Update entity_dict with sanitized dataset
+                original_dataset = entity_dict.get("dataset", "")
                 entity_dict = entity_dict.copy()
                 entity_dict["dataset"] = sanitized_dataset
+                entity_dict["dataset_original"] = original_dataset
 
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(

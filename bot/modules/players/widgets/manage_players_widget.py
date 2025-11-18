@@ -169,6 +169,7 @@ def frontend_view(*args, **kwargs):
                 # Sanitize dataset for HTML ID (replace spaces with underscores)
                 player_dict_for_template = player_dict.copy()
                 player_dict_for_template["dataset"] = str(player_dict.get("dataset", "")).replace(" ", "_")
+                player_dict_for_template["dataset_original"] = player_dict.get("dataset", "")
 
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
@@ -377,6 +378,7 @@ def table_rows(*args, ** kwargs):
                         # Update player_dict with sanitized dataset for template
                         player_dict = player_dict.copy()
                         player_dict["dataset"] = sanitized_dataset
+                        player_dict["dataset_original"] = updated_values_dict[player_steamid].get("dataset", "")
                     except KeyError:
                         table_row_id = "manage_players_widget"
 
@@ -471,10 +473,13 @@ def update_widget(*args, **kwargs):
                     str(original_player_dict.get("steamid", None))
                 )
                 # Update dicts with sanitized dataset
+                original_dataset = original_player_dict.get("dataset", "")
                 updated_values_dict_sanitized = updated_values_dict.copy()
                 updated_values_dict_sanitized["dataset"] = sanitized_dataset
+                updated_values_dict_sanitized["dataset_original"] = original_dataset
                 original_player_dict_sanitized = original_player_dict.copy()
                 original_player_dict_sanitized["dataset"] = sanitized_dataset
+                original_player_dict_sanitized["dataset_original"] = original_dataset
 
                 if current_view == "frontend":
                     module.webserver.send_data_to_client_hook(
@@ -563,8 +568,10 @@ def update_actions_status(*args, **kwargs):
     player_dict = kwargs.get("updated_values_dict", None)
 
     # Sanitize dataset for HTML ID (replace spaces with underscores)
+    original_dataset = player_dict.get("dataset", "")
     player_dict_sanitized = player_dict.copy()
-    player_dict_sanitized["dataset"] = str(player_dict.get("dataset", "")).replace(" ", "_")
+    player_dict_sanitized["dataset"] = str(original_dataset).replace(" ", "_")
+    player_dict_sanitized["dataset_original"] = original_dataset
 
     rendered_control_info_link = module.template_render_hook(
         module,
