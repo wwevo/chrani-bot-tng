@@ -166,9 +166,9 @@ def frontend_view(*args, **kwargs):
                     player_entry_selected = True
                     all_selected_elements_count += 1
 
-                # Sanitize dataset for HTML ID (replace spaces with underscores)
+                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
                 player_dict_for_template = player_dict.copy()
-                player_dict_for_template["dataset"] = str(player_dict.get("dataset", "")).replace(" ", "_")
+                player_dict_for_template["dataset"] = module.dom_management.sanitize_for_html_id(player_dict.get("dataset", ""))
                 player_dict_for_template["dataset_original"] = player_dict.get("dataset", "")
 
                 control_select_link = module.dom_management.get_selection_dom_element(
@@ -369,8 +369,8 @@ def table_rows(*args, ** kwargs):
 
                 for player_steamid, player_dict in updated_values_dict.items():
                     try:
-                        # Sanitize dataset for HTML ID (replace spaces with underscores)
-                        sanitized_dataset = str(player_dict["dataset"]).replace(" ", "_")
+                        # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                        sanitized_dataset = module.dom_management.sanitize_for_html_id(player_dict["dataset"])
                         table_row_id = "player_table_row_{}_{}".format(
                             sanitized_dataset,
                             str(player_steamid)
@@ -429,8 +429,8 @@ def table_rows(*args, ** kwargs):
     elif method == "remove":
         player_origin = updated_values_dict[2]
         player_steamid = updated_values_dict[3]
-        # Sanitize dataset for HTML ID (replace spaces with underscores)
-        sanitized_origin = str(player_origin).replace(" ", "_")
+        # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+        sanitized_origin = module.dom_management.sanitize_for_html_id(player_origin)
         module.webserver.send_data_to_client_hook(
             module,
             data_type="remove_table_row",
@@ -466,8 +466,8 @@ def update_widget(*args, **kwargs):
             try:
                 module_players = module.dom.data.get("module_players", {})
                 current_view = module.get_current_view(clientid)
-                # Sanitize dataset for HTML ID (replace spaces with underscores)
-                sanitized_dataset = str(original_player_dict.get("dataset", "")).replace(" ", "_")
+                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                sanitized_dataset = module.dom_management.sanitize_for_html_id(original_player_dict.get("dataset", ""))
                 table_row_id = "player_table_row_{}_{}".format(
                     sanitized_dataset,
                     str(original_player_dict.get("steamid", None))
@@ -524,8 +524,8 @@ def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    # Sanitize dataset for HTML ID (replace spaces with underscores)
-    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
@@ -567,10 +567,10 @@ def update_actions_status(*args, **kwargs):
 
     player_dict = kwargs.get("updated_values_dict", None)
 
-    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
     original_dataset = player_dict.get("dataset", "")
     player_dict_sanitized = player_dict.copy()
-    player_dict_sanitized["dataset"] = str(original_dataset).replace(" ", "_")
+    player_dict_sanitized["dataset"] = module.dom_management.sanitize_for_html_id(original_dataset)
     player_dict_sanitized["dataset_original"] = original_dataset
 
     rendered_control_info_link = module.template_render_hook(

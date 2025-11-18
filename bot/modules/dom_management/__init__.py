@@ -26,6 +26,20 @@ class DomManagement(Module):
     # endregion
 
     # region Tools and workers
+    @staticmethod
+    def sanitize_for_html_id(value):
+        """
+        Sanitize a string for use in HTML IDs.
+        Replaces spaces with underscores and converts to lowercase.
+
+        Args:
+            value: String to sanitize
+
+        Returns:
+            Sanitized string safe for HTML IDs
+        """
+        return str(value).replace(" ", "_").lower()
+
     def occurrences_of_key_in_nested_mapping(self, key, value):
         for k, v in value.items():
             if k == key:

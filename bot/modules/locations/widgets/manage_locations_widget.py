@@ -168,9 +168,9 @@ def frontend_view(*args, **kwargs):
                         location_entry_selected = True
                         all_selected_elements_count += 1
 
-                    # Sanitize dataset for HTML ID (replace spaces with underscores)
+                    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
                     location_dict_for_template = location_dict.copy()
-                    location_dict_for_template["dataset"] = str(location_dict.get("dataset", "")).replace(" ", "_")
+                    location_dict_for_template["dataset"] = module.dom_management.sanitize_for_html_id(location_dict.get("dataset", ""))
                     location_dict_for_template["dataset_original"] = location_dict.get("dataset", "")
 
                     control_select_link = module.dom_management.get_selection_dom_element(
@@ -510,8 +510,8 @@ def table_row(*args, **kwargs):
                                 location_entry_selected = True
 
                             try:
-                                # Sanitize dataset for HTML ID (replace spaces with underscores)
-                                sanitized_dataset = str(updated_values_dict[player_steamid][identifier]["dataset"]).replace(" ", "_")
+                                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                                sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict[player_steamid][identifier]["dataset"])
                                 table_row_id = "location_table_row_{}_{}_{}".format(
                                     sanitized_dataset,
                                     str(player_steamid),
@@ -571,8 +571,8 @@ def table_row(*args, **kwargs):
             player_steamid = updated_values_dict[3]
             location_identifier = updated_values_dict[-1]
 
-            # Sanitize dataset for HTML ID (replace spaces with underscores)
-            sanitized_origin = str(location_origin).replace(" ", "_")
+            # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+            sanitized_origin = module.dom_management.sanitize_for_html_id(location_origin)
 
             module.webserver.send_data_to_client_hook(
                 module,
@@ -632,8 +632,8 @@ def update_selection_status(*args, **kwargs):
     updated_values_dict = kwargs.get("updated_values_dict", None)
     location_identifier = updated_values_dict["identifier"]
 
-    # Sanitize dataset for HTML ID (replace spaces with underscores)
-    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
@@ -672,9 +672,9 @@ def update_enabled_flag(*args, **kwargs):
         .get(location_identifier, None)
     )
 
-    # Sanitize dataset for HTML ID (replace spaces with underscores)
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
     location_dict_sanitized = location_dict.copy()
-    location_dict_sanitized["dataset"] = str(location_origin).replace(" ", "_")
+    location_dict_sanitized["dataset"] = module.dom_management.sanitize_for_html_id(location_origin)
     location_dict_sanitized["dataset_original"] = location_origin
 
     data_to_emit = module.template_render_hook(
@@ -683,8 +683,8 @@ def update_enabled_flag(*args, **kwargs):
         location=location_dict_sanitized,
     )
 
-    # Sanitize dataset for HTML ID
-    sanitized_origin = str(location_origin).replace(" ", "_")
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+    sanitized_origin = module.dom_management.sanitize_for_html_id(location_origin)
 
     module.webserver.send_data_to_client_hook(
         module,

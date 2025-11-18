@@ -103,8 +103,8 @@ def frontend_view(*args, **kwargs):
                     dom_action_active="deselect_dom_element"
                 )
 
-                # Sanitize dataset for HTML ID (replace spaces with underscores)
-                sanitized_dataset = str(entity_dict.get("dataset", "")).replace(" ", "_")
+                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                sanitized_dataset = module.dom_management.sanitize_for_html_id(entity_dict.get("dataset", ""))
                 sanitized_entity_id = str(entity_id)
 
                 # Update entity_dict with sanitized values for template
@@ -227,8 +227,8 @@ def table_rows(*args, ** kwargs):
 
                 for entity_id, entity_dict in updated_values_dict.items():
                     try:
-                        # Sanitize dataset for HTML ID (replace spaces with underscores)
-                        sanitized_dataset = str(entity_dict["dataset"]).replace(" ", "_")
+                        # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                        sanitized_dataset = module.dom_management.sanitize_for_html_id(entity_dict["dataset"])
                         table_row_id = "entity_table_row_{}_{}".format(
                             sanitized_dataset,
                             str(entity_id)
@@ -286,8 +286,8 @@ def table_rows(*args, ** kwargs):
     elif method == "remove":
         entity_origin = updated_values_dict[2]
         entity_id = updated_values_dict[3]
-        # Sanitize dataset for HTML ID (replace spaces with underscores)
-        sanitized_origin = str(entity_origin).replace(" ", "_")
+        # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+        sanitized_origin = module.dom_management.sanitize_for_html_id(entity_origin)
         module.webserver.send_data_to_client_hook(
             module,
             data_type="remove_table_row",
@@ -315,8 +315,8 @@ def update_widget(*args, **kwargs):
         for clientid in player_clients_to_update:
             try:
                 current_view = module.get_current_view(clientid)
-                # Sanitize dataset for HTML ID (replace spaces with underscores)
-                sanitized_dataset = str(entity_dict.get("dataset", "")).replace(" ", "_")
+                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+                sanitized_dataset = module.dom_management.sanitize_for_html_id(entity_dict.get("dataset", ""))
                 table_row_id = "entity_table_row_{}_{}".format(
                     sanitized_dataset,
                     str(entity_dict.get("id", None))
@@ -353,8 +353,8 @@ def update_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    # Sanitize dataset for HTML ID (replace spaces with underscores)
-    sanitized_dataset = str(updated_values_dict["dataset"]).replace(" ", "_")
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
