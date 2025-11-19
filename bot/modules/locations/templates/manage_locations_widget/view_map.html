@@ -267,8 +267,9 @@
         }
     });
 
-    // Listen for real-time player position updates
-    window.socket.on('data', function(data) {
+    // Create named handler function for map events
+    // This allows us to remove it specifically without affecting other listeners
+    function mapDataHandler(data) {
         if (data.data_type === 'player_position_update') {
             const steamid = data.steamid;
             const pos = data.position;
@@ -325,7 +326,12 @@
                 delete locationShapes[locationId];
             }
         }
-    });
+    }
+
+    // Remove old map event listener if it exists, then register the new one
+    // This prevents accumulation of duplicate listeners on view switches
+    window.socket.off('data', mapDataHandler);
+    window.socket.on('data', mapDataHandler);
 
     // Fit map to show all markers and shapes on load
     const allMapObjects = Object.values(locationShapes).concat(Object.values(playerMarkers));
