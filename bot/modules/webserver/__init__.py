@@ -230,10 +230,13 @@ class Webserver(Module):
             if clients is not None and isinstance(clients, list):
                 for steamid in clients:
                     try:
-                        emit_options = {
-                            "room": self.connected_clients[steamid].sid
-                        }
-                        data_packages_to_send.append([widget_options, emit_options])
+                        # Send to ALL socket connections for this user (multiple browsers)
+                        user = self.connected_clients[steamid]
+                        for socket_id in user.socket_ids:
+                            emit_options = {
+                                "room": socket_id
+                            }
+                            data_packages_to_send.append([widget_options, emit_options])
                     except (AttributeError, KeyError) as error:
                         # User connection state is inconsistent - log and skip this client
                         logger.debug(
@@ -242,7 +245,7 @@ class Webserver(Module):
                             data_type=data_type,
                             error_type=type(error).__name__,
                             has_client=steamid in self.connected_clients,
-                            has_sid=hasattr(self.connected_clients.get(steamid), 'sid') if steamid in self.connected_clients else False
+                            has_sockets=len(self.connected_clients.get(steamid, type('obj', (), {'socket_ids': []})).socket_ids) > 0
                         )
 
             for data_package in data_packages_to_send:
@@ -480,26 +483,29 @@ class Webserver(Module):
             if not hasattr(request, 'sid'):
                 return False  # not allowed here
             else:
-                # Connection successful - no log needed (would be spam)
-                self.connected_clients[current_user.id].sid = request.sid
+                # Connection successful - add this socket to the user's socket list
+                # This allows multiple browser sessions for the same user
+                self.connected_clients[current_user.id].add_socket(request.sid)
                 # emit('connected', room=request.sid, broadcast=False)
                 for module in loaded_modules_dict.values():
                     module.on_socket_connect(current_user.id)
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
-            pass
+            # Remove this socket from the user's socket list
+            if current_user.is_authenticated and current_user.id in self.connected_clients:
+                self.connected_clients[current_user.id].remove_socket(request.sid)
 
         @self.websocket.on('ding')
         def ding_dong():
             current_user.last_seen = time()
             try:
-                emit('dong', room=current_user.sid)
-                # self.connected_clients[current_user.id].sid = request.sid
+                # Use request.sid (current socket) not current_user.sid (could be another browser!)
+                emit('dong', room=request.sid)
 
             except AttributeError as error:
                 # user disappeared
-                logger.debug("client_disappeared", user=current_user.id, sid=current_user.sid)
+                logger.debug("client_disappeared", user=current_user.id, sid=request.sid)
 
         @self.websocket.on('widget_event')
         @self.authenticated_only
