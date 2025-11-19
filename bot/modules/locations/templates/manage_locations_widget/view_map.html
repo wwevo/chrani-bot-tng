@@ -67,34 +67,59 @@
     }
     console.log('[MAP] Map container found:', mapContainer);
 
-    // 7 Days to Die uses a simple coordinate system (not lat/lon)
-    // We need to transform game coordinates to pixel coordinates
-    const MAP_BOUNDS = [[-4096, -4096], [4096, 4096]]; // Typical 7D2D map size
-    const TILE_SERVER = '/map_tiles/{z}/{x}/{y}.png'; // Proxied through bot to avoid CORS
+    // 7D2D Projection (from Alloc's mod)
+    const SDTD_Projection = {
+        project: function (latlng) {
+            return new L.Point(
+                (latlng.lat) / Math.pow(2, 4),
+                (latlng.lng) / Math.pow(2, 4)
+            );
+        },
+        unproject: function (point) {
+            return new L.LatLng(
+                point.x * Math.pow(2, 4),
+                point.y * Math.pow(2, 4)
+            );
+        }
+    };
 
-    // Create custom CRS for 7D2D coordinates
-    const crs = L.extend({}, L.CRS.Simple, {
-        transformation: new L.Transformation(1/32, 128, -1/32, 128)
+    // 7D2D CRS (from Alloc's mod)
+    const SDTD_CRS = L.extend({}, L.CRS.Simple, {
+        projection: SDTD_Projection,
+        transformation: new L.Transformation(1, 0, -1, 0),
+        scale: function (zoom) {
+            return Math.pow(2, zoom);
+        }
     });
 
-    // Initialize map
+    // Initialize map with 7D2D CRS
     console.log('[MAP] Creating Leaflet map instance...');
     const map = L.map('map', {
-        crs: crs,
-        minZoom: -5,
-        maxZoom: 4,
-        zoom: 0,
+        crs: SDTD_CRS,
         center: [0, 0],
+        zoom: 3,
+        minZoom: -1,
+        maxZoom: 7,
         attributionControl: false
     });
     console.log('[MAP] Map instance created');
 
-    // Add tile layer
-    L.tileLayer(TILE_SERVER, {
-        tileSize: 256,
-        noWrap: true,
-        bounds: MAP_BOUNDS
-    }).addTo(map);
+    // Create tile layer with Y-axis flip hack
+    const tileLayer = L.tileLayer('/map_tiles/{z}/{x}/{y}.png', {
+        tileSize: 128,
+        minNativeZoom: 0,
+        minZoom: -1,
+        maxNativeZoom: 4,
+        maxZoom: 7
+    });
+
+    // Override getTileUrl to flip Y-axis (7D2D tile layout quirk)
+    tileLayer.getTileUrl = function (coords) {
+        coords.y = (-coords.y) - 1;
+        return L.TileLayer.prototype.getTileUrl.bind(tileLayer)(coords);
+    };
+
+    tileLayer.addTo(map);
 
     // Storage for markers
     const locationMarkers = {};
@@ -107,7 +132,7 @@
 
     Object.keys(locations).forEach(function(locationId) {
         const loc = locations[locationId];
-        const coords = [loc.pos_z, loc.pos_x]; // Leaflet uses [y, x] format
+        const coords = [loc.pos_x, loc.pos_z]; // 7D2D coordinates
 
         const marker = L.circleMarker(coords, {
             radius: 6,
@@ -131,7 +156,7 @@
     Object.keys(players).forEach(function(steamid) {
         const player = players[steamid];
         if (player.pos) {
-            const coords = [player.pos.z, player.pos.x];
+            const coords = [player.pos.x, player.pos.z];
 
             const marker = L.circleMarker(coords, {
                 radius: 5,
@@ -156,10 +181,10 @@
 
             if (playerMarkers[steamid]) {
                 // Update existing marker
-                playerMarkers[steamid].setLatLng([pos.z, pos.x]);
+                playerMarkers[steamid].setLatLng([pos.x, pos.z]);
             } else if (pos) {
                 // Create new marker
-                const marker = L.circleMarker([pos.z, pos.x], {
+                const marker = L.circleMarker([pos.x, pos.z], {
                     radius: 5,
                     fillColor: '#66ccff',
                     color: '#0099ff',
