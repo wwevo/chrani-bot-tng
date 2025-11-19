@@ -267,8 +267,15 @@
         }
     });
 
-    // Listen for real-time player position updates
-    window.socket.on('data', function(data) {
+    // Remove old map handler if it exists from previous view load
+    if (window.mapDataHandler) {
+        window.socket.off('data', window.mapDataHandler);
+        console.log('[MAP] Removed old socket listener');
+    }
+
+    // Create NEW handler function that captures current local scope
+    // This must be recreated each time to access current locationShapes/playerMarkers
+    window.mapDataHandler = function(data) {
         if (data.data_type === 'player_position_update') {
             const steamid = data.steamid;
             const pos = data.position;
@@ -325,7 +332,11 @@
                 delete locationShapes[locationId];
             }
         }
-    });
+    };
+
+    // Register the new handler
+    window.socket.on('data', window.mapDataHandler);
+    console.log('[MAP] Registered new socket listener');
 
     // Fit map to show all markers and shapes on load
     const allMapObjects = Object.values(locationShapes).concat(Object.values(playerMarkers));
