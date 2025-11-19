@@ -23,9 +23,9 @@ import re
 
 from bot import loaded_modules_dict
 from bot.constants import CALLBACK_THREAD_POOL_SIZE
-from bot.logger import logger
+from bot.logger import get_logger
 
-
+logger = get_logger("telnet")
 class CallbackDict(dict):
     """
     A dictionary that triggers registered callbacks when its values change.
