@@ -23,6 +23,7 @@ import re
 
 from bot import loaded_modules_dict
 from bot.constants import CALLBACK_THREAD_POOL_SIZE
+from bot.logger import logger
 
 
 class CallbackDict(dict):
@@ -189,9 +190,34 @@ class CallbackDict(dict):
         """Execute a list of callback packages in separate threads."""
         for package in callback_packages:
             self._executor.submit(
-                package["target"],
+                self._safe_callback_wrapper,
+                package
+            )
+
+    def _safe_callback_wrapper(self, package: Dict) -> None:
+        """
+        Wrapper that safely executes a callback with error handling.
+
+        This prevents callback errors from breaking the system and provides
+        visibility into what's failing.
+        """
+        try:
+            package["target"](
                 *package["args"],
                 **package["kwargs"]
+            )
+        except Exception as error:
+            # Extract useful context for debugging
+            module = package["args"][0] if package["args"] else None
+            module_name = module.getName() if hasattr(module, 'getName') else 'unknown'
+            matched_path = package["kwargs"].get("matched_path", "unknown")
+
+            logger.error(
+                "callback_execution_failed",
+                module=module_name,
+                path=matched_path,
+                error=str(error),
+                error_type=type(error).__name__
             )
 
     # ==================== Dictionary Operations ====================

@@ -232,16 +232,32 @@ class Webserver(Module):
                             "room": self.connected_clients[steamid].sid
                         }
                         data_packages_to_send.append([widget_options, emit_options])
-                    except (AttributeError, KeyError):
-                        # User connection state is inconsistent - skip this client
-                        pass
+                    except (AttributeError, KeyError) as error:
+                        # User connection state is inconsistent - log and skip this client
+                        logger.debug(
+                            "socket_send_failed_no_client",
+                            steamid=steamid,
+                            data_type=data_type,
+                            error_type=type(error).__name__,
+                            has_client=steamid in self.connected_clients,
+                            has_sid=hasattr(self.connected_clients.get(steamid), 'sid') if steamid in self.connected_clients else False
+                        )
 
             for data_package in data_packages_to_send:
-                self.websocket.emit(
-                    'data',
-                    data_package[0],
-                    **data_package[1]
-                )
+                try:
+                    self.websocket.emit(
+                        'data',
+                        data_package[0],
+                        **data_package[1]
+                    )
+                except Exception as error:
+                    # Socket emit failed - log the error
+                    logger.error(
+                        "socket_emit_failed",
+                        data_type=data_type,
+                        error=str(error),
+                        error_type=type(error).__name__
+                    )
 
     def emit_event_status(self, module, event_data, recipient_steamid, status=None):
         clients = recipient_steamid
