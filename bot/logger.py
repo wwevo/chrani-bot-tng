@@ -33,11 +33,13 @@ from typing import Any, Dict, Optional
 class Colors:
     """ANSI color codes for terminal output"""
     # Foreground colors (bright versions for better visibility)
-    RED = "\033[91m"      # Errors
-    YELLOW = "\033[93m"   # Warnings
-    GREEN = "\033[92m"    # Info
-    GRAY = "\033[90m"     # Debug
-    RESET = "\033[0m"     # Reset to default
+    RED = "\033[91m"         # Errors
+    YELLOW = "\033[93m"      # Warnings
+    GREEN = "\033[92m"       # Info
+    GRAY = "\033[90m"        # Debug
+    LIGHT_GRAY = "\033[37m"  # Timestamps
+    WHITE = "\033[97m"       # Event/context text
+    RESET = "\033[0m"        # Reset to default
 
     # Optional: Bold variants
     BOLD = "\033[1m"
@@ -156,34 +158,42 @@ class ContextLogger:
 
         # Build timestamp
         timestamp = ""
+        timestamp_color = ""
         if LogConfig.show_timestamps:
             now = datetime.now()
             # Truncate microseconds to milliseconds
             timestamp_str = now.strftime(LogConfig.timestamp_format)[:-3]
-            timestamp = f"[{timestamp_str}] "
+            if LogConfig.use_colors:
+                timestamp_color = Colors.LIGHT_GRAY
+                timestamp = f"{timestamp_color}[{timestamp_str}]{Colors.RESET} "
+            else:
+                timestamp = f"[{timestamp_str}] "
 
         # Build context string
         context_str = self._format_context(**context)
 
         # Get color for this level
-        color = ""
+        level_color = ""
+        text_color = ""
         reset = ""
         if LogConfig.use_colors:
             if level == LogLevel.ERROR:
-                color = Colors.RED
+                level_color = Colors.RED
             elif level == LogLevel.WARN:
-                color = Colors.YELLOW
+                level_color = Colors.YELLOW
             elif level == LogLevel.INFO:
-                color = Colors.GREEN
+                level_color = Colors.GREEN
             elif level == LogLevel.DEBUG:
-                color = Colors.GRAY
+                level_color = Colors.GRAY
+            text_color = Colors.WHITE
             reset = Colors.RESET
 
         # Format: [LEVEL] [TIMESTAMP] event | context
+        # Only the [LEVEL] tag is colored, rest is white text with gray timestamp
         if context_str:
-            message = f"{color}[{level:<5}]{reset} {timestamp}{event} | {context_str}"
+            message = f"{level_color}[{level:<5}]{reset} {timestamp}{text_color}{event} | {context_str}{reset}"
         else:
-            message = f"{color}[{level:<5}]{reset} {timestamp}{event}"
+            message = f"{level_color}[{level:<5}]{reset} {timestamp}{text_color}{event}{reset}"
 
         # Output to stderr (standard for logs, keeps stdout clean)
         print(message, file=sys.stderr, flush=True)
