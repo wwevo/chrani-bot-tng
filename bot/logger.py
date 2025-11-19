@@ -30,6 +30,19 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 
+class Colors:
+    """ANSI color codes for terminal output"""
+    # Foreground colors (bright versions for better visibility)
+    RED = "\033[91m"      # Errors
+    YELLOW = "\033[93m"   # Warnings
+    GREEN = "\033[92m"    # Info
+    GRAY = "\033[90m"     # Debug
+    RESET = "\033[0m"     # Reset to default
+
+    # Optional: Bold variants
+    BOLD = "\033[1m"
+
+
 class LogLevel:
     """Log level constants"""
     ERROR = "ERROR"
@@ -51,6 +64,7 @@ class LogConfig:
     # Format settings
     show_timestamps = True
     timestamp_format = "%Y-%m-%d %H:%M:%S.%f"  # Includes microseconds
+    use_colors = True  # Enable colored output
 
     @classmethod
     def enable_debug(cls):
@@ -61,6 +75,11 @@ class LogConfig:
     def disable_info(cls):
         """Disable info logging (for production)"""
         cls.enabled_levels.discard(LogLevel.INFO)
+
+    @classmethod
+    def disable_colors(cls):
+        """Disable colored output (for log files or incompatible terminals)"""
+        cls.use_colors = False
 
 
 class ContextLogger:
@@ -146,11 +165,25 @@ class ContextLogger:
         # Build context string
         context_str = self._format_context(**context)
 
+        # Get color for this level
+        color = ""
+        reset = ""
+        if LogConfig.use_colors:
+            if level == LogLevel.ERROR:
+                color = Colors.RED
+            elif level == LogLevel.WARN:
+                color = Colors.YELLOW
+            elif level == LogLevel.INFO:
+                color = Colors.GREEN
+            elif level == LogLevel.DEBUG:
+                color = Colors.GRAY
+            reset = Colors.RESET
+
         # Format: [LEVEL] [TIMESTAMP] event | context
         if context_str:
-            message = f"[{level:<5}] {timestamp}{event} | {context_str}"
+            message = f"{color}[{level:<5}]{reset} {timestamp}{event} | {context_str}"
         else:
-            message = f"[{level:<5}] {timestamp}{event}"
+            message = f"{color}[{level:<5}]{reset} {timestamp}{event}"
 
         # Output to stderr (standard for logs, keeps stdout clean)
         print(message, file=sys.stderr, flush=True)
