@@ -305,17 +305,31 @@ document.addEventListener("DOMContentLoaded", function(event) {
     load_lcars_colors();
 
     window.socket.on('data', function(data) {
-        if ([
-            "element_content",
-            "widget_content",
-            "modal_content",
-            "remove_table_row",
-            "table_row",
-            "table_row_content"
-        ].includes(data["data_type"])) {
+        try {
+            // Log event for debugging (can be disabled in production)
+            if (window.socketDebugMode) {
+                console.log('[SOCKET] Received event:', data.data_type, data);
+            }
+
+            if ([
+                "element_content",
+                "widget_content",
+                "modal_content",
+                "remove_table_row",
+                "table_row",
+                "table_row_content"
+            ].includes(data["data_type"])) {
             /* target element needs to be present for these operations */
+
+            // Validate data structure before accessing
+            if (!data["target_element"]) {
+                console.error('[SOCKET] Missing target_element in data:', data);
+                return false;
+            }
+
             let target_element_id = data["target_element"]["id"];
             if (target_element_id == null) {
+                console.warn('[SOCKET] target_element.id is null for data_type:', data["data_type"]);
                 return false;
             }
 
@@ -365,8 +379,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         return false;
                     }
                 } else if (data["method"] === "replace") {
+                    // Note: After outerHTML replacement, target_element reference becomes invalid
+                    // Flash BEFORE replacing, or flash the parent element
+                    let parent = target_element.parentElement;
                     target_element.outerHTML = data["payload"];
-                    flash(target_element);
+                    if (parent) {
+                        // Flash the new element by finding it in the parent
+                        let new_element = document.getElementById(target_element_id);
+                        if (new_element) {
+                            flash(new_element);
+                        }
+                    }
                     // console.log("element content replaced");
                 }
             }
@@ -439,7 +462,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
             }
             if (data["data_type"] === "remove_table_row") {
                 let target_element = document.getElementById(target_element_id);
-                target_element.parentElement.removeChild(target_element);
+                if (target_element && target_element.parentElement) {
+                    target_element.parentElement.removeChild(target_element);
+                } else {
+                    console.warn('[SOCKET] Cannot remove table row - element not found:', target_element_id);
+                }
             }
         } else if (data["data_type"] === "status_message") {
             /* this does not require any website containers. we simply play sounds and echo logs */
@@ -460,6 +487,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     );
                 }
             }
+        }
+        } catch (error) {
+            // Catch any errors to prevent handler from breaking
+            console.error('[SOCKET ERROR] Failed to process event:', {
+                error: error.message,
+                stack: error.stack,
+                data_type: data ? data.data_type : 'unknown',
+                data: data
+            });
+
+            // Play error sound to alert user
+            play_audio_file("computer_error");
+
+            // Flash screen red to indicate error
+            flash(document.body, lcars_colors["lcars-chestnut-rose"]);
         }
     });
 });
