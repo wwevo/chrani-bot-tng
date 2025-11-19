@@ -1,11 +1,13 @@
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
+from bot.logger import get_logger
 from os import path, pardir
 from time import time, sleep
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("players.kick_player")
 
 
 def main_function(module, event_data, dispatchers_steamid):
@@ -33,8 +35,11 @@ def main_function(module, event_data, dispatchers_steamid):
                 r"from\s(?P<called_by>.*)"
             ).replace('"', '\\"')
 
-            print(command)
-            print(regex)
+            logger.debug("kick_command_prepared",
+                        command=command,
+                        user=dispatchers_steamid,
+                        target=player_to_be_kicked,
+                        reason=reason)
 
             if not module.telnet.add_telnet_command_to_queue(command):
                 module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)

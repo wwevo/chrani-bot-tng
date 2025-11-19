@@ -1,9 +1,11 @@
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
+from bot.logger import get_logger
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("game_environment.shutdown_handler")
 
 
 def main_function(*args, **kwargs):
@@ -14,9 +16,9 @@ def main_function(*args, **kwargs):
     force_shutdown = updated_values_dict.get("force_shutdown", None)
 
     if cancel_shutdown:
-        print("cancel")
+        logger.info("shutdown_cancelled")
     if force_shutdown:
-        print("force")
+        logger.info("shutdown_forced")
 
 
 trigger_meta = {

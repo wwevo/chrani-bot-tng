@@ -1,11 +1,13 @@
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
+from bot.logger import get_logger
 from os import path, pardir
 from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("players.teleport_player")
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
@@ -25,8 +27,6 @@ def main_function(module, event_data, dispatchers_steamid=None):
     )
     player_coordinates = player_to_be_teleported_dict.get("pos", None)
 
-    # print(target_coordinates != player_coordinates)
-    # print(target_coordinates, player_coordinates)
     if all([
         dataset is not None,
         target_coordinates is not None,
@@ -89,7 +89,10 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
-    print("teleport failed!", event_data[1].get("fail_reason", "no reason known"))
+    logger.error("teleport_failed",
+                user=dispatchers_steamid,
+                target=event_data[1].get("steamid"),
+                reason=event_data[1].get("fail_reason", "no reason known"))
 
 
 action_meta = {

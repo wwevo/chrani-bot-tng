@@ -38,7 +38,6 @@ def main_function(*args, **kwargs):
             # nothing to do, we are inside the lobby
             return
 
-        # print("player {} is unauthenticated and outside the lobby oO". format(updated_values_dict.get("name", "NAME NOT FOUND")))
         # no early exits, seems like the player is outside an active lobby without any authentication!
         # seems like we should port ^^
         event_data = ['teleport_to_coordinates', {

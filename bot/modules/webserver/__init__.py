@@ -129,10 +129,10 @@ class Webserver(Module):
             # doesn't even have to be reachable
             s.connect(('10.255.255.255', 1))
             host = s.getsockname()[0]
-            print("{}: discovered IP: {}".format(self.options.get("module_name"), host))
+            logger.info("ip_discovered", ip=host)
         except Exception as error:
             host = self.default_options.get("host")
-            print("{}: could not find IP, using {} instead!".format(self.options.get("module_name"), host))
+            logger.warn("ip_discovery_failed", fallback_ip=host, error=str(error))
         finally:
             s.close()
         return host
@@ -481,7 +481,7 @@ class Webserver(Module):
 
             except AttributeError as error:
                 # user disappeared
-                print("client {} (SID:{}) disappeared".format(current_user.id, current_user.sid))
+                logger.debug("client_disappeared", user=current_user.id, sid=current_user.sid)
 
         @self.websocket.on('widget_event')
         @self.authenticated_only
@@ -515,9 +515,7 @@ class Webserver(Module):
         else:
             # Running under WSGI server - just register routes and return
             # The module will keep running in its thread for background tasks
-            print("{}: Running under WSGI server mode".format(
-                self.options.get("module_name", self.default_options.get("module_name"))
-            ))
+            logger.info("wsgi_mode_detected")
 
 
 loaded_modules_dict[Webserver().get_module_identifier()] = Webserver()

@@ -1,5 +1,6 @@
 from bot.module import Module
 from bot import loaded_modules_dict
+from bot.logger import get_logger
 from bot.constants import (
     PERMISSION_LEVEL_DEFAULT,
     PERMISSION_LEVEL_BUILDER,
@@ -7,6 +8,8 @@ from bot.constants import (
     is_moderator_or_higher,
     is_builder_or_higher
 )
+
+logger = get_logger("permissions")
 
 
 class Permissions(Module):
@@ -175,11 +178,10 @@ class Permissions(Module):
             )
 
             if permission_denied:
-                print("permissions:", "permission denied for {} ({}:{})".format(
-                    event_data[0],
-                    dispatchers_steamid,
-                    permission_level
-                ))
+                logger.warn("permission_denied",
+                           action=event_data[0],
+                           user=dispatchers_steamid,
+                           permission_level=permission_level)
 
             event_data[1]["has_permission"] = not permission_denied
 

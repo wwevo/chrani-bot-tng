@@ -284,7 +284,7 @@ class Telnet(Module):
             else:
                 # Combined line still doesn't make sense
                 stripped = combined_line.rstrip("\r\n")
-                print(f"WRN {stripped}")
+                logger.warn("telnet_invalid_line_combined", line=stripped)
                 self.recent_telnet_response = None
                 return None
         else:
@@ -295,7 +295,7 @@ class Telnet(Module):
                 # Invalid start - warn if not empty
                 stripped = component.rstrip("\r\n")
                 if len(stripped) != 0:
-                    print(f"WRN {stripped}")
+                    logger.warn("telnet_invalid_line_start", line=stripped)
             return None
 
     def _process_last_component(self, component: str) -> str:

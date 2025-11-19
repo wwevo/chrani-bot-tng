@@ -69,7 +69,6 @@ def main_function(module, event_data, dispatchers_steamid):
             **coordinates
         )
 
-        # print(command)
         module.telnet.add_telnet_command_to_queue(command)
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return

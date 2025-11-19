@@ -1,11 +1,13 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL
+from bot.logger import get_logger
 from os import path, pardir
 from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("game_environment.getgameprefs")
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
@@ -85,9 +87,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             }
         })
 
-        print("system:", "working with the \"{}\" dataset".format(current_game_name))
+        logger.info("active_dataset_set", dataset=current_game_name)
     else:
-        print("system:", "stuff is missing. bot ain't working")
+        logger.error("gameprefs_validation_failed", reason="required_settings_missing")
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
