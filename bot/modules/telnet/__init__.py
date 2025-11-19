@@ -1,10 +1,13 @@
 import re
 from bot.module import Module
 from bot import loaded_modules_dict
+from bot.logger import get_logger
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_TIMEOUT_RECONNECT
 from time import time
 from collections import deque
 import telnetlib
+
+logger = get_logger("telnet")
 
 
 class Telnet(Module):
@@ -94,7 +97,11 @@ class Telnet(Module):
             )
             self.tn = self.authenticate(connection, self.options.get("password"))
         except Exception as error:
-            print('trying to establish telnet connection failed: {}'.format(error))
+            logger.error("telnet_connection_failed",
+                        host=self.options.get("host"),
+                        port=self.options.get("port"),
+                        error=str(error),
+                        error_type=type(error).__name__)
             raise IOError
 
         return True
@@ -119,8 +126,10 @@ class Telnet(Module):
                 full_auth_response += telnet_response.rstrip()
                 # last 'welcome' line from the games telnet. it might change with a new game-version
                 if re.match(r"Password incorrect, please enter password:\r\n", telnet_response) is not None:
-                    log_message = 'incorrect telnet password'
-                    print(log_message)
+                    logger.error("telnet_auth_failed",
+                                host=self.options.get("host"),
+                                port=self.options.get("port"),
+                                reason="incorrect password")
                     raise ValueError
                 if re.match(r"Logon successful.\r\n", telnet_response) is not None:
                     authenticated = True
@@ -140,7 +149,7 @@ class Telnet(Module):
         except Exception as e:
             raise IOError
 
-        print("telnet connection established on {}:{} ".format(self.options.get("host"), self.options.get("port")))
+        # Connection successful - no log needed
         return connection
     # endregion
 
@@ -225,10 +234,11 @@ class Telnet(Module):
                 self.tn.write(command.encode('ascii'))
 
             except Exception as error:
-                print("couldn't process command '{command}' due to: '{error}'".format(
-                    command=telnet_command,
-                    error=error
-                ))
+                logger.error("telnet_command_send_failed",
+                            command=telnet_command,
+                            error=str(error),
+                            error_type=type(error).__name__,
+                            queue_size=remaining_queue_length)
     # endregion
 
     # ==================== Line Processing Helper Methods ====================
@@ -242,7 +252,7 @@ class Telnet(Module):
         return any(exclude in telnet_line for exclude in elements_excluded_from_logs)
 
     def _store_valid_line(self, valid_line: str) -> None:
-        """Store a valid telnet line in DOM and print it."""
+        """Store a valid telnet line in DOM."""
         # Store in DOM if clients are connected and line is relevant
         if not self._should_exclude_from_logs(valid_line):
             if len(self.webserver.connected_clients) >= 1:
@@ -252,7 +262,10 @@ class Telnet(Module):
                     }
                 }, maxlen=150)
 
-        print(valid_line)
+        # Debug log only (disabled by default to avoid spam)
+        # Uncomment next line and enable debug logging if needed for troubleshooting
+        # logger.debug("telnet_line_received", line=valid_line[:100])
+
         self.valid_telnet_lines.append(valid_line)
 
     def _process_first_component(self, component: str) -> str:
@@ -377,7 +390,7 @@ class Telnet(Module):
                     "server_is_online": True
                 }
             })
-        except (OSError, Exception, ConnectionRefusedError):
+        except (OSError, Exception, ConnectionRefusedError) as error:
             self.dom.data.upsert({
                 self.get_module_identifier(): {
                     "server_is_online": False
@@ -385,10 +398,17 @@ class Telnet(Module):
             })
             self.telnet_buffer = ""
             self.telnet_response = ""
-            self.last_connection_loss = time()
 
-            print("Telnet: can't reach the server, possibly a restart. Trying again in 10 seconds!")
-            print("Telnet: check if the server is running, it's connectivity and options!")
+            # Only log on first connection loss, not on every retry
+            if self.last_connection_loss is None:
+                logger.error("telnet_server_unreachable",
+                            host=self.options.get("host"),
+                            port=self.options.get("port"),
+                            error=str(error),
+                            error_type=type(error).__name__,
+                            note="will retry every 10 seconds")
+
+            self.last_connection_loss = time()
 
     def _update_telnet_buffer(self) -> None:
         """Update the telnet buffer with new response data."""
@@ -425,7 +445,11 @@ class Telnet(Module):
                 except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as error:
                     self._handle_connection_error(error)
                 except Exception as error:
-                    print(f"########### Unforeseen Error: {type(error).__name__}: {error}")
+                    logger.error("telnet_unforeseen_error",
+                                error=str(error),
+                                error_type=type(error).__name__,
+                                host=self.options.get("host"),
+                                port=self.options.get("port"))
 
             # Process any telnet response data
             if len(self.telnet_response) > 0:
