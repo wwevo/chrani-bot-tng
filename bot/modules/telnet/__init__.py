@@ -23,6 +23,8 @@ class Telnet(Module):
             "host": "127.0.0.1",
             "port": 8081,
             "password": "thisissecret",
+            "web_username": "",
+            "web_password": "",
             "max_queue_length": 100,
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,

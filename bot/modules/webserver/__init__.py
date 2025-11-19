@@ -31,6 +31,7 @@ class Webserver(Module):
     connected_clients = dict
     broadcast_queue = dict
     send_data_to_client_hook = object
+    game_server_session_id = None
 
     def __init__(self):
         setattr(self, "default_options", {
@@ -131,6 +132,46 @@ class Webserver(Module):
             s.close()
         return host
 
+    def login_to_game_server(self):
+        """Login to game server web interface and store session cookie"""
+        telnet_module = loaded_modules_dict.get("module_telnet")
+        if not telnet_module:
+            print("[GAME SERVER LOGIN] Telnet module not found, skipping game server login")
+            return
+
+        game_host = telnet_module.options.get("host")
+        telnet_port = telnet_module.options.get("port", 8081)
+        web_port = telnet_port + 1
+
+        web_username = telnet_module.options.get("web_username", "")
+        web_password = telnet_module.options.get("web_password", "")
+
+        if not web_username or not web_password:
+            print("[GAME SERVER LOGIN] No web credentials configured, map tiles will not be available")
+            return
+
+        login_url = f'http://{game_host}:{web_port}/session/login'
+
+        try:
+            response = post(
+                login_url,
+                json={"username": web_username, "password": web_password},
+                headers={"Content-Type": "application/json"},
+                timeout=5
+            )
+
+            if response.status_code == 200:
+                sid_cookie = response.cookies.get('sid')
+                if sid_cookie:
+                    self.game_server_session_id = sid_cookie
+                    print(f"[GAME SERVER LOGIN] Successfully logged in to game server at {game_host}:{web_port}")
+                else:
+                    print(f"[GAME SERVER LOGIN] Login succeeded but no sid cookie received")
+            else:
+                print(f"[GAME SERVER LOGIN] Login failed with status {response.status_code}")
+        except Exception as e:
+            print(f"[GAME SERVER LOGIN] Error logging in to game server: {e}")
+
     def send_data_to_client(self, *args, payload=None, **kwargs):
         data_type = kwargs.get("data_type", "widget_content")
         target_element = kwargs.get("target_element", None)
@@ -194,6 +235,9 @@ class Webserver(Module):
         )
 
     def run(self):
+        # Login to game server web interface for map tile access
+        self.login_to_game_server()
+
         template_header = self.templates.get_template('frontpage/header.html')
         template_frontend = self.templates.get_template('frontpage/index.html')
         template_footer = self.templates.get_template('frontpage/footer.html')
@@ -349,8 +393,13 @@ class Webserver(Module):
             if request.headers.get('Referer'):
                 headers['Referer'] = request.headers.get('Referer')
 
+            # Add game server session cookie for authentication
+            cookies = {}
+            if self.game_server_session_id:
+                cookies['sid'] = self.game_server_session_id
+
             try:
-                response = get(tile_url, headers=headers, timeout=5)
+                response = get(tile_url, headers=headers, cookies=cookies, timeout=5)
                 print(f"[MAP PROXY] Game server response: {response.status_code}")
                 if response.status_code != 200:
                     print(f"[MAP PROXY] Response headers: {dict(response.headers)}")
