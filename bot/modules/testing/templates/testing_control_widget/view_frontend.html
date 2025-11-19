@@ -1,334 +1,290 @@
-<div id="testing_control_widget" class="widget">
-    <header>
-        <h2>Testing Control Panel</h2>
-        <div class="widget-info">
-            <span class="badge">Injections: {{ injection_count }}</span>
-            <span class="badge">Scenarios Loaded: {{ scenarios_loaded|length }}</span>
-        </div>
-    </header>
+<header>
+    <div>
+        <span>Testing</span>
+    </div>
+</header>
+<aside>
+{{ options_toggle }}
+</aside>
+<main>
+    <table class="form_table">
+        <caption>
+            <span>Injections: {{ injection_count }}</span>
+            <span>Scenarios: {{ scenarios_loaded|length }}</span>
+        </caption>
+        <thead>
+            <tr>
+                <th>Test Data Injection</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <!-- Raw Telnet Line Injection -->
+                    <table class="box_input">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Inject Raw Telnet Line</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2">
+                                    <div>
+                                        <textarea id="raw_telnet_line" rows="2" placeholder="2025-11-19T18:00:00 1000.000 INF ..."></textarea>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div>
+                                        <a href="#" onclick="inject_raw_telnet_line(); return false;">inject line</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <div>
+                                        {% if last_injected_line and last_injected_line != 'None' %}
+                                        Last: {{ last_injected_line }}
+                                        {% else %}
+                                        Injects a raw telnet line to trigger normal processing
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-    <main>
-        <!-- Raw Telnet Line Injection -->
-        <section class="test-section">
-            <h3>Inject Raw Telnet Line</h3>
-            <div class="form-group">
-                <label for="raw_telnet_line">Telnet Line:</label>
-                <textarea id="raw_telnet_line" rows="3" placeholder="2025-11-19T18:00:00 1000.000 INF ..."></textarea>
-                <button
-                    class="btn btn-primary"
-                    data-module="testing"
-                    data-action="inject_telnet_line"
-                    data-action-data='{"line": ""}'
-                    onclick="
-                        var line = document.getElementById('raw_telnet_line').value;
-                        if (!line) { alert('Please enter a telnet line'); return; }
-                        this.setAttribute('data-action-data', JSON.stringify({line: line}));
-                        socket_trigger_action_event(this);
-                        document.getElementById('raw_telnet_line').value = '';
-                    ">
-                    Inject Line
-                </button>
-            </div>
-            {% if last_injected_line and last_injected_line != 'None' %}
-            <div class="info-box">
-                <small><strong>Last Injected:</strong> {{ last_injected_line }}</small>
-            </div>
-            {% endif %}
-        </section>
+                    <!-- Player Join -->
+                    <table class="box_input">
+                        <thead>
+                            <tr>
+                                <th colspan="4">Simulate Player Join</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4">
+                                    <div>
+                                        <label>Name: <input size="20" name="player_join_name" type="text" value="TestPlayer_001" /></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <div>
+                                        <label>SteamID (optional): <input size="20" name="player_join_steamid" type="text" placeholder="76561198999000001" /></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <label>x: <input size="6" name="player_join_x" type="text" value="100" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <label>y: <input size="6" name="player_join_y" type="text" value="50" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <label>z: <input size="6" name="player_join_z" type="text" value="200" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a href="#" onclick="join_player(); return false;">join player</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4">
+                                    <div>Generates EnterMultiplayer and JoinMultiplayer events</div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-        <!-- Player Join Helper -->
-        <section class="test-section">
-            <h3>Simulate Player Join</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="player_join_name">Player Name:</label>
-                    <input type="text" id="player_join_name" placeholder="TestPlayer_001" value="TestPlayer_001">
-                </div>
-                <div class="form-group">
-                    <label for="player_join_steamid">SteamID (optional):</label>
-                    <input type="text" id="player_join_steamid" placeholder="76561198999000001">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="player_join_x">X:</label>
-                    <input type="number" id="player_join_x" value="100">
-                </div>
-                <div class="form-group">
-                    <label for="player_join_y">Y:</label>
-                    <input type="number" id="player_join_y" value="50">
-                </div>
-                <div class="form-group">
-                    <label for="player_join_z">Z:</label>
-                    <input type="number" id="player_join_z" value="200">
-                </div>
-            </div>
-            <button
-                class="btn btn-success"
-                data-module="testing"
-                data-action="inject_player_join"
-                data-action-data='{}'
-                onclick="
-                    var name = document.getElementById('player_join_name').value;
-                    var steamid = document.getElementById('player_join_steamid').value;
-                    var x = parseInt(document.getElementById('player_join_x').value);
-                    var y = parseInt(document.getElementById('player_join_y').value);
-                    var z = parseInt(document.getElementById('player_join_z').value);
-                    var data = {name: name, pos: {x: x, y: y, z: z}};
-                    if (steamid) data.steamid = steamid;
-                    this.setAttribute('data-action-data', JSON.stringify(data));
-                    socket_trigger_action_event(this);
-                ">
-                Join Player
-            </button>
-        </section>
+                    <!-- Player Teleport -->
+                    <table class="box_input">
+                        <thead>
+                            <tr>
+                                <th colspan="4">Simulate Player Teleport</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4">
+                                    <div>
+                                        <label>SteamID: <input size="20" name="player_teleport_steamid" type="text" placeholder="76561198999000001" /></label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <label>x: <input size="6" name="player_teleport_x" type="text" value="500" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <label>y: <input size="6" name="player_teleport_y" type="text" value="50" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <label>z: <input size="6" name="player_teleport_z" type="text" value="500" /></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a href="#" onclick="teleport_player(); return false;">teleport player</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4">
+                                    <div>Updates player position via Teleport event</div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-        <!-- Player Teleport Helper -->
-        <section class="test-section">
-            <h3>Simulate Player Teleport</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="player_teleport_steamid">SteamID:</label>
-                    <input type="text" id="player_teleport_steamid" placeholder="76561198999000001">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="player_teleport_x">X:</label>
-                    <input type="number" id="player_teleport_x" value="500">
-                </div>
-                <div class="form-group">
-                    <label for="player_teleport_y">Y:</label>
-                    <input type="number" id="player_teleport_y" value="50">
-                </div>
-                <div class="form-group">
-                    <label for="player_teleport_z">Z:</label>
-                    <input type="number" id="player_teleport_z" value="500">
-                </div>
-            </div>
-            <button
-                class="btn btn-success"
-                data-module="testing"
-                data-action="inject_player_teleport"
-                data-action-data='{}'
-                onclick="
-                    var steamid = document.getElementById('player_teleport_steamid').value;
-                    if (!steamid) { alert('Please enter a SteamID'); return; }
-                    var x = parseInt(document.getElementById('player_teleport_x').value);
-                    var y = parseInt(document.getElementById('player_teleport_y').value);
-                    var z = parseInt(document.getElementById('player_teleport_z').value);
-                    var data = {steamid: steamid, pos: {x: x, y: y, z: z}};
-                    this.setAttribute('data-action-data', JSON.stringify(data));
-                    socket_trigger_action_event(this);
-                ">
-                Teleport Player
-            </button>
-        </section>
+                    <!-- Load Scenario -->
+                    <table class="box_input">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Load Test Scenario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <select name="scenario_select">
+                                            <option value="">-- Choose a scenario --</option>
+                                            {% for scenario in available_scenarios %}
+                                            <option value="{{ scenario }}">{{ scenario }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <a href="#" onclick="load_scenario(); return false;">load scenario</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <div>Loads pre-defined test scenarios (basic, stress, permissions)</div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-        <!-- Load Scenario -->
-        <section class="test-section">
-            <h3>Load Test Scenario</h3>
-            <div class="form-group">
-                <label for="scenario_select">Select Scenario:</label>
-                <select id="scenario_select">
-                    <option value="">-- Choose a scenario --</option>
-                    {% for scenario in available_scenarios %}
-                    <option value="{{ scenario }}">{{ scenario }}</option>
-                    {% endfor %}
-                </select>
-                <button
-                    class="btn btn-primary"
-                    data-module="testing"
-                    data-action="load_test_scenario"
-                    data-action-data='{}'
-                    onclick="
-                        var scenario = document.getElementById('scenario_select').value;
-                        if (!scenario) { alert('Please select a scenario'); return; }
-                        this.setAttribute('data-action-data', JSON.stringify({scenario: scenario}));
-                        socket_trigger_action_event(this);
-                    ">
-                    Load Scenario
-                </button>
-            </div>
-        </section>
+                    <!-- Cleanup -->
+                    <table class="box_input">
+                        <thead>
+                            <tr>
+                                <th>Cleanup Test Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <a href="#" onclick="cleanup_test_data(); return false;">cleanup all test data</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>
+                                    <div>
+                                        Removes: Players (76561198999*), Locations (test_*), Datasets (TestWorld_*)
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</main>
 
-        <!-- Cleanup -->
-        <section class="test-section danger-zone">
-            <h3>Cleanup Test Data</h3>
-            <p class="warning-text">
-                This will remove ALL test data matching naming conventions:
-                <ul>
-                    <li>Players with SteamID prefix: <code>76561198999</code></li>
-                    <li>Locations with prefix: <code>test_</code></li>
-                    <li>Datasets with prefix: <code>TestWorld_</code></li>
-                </ul>
-            </p>
-            <button
-                class="btn btn-danger"
-                data-module="testing"
-                data-action="cleanup_test_data"
-                data-action-data='{"confirm": true}'
-                onclick="
-                    if (!confirm('Are you sure you want to cleanup ALL test data?')) return;
-                    socket_trigger_action_event(this);
-                ">
-                Cleanup All Test Data
-            </button>
-        </section>
-    </main>
-
-    <style>
-        #testing_control_widget {
-            background: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 8px;
-            margin: 20px 0;
-            padding: 20px;
+<script>
+    function inject_raw_telnet_line() {
+        let line = document.getElementById('raw_telnet_line').value;
+        if (!line) {
+            alert('Please enter a telnet line');
+            return;
         }
+        window.socket.emit('widget_event', ['testing', ['inject_telnet_line', {
+            'line': line
+        }]]);
+        document.getElementById('raw_telnet_line').value = '';
+    }
 
-        #testing_control_widget header {
-            border-bottom: 2px solid #444;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    function join_player() {
+        let name = $("input[name='player_join_name']").val();
+        let steamid = $("input[name='player_join_steamid']").val();
+        let x = parseInt($("input[name='player_join_x']").val());
+        let y = parseInt($("input[name='player_join_y']").val());
+        let z = parseInt($("input[name='player_join_z']").val());
 
-        #testing_control_widget h2 {
-            margin: 0;
-            color: #fff;
-        }
+        let data = {name: name, pos: {x: x, y: y, z: z}};
+        if (steamid) data.steamid = steamid;
 
-        .widget-info {
-            display: flex;
-            gap: 10px;
-        }
+        window.socket.emit('widget_event', ['testing', ['inject_player_join', data]]);
+    }
 
-        .badge {
-            background: #333;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.9em;
+    function teleport_player() {
+        let steamid = $("input[name='player_teleport_steamid']").val();
+        if (!steamid) {
+            alert('Please enter a SteamID');
+            return;
         }
+        let x = parseInt($("input[name='player_teleport_x']").val());
+        let y = parseInt($("input[name='player_teleport_y']").val());
+        let z = parseInt($("input[name='player_teleport_z']").val());
 
-        .test-section {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+        window.socket.emit('widget_event', ['testing', ['inject_player_teleport', {
+            steamid: steamid,
+            pos: {x: x, y: y, z: z}
+        }]]);
+    }
 
-        .test-section h3 {
-            margin-top: 0;
-            color: #4CAF50;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
+    function load_scenario() {
+        let scenario = $("select[name='scenario_select']").val();
+        if (!scenario) {
+            alert('Please select a scenario');
+            return;
         }
+        window.socket.emit('widget_event', ['testing', ['load_test_scenario', {
+            scenario: scenario
+        }]]);
+    }
 
-        .form-group {
-            margin-bottom: 15px;
+    function cleanup_test_data() {
+        if (!confirm('Remove ALL test data? (Players: 76561198999*, Locations: test_*, Datasets: TestWorld_*)')) {
+            return;
         }
-
-        .form-group label {
-            display: block;
-            color: #ccc;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 8px;
-            background: #1e1e1e;
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: #fff;
-            font-family: monospace;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            font-size: 0.9em;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .btn-primary {
-            background: #2196F3;
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: #1976D2;
-        }
-
-        .btn-success {
-            background: #4CAF50;
-            color: #fff;
-        }
-
-        .btn-success:hover {
-            background: #388E3C;
-        }
-
-        .btn-danger {
-            background: #f44336;
-            color: #fff;
-        }
-
-        .btn-danger:hover {
-            background: #d32f2f;
-        }
-
-        .info-box {
-            background: #1a1a1a;
-            border-left: 3px solid #2196F3;
-            padding: 10px;
-            margin-top: 10px;
-            color: #ccc;
-        }
-
-        .danger-zone {
-            border-color: #f44336;
-        }
-
-        .danger-zone h3 {
-            color: #f44336;
-        }
-
-        .warning-text {
-            color: #ff9800;
-            font-size: 0.9em;
-        }
-
-        .warning-text ul {
-            margin: 10px 0;
-        }
-
-        .warning-text code {
-            background: #1a1a1a;
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #4CAF50;
-        }
-    </style>
-</div>
+        window.socket.emit('widget_event', ['testing', ['cleanup_test_data', {
+            confirm: true
+        }]]);
+    }
+</script>
