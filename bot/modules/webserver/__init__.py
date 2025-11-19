@@ -367,9 +367,16 @@ class Webserver(Module):
                 **template_options
             )
 
-        @self.app.route('/map_tiles/<int:z>/<int:x>/<int:y>.png')
+        @self.app.route('/map_tiles/<int:z>/<x>/<y>.png')
         def map_tile_proxy(z, x, y):
             """Proxy map tiles from game server to avoid CORS issues"""
+            # Parse x and y as integers (Flask's <int> doesn't support negative numbers)
+            try:
+                x = int(x)
+                y = int(y)
+            except ValueError:
+                return Response(status=400)
+
             print(f"[MAP PROXY] Request for tile {z}/{x}/{y} from user {current_user.id if current_user.is_authenticated else 'anonymous'}")
 
             # Get game server host and port from telnet module config
@@ -383,8 +390,10 @@ class Webserver(Module):
                 game_host = "localhost"
                 web_port = 8082  # Default 7D2D web port
 
-            tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y}.png'
-            print(f"[MAP PROXY] Fetching from game server: {tile_url}")
+            # 7D2D uses inverted Y-axis for tiles
+            y_flipped = (-y) - 1
+            tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y_flipped}.png'
+            print(f"[MAP PROXY] Fetching from game server: {tile_url} (original y={y}, flipped={y_flipped})")
 
             # Forward relevant headers from browser to game server
             headers = {}
