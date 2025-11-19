@@ -5,6 +5,41 @@ import json
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
+# View Registry - defines all available views and their navigation labels
+# This eliminates the need for separate template files for each button
+VIEW_REGISTRY = {
+    'frontend': {
+        'label_active': 'back',
+        'label_inactive': 'main',
+        'action': 'show_frontend',
+        'include_in_menu': True
+    },
+    'options': {
+        'label_active': 'back',
+        'label_inactive': 'options',
+        'action': 'show_options',
+        'include_in_menu': True
+    },
+    'map': {
+        'label_active': 'hide map',
+        'label_inactive': 'show map',
+        'action': 'show_map',
+        'include_in_menu': True
+    },
+    'create_new': {
+        'label_active': 'back',
+        'label_inactive': 'create new',
+        'action': 'show_create_new',
+        'include_in_menu': True
+    },
+    'special_locations': {
+        'label_active': 'back',
+        'label_inactive': 'special',
+        'action': 'show_special_locations',
+        'include_in_menu': True
+    }
+}
+
 
 def get_table_row_css_class(location_dict):
     is_enabled = location_dict.get("is_enabled", False)
@@ -114,33 +149,12 @@ def frontend_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     current_view = kwargs.get("current_view", None)
 
+    # Load templates
     template_frontend = module.templates.get_template('manage_locations_widget/view_frontend.html')
-
-    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_options_view.html'
-    )
-
-    template_create_new_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_create_new_view.html'
-    )
-
-    template_special_locations_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_special_locations_view.html'
-    )
-
-    template_map_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_map_view.html'
-    )
-
-    control_player_location_view = module.templates.get_template(
+    template_view_menu = module.templates.get_template('manage_locations_widget/control_view_menu.html')
+    control_player_location_view_template = module.templates.get_template(
         'manage_locations_widget/control_player_location.html'
     )
-
-    player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
-        "pos", {"x": 0, "y": 0, "z": 0}
-    )
-
     control_edit_link = module.templates.get_template('manage_locations_widget/control_edit_link.html')
     control_enabled_link = module.templates.get_template('manage_locations_widget/control_enabled_link.html')
 
@@ -221,46 +235,32 @@ def frontend_view(*args, **kwargs):
         dom_action="delete_selected_dom_elements"
     )
 
+    # Get current view and player coordinates
     current_view = module.get_current_view(dispatchers_steamid)
+    player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
+        "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
+    # Render navigation menu using view registry
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid,
+        control_player_location_view=module.template_render_hook(
+            module,
+            template=control_player_location_view_template,
+            pos_x=player_coordinates["x"],
+            pos_y=player_coordinates["y"],
+            pos_z=player_coordinates["z"]
+        )
+    )
 
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
-        options_toggle=module.template_render_hook(
-            module,
-            template=template_options_toggle,
-            control_switch_options_view=module.template_render_hook(
-                module,
-                template=template_options_toggle_view,
-                steamid=dispatchers_steamid,
-                options_view_toggle=(current_view in ["frontend", "special_locations", "delete-modal"])
-            ),
-            control_switch_create_new_view=module.template_render_hook(
-                module,
-                template=template_create_new_toggle_view,
-                steamid=dispatchers_steamid,
-                create_new_view_toggle=True
-            ),
-            control_switch_special_locations_view=module.template_render_hook(
-                module,
-                template=template_special_locations_toggle_view,
-                steamid=dispatchers_steamid,
-                special_locations_view_toggle=(current_view in ["frontend", "delete-modal"])
-            ),
-            control_switch_map_view=module.template_render_hook(
-                module,
-                template=template_map_toggle_view,
-                steamid=dispatchers_steamid,
-                map_view_toggle=(current_view == "map")
-            ),
-            control_player_location_view=module.template_render_hook(
-                module,
-                template=control_player_location_view,
-                pos_x=player_coordinates["x"],
-                pos_y=player_coordinates["y"],
-                pos_z=player_coordinates["z"]
-            )
-        ),
+        options_toggle=options_toggle,
         table_header=module.template_render_hook(
             module,
             template=template_table_header
@@ -271,7 +271,6 @@ def frontend_view(*args, **kwargs):
             template=template_table_footer,
             action_delete_button=dom_element_delete_button
         )
-
     )
 
     module.webserver.send_data_to_client_hook(
@@ -292,24 +291,15 @@ def map_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
     current_view = kwargs.get("current_view", None)
 
+    # Load templates
     template_map = module.templates.get_template('manage_locations_widget/view_map.html')
-    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_options_view.html'
-    )
-    template_create_new_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_create_new_view.html'
-    )
-    template_special_locations_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_special_locations_view.html'
-    )
-    template_map_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_map_view.html'
-    )
-    control_player_location_view = module.templates.get_template(
+    template_view_menu = module.templates.get_template('manage_locations_widget/control_view_menu.html')
+    control_player_location_view_template = module.templates.get_template(
         'manage_locations_widget/control_player_location.html'
     )
 
+    # Get current view and player coordinates
+    current_view = module.get_current_view(dispatchers_steamid)
     player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
         "pos", {"x": 0, "y": 0, "z": 0}
     )
@@ -365,44 +355,26 @@ def map_view(*args, **kwargs):
                         }
                     }
 
+    # Render navigation menu using view registry
+    control_switch_view = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid,
+        control_player_location_view=module.template_render_hook(
+            module,
+            template=control_player_location_view_template,
+            pos_x=player_coordinates["x"],
+            pos_y=player_coordinates["y"],
+            pos_z=player_coordinates["z"]
+        )
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_map,
-        control_switch_view=module.template_render_hook(
-            module,
-            template=template_options_toggle,
-            control_switch_options_view=module.template_render_hook(
-                module,
-                template=template_options_toggle_view,
-                steamid=dispatchers_steamid,
-                options_view_toggle=True
-            ),
-            control_switch_create_new_view=module.template_render_hook(
-                module,
-                template=template_create_new_toggle_view,
-                steamid=dispatchers_steamid,
-                create_new_view_toggle=True
-            ),
-            control_switch_special_locations_view=module.template_render_hook(
-                module,
-                template=template_special_locations_toggle_view,
-                steamid=dispatchers_steamid,
-                special_locations_view_toggle=True
-            ),
-            control_switch_map_view=module.template_render_hook(
-                module,
-                template=template_map_toggle_view,
-                steamid=dispatchers_steamid,
-                map_view_toggle=True
-            ),
-            control_player_location_view=module.template_render_hook(
-                module,
-                template=control_player_location_view,
-                pos_x=player_coordinates["x"],
-                pos_y=player_coordinates["y"],
-                pos_z=player_coordinates["z"]
-            )
-        ),
+        control_switch_view=control_switch_view,
         locations_json=json.dumps(locations_for_map),
         players_json=json.dumps(players_for_map)
     )
@@ -424,45 +396,27 @@ def options_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
+    # Load templates
     template_frontend = module.templates.get_template('manage_locations_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
-    template_special_locations_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_special_locations_view.html'
-    )
+    template_view_menu = module.templates.get_template('manage_locations_widget/control_view_menu.html')
 
-    template_options_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_options_view.html'
-    )
+    # Get current view
+    current_view = module.get_current_view(dispatchers_steamid)
 
-    template_create_new_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_create_new_view.html'
+    # Render navigation menu using view registry
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid,
+        control_player_location_view=''  # No player location in options view
     )
 
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
-        options_toggle=module.template_render_hook(
-            module,
-            template=template_options_toggle,
-            control_switch_options_view=module.template_render_hook(
-                module,
-                template=template_options_toggle_view,
-                steamid=dispatchers_steamid,
-                options_view_toggle=False,
-            ),
-            control_switch_create_new_view=module.template_render_hook(
-                module,
-                template=template_create_new_toggle_view,
-                steamid=dispatchers_steamid,
-                create_new_view_toggle=True,
-            ),
-            control_switch_special_locations_view=module.template_render_hook(
-                module,
-                template=template_special_locations_toggle_view,
-                steamid=dispatchers_steamid,
-                special_locations_view_toggle=True
-            )
-        ),
+        options_toggle=options_toggle,
         widget_options=module.options,
         available_actions=module.available_actions_dict,
         available_triggers=module.available_triggers_dict,
@@ -486,25 +440,27 @@ def special_locations_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
+    # Load templates
     template_frontend = module.templates.get_template('manage_locations_widget/view_special_locations.html')
-    template_special_locations_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
-    template_special_locations_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_special_locations_view.html'
+    template_view_menu = module.templates.get_template('manage_locations_widget/control_view_menu.html')
+
+    # Get current view
+    current_view = module.get_current_view(dispatchers_steamid)
+
+    # Render navigation menu using view registry
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid,
+        control_player_location_view=''
     )
 
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
-        options_toggle=module.template_render_hook(
-            module,
-            template=template_special_locations_toggle,
-            control_switch_options_view=module.template_render_hook(
-                module,
-                template=template_special_locations_toggle_view,
-                steamid=dispatchers_steamid,
-                options_view_toggle=False,
-            )
-        )
+        options_toggle=options_toggle
     )
 
     module.webserver.send_data_to_client_hook(
@@ -549,61 +505,39 @@ def edit_view(*args, **kwargs):
             "is_enabled": False
         }
 
+    # Load templates
     template_frontend = module.templates.get_template('manage_locations_widget/view_create_new.html')
-
-    template_options_toggle = module.templates.get_template('manage_locations_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_options_view.html'
-    )
-
-    template_create_new_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_create_new_view.html'
-    )
-
-    template_special_locations_toggle_view = module.templates.get_template(
-        'manage_locations_widget/control_switch_special_locations_view.html'
-    )
-
-    control_player_location_view = module.templates.get_template(
+    template_view_menu = module.templates.get_template('manage_locations_widget/control_view_menu.html')
+    control_player_location_view_template = module.templates.get_template(
         'manage_locations_widget/control_player_location.html'
     )
 
+    # Get current view and player coordinates
+    current_view = module.get_current_view(dispatchers_steamid)
     player_coordinates = module.dom.data.get("module_players", {}).get("players", {}).get(dispatchers_steamid, {}).get(
         "pos", {"x": 0, "y": 0, "z": 0}
+    )
+
+    # Render navigation menu using view registry
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid,
+        control_player_location_view=module.template_render_hook(
+            module,
+            template=control_player_location_view_template,
+            pos_x=player_coordinates["x"],
+            pos_y=player_coordinates["y"],
+            pos_z=player_coordinates["z"]
+        )
     )
 
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
-        options_toggle=module.template_render_hook(
-            module,
-            template=template_options_toggle,
-            control_switch_options_view=module.template_render_hook(
-                module,
-                template=template_options_toggle_view,
-                steamid=dispatchers_steamid,
-                options_view_toggle=True
-            ),
-            control_switch_create_new_view=module.template_render_hook(
-                module,
-                template=template_create_new_toggle_view,
-                steamid=dispatchers_steamid,
-                create_new_view_toggle=False
-            ),
-            control_switch_special_locations_view=module.template_render_hook(
-                module,
-                template=template_special_locations_toggle_view,
-                steamid=dispatchers_steamid,
-                special_locations_view_toggle=True
-            ),
-            control_player_location_view=module.template_render_hook(
-                module,
-                template=control_player_location_view,
-                pos_x=player_coordinates["x"],
-                pos_y=player_coordinates["y"],
-                pos_z=player_coordinates["z"]
-            )
-        ),
+        options_toggle=options_toggle,
         widget_options=module.options,
         location_to_edit_dict=location_to_edit_dict
     )

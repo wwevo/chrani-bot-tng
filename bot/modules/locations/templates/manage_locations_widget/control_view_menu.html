@@ -1,0 +1,11 @@
+{%- from 'jinja2_macros.html' import construct_view_menu with context -%}
+<div id="locations_widget_options_toggle" class="pull_out right">
+    {{ construct_view_menu(
+        views=views,
+        current_view=current_view,
+        module_name='locations',
+        steamid=steamid,
+        default_view='frontend'
+    )}}
+    {{ control_player_location_view }}
+</div>
