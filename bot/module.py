@@ -1,9 +1,12 @@
 from threading import Thread, Event
 from bot import started_modules_dict
+from bot.logger import get_logger
 from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
 from bot.mixins.widget import Widget
+
+logger = get_logger("module")
 
 
 class Module(Thread, Action, Trigger, Template, Widget):
@@ -32,24 +35,13 @@ class Module(Thread, Action, Trigger, Template, Widget):
         options_filename = "module_" + self.options['module_name'] + ".json"
         if isinstance(provided_options, dict):
             self.options.update(provided_options)
-            print(
-                (
-                    "{module_name}: provided options have been set ({options_filename})"
-                ).format(
-                    module_name=self.options['module_name'],
-                    options_filename=options_filename
-                )
-            )
+            logger.debug("module_options_loaded",
+                        module=self.options['module_name'],
+                        options_file=options_filename)
         else:
-            print(
-                (
-                    "{module_name}: no options-file provided (was looking for \"{options_filename}\"), "
-                    "default values are used"
-                ).format(
-                    module_name=self.default_options["module_name"],
-                    options_filename=options_filename
-                )
-            )
+            logger.debug("module_options_defaults",
+                        module=self.default_options["module_name"],
+                        options_file=options_filename)
 
         self.import_triggers()
         self.import_actions()
@@ -102,6 +94,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
     @staticmethod
     def callback_fail(callback, module, event_data, dispatchers_steamid):
         event_data[1]["status"] = "fail"
-        print("FAILED ACTION:", module.getName(), event_data)
+        logger.error("action_failed",
+                    module=module.getName(),
+                    action=event_data[0],
+                    reason=event_data[1].get("fail_reason", "unknown"),
+                    user=dispatchers_steamid)
         module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
         callback(module, event_data, dispatchers_steamid)

@@ -7,7 +7,10 @@ from importlib import import_module
 from os import path, chdir, walk
 import json
 from collections import deque
+from bot.logger import get_logger
+
 root_dir = path.dirname(path.abspath(__file__))
+logger = get_logger("init")
 chdir(root_dir)
 
 loaded_modules_dict = {}  # this will be populated by the imports done next:
@@ -99,4 +102,4 @@ def start_modules():
         module_to_start.start()
         started_modules_dict[module_to_start.get_module_identifier()] = module_to_start
     if len(loaded_modules_dict) == len(started_modules_dict):
-        print("modules started: {}".format(list(started_modules_dict.keys())))
+        logger.info("modules_started", count=len(started_modules_dict), modules=list(started_modules_dict.keys()))
