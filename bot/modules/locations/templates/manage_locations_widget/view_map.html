@@ -3,11 +3,19 @@
 
 <style>
     #map {
-        height: 600px;
         width: 100%;
+        height: 100%;
+        min-height: 400px;
         background: #1a1a1a;
         border: 2px solid var(--lcars-hopbush);
         border-radius: 8px;
+        box-sizing: border-box;
+    }
+    main {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
     }
     .leaflet-container {
         background: #1a1a1a;
