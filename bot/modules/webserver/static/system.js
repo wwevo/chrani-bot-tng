@@ -39,14 +39,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (!audio_files[identifier].ended) {
                     audio_files[identifier].currentTime = 0;
                     audio_files[identifier].play();
-                    // console.log("replay");
                 } else {
                     audio_files[identifier].play();
-                    // console.log("play");
                 }
             }
         } catch(err) {
-            console.log("bleh:" + err);
+            console.error("[AUDIO] Failed to play audio file:", identifier, err);
         }
     }
 
@@ -280,7 +278,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     );
 
     window.socket.on('connected', function() {
-        console.log("connected...");
         window.socket.emit('ding');
     });
 
@@ -349,12 +346,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
                 if (data["method"] === "update") {
                     target_element.html(data["payload"]);
-                    // console.log("widget content updated");
-                    // flash(target_element);
                 } else if (data["method"] === "append") {
                     target_element.append(data["payload"]);
-                    // console.log("widget content appended");
-                    // flash(target_element);
                 } else if (data["method"] === "prepend") {
                     play_audio_file("computerbeep_38");
                     let target_table = $('#' + target_element_id + ' ' + data["target_element"]["type"]);
@@ -364,8 +357,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     if ($entries.length >= 50) {
                         $entries.last().remove();
                     }
-                    // console.log("widget content prepended");
-                    // flash($entries[1]);
                 }
             }
             if (data["data_type"] === "element_content") {
@@ -376,8 +367,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (data["method"] === "update") {
                     if (target_element.innerHTML !== data["payload"]) {
                         target_element.innerHTML = data["payload"];
-                        // flash(target_element);
-                        // console.log("element content appended");
                     } else {
                         return false;
                     }
@@ -393,7 +382,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                             flash(new_element);
                         }
                     }
-                    // console.log("element content replaced");
                 }
             }
             if (data["data_type"] === "modal_content") {
@@ -406,8 +394,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 modal_container.classList.toggle("open");
 
                 $(target_element).html(data["payload"])
-                // flash(target_element);
-                // console.log("element content replaced");
             }
             if (data["data_type"] === "table_row") {
                 /* the whole row will be swapped out, not very economic ^^
@@ -423,12 +409,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (target_element.length === 0) {
                     /* If the row doesn't exist, append it */
                     parent_element.append(data["payload"]);
-                    // console.log("table row added");
                 } else {
                     target_element.replaceWith(data["payload"]);
-                    // console.log("table row replaced");
                 }
-                // flash(target_element);
             }
             if (data["data_type"] === "table_row_content") {
                 play_audio_file("keyok1");
@@ -449,16 +432,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
                             let element_to_update = $('#' + target_element_id + '_' + key + '_' + sub_key);
                             if (element_to_update.length !== 0 && element_to_update.text() !== sub_value.toString()) {
                                 element_to_update.html(sub_value);
-                                // console.log("table row content updated");
-                                // flash(element_to_update);
                             }
                         });
                     } else {
                         let element_to_update = $('#' + target_element_id + '_' + key);
                         if (element_to_update.length !== 0 && element_to_update.text() !== value.toString()) {
                             element_to_update.html(value);
-                            // console.log("table row content updated");
-                            // flash(element_to_update);
                         }
                     }
                 });

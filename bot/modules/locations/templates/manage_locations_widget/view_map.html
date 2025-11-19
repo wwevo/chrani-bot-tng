@@ -60,12 +60,9 @@
 // Wait for Leaflet to load
 (function initMap() {
     if (typeof L === 'undefined') {
-        console.log('Waiting for Leaflet to load...');
         setTimeout(initMap, 100);
         return;
     }
-
-    console.log('[MAP] Initializing 7D2D map...');
 
     // Check if map container exists
     const mapContainer = document.getElementById('map');
@@ -73,7 +70,6 @@
         console.error('[MAP] Map container #map not found!');
         return;
     }
-    console.log('[MAP] Map container found:', mapContainer);
 
     // 7D2D Projection (from Alloc's mod)
     const SDTD_Projection = {
@@ -101,7 +97,6 @@
     });
 
     // Initialize map with 7D2D CRS
-    console.log('[MAP] Creating Leaflet map instance...');
     const map = L.map('map', {
         crs: SDTD_CRS,
         center: [0, 0],
@@ -110,7 +105,6 @@
         maxZoom: 7,
         attributionControl: false
     });
-    console.log('[MAP] Map instance created');
 
     // Create tile layer (Y-axis flipping handled by backend)
     const tileLayer = L.tileLayer('/map_tiles/{z}/{x}/{y}.png', {
@@ -229,8 +223,6 @@
 
     // Add location shapes
     const locations = {{ locations_json|safe }};
-    console.log('[MAP] Locations data:', locations);
-    console.log('[MAP] Number of locations:', Object.keys(locations).length);
 
     Object.keys(locations).forEach(function(locationId) {
         const loc = locations[locationId];
@@ -244,8 +236,6 @@
 
     // Add player markers
     const players = {{ players_json|safe }};
-    console.log('[MAP] Players data:', players);
-    console.log('[MAP] Number of players:', Object.keys(players).length);
 
     Object.keys(players).forEach(function(steamid) {
         const player = players[steamid];
@@ -270,7 +260,6 @@
     // Remove old map handler if it exists from previous view load
     if (window.mapDataHandler) {
         window.socket.off('data', window.mapDataHandler);
-        console.log('[MAP] Removed old socket listener');
     }
 
     // Create NEW handler function that captures current local scope
@@ -305,8 +294,6 @@
             const locationId = data.location_id;
             const loc = data.location;
 
-            console.log('[MAP] Location update received:', locationId, loc);
-
             // Remove old shape if exists
             if (locationShapes[locationId]) {
                 map.removeLayer(locationShapes[locationId]);
@@ -325,7 +312,6 @@
         // Listen for location removals
         if (data.data_type === 'location_remove' && data.location_id) {
             const locationId = data.location_id;
-            console.log('[MAP] Location removal received:', locationId);
 
             if (locationShapes[locationId]) {
                 map.removeLayer(locationShapes[locationId]);
@@ -336,26 +322,18 @@
 
     // Register the new handler
     window.socket.on('data', window.mapDataHandler);
-    console.log('[MAP] Registered new socket listener');
 
     // Fit map to show all markers and shapes on load
     const allMapObjects = Object.values(locationShapes).concat(Object.values(playerMarkers));
-    console.log('[MAP] Total map objects:', allMapObjects.length);
 
     if (allMapObjects.length > 0) {
         const group = L.featureGroup(allMapObjects);
         map.fitBounds(group.getBounds().pad(0.1));
-        console.log('[MAP] Map fitted to bounds');
-    } else {
-        console.log('[MAP] No map objects to display, using default center');
     }
-
-    console.log('[MAP] Map initialization complete!');
 
     // Fix map size after a short delay (in case container was hidden initially)
     setTimeout(function() {
         map.invalidateSize();
-        console.log('[MAP] Map size invalidated/refreshed');
     }, 250);
 })();
 </script>
