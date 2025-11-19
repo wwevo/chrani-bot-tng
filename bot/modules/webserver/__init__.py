@@ -220,12 +220,14 @@ class Webserver(Module):
                 "data_type": data_type,
                 "target_element": target_element,
             }
+
+            # Determine which clients to send to
             if clients == "all":
-                emit_options = {
-                    "broadcast": True
-                }
-                data_packages_to_send.append([widget_options, emit_options])
-            elif clients is not None:
+                # Send to all connected clients individually
+                # Note: broadcast=True doesn't work with self.websocket.emit() in gevent mode
+                clients = list(self.connected_clients.keys())
+
+            if clients is not None and isinstance(clients, list):
                 for steamid in clients:
                     try:
                         emit_options = {
