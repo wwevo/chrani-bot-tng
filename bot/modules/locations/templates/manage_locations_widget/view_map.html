@@ -104,22 +104,14 @@
     });
     console.log('[MAP] Map instance created');
 
-    // Create tile layer with Y-axis flip hack
+    // Create tile layer (Y-axis flipping handled by backend)
     const tileLayer = L.tileLayer('/map_tiles/{z}/{x}/{y}.png', {
         tileSize: 128,
         minNativeZoom: 0,
         minZoom: -1,
         maxNativeZoom: 4,
         maxZoom: 7
-    });
-
-    // Override getTileUrl to flip Y-axis (7D2D tile layout quirk)
-    tileLayer.getTileUrl = function (coords) {
-        coords.y = (-coords.y) - 1;
-        return L.TileLayer.prototype.getTileUrl.bind(tileLayer)(coords);
-    };
-
-    tileLayer.addTo(map);
+    }).addTo(map);
 
     // Storage for markers
     const locationMarkers = {};

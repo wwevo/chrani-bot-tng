@@ -383,8 +383,10 @@ class Webserver(Module):
                 game_host = "localhost"
                 web_port = 8082  # Default 7D2D web port
 
-            tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y}.png'
-            print(f"[MAP PROXY] Fetching from game server: {tile_url}")
+            # 7D2D uses inverted Y-axis for tiles
+            y_flipped = (-y) - 1
+            tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y_flipped}.png'
+            print(f"[MAP PROXY] Fetching from game server: {tile_url} (original y={y}, flipped={y_flipped})")
 
             # Forward relevant headers from browser to game server
             headers = {}
