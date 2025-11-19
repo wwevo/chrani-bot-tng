@@ -317,17 +317,32 @@ def map_view(*args, **kwargs):
     # Collect all locations for the map
     all_locations = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
     locations_for_map = {}
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
-    for map_identifier, player_locations in all_locations.items():
-        for identifier, location_dict in player_locations.items():
-            location_id = f"{map_identifier}_{identifier}"
-            locations_for_map[location_id] = {
-                "name": location_dict.get("name", "Unknown"),
-                "pos_x": location_dict.get("pos", {}).get("x", 0),
-                "pos_y": location_dict.get("pos", {}).get("y", 0),
-                "pos_z": location_dict.get("pos", {}).get("z", 0),
-                "type": location_dict.get("type", [])
-            }
+    for map_identifier, location_owners in all_locations.items():
+        if active_dataset and map_identifier != active_dataset:
+            continue
+        for owner_steamid, player_locations in location_owners.items():
+            for identifier, location_dict in player_locations.items():
+                location_id = f"{map_identifier}_{owner_steamid}_{identifier}"
+                coordinates = location_dict.get("coordinates", {})
+                dimensions = location_dict.get("dimensions", {})
+                shape = location_dict.get("shape", "circle")
+
+                locations_for_map[location_id] = {
+                    "name": location_dict.get("name", "Unknown"),
+                    "identifier": identifier,
+                    "owner": owner_steamid,
+                    "shape": shape,
+                    "coordinates": {
+                        "x": float(coordinates.get("x", 0)),
+                        "y": float(coordinates.get("y", 0)),
+                        "z": float(coordinates.get("z", 0))
+                    },
+                    "dimensions": dimensions,
+                    "type": location_dict.get("type", []),
+                    "is_enabled": location_dict.get("is_enabled", False)
+                }
 
     # Collect all online players for the map
     players_module = loaded_modules_dict.get("module_players")
@@ -848,6 +863,73 @@ def update_delete_button_status(*args, **kwargs):
     )
 
 
+def update_location_on_map(*args, **kwargs):
+    """Send location updates to map view via socket.io"""
+    module = args[0]
+    method = kwargs.get("method", None)
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
+    if updated_values_dict is None:
+        return
+
+    # Check which clients are viewing the map
+    for clientid in module.webserver.connected_clients.keys():
+        current_view = module.get_current_view(clientid)
+        if current_view != "map":
+            continue
+
+        if method in ["upsert", "update", "edit"]:
+            # Send location update for each changed location
+            active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+
+            for owner_steamid, locations in updated_values_dict.items():
+                for identifier, location_dict in locations.items():
+                    location_id = f"{active_dataset}_{owner_steamid}_{identifier}"
+                    coordinates = location_dict.get("coordinates", {})
+                    dimensions = location_dict.get("dimensions", {})
+
+                    location_data = {
+                        "name": location_dict.get("name", "Unknown"),
+                        "identifier": identifier,
+                        "owner": owner_steamid,
+                        "shape": location_dict.get("shape", "circle"),
+                        "coordinates": {
+                            "x": float(coordinates.get("x", 0)),
+                            "y": float(coordinates.get("y", 0)),
+                            "z": float(coordinates.get("z", 0))
+                        },
+                        "dimensions": dimensions,
+                        "type": location_dict.get("type", []),
+                        "is_enabled": location_dict.get("is_enabled", False)
+                    }
+
+                    module.webserver.send_data_to_client_hook(
+                        module,
+                        payload={
+                            "location_id": location_id,
+                            "location": location_data
+                        },
+                        data_type="location_update",
+                        clients=[clientid]
+                    )
+
+        elif method in ["remove"]:
+            # Send location removal
+            location_origin = updated_values_dict[2]
+            owner_steamid = updated_values_dict[3]
+            location_identifier = updated_values_dict[-1]
+            location_id = f"{location_origin}_{owner_steamid}_{location_identifier}"
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                payload={
+                    "location_id": location_id
+                },
+                data_type="location_remove",
+                clients=[clientid]
+            )
+
+
 widget_meta = {
     "description": "shows locations and stuff",
     "main_widget": select_view,
@@ -862,6 +944,8 @@ widget_meta = {
             select_view,
         "module_locations/elements/%map_identifier%/%steamid%":
             table_row,
+        "module_locations/elements/%map_identifier%/%owner_steamid%/%element_identifier%":
+            update_location_on_map,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/selected_by":
             update_selection_status,
         "module_locations/elements/%map_identifier%/%steamid%/%element_identifier%/is_enabled":
