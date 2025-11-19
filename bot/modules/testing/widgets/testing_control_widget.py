@@ -24,6 +24,8 @@ def frontend_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
     template_frontend = module.templates.get_template('testing_control_widget/view_frontend.html')
+    template_options_toggle = module.templates.get_template('testing_control_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('testing_control_widget/control_switch_options_view.html')
 
     # Get available scenarios
     module_dir = path.dirname(path.abspath(path.join(__file__, pardir, pardir)))
@@ -36,9 +38,23 @@ def frontend_view(*args, **kwargs):
     last_injected = testing_data.get("last_injected_line", "None")
     scenarios_loaded = testing_data.get("scenarios_loaded", [])
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template=template_options_toggle_view,
+            options_view_toggle=(current_view in ["frontend"]),
+            steamid=dispatchers_steamid
+        )
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
+        options_toggle=options_toggle,
         available_scenarios=available_scenarios,
         injection_count=injection_count,
         last_injected_line=last_injected,
@@ -66,15 +82,31 @@ def scenarios_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
     template_scenarios = module.templates.get_template('testing_control_widget/view_scenarios.html')
+    template_options_toggle = module.templates.get_template('testing_control_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template('testing_control_widget/control_switch_options_view.html')
 
     # Get available scenarios with their details
     module_dir = path.dirname(path.abspath(path.join(__file__, pardir, pardir)))
     scenarios_dir = path.join(module_dir, "scenarios")
     available_scenarios = get_scenario_details(scenarios_dir)
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template=template_options_toggle_view,
+            options_view_toggle=(current_view in ["scenarios"]),
+            steamid=dispatchers_steamid
+        )
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_scenarios,
+        options_toggle=options_toggle,
         scenarios=available_scenarios,
         steamid=dispatchers_steamid
     )
