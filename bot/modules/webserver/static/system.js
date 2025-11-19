@@ -285,20 +285,23 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     let start_time = (new Date).getTime();
+    const PING_TIMEOUT_THRESHOLD = 5000;  // Only log if ping takes >5 seconds
 
     window.setInterval(function() {
         start_time = (new Date).getTime();
         socket.emit('ding');
         play_audio_file("processing");
-
-        console.log("sent 'ding' to server");
+        // No log for normal ping - would be spam (every 10 seconds)
     }, 10000);
 
     window.socket.on('dong', function() {
         let latency = (new Date).getTime() - start_time;
         play_audio_file("keyok1");
 
-        console.log("ding/dong took " + latency + "ms");
+        // Only log slow pings
+        if (latency > PING_TIMEOUT_THRESHOLD) {
+            console.warn("[PING] Slow response: " + latency + "ms (threshold: " + PING_TIMEOUT_THRESHOLD + "ms)");
+        }
     });
 
     load_audio_files();

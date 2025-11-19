@@ -1,8 +1,10 @@
 from bot import loaded_modules_dict
+from bot.logger import get_logger
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("dom_management.select")
 
 
 def main_function(module, event_data, dispatchers_steamid):
@@ -44,7 +46,14 @@ def main_function(module, event_data, dispatchers_steamid):
                     if dispatchers_steamid in selected_by_dict_element:
                         selected_by_dict_element.remove(dispatchers_steamid)
             except ValueError as error:
-                print(error)
+                logger.error("select_list_manipulation_failed",
+                            user=dispatchers_steamid,
+                            action=action,
+                            target_module=target_module,
+                            origin=dom_element_origin,
+                            owner=dom_element_owner,
+                            identifier=dom_element_identifier,
+                            error=str(error))
 
             # Build data payload
             data_payload = {

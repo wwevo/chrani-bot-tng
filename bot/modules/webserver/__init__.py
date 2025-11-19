@@ -6,6 +6,7 @@ from flask_socketio import disconnect
 
 from bot.module import Module
 from bot import loaded_modules_dict
+from bot.logger import get_logger
 from .user import User
 
 import re
@@ -21,6 +22,9 @@ from collections.abc import KeysView
 from threading import Thread
 import string
 import random
+
+# Initialize logger for webserver module
+logger = get_logger("webserver")
 
 
 class Webserver(Module):
@@ -64,9 +68,10 @@ class Webserver(Module):
         try:
             started_modules_dict[module_identifier].on_socket_event(event_data, dispatchers_steamid)
         except KeyError as error:
-            print("users '{}' attempt to send data to module {} failed: module not found!".format(
-                dispatchers_steamid, module_identifier
-            ))
+            logger.error("socket_event_module_not_found",
+                        user=dispatchers_steamid,
+                        target_module=module_identifier,
+                        error=str(error))
 
     @staticmethod
     def authenticated_only(f):
@@ -136,7 +141,8 @@ class Webserver(Module):
         """Login to game server web interface and store session cookie"""
         telnet_module = loaded_modules_dict.get("module_telnet")
         if not telnet_module:
-            print("[GAME SERVER LOGIN] Telnet module not found, skipping game server login")
+            logger.warn("game_server_login_telnet_missing",
+                       reason="telnet module not loaded")
             return
 
         game_host = telnet_module.options.get("host")
@@ -147,7 +153,10 @@ class Webserver(Module):
         web_password = telnet_module.options.get("web_password", "")
 
         if not web_username or not web_password:
-            print("[GAME SERVER LOGIN] No web credentials configured, map tiles will not be available")
+            logger.warn("game_server_login_no_credentials",
+                       host=game_host,
+                       port=web_port,
+                       impact="map tiles unavailable")
             return
 
         login_url = f'http://{game_host}:{web_port}/session/login'
@@ -164,13 +173,24 @@ class Webserver(Module):
                 sid_cookie = response.cookies.get('sid')
                 if sid_cookie:
                     self.game_server_session_id = sid_cookie
-                    print(f"[GAME SERVER LOGIN] Successfully logged in to game server at {game_host}:{web_port}")
+                    # Success - no log needed
                 else:
-                    print(f"[GAME SERVER LOGIN] Login succeeded but no sid cookie received")
+                    logger.warn("game_server_login_no_sid_cookie",
+                               host=game_host,
+                               port=web_port,
+                               status=200)
             else:
-                print(f"[GAME SERVER LOGIN] Login failed with status {response.status_code}")
+                logger.error("game_server_login_failed",
+                            host=game_host,
+                            port=web_port,
+                            status=response.status_code,
+                            url=login_url)
         except Exception as e:
-            print(f"[GAME SERVER LOGIN] Error logging in to game server: {e}")
+            logger.error("game_server_login_exception",
+                        host=game_host,
+                        port=web_port,
+                        error=str(e),
+                        error_type=type(e).__name__)
 
     def send_data_to_client(self, *args, payload=None, **kwargs):
         data_type = kwargs.get("data_type", "widget_content")
@@ -315,7 +335,7 @@ class Webserver(Module):
         @self.app.route('/logout')
         @login_required
         def logout():
-            print("client {} disconnected".format(current_user.id))
+            # Normal logout - no log needed
             self.connected_clients.pop(current_user.id, None)  # Safe deletion
             for module in loaded_modules_dict.values():
                 module.on_socket_disconnect(current_user.id)
@@ -375,9 +395,10 @@ class Webserver(Module):
                 x = int(x)
                 y = int(y)
             except ValueError:
+                logger.warn("tile_request_invalid_coords",
+                           z=z, x=x, y=y,
+                           user=current_user.id if current_user.is_authenticated else "anonymous")
                 return Response(status=400)
-
-            print(f"[MAP PROXY] Request for tile {z}/{x}/{y} from user {current_user.id if current_user.is_authenticated else 'anonymous'}")
 
             # Get game server host and port from telnet module config
             telnet_module = loaded_modules_dict.get("module_telnet")
@@ -393,7 +414,6 @@ class Webserver(Module):
             # 7D2D uses inverted Y-axis for tiles
             y_flipped = (-y) - 1
             tile_url = f'http://{game_host}:{web_port}/map/{z}/{x}/{y_flipped}.png'
-            print(f"[MAP PROXY] Fetching from game server: {tile_url} (original y={y}, flipped={y_flipped})")
 
             # Forward relevant headers from browser to game server
             headers = {}
@@ -409,17 +429,28 @@ class Webserver(Module):
 
             try:
                 response = get(tile_url, headers=headers, cookies=cookies, timeout=5)
-                print(f"[MAP PROXY] Game server response: {response.status_code}")
+
+                # Only log non-200 responses
                 if response.status_code != 200:
-                    print(f"[MAP PROXY] Response headers: {dict(response.headers)}")
-                    print(f"[MAP PROXY] Response body (first 200 chars): {response.text[:200]}")
+                    logger.error("tile_fetch_failed",
+                                z=z, x=x, y=y,
+                                user=current_user.id if current_user.is_authenticated else "anonymous",
+                                status=response.status_code,
+                                url=tile_url,
+                                has_sid=bool(self.game_server_session_id))
+
                 return Response(
                     response.content,
                     status=response.status_code,
                     content_type='image/png'
                 )
             except Exception as e:
-                print(f"[MAP PROXY] Error fetching tile {z}/{x}/{y} from {tile_url}: {e}")
+                logger.error("tile_fetch_exception",
+                            z=z, x=x, y=y,
+                            user=current_user.id if current_user.is_authenticated else "anonymous",
+                            url=tile_url,
+                            error=str(e),
+                            error_type=type(e).__name__)
                 return Response(status=404)
 
         # endregion
@@ -431,7 +462,7 @@ class Webserver(Module):
             if not hasattr(request, 'sid'):
                 return False  # not allowed here
             else:
-                print("webinterface-client '{}' connected and is ready to roll!".format(current_user.id))
+                # Connection successful - no log needed (would be spam)
                 self.connected_clients[current_user.id].sid = request.sid
                 # emit('connected', room=request.sid, broadcast=False)
                 for module in loaded_modules_dict.values():
