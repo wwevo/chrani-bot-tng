@@ -11,12 +11,19 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     Event data format:
     {
-        'view': str  # "frontend" or "scenarios"
+        'action': str  # "show_frontend" or "show_scenarios"
     }
     """
     event_data[1]["action_identifier"] = action_name
 
-    view = event_data[1].get("view", "frontend")
+    action = event_data[1].get("action", "show_frontend")
+
+    # Map action to view
+    view_map = {
+        "show_frontend": "frontend",
+        "show_scenarios": "scenarios"
+    }
+    view = view_map.get(action, "frontend")
 
     # Update the current view in DOM
     module.set_current_view(dispatchers_steamid, {
