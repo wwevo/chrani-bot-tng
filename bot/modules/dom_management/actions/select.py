@@ -46,17 +46,29 @@ def main_function(module, event_data, dispatchers_steamid):
             except ValueError as error:
                 print(error)
 
+            # Build data payload
+            data_payload = {
+                "selected_by": selected_by_dict_element,
+                "dataset": dom_element_origin,
+                "dataset_original": dom_element_origin,
+                "owner": dom_element_owner,
+                "identifier": dom_element_identifier
+            }
+
+            # Build nested structure dynamically based on dom_element_select_root
+            # All keys except the last one (which is "selected_by") define nesting levels
+            nested_keys = dom_element_select_root[:-1]  # Remove "selected_by"
+
+            # Build nested dict from inside out
+            nested_data = data_payload
+            for key in reversed(nested_keys):
+                nested_data = {key: nested_data}
+
             module.dom.data.upsert({
                 target_module: {
                     "elements": {
                         dom_element_origin: {
-                            dom_element_owner: {
-                                "selected_by": selected_by_dict_element,
-                                "dataset": dom_element_origin,
-                                "dataset_original": dom_element_origin,
-                                "owner": dom_element_owner,
-                                "identifier": dom_element_identifier
-                            }
+                            dom_element_owner: nested_data
                         }
                     }
                 }
