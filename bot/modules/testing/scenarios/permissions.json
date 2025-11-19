@@ -1,0 +1,78 @@
+{
+  "name": "Permission Levels Test Scenario",
+  "description": "Players with different permission levels for testing access control",
+  "actions": [
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999001001",
+        "name": "PermTest_Level0_User1",
+        "entity_id": 3001,
+        "pos": {"x": 0, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999001002",
+        "name": "PermTest_Level0_User2",
+        "entity_id": 3002,
+        "pos": {"x": 50, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999002001",
+        "name": "PermTest_Level1_Player1",
+        "entity_id": 3011,
+        "pos": {"x": 100, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999002002",
+        "name": "PermTest_Level1_Player2",
+        "entity_id": 3012,
+        "pos": {"x": 150, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999003001",
+        "name": "PermTest_Level2_Builder1",
+        "entity_id": 3021,
+        "pos": {"x": 200, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999003002",
+        "name": "PermTest_Level2_Builder2",
+        "entity_id": 3022,
+        "pos": {"x": 250, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999004001",
+        "name": "PermTest_Level3_Admin1",
+        "entity_id": 3031,
+        "pos": {"x": 300, "y": 50, "z": 0}
+      }
+    },
+    {
+      "action": "inject_player_join",
+      "data": {
+        "steamid": "76561198999004002",
+        "name": "PermTest_Level3_Admin2",
+        "entity_id": 3032,
+        "pos": {"x": 350, "y": 50, "z": 0}
+      }
+    }
+  ]
+}
