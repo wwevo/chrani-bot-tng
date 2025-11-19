@@ -382,6 +382,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                             flash(new_element);
                         }
                     }
+                    // console.log("element content replaced");
                 }
             }
             if (data["data_type"] === "modal_content") {

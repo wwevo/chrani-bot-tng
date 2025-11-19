@@ -260,6 +260,7 @@
     // Remove old map handler if it exists from previous view load
     if (window.mapDataHandler) {
         window.socket.off('data', window.mapDataHandler);
+        console.log('[MAP] Removed old socket listener');
     }
 
     // Create NEW handler function that captures current local scope
@@ -294,6 +295,8 @@
             const locationId = data.location_id;
             const loc = data.location;
 
+            console.log('[MAP] Location update received:', locationId, loc);
+
             // Remove old shape if exists
             if (locationShapes[locationId]) {
                 map.removeLayer(locationShapes[locationId]);
@@ -312,6 +315,7 @@
         // Listen for location removals
         if (data.data_type === 'location_remove' && data.location_id) {
             const locationId = data.location_id;
+            console.log('[MAP] Location removal received:', locationId);
 
             if (locationShapes[locationId]) {
                 map.removeLayer(locationShapes[locationId]);
@@ -322,13 +326,18 @@
 
     // Register the new handler
     window.socket.on('data', window.mapDataHandler);
+    console.log('[MAP] Registered new socket listener');
 
     // Fit map to show all markers and shapes on load
     const allMapObjects = Object.values(locationShapes).concat(Object.values(playerMarkers));
+    console.log('[MAP] Total map objects:', allMapObjects.length);
 
     if (allMapObjects.length > 0) {
         const group = L.featureGroup(allMapObjects);
         map.fitBounds(group.getBounds().pad(0.1));
+        console.log('[MAP] Map fitted to bounds');
+    } else {
+        console.log('[MAP] No map objects to display, using default center');
     }
 
     // Fix map size after a short delay (in case container was hidden initially)
