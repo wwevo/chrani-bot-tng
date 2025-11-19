@@ -5,31 +5,23 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, event_data, dispatchers_steamid=None):
-    """
-    Toggles between different widget views.
-
-    Event data format:
-    {
-        'action': str  # "show_frontend" or "show_scenarios"
-    }
-    """
+def main_function(module, event_data, dispatchers_steamid):
     event_data[1]["action_identifier"] = action_name
+    action = event_data[1].get("action", None)
 
-    action = event_data[1].get("action", "show_frontend")
+    if action == "show_options":
+        current_view = "options"
+    elif action == "show_frontend":
+        current_view = "frontend"
+    elif action == "show_scenarios":
+        current_view = "scenarios"
+    else:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
 
-    # Map action to view
-    view_map = {
-        "show_frontend": "frontend",
-        "show_scenarios": "scenarios"
-    }
-    view = view_map.get(action, "frontend")
-
-    # Update the current view in DOM
     module.set_current_view(dispatchers_steamid, {
-        "current_view": view
+        "current_view": current_view
     })
-
     module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 
@@ -42,7 +34,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "Toggles between widget views",
+    "description": "manages testing widget views",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,
