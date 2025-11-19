@@ -1,0 +1,334 @@
+<div id="testing_control_widget" class="widget">
+    <header>
+        <h2>Testing Control Panel</h2>
+        <div class="widget-info">
+            <span class="badge">Injections: {{ injection_count }}</span>
+            <span class="badge">Scenarios Loaded: {{ scenarios_loaded|length }}</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Raw Telnet Line Injection -->
+        <section class="test-section">
+            <h3>Inject Raw Telnet Line</h3>
+            <div class="form-group">
+                <label for="raw_telnet_line">Telnet Line:</label>
+                <textarea id="raw_telnet_line" rows="3" placeholder="2025-11-19T18:00:00 1000.000 INF ..."></textarea>
+                <button
+                    class="btn btn-primary"
+                    data-module="testing"
+                    data-action="inject_telnet_line"
+                    data-action-data='{"line": ""}'
+                    onclick="
+                        var line = document.getElementById('raw_telnet_line').value;
+                        if (!line) { alert('Please enter a telnet line'); return; }
+                        this.setAttribute('data-action-data', JSON.stringify({line: line}));
+                        socket_trigger_action_event(this);
+                        document.getElementById('raw_telnet_line').value = '';
+                    ">
+                    Inject Line
+                </button>
+            </div>
+            {% if last_injected_line and last_injected_line != 'None' %}
+            <div class="info-box">
+                <small><strong>Last Injected:</strong> {{ last_injected_line }}</small>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Player Join Helper -->
+        <section class="test-section">
+            <h3>Simulate Player Join</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="player_join_name">Player Name:</label>
+                    <input type="text" id="player_join_name" placeholder="TestPlayer_001" value="TestPlayer_001">
+                </div>
+                <div class="form-group">
+                    <label for="player_join_steamid">SteamID (optional):</label>
+                    <input type="text" id="player_join_steamid" placeholder="76561198999000001">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="player_join_x">X:</label>
+                    <input type="number" id="player_join_x" value="100">
+                </div>
+                <div class="form-group">
+                    <label for="player_join_y">Y:</label>
+                    <input type="number" id="player_join_y" value="50">
+                </div>
+                <div class="form-group">
+                    <label for="player_join_z">Z:</label>
+                    <input type="number" id="player_join_z" value="200">
+                </div>
+            </div>
+            <button
+                class="btn btn-success"
+                data-module="testing"
+                data-action="inject_player_join"
+                data-action-data='{}'
+                onclick="
+                    var name = document.getElementById('player_join_name').value;
+                    var steamid = document.getElementById('player_join_steamid').value;
+                    var x = parseInt(document.getElementById('player_join_x').value);
+                    var y = parseInt(document.getElementById('player_join_y').value);
+                    var z = parseInt(document.getElementById('player_join_z').value);
+                    var data = {name: name, pos: {x: x, y: y, z: z}};
+                    if (steamid) data.steamid = steamid;
+                    this.setAttribute('data-action-data', JSON.stringify(data));
+                    socket_trigger_action_event(this);
+                ">
+                Join Player
+            </button>
+        </section>
+
+        <!-- Player Teleport Helper -->
+        <section class="test-section">
+            <h3>Simulate Player Teleport</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="player_teleport_steamid">SteamID:</label>
+                    <input type="text" id="player_teleport_steamid" placeholder="76561198999000001">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="player_teleport_x">X:</label>
+                    <input type="number" id="player_teleport_x" value="500">
+                </div>
+                <div class="form-group">
+                    <label for="player_teleport_y">Y:</label>
+                    <input type="number" id="player_teleport_y" value="50">
+                </div>
+                <div class="form-group">
+                    <label for="player_teleport_z">Z:</label>
+                    <input type="number" id="player_teleport_z" value="500">
+                </div>
+            </div>
+            <button
+                class="btn btn-success"
+                data-module="testing"
+                data-action="inject_player_teleport"
+                data-action-data='{}'
+                onclick="
+                    var steamid = document.getElementById('player_teleport_steamid').value;
+                    if (!steamid) { alert('Please enter a SteamID'); return; }
+                    var x = parseInt(document.getElementById('player_teleport_x').value);
+                    var y = parseInt(document.getElementById('player_teleport_y').value);
+                    var z = parseInt(document.getElementById('player_teleport_z').value);
+                    var data = {steamid: steamid, pos: {x: x, y: y, z: z}};
+                    this.setAttribute('data-action-data', JSON.stringify(data));
+                    socket_trigger_action_event(this);
+                ">
+                Teleport Player
+            </button>
+        </section>
+
+        <!-- Load Scenario -->
+        <section class="test-section">
+            <h3>Load Test Scenario</h3>
+            <div class="form-group">
+                <label for="scenario_select">Select Scenario:</label>
+                <select id="scenario_select">
+                    <option value="">-- Choose a scenario --</option>
+                    {% for scenario in available_scenarios %}
+                    <option value="{{ scenario }}">{{ scenario }}</option>
+                    {% endfor %}
+                </select>
+                <button
+                    class="btn btn-primary"
+                    data-module="testing"
+                    data-action="load_test_scenario"
+                    data-action-data='{}'
+                    onclick="
+                        var scenario = document.getElementById('scenario_select').value;
+                        if (!scenario) { alert('Please select a scenario'); return; }
+                        this.setAttribute('data-action-data', JSON.stringify({scenario: scenario}));
+                        socket_trigger_action_event(this);
+                    ">
+                    Load Scenario
+                </button>
+            </div>
+        </section>
+
+        <!-- Cleanup -->
+        <section class="test-section danger-zone">
+            <h3>Cleanup Test Data</h3>
+            <p class="warning-text">
+                This will remove ALL test data matching naming conventions:
+                <ul>
+                    <li>Players with SteamID prefix: <code>76561198999</code></li>
+                    <li>Locations with prefix: <code>test_</code></li>
+                    <li>Datasets with prefix: <code>TestWorld_</code></li>
+                </ul>
+            </p>
+            <button
+                class="btn btn-danger"
+                data-module="testing"
+                data-action="cleanup_test_data"
+                data-action-data='{"confirm": true}'
+                onclick="
+                    if (!confirm('Are you sure you want to cleanup ALL test data?')) return;
+                    socket_trigger_action_event(this);
+                ">
+                Cleanup All Test Data
+            </button>
+        </section>
+    </main>
+
+    <style>
+        #testing_control_widget {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+
+        #testing_control_widget header {
+            border-bottom: 2px solid #444;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #testing_control_widget h2 {
+            margin: 0;
+            color: #fff;
+        }
+
+        .widget-info {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            background: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .test-section {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            background: #1e1e1e;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #fff;
+            font-family: monospace;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            font-size: 0.9em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #388E3C;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .info-box {
+            background: #1a1a1a;
+            border-left: 3px solid #2196F3;
+            padding: 10px;
+            margin-top: 10px;
+            color: #ccc;
+        }
+
+        .danger-zone {
+            border-color: #f44336;
+        }
+
+        .danger-zone h3 {
+            color: #f44336;
+        }
+
+        .warning-text {
+            color: #ff9800;
+            font-size: 0.9em;
+        }
+
+        .warning-text ul {
+            margin: 10px 0;
+        }
+
+        .warning-text code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #4CAF50;
+        }
+    </style>
+</div>
