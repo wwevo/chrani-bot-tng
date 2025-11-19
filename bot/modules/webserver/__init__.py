@@ -483,12 +483,22 @@ class Webserver(Module):
             if not hasattr(request, 'sid'):
                 return False  # not allowed here
             else:
-                # Connection successful - add this socket to the user's socket list
-                # This allows multiple browser sessions for the same user
-                self.connected_clients[current_user.id].add_socket(request.sid)
-                # emit('connected', room=request.sid, broadcast=False)
-                for module in loaded_modules_dict.values():
-                    module.on_socket_connect(current_user.id)
+                user = self.connected_clients[current_user.id]
+
+                # Check if user already has active session(s)
+                if len(user.socket_ids) > 0:
+                    # User has active session - ask if they want to take over
+                    emit('session_conflict', {
+                        'existing_sessions': len(user.socket_ids),
+                        'message': 'Sie haben bereits eine aktive Session. Möchten Sie diese übernehmen? (Ungespeicherte Daten könnten verloren gehen)'
+                    }, room=request.sid)
+                    # Don't add socket yet - wait for user response
+                else:
+                    # First session - connect normally
+                    user.add_socket(request.sid)
+                    emit('session_accepted', room=request.sid)
+                    for module in loaded_modules_dict.values():
+                        module.on_socket_connect(current_user.id)
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
@@ -506,6 +516,51 @@ class Webserver(Module):
             except AttributeError as error:
                 # user disappeared
                 logger.debug("client_disappeared", user=current_user.id, sid=request.sid)
+
+        @self.websocket.on('session_takeover_accept')
+        @self.authenticated_only
+        def session_takeover_accept():
+            """User accepted to take over existing session - disconnect old sessions."""
+            user = self.connected_clients[current_user.id]
+
+            # Disconnect all existing sessions
+            old_sockets = user.socket_ids.copy()
+            for old_sid in old_sockets:
+                # Notify old session that it's being taken over
+                emit('session_taken_over', {
+                    'message': 'Ihre Session wurde von einem anderen Browser übernommen.'
+                }, room=old_sid)
+                # Force disconnect old socket
+                self.websocket.server.disconnect(old_sid)
+                user.remove_socket(old_sid)
+
+            # Add new session
+            user.add_socket(request.sid)
+            emit('session_accepted', room=request.sid)
+
+            # Initialize widgets for new session
+            for module in loaded_modules_dict.values():
+                module.on_socket_connect(current_user.id)
+
+            logger.info("session_takeover",
+                       user=current_user.id,
+                       old_sessions=len(old_sockets),
+                       new_sid=request.sid)
+
+        @self.websocket.on('session_takeover_decline')
+        @self.authenticated_only
+        def session_takeover_decline():
+            """User declined to take over - disconnect new session."""
+            emit('session_declined', {
+                'message': 'Session-Übernahme abgelehnt. Bitte schließen Sie die andere Session zuerst.'
+            }, room=request.sid)
+
+            # Disconnect this (new) session
+            self.websocket.server.disconnect(request.sid)
+
+            logger.info("session_takeover_declined",
+                       user=current_user.id,
+                       declined_sid=request.sid)
 
         @self.websocket.on('widget_event')
         @self.authenticated_only

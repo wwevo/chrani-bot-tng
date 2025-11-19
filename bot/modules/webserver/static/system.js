@@ -301,6 +301,45 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     });
 
+    // Session conflict handling
+    window.socket.on('session_conflict', function(data) {
+        console.log('[SESSION] Conflict detected:', data);
+        play_audio_file("alert12");
+
+        let message = data.message + '\n\nAktive Sessions: ' + data.existing_sessions;
+        if (confirm(message)) {
+            // User wants to take over
+            console.log('[SESSION] Taking over existing session');
+            window.socket.emit('session_takeover_accept');
+        } else {
+            // User declined
+            console.log('[SESSION] Takeover declined');
+            window.socket.emit('session_takeover_decline');
+        }
+    });
+
+    window.socket.on('session_accepted', function() {
+        console.log('[SESSION] Session accepted');
+        play_audio_file("computerbeep_11");
+    });
+
+    window.socket.on('session_declined', function(data) {
+        console.log('[SESSION] Session declined:', data.message);
+        play_audio_file("computer_error");
+        alert(data.message);
+        // Browser will be disconnected by server
+    });
+
+    window.socket.on('session_taken_over', function(data) {
+        console.log('[SESSION] Session taken over by another browser');
+        play_audio_file("alarm01");
+        alert(data.message);
+        // Connection will be closed by server
+        // Show a visual indicator that session is no longer active
+        document.body.style.opacity = '0.5';
+        document.body.style.pointerEvents = 'none';
+    });
+
     load_audio_files();
     load_lcars_colors();
 
