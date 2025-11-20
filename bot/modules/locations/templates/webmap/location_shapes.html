@@ -79,9 +79,8 @@ function createLocationShape(locationId, loc) {
 
     // Build popup content
     const dimensionText = shape === 'circle' || shape === 'spherical'
-        ? 'Radius: ' + (dims.radius || 'N/A')
-        : 'Width: ' + (dims.width || 'N/A') + ', Length: ' + (dims.length || 'N/A') +
-          (shape === 'box' ? ', Height: ' + (dims.height || 'N/A') : '');
+        ? `Radius: ${dims.radius || 'N/A'}`
+        : `Width: ${dims.width || 'N/A'}, Length: ${dims.length || 'N/A'}${shape === 'box' ? ', Height: ' + (dims.height || 'N/A') : ''}`;
 
     // Parse locationId to extract components
     // Format: {dataset}_{owner}_{identifier}
@@ -93,42 +92,45 @@ function createLocationShape(locationId, loc) {
     const teleportEntry = loc.teleport_entry || {};
     const hasTeleport = teleportEntry.x !== undefined && teleportEntry.y !== undefined && teleportEntry.z !== undefined;
     const teleportText = hasTeleport
-        ? 'TP: ' + parseFloat(teleportEntry.x || 0).toFixed(0) + ', ' + parseFloat(teleportEntry.y || 0).toFixed(0) + ', ' + parseFloat(teleportEntry.z || 0).toFixed(0)
+        ? `TP: ${parseFloat(teleportEntry.x || 0).toFixed(0)}, ${parseFloat(teleportEntry.y || 0).toFixed(0)}, ${parseFloat(teleportEntry.z || 0).toFixed(0)}`
         : 'TP: Not set';
 
-    const popupContent = '<div style="min-width: 250px; font-family: monospace;">' +
-        '<b style="font-size: 1.1em;">' + loc.name + '</b>' +
-        '<br><span style="font-size: 0.9em; color: #888;">' + (is3D ? '🎲 3D' : '⬜ 2D') + ' - ' + shape + '</span>' +
-        '<br><hr style="margin: 5px 0; border-color: #333;">' +
-        '<b>Type:</b> ' + (loc.type && loc.type.length > 0 ? loc.type.join(', ') : 'None') +
-        '<br><b>Owner:</b> ' + loc.owner +
-        '<br><b>Status:</b> ' + (isEnabled ? '✅ Enabled' : '❌ Disabled') +
-        '<br><b>Position:</b> ' + coords.x.toFixed(0) + ', ' + coords.y.toFixed(0) + ', ' + coords.z.toFixed(0) +
-        '<br><b>Dimensions:</b> ' + dimensionText +
-        '<br><b>' + teleportText + '</b>' +
-        '<br><hr style="margin: 8px 0; border-color: #333;">' +
-        '<div style="display: flex; gap: 5px; justify-content: space-between; align-items: center; margin-bottom: 5px;">' +
-            '<button onclick="editLocationFromMap(\'' + dataset + '\', \'' + owner + '\', \'' + identifier + '\')" ' +
-            'style="flex: 1; padding: 6px 12px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">' +
-            '✏️ Edit</button>' +
-            '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;">' +
-                '<input type="checkbox" ' +
-                'id="enable_' + locationId + '" ' +
-                (isEnabled ? 'checked ' : '') +
-                'onchange="toggleLocationEnabled(\'' + dataset + '\', \'' + owner + '\', \'' + identifier + '\', this.checked)" ' +
-                'style="cursor: pointer; width: 18px; height: 18px;" /> ' +
-                '<span style="font-weight: bold;">Enabled</span>' +
-            '</label>' +
-        '</div>' +
-        '<div style="display: flex; gap: 5px;">' +
-            '<button onclick="moveLocationFromMap(\'' + locationId + '\')" ' +
-            'style="flex: 1; padding: 6px 10px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
-            '📍 Move</button>' +
-            '<button onclick="setTeleportFromMap(\'' + locationId + '\')" ' +
-            'style="flex: 1; padding: 6px 10px; background: var(--lcars-golden-tanoi); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
-            '🎯 Set TP</button>' +
-        '</div>' +
-        '</div>';
+    // Use template literal for clean HTML
+    const popupContent = `
+        <div style="min-width: 250px; font-family: monospace;">
+            <b style="font-size: 1.1em;">${loc.name}</b>
+            <br><span style="font-size: 0.9em; color: #888;">${is3D ? '🎲 3D' : '⬜ 2D'} - ${shape}</span>
+            <br><hr style="margin: 5px 0; border-color: #333;">
+            <b>Type:</b> ${loc.type && loc.type.length > 0 ? loc.type.join(', ') : 'None'}
+            <br><b>Owner:</b> ${loc.owner}
+            <br><b>Status:</b> ${isEnabled ? '✅ Enabled' : '❌ Disabled'}
+            <br><b>Position:</b> ${coords.x.toFixed(0)}, ${coords.y.toFixed(0)}, ${coords.z.toFixed(0)}
+            <br><b>Dimensions:</b> ${dimensionText}
+            <br><b>${teleportText}</b>
+            <br><hr style="margin: 8px 0; border-color: #333;">
+            <div style="display: flex; gap: 5px; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <button onclick="editLocationFromMap('${dataset}', '${owner}', '${identifier}')"
+                    style="flex: 1; padding: 6px 12px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ✏️ Edit</button>
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;">
+                    <input type="checkbox"
+                        id="enable_${locationId}"
+                        ${isEnabled ? 'checked' : ''}
+                        onchange="toggleLocationEnabled('${dataset}', '${owner}', '${identifier}', this.checked)"
+                        style="cursor: pointer; width: 18px; height: 18px;" />
+                    <span style="font-weight: bold;">Enabled</span>
+                </label>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <button onclick="moveLocationFromMap('${locationId}')"
+                    style="flex: 1; padding: 6px 10px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">
+                    📍 Move</button>
+                <button onclick="setTeleportFromMap('${locationId}')"
+                    style="flex: 1; padding: 6px 10px; background: var(--lcars-golden-tanoi); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">
+                    🎯 Set TP</button>
+            </div>
+        </div>
+    `;
 
     leafletShape.bindPopup(popupContent);
     leafletShape.addTo(map);
