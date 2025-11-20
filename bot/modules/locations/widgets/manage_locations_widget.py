@@ -330,6 +330,7 @@ def map_view(*args, **kwargs):
                         "z": float(coordinates.get("z", 0))
                     },
                     "dimensions": dimensions,
+                    "teleport_entry": location_dict.get("teleport_entry", {}),
                     "type": location_dict.get("type", []),
                     "is_enabled": location_dict.get("is_enabled", False)
                 }
@@ -528,6 +529,12 @@ def edit_view(*args, **kwargs):
 
         if prefill_coords:
             location_to_edit_dict["coordinates"] = {
+                "x": float(prefill_coords.get("x", 0)),
+                "y": float(prefill_coords.get("y", 0)),
+                "z": float(prefill_coords.get("z", 0))
+            }
+            # Also prefill teleport_entry with same coordinates
+            location_to_edit_dict["teleport_entry"] = {
                 "x": float(prefill_coords.get("x", 0)),
                 "y": float(prefill_coords.get("y", 0)),
                 "z": float(prefill_coords.get("z", 0))
