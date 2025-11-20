@@ -1,50 +1,45 @@
 // Handle player position updates
-if (data.data_type === 'player_position_update') {
-    const steamid = data.steamid;
-    const pos = data.position;
+if (data.data_type === 'player_position_update' && data.payload) {
+    const playerData = data.payload;
+    const steamid = playerData.steamid;
+    const pos = playerData.position;
 
-    // Update player data in players object
-    if (players[steamid]) {
-        // Update existing player data
-        players[steamid].pos = pos;
-        if (data.name) players[steamid].name = data.name;
-        if (data.level !== undefined) players[steamid].level = data.level;
-        if (data.health !== undefined) players[steamid].health = data.health;
-        if (data.zombies !== undefined) players[steamid].zombies = data.zombies;
-        if (data.deaths !== undefined) players[steamid].deaths = data.deaths;
-        if (data.players !== undefined) players[steamid].players = data.players;
-        if (data.score !== undefined) players[steamid].score = data.score;
-        if (data.ping !== undefined) players[steamid].ping = data.ping;
-        if (data.is_muted !== undefined) players[steamid].is_muted = data.is_muted;
-        if (data.is_authenticated !== undefined) players[steamid].is_authenticated = data.is_authenticated;
-        if (data.in_limbo !== undefined) players[steamid].in_limbo = data.in_limbo;
-        if (data.is_initialized !== undefined) players[steamid].is_initialized = data.is_initialized;
-    } else if (pos) {
-        // Create new player data entry
-        players[steamid] = {
-            name: data.name || 'Player',
-            level: data.level || 0,
-            health: data.health || 0,
-            zombies: data.zombies || 0,
-            deaths: data.deaths || 0,
-            players: data.players || 0,
-            score: data.score || 0,
-            ping: data.ping || 0,
-            is_muted: data.is_muted || false,
-            is_authenticated: data.is_authenticated || false,
-            in_limbo: data.in_limbo || false,
-            is_initialized: data.is_initialized || false,
-            permission_level: data.permission_level || null,
-            dataset: data.dataset || '',
-            pos: pos
-        };
+    console.log('[MAP] Processing player update for:', steamid, pos);
+
+    if (!steamid || !pos) {
+        console.warn('[MAP] Invalid player update data:', playerData);
+        return;
     }
 
+    // Update or create player data in players object
+    if (!players[steamid]) {
+        players[steamid] = {};
+    }
+
+    // Update all player data
+    players[steamid].pos = pos;
+    players[steamid].name = playerData.name || players[steamid].name || 'Player';
+    players[steamid].level = playerData.level !== undefined ? playerData.level : (players[steamid].level || 0);
+    players[steamid].health = playerData.health !== undefined ? playerData.health : (players[steamid].health || 0);
+    players[steamid].zombies = playerData.zombies !== undefined ? playerData.zombies : (players[steamid].zombies || 0);
+    players[steamid].deaths = playerData.deaths !== undefined ? playerData.deaths : (players[steamid].deaths || 0);
+    players[steamid].players = playerData.players !== undefined ? playerData.players : (players[steamid].players || 0);
+    players[steamid].score = playerData.score !== undefined ? playerData.score : (players[steamid].score || 0);
+    players[steamid].ping = playerData.ping !== undefined ? playerData.ping : (players[steamid].ping || 0);
+    players[steamid].is_muted = playerData.is_muted !== undefined ? playerData.is_muted : (players[steamid].is_muted || false);
+    players[steamid].is_authenticated = playerData.is_authenticated !== undefined ? playerData.is_authenticated : (players[steamid].is_authenticated || false);
+    players[steamid].in_limbo = playerData.in_limbo !== undefined ? playerData.in_limbo : (players[steamid].in_limbo || false);
+    players[steamid].is_initialized = playerData.is_initialized !== undefined ? playerData.is_initialized : (players[steamid].is_initialized || false);
+    players[steamid].permission_level = playerData.permission_level || players[steamid].permission_level || null;
+    players[steamid].dataset = playerData.dataset || players[steamid].dataset || '';
+
+    // Update or create marker
     if (playerMarkers[steamid]) {
         // Update existing marker position and popup
         playerMarkers[steamid].setLatLng([pos.x, pos.z]);
         playerMarkers[steamid].setPopupContent(createPlayerPopup(steamid, players[steamid]));
-    } else if (pos) {
+        console.log('[MAP] Updated player marker:', steamid);
+    } else {
         // Create new marker
         const marker = L.circleMarker([pos.x, pos.z], {
             radius: 5,
@@ -58,5 +53,6 @@ if (data.data_type === 'player_position_update') {
 
         marker.bindPopup(createPlayerPopup(steamid, players[steamid]));
         playerMarkers[steamid] = marker;
+        console.log('[MAP] Created new player marker:', steamid);
     }
 }
