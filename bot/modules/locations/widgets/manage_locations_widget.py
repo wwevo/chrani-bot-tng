@@ -435,6 +435,7 @@ def map_view(*args, **kwargs):
     )
 
     # Send map metadata via Socket.IO
+    module.logger.info(f"[MAP] Sending metadata: dataset={active_dataset}, gameprefs keys={list(gameprefs.keys())}")
     module.webserver.send_data_to_client_hook(
         module,
         payload={

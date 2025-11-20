@@ -245,9 +245,12 @@
         // Location updates and removals
         {{ webmap_templates.location_update_handler|safe }}
 
-        // Update legend counts after any changes
+        // Update legend counts and player list after any changes
         if (data.data_type === 'player_position_update' || data.data_type === 'location_update' || data.data_type === 'location_remove') {
             updateLegend();
+        }
+        if (data.data_type === 'player_position_update') {
+            updatePlayerList();
         }
     };
 
@@ -328,7 +331,86 @@
     legend.addTo(map);
 
     // ========================================
-    // FEATURE 2: Coordinates Under Mouse Cursor
+    // FEATURE 2: Player List (clickable to find on map)
+    // ========================================
+
+    // Create player list control
+    const playerListControl = L.control({position: 'topright'});
+    let playerListDiv = null;
+
+    playerListControl.onAdd = function (mapInstance) {
+        playerListDiv = L.DomUtil.create('div', 'map-legend'); // Reuse legend styling
+        playerListDiv.style.maxHeight = '400px';
+        playerListDiv.style.overflowY = 'auto';
+        L.DomEvent.disableClickPropagation(playerListDiv); // Prevent map clicks
+        updatePlayerList();
+        return playerListDiv;
+    };
+
+    // Function to update player list
+    function updatePlayerList() {
+        if (!playerListDiv) return;
+
+        const playerCount = Object.keys(players).length;
+
+        if (playerCount === 0) {
+            playerListDiv.innerHTML = `
+                <h4>👥 Players (0)</h4>
+                <div style="color: #888; font-size: 0.9em; padding: 5px;">No players online</div>
+            `;
+            return;
+        }
+
+        let playersHtml = `<h4>👥 Players (${playerCount})</h4>`;
+
+        Object.keys(players).forEach(function(steamid) {
+            const player = players[steamid];
+            const statusIcon = player.in_limbo ? '💀' : (player.is_initialized ? '🟢' : '🔄');
+            const pos = player.pos || {};
+
+            playersHtml += `
+                <div class="legend-item" style="cursor: pointer; padding: 4px; margin: 2px 0; border-radius: 4px; background: rgba(255,255,255,0.05);"
+                     onclick="focusPlayer('${steamid}')"
+                     onmouseover="this.style.background='rgba(255,255,255,0.15)'"
+                     onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--lcars-anakiwa); font-weight: bold;">
+                            ${statusIcon} ${player.name || 'Unknown'}
+                        </span>
+                        <span style="color: #888; font-size: 0.85em;">
+                            Lvl ${player.level || 0}
+                        </span>
+                    </div>
+                </div>
+            `;
+        });
+
+        playerListDiv.innerHTML = playersHtml;
+    }
+
+    // Function to focus on a player
+    window.focusPlayer = function(steamid) {
+        const player = players[steamid];
+        const marker = playerMarkers[steamid];
+
+        if (!player || !player.pos || !marker) {
+            console.warn('[MAP] Player not found or has no position:', steamid);
+            return;
+        }
+
+        // Zoom to player
+        map.setView([player.pos.x, player.pos.z], 5);
+
+        // Open player popup
+        setTimeout(function() {
+            marker.openPopup();
+        }, 300);
+    };
+
+    playerListControl.addTo(map);
+
+    // ========================================
+    // FEATURE 3: Coordinates Under Mouse Cursor
     // ========================================
 
     // Create coordinates display element
