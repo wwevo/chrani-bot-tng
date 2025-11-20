@@ -46,9 +46,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
             player_to_be_teleported=player_entity_id,
-            pos_x=int(target_coordinates["x"]),
-            pos_y=int(target_coordinates["y"]),
-            pos_z=int(target_coordinates["z"])
+            pos_x=int(float(target_coordinates["x"])),
+            pos_y=int(float(target_coordinates["y"])),
+            pos_z=int(float(target_coordinates["z"]))
         )
 
         if not module.telnet.add_telnet_command_to_queue(command):
