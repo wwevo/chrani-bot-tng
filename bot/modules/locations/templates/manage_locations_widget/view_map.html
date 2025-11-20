@@ -372,7 +372,69 @@
                 className: 'player-marker'
             }).addTo(map);
 
-            marker.bindPopup('<b>' + player.name + '</b><br>Level: ' + player.level);
+            // Build enhanced player popup
+            const healthMax = 150; // Could be dynamic based on game settings
+            const healthPercent = Math.round((player.health / healthMax) * 100);
+
+            // Status badge
+            let statusBadge = '🟢 Online';
+            let statusColor = '#66ff66';
+            if (player.in_limbo) {
+                statusBadge = '💀 Dead';
+                statusColor = '#ff6666';
+            } else if (!player.is_initialized) {
+                statusBadge = '🔄 Spawning';
+                statusColor = '#ffaa66';
+            }
+
+            // Permission level badge
+            let permissionBadge = '';
+            if (player.permission_level) {
+                const level = parseInt(player.permission_level);
+                if (level === 0) permissionBadge = '<span style="color: #ff3333;">👑 Admin</span>';
+                else permissionBadge = '<span style="color: #ffaa33;">🛡️ Mod (L' + level + ')</span>';
+            }
+
+            const popupContent = '<div style="min-width: 280px; font-family: monospace;">' +
+                '<b style="font-size: 1.1em;">' + player.name + '</b>' +
+                (permissionBadge ? '<br>' + permissionBadge : '') +
+                '<br><span style="font-size: 0.9em; color: ' + statusColor + ';">' + statusBadge + '</span>' +
+                '<br><hr style="margin: 5px 0; border-color: #333;">' +
+                '<b>❤️ Health:</b> ' + player.health + '/' + healthMax + ' (' + healthPercent + '%)' +
+                '<br><b>⭐ Level:</b> ' + player.level + ' | <b>🎯 Score:</b> ' + player.score +
+                '<br><b>📍 Position:</b> ' + player.pos.x.toFixed(0) + ', ' + player.pos.y.toFixed(0) + ', ' + player.pos.z.toFixed(0) +
+                '<br><b>🧟 Zombies:</b> ' + player.zombies + ' | <b>💀 Deaths:</b> ' + player.deaths +
+                '<br><b>👥 PvP Kills:</b> ' + player.players + ' | <b>📶 Ping:</b> ' + player.ping + 'ms' +
+                '<br><hr style="margin: 8px 0; border-color: #333;">' +
+                '<div style="display: flex; gap: 5px; margin-bottom: 5px;">' +
+                    '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1; white-space: nowrap;">' +
+                        '<input type="checkbox" ' +
+                        'id="mute_' + steamid + '" ' +
+                        (player.is_muted ? 'checked ' : '') +
+                        'onchange="togglePlayerMuteFromMap(\'' + steamid + '\', \'' + player.dataset + '\', this.checked)" ' +
+                        'style="cursor: pointer; width: 16px; height: 16px;" /> ' +
+                        '<span style="font-size: 0.85em; font-weight: bold;">🔇 Muted</span>' +
+                    '</label>' +
+                    '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1; white-space: nowrap;">' +
+                        '<input type="checkbox" ' +
+                        'id="auth_' + steamid + '" ' +
+                        (player.is_authenticated ? 'checked ' : '') +
+                        'onchange="togglePlayerAuthFromMap(\'' + steamid + '\', \'' + player.dataset + '\', this.checked)" ' +
+                        'style="cursor: pointer; width: 16px; height: 16px;" /> ' +
+                        '<span style="font-size: 0.85em; font-weight: bold;">🔑 Auth</span>' +
+                    '</label>' +
+                '</div>' +
+                '<div style="display: flex; gap: 5px; margin-bottom: 5px;">' +
+                    '<button onclick="messagePlayerFromMap(\'' + steamid + '\', \'' + player.name.replace(/'/g, "\\'") + '\')" ' +
+                    'style="flex: 1; padding: 6px 10px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
+                    '💬 Message</button>' +
+                    '<button onclick="kickPlayerFromMap(\'' + steamid + '\', \'' + player.name.replace(/'/g, "\\'") + '\')" ' +
+                    'style="flex: 1; padding: 6px 10px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
+                    '👢 Kick</button>' +
+                '</div>' +
+                '</div>';
+
+            marker.bindPopup(popupContent);
             playerMarkers[steamid] = marker;
         }
     });
@@ -816,6 +878,76 @@
             map.getContainer().style.cursor = '';
             document.getElementById('map').removeChild(infoDiv);
         });
+    };
+
+    // ========================================
+    // FEATURE 6: Player Popup Actions
+    // ========================================
+
+    // Kick player from map popup
+    window.kickPlayerFromMap = function(steamid, playerName) {
+        const reason = prompt('Kick reason for ' + playerName + ':', 'Admin action');
+        if (reason === null) {
+            return; // User cancelled
+        }
+
+        window.socket.emit(
+            'widget_event',
+            ['players',
+             ['kick_player', {
+                 'action': 'kick_player',
+                 'steamid': steamid,
+                 'reason': reason || 'No reason provided',
+                 'confirmed': 'True'
+             }]]
+        );
+        console.log('[MAP] Kicking player:', steamid, 'Reason:', reason);
+    };
+
+    // Send message to player from map popup
+    window.messagePlayerFromMap = function(steamid, playerName) {
+        const message = prompt('Message to ' + playerName + ':', '');
+        if (!message) {
+            return; // User cancelled or empty message
+        }
+
+        window.socket.emit(
+            'widget_event',
+            ['players',
+             ['say_to_player', {
+                 'steamid': steamid,
+                 'message': message
+             }]]
+        );
+        console.log('[MAP] Sending message to player:', steamid, 'Message:', message);
+    };
+
+    // Toggle player mute status from map popup
+    window.togglePlayerMuteFromMap = function(steamid, dataset, isMuted) {
+        window.socket.emit(
+            'widget_event',
+            ['players',
+             ['toggle_player_mute', {
+                 'steamid': steamid,
+                 'dataset': dataset,
+                 'mute_status': isMuted
+             }]]
+        );
+        console.log('[MAP] Toggling player mute status:', steamid, 'to', isMuted);
+    };
+
+    // Toggle player authentication status from map popup
+    window.togglePlayerAuthFromMap = function(steamid, dataset, isAuth) {
+        window.socket.emit(
+            'widget_event',
+            ['players',
+             ['toggle_player_authentication', {
+                 'steamid': steamid,
+                 'dataset': dataset,
+                 'auth_status': isAuth
+             }]]
+        );
+        console.log('[MAP] Toggling player auth status:', steamid, 'to', isAuth);
     };
 
 })();

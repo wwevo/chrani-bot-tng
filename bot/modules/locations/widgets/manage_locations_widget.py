@@ -349,6 +349,18 @@ def map_view(*args, **kwargs):
                     players_for_map[steamid] = {
                         "name": player_dict.get("name", "Player"),
                         "level": player_dict.get("level", 0),
+                        "health": player_dict.get("health", 0),
+                        "zombies": player_dict.get("zombies", 0),
+                        "players": player_dict.get("players", 0),
+                        "deaths": player_dict.get("deaths", 0),
+                        "score": player_dict.get("score", 0),
+                        "ping": player_dict.get("ping", 0),
+                        "is_authenticated": player_dict.get("is_authenticated", False),
+                        "is_muted": player_dict.get("is_muted", False),
+                        "is_initialized": player_dict.get("is_initialized", False),
+                        "in_limbo": player_dict.get("in_limbo", False),
+                        "permission_level": player_dict.get("permission_level", None),
+                        "dataset": active_dataset,
                         "pos": {
                             "x": player_dict.get("pos", {}).get("x", 0),
                             "y": player_dict.get("pos", {}).get("y", 0),
