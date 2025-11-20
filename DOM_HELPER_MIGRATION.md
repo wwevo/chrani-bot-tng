@@ -76,10 +76,16 @@ def get_element_from_callback(self, updated_values_dict, matched_path):
 
     Args:
         updated_values_dict: Dict from callback kwargs
-        matched_path: Pattern like "module_x/elements/%dataset%/%owner%/%id%"
+        matched_path: Pattern with wildcards like "module_x/elements/%dataset%/%owner%/%id%"
 
     Returns:
         Full element dict from DOM
+
+    Notes:
+        - matched_path contains wildcards (e.g., %owner_steamid%)
+        - Wildcards are placeholders, not actual values
+        - Actual values come from updated_values_dict structure
+        - Works with any depth (4, 5, 6+)
     """
     parts = matched_path.split('/')
 
@@ -89,15 +95,18 @@ def get_element_from_callback(self, updated_values_dict, matched_path):
     active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset")
     module_name = parts[0]
 
-    # Depth 4: {identifier: {data}}
-    if len(parts) == 5:
+    # Depth 5+: module/elements/dataset/owner/identifier[/property]
+    # Structure: {identifier: {data}}
+    if len(parts) >= 5:
         identifier = list(updated_values_dict.keys())[0]
         element_dict = updated_values_dict[identifier]
         owner = element_dict.get("owner")
 
+        # Get full element (ignoring property path if depth > 5)
         return self.get_element_from_dom(module_name, active_dataset, owner, identifier)
 
-    # Depth 3: {owner: {...}}
+    # Depth 4: module/elements/dataset/owner
+    # Structure: {owner: {...}}
     elif len(parts) == 4:
         owner = list(updated_values_dict.keys())[0]
         return self.get_element_from_dom(module_name, active_dataset, owner)
@@ -219,7 +228,52 @@ grep -r "\.get.*\.get.*\.get.*\.get" bot/modules/*/widgets/*.py | wc -l
 # Should be much lower
 ```
 
-## Step 5: Example for Future
+## Step 5: Validate Wildcards and Browser Updates
+
+**Critical check - wildcards MUST work:**
+
+Handler registration uses wildcards:
+```python
+"module_locations/elements/%map_identifier%/%owner_steamid%/%element_identifier%": handler
+```
+
+Callback system passes `matched_path` with wildcards intact.
+Helper `get_element_from_callback()` MUST parse this correctly.
+
+**Test each wildcard pattern:**
+
+```bash
+# Test location handler (depth 5):
+# Pattern: module_locations/elements/%map%/%owner%/%id%
+# Edit location → check handler receives correct element
+
+# Test player handler (depth 4):
+# Pattern: module_players/elements/%map%/%steamid%
+# Update player → check handler receives correct element
+
+# Test enabled flag (depth 6):
+# Pattern: module_locations/elements/%map%/%owner%/%id%/is_enabled
+# Toggle enabled → check handler receives correct element
+```
+
+**Verify browser updates:**
+
+For EACH handler that uses `send_data_to_client_hook()`:
+1. Check handler uses `get_element_from_callback()` to get full element
+2. Check payload sent to browser is complete
+3. Verify browser JavaScript receives `data.payload.{element}` with all fields
+4. Test in browser: trigger action → verify immediate update without page refresh
+
+**Handlers sending to browser:**
+- [ ] `update_location_on_map` → sends `location_update`
+- [ ] `table_row` → sends `table_row`
+- [ ] `update_enabled_flag` → sends `element_content`
+- [ ] `table_rows` (players) → sends `table_row`
+- [ ] `update_widget` (players) → sends `table_row_content`
+
+All must send complete elements.
+
+## Step 6: Example for Future
 
 **New trigger - warn player on low health:**
 
@@ -243,12 +297,21 @@ def low_health_warning(*args, **kwargs):
                 {'steamid': steamid, 'message': 'Low health!'}
             ])
 
-# Register:
+# Register at health property level (depth 5):
 widget_meta = {
     "handlers": {
-        "module_players/elements/%dataset%/%steamid%": low_health_warning
+        "module_players/elements/%map_identifier%/%steamid%/health": low_health_warning
     }
 }
+
+# Handler receives full player element, not just health value!
+# player = {
+#     "steamid": "12345",
+#     "name": "Player",
+#     "health": 45,  ← changed field
+#     "pos": {...},
+#     ...  ← all other fields
+# }
 ```
 
 **New action - set player flag:**
