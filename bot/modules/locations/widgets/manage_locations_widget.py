@@ -419,8 +419,6 @@ def map_view(*args, **kwargs):
         module,
         template=template_map,
         control_switch_view=control_switch_view,
-        gameprefs_json=json.dumps(gameprefs),
-        active_dataset=active_dataset or "Unknown",
         webmap_templates=webmap_templates
     )
 
@@ -434,6 +432,17 @@ def map_view(*args, **kwargs):
             "type": "table",
             "selector": "body > main > div"
         }
+    )
+
+    # Send map metadata via Socket.IO
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload={
+            "gameprefs": gameprefs,
+            "active_dataset": active_dataset or "Unknown"
+        },
+        data_type="map_metadata",
+        clients=[dispatchers_steamid]
     )
 
     # Send initial player data via Socket.IO

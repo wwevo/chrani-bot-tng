@@ -231,11 +231,24 @@
     window.mapDataHandler = function(data) {
         console.log('[MAP] Received socket.io data:', data.data_type, data);
 
+        // Map metadata (gameprefs, dataset info)
+        if (data.data_type === 'map_metadata' && data.payload) {
+            gameprefs = data.payload.gameprefs || {};
+            activeDataset = data.payload.active_dataset || 'Unknown';
+            updateLegend();
+            console.log('[MAP] Updated map metadata:', gameprefs, activeDataset);
+        }
+
         // Player position updates
         {{ webmap_templates.player_update_handler|safe }}
 
         // Location updates and removals
         {{ webmap_templates.location_update_handler|safe }}
+
+        // Update legend counts after any changes
+        if (data.data_type === 'player_position_update' || data.data_type === 'location_update' || data.data_type === 'location_remove') {
+            updateLegend();
+        }
     };
 
     // Register the new handler
@@ -255,52 +268,62 @@
     }, 250);
 
     // ========================================
-    // FEATURE 1: Map Legend with Metadata
+    // FEATURE 1: Map Legend with Metadata (loaded via Socket.IO)
     // ========================================
-    const gameprefs = {{ gameprefs_json|safe }};
-    const activeDataset = "{{ active_dataset }}";
+
+    // Map metadata variables (loaded via socket.io)
+    let gameprefs = {};
+    let activeDataset = 'Loading...';
 
     // Create custom legend control
     const legend = L.control({position: 'topleft'});
+    let legendDiv = null;
 
-    legend.onAdd = function (map) {
-        const div = L.DomUtil.create('div', 'map-legend');
+    legend.onAdd = function (mapInstance) {
+        legendDiv = L.DomUtil.create('div', 'map-legend');
+        updateLegend();
+        return legendDiv;
+    };
 
-        // Extract relevant gameprefs
+    // Function to update legend content
+    function updateLegend() {
+        if (!legendDiv) return;
+
         const gameName = gameprefs['GameName'] || activeDataset;
         const gameWorld = gameprefs['GameWorld'] || 'N/A';
         const worldGenSeed = gameprefs['WorldGenSeed'] || 'N/A';
         const worldGenSize = gameprefs['WorldGenSize'] || 'N/A';
+        const locationCount = Object.keys(locations).length;
+        const playerCount = Object.keys(players).length;
 
-        // Build legend content
-        div.innerHTML = '<h4>🗺️ Map Info</h4>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">World:</span>' +
-                '<span class="legend-value">' + gameName + '</span>' +
-            '</div>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">Type:</span>' +
-                '<span class="legend-value">' + gameWorld + '</span>' +
-            '</div>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">Size:</span>' +
-                '<span class="legend-value">' + worldGenSize + '</span>' +
-            '</div>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">Seed:</span>' +
-                '<span class="legend-value">' + worldGenSeed + '</span>' +
-            '</div>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">Locations:</span>' +
-                '<span class="legend-value">' + Object.keys(locations).length + '</span>' +
-            '</div>' +
-            '<div class="legend-item">' +
-                '<span class="legend-label">Players:</span>' +
-                '<span class="legend-value">' + Object.keys(players).length + '</span>' +
-            '</div>';
-
-        return div;
-    };
+        legendDiv.innerHTML = `
+            <h4>🗺️ Map Info</h4>
+            <div class="legend-item">
+                <span class="legend-label">World:</span>
+                <span class="legend-value">${gameName}</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-label">Type:</span>
+                <span class="legend-value">${gameWorld}</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-label">Size:</span>
+                <span class="legend-value">${worldGenSize}</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-label">Seed:</span>
+                <span class="legend-value">${worldGenSeed}</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-label">Locations:</span>
+                <span class="legend-value" id="legend-location-count">${locationCount}</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-label">Players:</span>
+                <span class="legend-value" id="legend-player-count">${playerCount}</span>
+            </div>
+        `;
+    }
 
     legend.addTo(map);
 

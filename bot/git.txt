@@ -1,0 +1,31 @@
+IntelliJ Git Workflow für Claude-Branches
+Teil 1: Branch auschecken und Updates pullen
+
+Erstmaliges Auschecken eines neuen Claude-Branches:
+
+    Git → Fetch (holt alle Remote-Branches)
+    Git → Branches... (oder rechts unten auf den aktuellen Branch-Namen klicken)
+    In der Branch-Liste unter "Remote Branches" → "origin" den Branch claude/add-map-legend-... finden
+    Rechtsklick auf den Branch → "Checkout"
+    IntelliJ fragt "Checkout as new local branch?" → "Checkout" klicken
+
+Updates vom gleichen Branch pullen (nach meinen Änderungen):
+
+    Git → Pull... (Strg+T)
+    Im Dialog ist bereits der richtige Branch vorausgewählt
+    Einfach "Pull" klicken
+
+Teil 2: Branch in Master integrieren und pushen
+
+Wenn alle Tests erfolgreich sind und der Branch fertig ist:
+
+    Git → Branches...
+    "master" auswählen → "Checkout" (du wechselst auf master)
+    Git → Merge...
+    Den claude/add-map-legend-... Branch auswählen → "Merge" klicken
+    Git → Push... (Strg+Shift+K)
+    "Push" klicken
+
+Fertig. Der Code ist jetzt in master und auf dem Remote-Server.
+
+Das war's - kein Terminal, keine Alternativen, nur diese Schritte.
