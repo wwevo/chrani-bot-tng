@@ -40,31 +40,18 @@ def announce_location_change(*args, **kwargs):
 
     # updated_values_dict structure at this depth (callback on depth 4):
     # {location_identifier: {location_data}}
-    # The owner_steamid is one level up and not included in updated_values_dict
+    # location_data includes "owner" field
 
     for location_identifier, location_dict in updated_values_dict.items():
         if not isinstance(location_dict, dict):
             continue
 
-        # Find the owner_steamid by searching through the DOM
-        owner_steamid = None
-        all_locations = (
-            module.dom.data
-            .get("module_locations", {})
-            .get("elements", {})
-            .get(active_dataset, {})
-        )
-
-        for steamid, locations in all_locations.items():
-            if location_identifier in locations:
-                owner_steamid = steamid
-                break
-
+        # Get owner directly from location_dict
+        owner_steamid = location_dict.get("owner")
         if owner_steamid is None:
             logger.warning(
-                "location_owner_not_found",
-                location_identifier=location_identifier,
-                active_dataset=active_dataset
+                "location_owner_missing",
+                location_identifier=location_identifier
             )
             continue
 
@@ -78,18 +65,8 @@ def announce_location_change(*args, **kwargs):
             .get("name", "Unknown Player")
         )
 
-        # Get location name - might not be in updated_values if only is_enabled changed
-        location_name = location_dict.get("name", None)
-        if location_name is None:
-            location_name = (
-                module.dom.data
-                .get("module_locations", {})
-                .get("elements", {})
-                .get(active_dataset, {})
-                .get(owner_steamid, {})
-                .get(location_identifier, {})
-                .get("name", location_identifier)
-            )
+        # Get location name
+        location_name = location_dict.get("name", location_identifier)
 
         # Send chat message via say_to_all
         event_data = ['say_to_all', {

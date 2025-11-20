@@ -853,32 +853,21 @@ def update_location_on_map(*args, **kwargs):
 
             # updated_values_dict structure at callback depth 4:
             # {location_identifier: {location_data}}
-            # owner_steamid is not included, must be found from DOM
+            # location_data includes "owner" field
 
             for identifier, location_dict in updated_values_dict.items():
                 if not isinstance(location_dict, dict):
                     continue
 
-                # Find owner_steamid by searching through DOM
-                owner_steamid = None
-                all_locations = (
-                    module.dom.data
-                    .get("module_locations", {})
-                    .get("elements", {})
-                    .get(active_dataset, {})
-                )
-
-                for steamid, locations in all_locations.items():
-                    if identifier in locations:
-                        owner_steamid = steamid
-                        break
-
+                # Get owner directly from location_dict
+                owner_steamid = location_dict.get("owner")
                 if owner_steamid is None:
                     continue
 
                 location_id = f"{active_dataset}_{owner_steamid}_{identifier}"
 
                 # Get full location data from DOM if fields are missing in updated_values_dict
+                # (e.g., when only is_enabled is updated)
                 full_location_dict = (
                     module.dom.data
                     .get("module_locations", {})
@@ -888,8 +877,13 @@ def update_location_on_map(*args, **kwargs):
                     .get(identifier, {})
                 )
 
-                coordinates = location_dict.get("coordinates", full_location_dict.get("coordinates", {}))
-                dimensions = location_dict.get("dimensions", full_location_dict.get("dimensions", {}))
+                coordinates = location_dict.get("coordinates")
+                if coordinates is None:
+                    coordinates = full_location_dict.get("coordinates", {})
+
+                dimensions = location_dict.get("dimensions")
+                if dimensions is None:
+                    dimensions = full_location_dict.get("dimensions", {})
 
                 location_data = {
                     "name": location_dict.get("name", full_location_dict.get("name", "Unknown")),
