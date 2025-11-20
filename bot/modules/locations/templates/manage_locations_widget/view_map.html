@@ -410,9 +410,12 @@
         }
 
         // Listen for location updates/additions
-        if (data.data_type === 'location_update' && data.location) {
-            const locationId = data.location_id;
-            const loc = data.location;
+        if (data.data_type === 'location_update' && data.payload && data.payload.location) {
+            const locationId = data.payload.location_id;
+            const loc = data.payload.location;
+
+            // Update locations dictionary with new data
+            locations[locationId] = loc;
 
             // Remove old shape if exists
             if (locationShapes[locationId]) {
@@ -430,8 +433,8 @@
         }
 
         // Listen for location removals
-        if (data.data_type === 'location_remove' && data.location_id) {
-            const locationId = data.location_id;
+        if (data.data_type === 'location_remove' && data.payload && data.payload.location_id) {
+            const locationId = data.payload.location_id;
 
             if (locationShapes[locationId]) {
                 map.removeLayer(locationShapes[locationId]);
