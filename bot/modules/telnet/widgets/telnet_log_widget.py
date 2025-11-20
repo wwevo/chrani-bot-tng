@@ -5,6 +5,29 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
+# View Registry (mirrors locations menu pattern, but only one visible button here)
+VIEW_REGISTRY = {
+    'frontend': {
+        'label_active': 'back',
+        'label_inactive': 'main',
+        'action': 'show_frontend',
+        'include_in_menu': False
+    },
+    'options': {
+        'label_active': 'back',
+        'label_inactive': 'options',
+        'action': 'show_options',
+        'include_in_menu': True
+    },
+    'test': {
+        'label_active': 'back',
+        'label_inactive': 'test',
+        'action': 'show_test',
+        'include_in_menu': True
+    }
+}
+
+
 def get_log_line_css_class(log_line):
     css_classes = [
         "log_line"
@@ -29,6 +52,8 @@ def select_view(*args, **kwargs):
     current_view = module.get_current_view(dispatchers_steamid)
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "test":
+        test_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
@@ -41,8 +66,8 @@ def frontend_view(*args, **kwargs):
     template_table_header = module.templates.get_template('telnet_log_widget/table_header.html')
     log_line = module.templates.get_template('telnet_log_widget/log_line.html')
 
-    template_options_toggle = module.templates.get_template('telnet_log_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('telnet_log_widget/control_switch_options_view.html')
+    # new view menu (pattern from locations module)
+    template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
 
     if len(module.webserver.connected_clients) >= 1:
         telnet_lines = module.dom.data.get("module_telnet", {}).get("telnet_lines", {})
@@ -62,13 +87,10 @@ def frontend_view(*args, **kwargs):
             current_view = module.get_current_view(dispatchers_steamid)
             options_toggle = module.template_render_hook(
                 module,
-                template=template_options_toggle,
-                control_switch_options_view=module.template_render_hook(
-                    module,
-                    template=template_options_toggle_view,
-                    options_view_toggle=(current_view == "frontend"),
-                    steamid=dispatchers_steamid
-                )
+                template=template_view_menu,
+                views=VIEW_REGISTRY,
+                current_view=current_view,
+                steamid=dispatchers_steamid
             )
             data_to_emit = module.template_render_hook(
                 module,
@@ -99,19 +121,15 @@ def options_view(*args, **kwargs):
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
     template_frontend = module.templates.get_template('telnet_log_widget/view_options.html')
-    template_options_toggle = module.templates.get_template('telnet_log_widget/control_switch_view.html')
-    template_options_toggle_view = module.templates.get_template('telnet_log_widget/control_switch_options_view.html')
+    template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
 
     current_view = module.get_current_view(dispatchers_steamid)
     options_toggle = module.template_render_hook(
         module,
-        template=template_options_toggle,
-        control_switch_options_view=module.template_render_hook(
-            module,
-            template=template_options_toggle_view,
-            options_view_toggle=(current_view == "frontend"),
-            steamid=dispatchers_steamid
-        )
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid
     )
 
     data_to_emit = module.template_render_hook(
@@ -119,6 +137,42 @@ def options_view(*args, **kwargs):
         template=template_frontend,
         options_toggle=options_toggle,
         widget_options=module.options
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "telnet_log_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def test_view(*args, **kwargs):
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    template_test = module.templates.get_template('telnet_log_widget/view_test.html')
+    template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
+
+    current_view = module.get_current_view(dispatchers_steamid)
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid
+    )
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template=template_test,
+        options_toggle=options_toggle
     )
 
     module.webserver.send_data_to_client_hook(
