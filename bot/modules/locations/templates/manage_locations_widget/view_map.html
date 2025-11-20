@@ -288,8 +288,15 @@
             : 'Width: ' + (dims.width || 'N/A') + ', Length: ' + (dims.length || 'N/A') +
               (shape === 'box' ? ', Height: ' + (dims.height || 'N/A') : '');
 
-        const popupContent = '<div style="min-width: 200px;">' +
-            '<b>' + loc.name + '</b>' +
+        // Parse locationId to extract components
+        // Format: {dataset}_{owner}_{identifier}
+        const locationIdParts = locationId.split('_');
+        const dataset = locationIdParts.slice(0, -2).join('_'); // Handle datasets with underscores
+        const owner = locationIdParts[locationIdParts.length - 2];
+        const identifier = locationIdParts[locationIdParts.length - 1];
+
+        const popupContent = '<div style="min-width: 250px; font-family: monospace;">' +
+            '<b style="font-size: 1.1em;">' + loc.name + '</b>' +
             '<br><span style="font-size: 0.9em; color: #888;">' + (is3D ? '🎲 3D' : '⬜ 2D') + ' - ' + shape + '</span>' +
             '<br><hr style="margin: 5px 0; border-color: #333;">' +
             '<b>Type:</b> ' + (loc.type && loc.type.length > 0 ? loc.type.join(', ') : 'None') +
@@ -297,6 +304,20 @@
             '<br><b>Status:</b> ' + (isEnabled ? '✅ Enabled' : '❌ Disabled') +
             '<br><b>Position:</b> ' + coords.x.toFixed(0) + ', ' + coords.y.toFixed(0) + ', ' + coords.z.toFixed(0) +
             '<br><b>Dimensions:</b> ' + dimensionText +
+            '<br><hr style="margin: 8px 0; border-color: #333;">' +
+            '<div style="display: flex; gap: 10px; justify-content: space-between; align-items: center;">' +
+                '<button onclick="editLocationFromMap(\'' + dataset + '\', \'' + owner + '\', \'' + identifier + '\')" ' +
+                'style="flex: 1; padding: 6px 12px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">' +
+                '✏️ Edit</button>' +
+                '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;">' +
+                    '<input type="checkbox" ' +
+                    'id="enable_' + locationId + '" ' +
+                    (isEnabled ? 'checked ' : '') +
+                    'onchange="toggleLocationEnabled(\'' + dataset + '\', \'' + owner + '\', \'' + identifier + '\', this.checked)" ' +
+                    'style="cursor: pointer; width: 18px; height: 18px;" /> ' +
+                    '<span style="font-weight: bold;">Enabled</span>' +
+                '</label>' +
+            '</div>' +
             '</div>';
 
         leafletShape.bindPopup(popupContent);
@@ -600,6 +621,44 @@
             map.removeLayer(tempMarker);
             tempMarker = null;
         }
+    };
+
+    // ========================================
+    // FEATURE 4: Edit & Enable from Map Popup
+    // ========================================
+
+    // Edit location from map popup
+    window.editLocationFromMap = function(dataset, owner, identifier) {
+        // This follows the exact same pattern as control_edit_link.html
+        window.socket.emit(
+            'widget_event',
+            ['locations',
+             ['toggle_locations_widget_view', {
+                 'dom_element_owner': owner,
+                 'dom_element_identifier': identifier,
+                 'dom_element_origin': dataset,
+                 'action': 'edit_location_entry'
+             }]]
+        );
+        console.log('[MAP] Opening edit view for location:', identifier);
+    };
+
+    // Toggle enabled status from map popup
+    window.toggleLocationEnabled = function(dataset, owner, identifier, isChecked) {
+        // This follows the exact same pattern as control_enabled_link.html
+        const action = isChecked ? 'enable_location_entry' : 'disable_location_entry';
+
+        window.socket.emit(
+            'widget_event',
+            ['locations',
+             ['toggle_enabled_flag', {
+                 'dom_element_owner': owner,
+                 'dom_element_identifier': identifier,
+                 'dom_element_origin': dataset,
+                 'action': action
+             }]]
+        );
+        console.log('[MAP] Toggling location enabled status:', identifier, 'to', isChecked);
     };
 
 })();
