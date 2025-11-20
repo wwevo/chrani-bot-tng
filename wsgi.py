@@ -21,8 +21,10 @@ webserver_module = started_modules_dict.get('module_webserver')
 if not webserver_module:
     raise RuntimeError("Webserver module not found! Make sure it's properly configured.")
 
-# The SocketIO app wraps the Flask app and handles both HTTP and WebSocket
-application = webserver_module.websocket
+# Expose the Flask WSGI application for gunicorn
+# With Socket.IO we serve WebSockets via gunicorn's gevent-websocket worker.
+# Therefore the WSGI callable must be the underlying Flask app, not the SocketIO object.
+application = webserver_module.app
 
 # For debugging
 if __name__ == "__main__":

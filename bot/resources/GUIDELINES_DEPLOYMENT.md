@@ -156,7 +156,7 @@ Für den Produktionsbetrieb ist gunicorn deutlich besser geeignet als der Flask 
 
 - **Performance**: Optimiert für hohe Last und viele gleichzeitige Verbindungen
 - **Stabilität**: Automatisches Neustart bei Fehlern
-- **WebSocket-Support**: Mit gevent-Worker für Socket.IO optimiert
+- **WebSocket-Support**: Mit gevent-websocket-Worker für Socket.IO optimiert
 - **Production-Ready**: Bewährt in vielen großen Projekten
 
 ### Schritt 1: Konfiguration überprüfen
@@ -175,13 +175,15 @@ bind = "0.0.0.0:5000"  # Alle Interfaces, Port 5000
 
 # Worker - WICHTIG: Für WebSocket nur 1 Worker!
 workers = 1
-worker_class = "gevent"  # Für Socket.IO erforderlich
+worker_class = "geventwebsocket.gunicorn.workers.GeventWebSocketWorker"  # für WebSocket-Upgrades
 worker_connections = 1000
 
 # Timeouts
 timeout = 120
 keepalive = 5
 ```
+
+Hinweis: In `wsgi.py` exportiert `wsgi:application` die Flask-App (`webserver_module.app`), WebSockets laufen über den gevent-websocket-Worker.
 
 ### Schritt 2: Bot mit gunicorn starten
 
