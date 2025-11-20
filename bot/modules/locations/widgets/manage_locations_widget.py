@@ -371,12 +371,8 @@ def map_view(*args, **kwargs):
     # Get gameprefs for map legend
     gameprefs = {}
     if active_dataset:
-        gameprefs = (
-            module.dom.data
-            .get("module_game_environment", {})
-            .get(active_dataset, {})
-            .get("gameprefs", {})
-        )
+        env_data = module.dom.data.get("module_game_environment", {}).get(active_dataset, {})
+        gameprefs = env_data.get("gameprefs") if env_data.get("gameprefs") is not None else {}
 
     # Load webmap templates from players and locations modules
     webmap_templates = {}
@@ -435,11 +431,12 @@ def map_view(*args, **kwargs):
     )
 
     # Send map metadata via Socket.IO
-    module.logger.info(f"[MAP] Sending metadata: dataset={active_dataset}, gameprefs keys={list(gameprefs.keys())}")
+    gameprefs_keys = list(gameprefs.keys()) if gameprefs and isinstance(gameprefs, dict) else []
+    module.logger.info(f"[MAP] Sending metadata: dataset={active_dataset}, gameprefs keys={gameprefs_keys}")
     module.webserver.send_data_to_client_hook(
         module,
         payload={
-            "gameprefs": gameprefs,
+            "gameprefs": gameprefs if gameprefs else {},
             "active_dataset": active_dataset or "Unknown"
         },
         data_type="map_metadata",
