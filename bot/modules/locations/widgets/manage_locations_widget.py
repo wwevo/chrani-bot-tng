@@ -12,7 +12,7 @@ VIEW_REGISTRY = {
         'label_active': 'back',
         'label_inactive': 'main',
         'action': 'show_frontend',
-        'include_in_menu': True
+        'include_in_menu': False
     },
     'options': {
         'label_active': 'back',

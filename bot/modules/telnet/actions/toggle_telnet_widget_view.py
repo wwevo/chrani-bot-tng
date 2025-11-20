@@ -13,6 +13,8 @@ def main_function(module, event_data, dispatchers_steamid):
         current_view = "options"
     elif action == "show_frontend":
         current_view = "frontend"
+    elif action == "show_test":
+        current_view = "test"
     else:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
