@@ -851,37 +851,71 @@ def update_location_on_map(*args, **kwargs):
             # Send location update for each changed location
             active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
-            for owner_steamid, locations in updated_values_dict.items():
-                for identifier, location_dict in locations.items():
-                    location_id = f"{active_dataset}_{owner_steamid}_{identifier}"
-                    coordinates = location_dict.get("coordinates", {})
-                    dimensions = location_dict.get("dimensions", {})
+            # updated_values_dict structure at callback depth 4:
+            # {location_identifier: {location_data}}
+            # owner_steamid is not included, must be found from DOM
 
-                    location_data = {
-                        "name": location_dict.get("name", "Unknown"),
-                        "identifier": identifier,
-                        "owner": owner_steamid,
-                        "shape": location_dict.get("shape", "circle"),
-                        "coordinates": {
-                            "x": float(coordinates.get("x", 0)),
-                            "y": float(coordinates.get("y", 0)),
-                            "z": float(coordinates.get("z", 0))
-                        },
-                        "dimensions": dimensions,
-                        "teleport_entry": location_dict.get("teleport_entry", {}),
-                        "type": location_dict.get("type", []),
-                        "is_enabled": location_dict.get("is_enabled", False)
-                    }
+            for identifier, location_dict in updated_values_dict.items():
+                if not isinstance(location_dict, dict):
+                    continue
 
-                    module.webserver.send_data_to_client_hook(
-                        module,
-                        payload={
-                            "location_id": location_id,
-                            "location": location_data
-                        },
-                        data_type="location_update",
-                        clients=[clientid]
-                    )
+                # Find owner_steamid by searching through DOM
+                owner_steamid = None
+                all_locations = (
+                    module.dom.data
+                    .get("module_locations", {})
+                    .get("elements", {})
+                    .get(active_dataset, {})
+                )
+
+                for steamid, locations in all_locations.items():
+                    if identifier in locations:
+                        owner_steamid = steamid
+                        break
+
+                if owner_steamid is None:
+                    continue
+
+                location_id = f"{active_dataset}_{owner_steamid}_{identifier}"
+
+                # Get full location data from DOM if fields are missing in updated_values_dict
+                full_location_dict = (
+                    module.dom.data
+                    .get("module_locations", {})
+                    .get("elements", {})
+                    .get(active_dataset, {})
+                    .get(owner_steamid, {})
+                    .get(identifier, {})
+                )
+
+                coordinates = location_dict.get("coordinates", full_location_dict.get("coordinates", {}))
+                dimensions = location_dict.get("dimensions", full_location_dict.get("dimensions", {}))
+
+                location_data = {
+                    "name": location_dict.get("name", full_location_dict.get("name", "Unknown")),
+                    "identifier": identifier,
+                    "owner": owner_steamid,
+                    "shape": location_dict.get("shape", full_location_dict.get("shape", "circle")),
+                    "coordinates": {
+                        "x": float(coordinates.get("x", 0)),
+                        "y": float(coordinates.get("y", 0)),
+                        "z": float(coordinates.get("z", 0))
+                    },
+                    "dimensions": dimensions,
+                    "teleport_entry": location_dict.get("teleport_entry", full_location_dict.get("teleport_entry", {})),
+                    "type": location_dict.get("type", full_location_dict.get("type", [])),
+                    "is_enabled": location_dict.get("is_enabled", full_location_dict.get("is_enabled", False))
+                }
+
+                module.webserver.send_data_to_client_hook(
+                    module,
+                    payload={
+                        "location_id": location_id,
+                        "location": location_data
+                    },
+                    data_type="location_update",
+                    clients=[clientid]
+                )
 
         elif method in ["remove"]:
             # Send location removal
