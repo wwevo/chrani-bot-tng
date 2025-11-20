@@ -1,4 +1,3 @@
-<script>
 // Helper function to create location shape based on type
 function createLocationShape(locationId, loc) {
     const coords = loc.coordinates;
@@ -138,17 +137,12 @@ function createLocationShape(locationId, loc) {
 }
 
 // Add location shapes - Initial Load
-(function initLocationShapes() {
-    const locations = {{ locations_json|safe }};
-
-    Object.keys(locations).forEach(function(locationId) {
-        const loc = locations[locationId];
-        try {
-            const shape = createLocationShape(locationId, loc);
-            locationShapes[locationId] = shape;
-        } catch (error) {
-            console.error('[MAP] Error creating shape for location ' + locationId + ':', error);
-        }
-    });
-})();
-</script>
+Object.keys(locations).forEach(function(locationId) {
+    const loc = locations[locationId];
+    try {
+        const shape = createLocationShape(locationId, loc);
+        locationShapes[locationId] = shape;
+    } catch (error) {
+        console.error('[MAP] Error creating shape for location ' + locationId + ':', error);
+    }
+});

@@ -1,26 +1,20 @@
-<script>
 // Add player markers - Initial Load
-(function initPlayerMarkers() {
-    const players = {{ players_json|safe }};
+Object.keys(players).forEach(function(steamid) {
+    const player = players[steamid];
+    if (player.pos) {
+        const coords = [player.pos.x, player.pos.z];
 
-    Object.keys(players).forEach(function(steamid) {
-        const player = players[steamid];
-        if (player.pos) {
-            const coords = [player.pos.x, player.pos.z];
+        const marker = L.circleMarker(coords, {
+            radius: 5,
+            fillColor: '#66ccff',
+            color: '#0099ff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9,
+            className: 'player-marker'
+        }).addTo(map);
 
-            const marker = L.circleMarker(coords, {
-                radius: 5,
-                fillColor: '#66ccff',
-                color: '#0099ff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.9,
-                className: 'player-marker'
-            }).addTo(map);
-
-            marker.bindPopup(createPlayerPopup(steamid, player));
-            playerMarkers[steamid] = marker;
-        }
-    });
-})();
-</script>
+        marker.bindPopup(createPlayerPopup(steamid, player));
+        playerMarkers[steamid] = marker;
+    }
+});

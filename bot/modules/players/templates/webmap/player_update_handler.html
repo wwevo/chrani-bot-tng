@@ -1,80 +1,62 @@
-<script>
-// Player Update Handler - Real-time position and data updates
-(function setupPlayerUpdateHandler() {
-    // This handler updates player markers and data when changes occur
-    const originalHandler = window.mapDataHandler;
+// Handle player position updates
+if (data.data_type === 'player_position_update') {
+    const steamid = data.steamid;
+    const pos = data.position;
 
-    window.mapDataHandler = function(data) {
-        // Call original handler first (for location updates, etc.)
-        if (originalHandler) {
-            originalHandler(data);
-        }
+    // Update player data in players object
+    if (players[steamid]) {
+        // Update existing player data
+        players[steamid].pos = pos;
+        if (data.name) players[steamid].name = data.name;
+        if (data.level !== undefined) players[steamid].level = data.level;
+        if (data.health !== undefined) players[steamid].health = data.health;
+        if (data.zombies !== undefined) players[steamid].zombies = data.zombies;
+        if (data.deaths !== undefined) players[steamid].deaths = data.deaths;
+        if (data.players !== undefined) players[steamid].players = data.players;
+        if (data.score !== undefined) players[steamid].score = data.score;
+        if (data.ping !== undefined) players[steamid].ping = data.ping;
+        if (data.is_muted !== undefined) players[steamid].is_muted = data.is_muted;
+        if (data.is_authenticated !== undefined) players[steamid].is_authenticated = data.is_authenticated;
+        if (data.in_limbo !== undefined) players[steamid].in_limbo = data.in_limbo;
+        if (data.is_initialized !== undefined) players[steamid].is_initialized = data.is_initialized;
+    } else if (pos) {
+        // Create new player data entry
+        players[steamid] = {
+            name: data.name || 'Player',
+            level: data.level || 0,
+            health: data.health || 0,
+            zombies: data.zombies || 0,
+            deaths: data.deaths || 0,
+            players: data.players || 0,
+            score: data.score || 0,
+            ping: data.ping || 0,
+            is_muted: data.is_muted || false,
+            is_authenticated: data.is_authenticated || false,
+            in_limbo: data.in_limbo || false,
+            is_initialized: data.is_initialized || false,
+            permission_level: data.permission_level || null,
+            dataset: data.dataset || '',
+            pos: pos
+        };
+    }
 
-        // Handle player position updates
-        if (data.data_type === 'player_position_update') {
-            const steamid = data.steamid;
-            const pos = data.position;
+    if (playerMarkers[steamid]) {
+        // Update existing marker position and popup
+        playerMarkers[steamid].setLatLng([pos.x, pos.z]);
+        playerMarkers[steamid].setPopupContent(createPlayerPopup(steamid, players[steamid]));
+    } else if (pos) {
+        // Create new marker
+        const marker = L.circleMarker([pos.x, pos.z], {
+            radius: 5,
+            fillColor: '#66ccff',
+            color: '#0099ff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9,
+            className: 'player-marker'
+        }).addTo(map);
 
-            // Update player data in players object
-            if (players[steamid]) {
-                // Update existing player data
-                players[steamid].pos = pos;
-                if (data.name) players[steamid].name = data.name;
-                if (data.level !== undefined) players[steamid].level = data.level;
-                if (data.health !== undefined) players[steamid].health = data.health;
-                if (data.zombies !== undefined) players[steamid].zombies = data.zombies;
-                if (data.deaths !== undefined) players[steamid].deaths = data.deaths;
-                if (data.players !== undefined) players[steamid].players = data.players;
-                if (data.score !== undefined) players[steamid].score = data.score;
-                if (data.ping !== undefined) players[steamid].ping = data.ping;
-                if (data.is_muted !== undefined) players[steamid].is_muted = data.is_muted;
-                if (data.is_authenticated !== undefined) players[steamid].is_authenticated = data.is_authenticated;
-                if (data.in_limbo !== undefined) players[steamid].in_limbo = data.in_limbo;
-                if (data.is_initialized !== undefined) players[steamid].is_initialized = data.is_initialized;
-            } else if (pos) {
-                // Create new player data entry
-                players[steamid] = {
-                    name: data.name || 'Player',
-                    level: data.level || 0,
-                    health: data.health || 0,
-                    zombies: data.zombies || 0,
-                    deaths: data.deaths || 0,
-                    players: data.players || 0,
-                    score: data.score || 0,
-                    ping: data.ping || 0,
-                    is_muted: data.is_muted || false,
-                    is_authenticated: data.is_authenticated || false,
-                    in_limbo: data.in_limbo || false,
-                    is_initialized: data.is_initialized || false,
-                    permission_level: data.permission_level || null,
-                    dataset: data.dataset || '',
-                    pos: pos
-                };
-            }
-
-            if (playerMarkers[steamid]) {
-                // Update existing marker position and popup
-                playerMarkers[steamid].setLatLng([pos.x, pos.z]);
-                playerMarkers[steamid].setPopupContent(createPlayerPopup(steamid, players[steamid]));
-            } else if (pos) {
-                // Create new marker
-                const marker = L.circleMarker([pos.x, pos.z], {
-                    radius: 5,
-                    fillColor: '#66ccff',
-                    color: '#0099ff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.9,
-                    className: 'player-marker'
-                }).addTo(map);
-
-                marker.bindPopup(createPlayerPopup(steamid, players[steamid]));
-                playerMarkers[steamid] = marker;
-            }
-        }
-    };
-
-    // Register the handler
-    window.socket.on('data', window.mapDataHandler);
-})();
-</script>
+        marker.bindPopup(createPlayerPopup(steamid, players[steamid]));
+        playerMarkers[steamid] = marker;
+    }
+}
