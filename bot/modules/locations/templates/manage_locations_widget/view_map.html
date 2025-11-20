@@ -571,24 +571,21 @@
 
     // Global functions for location creation confirmation
     window.confirmLocation = function(x, z) {
-        // Navigate to create_new view with pre-filled coordinates
-        const formData = new FormData();
-        formData.append('action', 'show_create_new');
-        formData.append('target_module', 'module_locations');
-        formData.append('prefill_x', x);
-        formData.append('prefill_z', z);
-        formData.append('prefill_y', 0); // Default Y coordinate
+        // Navigate to create_new view with pre-filled coordinates using WebSocket
+        // This follows the exact same pattern as all other action calls in the system
+        window.socket.emit(
+            'widget_event',                    // Socket event name
+            ['locations',                      // Module identifier
+             ['toggle_locations_widget_view',  // Action identifier
+              {                                // Action parameters
+                  'action': 'show_create_new',
+                  'prefill_x': x,
+                  'prefill_z': z,
+                  'prefill_y': 0              // Default Y coordinate
+              }]]
+        );
 
-        fetch('/dispatch_action', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            if (response.ok) {
-                console.log('[MAP] Navigating to create location form with coordinates:', x, z);
-            }
-        }).catch(error => {
-            console.error('[MAP] Error navigating to create form:', error);
-        });
+        console.log('[MAP] Navigating to create location form with coordinates:', x, z);
 
         // Remove temp marker
         if (tempMarker) {
