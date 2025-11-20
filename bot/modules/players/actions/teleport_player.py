@@ -35,10 +35,17 @@ def main_function(module, event_data, dispatchers_steamid=None):
         # no sense in porting a player to a place they are already standing on ^^
         target_coordinates != player_coordinates
     ]):
+        # Use entity ID instead of steamid - game requires entity ID now
+        player_entity_id = player_to_be_teleported_dict.get("id")
+        if not player_entity_id:
+            event_data[1]["fail_reason"] = "player entity ID not found"
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
+
         command = (
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
-            player_to_be_teleported=player_to_be_teleported_steamid,
+            player_to_be_teleported=player_entity_id,
             pos_x=target_coordinates["x"],
             pos_y=target_coordinates["y"],
             pos_z=target_coordinates["z"]
