@@ -868,6 +868,7 @@ def update_location_on_map(*args, **kwargs):
                             "z": float(coordinates.get("z", 0))
                         },
                         "dimensions": dimensions,
+                        "teleport_entry": location_dict.get("teleport_entry", {}),
                         "type": location_dict.get("type", []),
                         "is_enabled": location_dict.get("is_enabled", False)
                     }
