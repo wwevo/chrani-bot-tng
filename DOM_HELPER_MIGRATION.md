@@ -1,12 +1,75 @@
 # DOM Helper Migration Plan
 
-## Step 1: Add Helper to Module Base Class
+## Step 1: Add Helpers to Module Base Class
 
 **File:** `bot/module.py`
 
-Add method to Module class:
+Add two methods to Module class:
 
 ```python
+def get_element_from_dom(self, module_name, dataset, owner, identifier=None):
+    """
+    Get full element from DOM.
+
+    Args:
+        module_name: e.g. "module_locations"
+        dataset: active dataset name
+        owner: owner steamid
+        identifier: element identifier (optional for owner-level access)
+
+    Returns:
+        Full element dict from DOM
+    """
+    path_data = (
+        self.dom.data
+        .get(module_name, {})
+        .get("elements", {})
+        .get(dataset, {})
+        .get(owner, {})
+    )
+
+    if identifier:
+        return path_data.get(identifier, {})
+
+    return path_data
+
+
+def update_element(self, module_name, dataset, owner, identifier, updates, dispatchers_steamid=None):
+    """
+    Update element fields in DOM.
+
+    Args:
+        module_name: e.g. "module_locations"
+        dataset: active dataset name
+        owner: owner steamid
+        identifier: element identifier
+        updates: dict with fields to update
+        dispatchers_steamid: who triggered update
+
+    Example:
+        module.update_element("module_locations", dataset, owner, "Lobby",
+                            {"is_enabled": True})
+    """
+    # Get current element
+    element = self.get_element_from_dom(module_name, dataset, owner, identifier)
+
+    # Merge updates
+    element.update(updates)
+
+    # Write back full element
+    self.dom.data.upsert({
+        module_name: {
+            "elements": {
+                dataset: {
+                    owner: {
+                        identifier: element
+                    }
+                }
+            }
+        }
+    }, dispatchers_steamid=dispatchers_steamid, min_callback_level=4, max_callback_level=5)
+
+
 def get_element_from_callback(self, updated_values_dict, matched_path):
     """
     Get full element from DOM based on callback data.
@@ -18,75 +81,97 @@ def get_element_from_callback(self, updated_values_dict, matched_path):
     Returns:
         Full element dict from DOM
     """
-    # Parse matched_path to determine structure
     parts = matched_path.split('/')
 
-    # Standard structure: module/elements/dataset/owner/identifier
     if 'elements' not in parts or len(parts) < 4:
         return {}
 
-    # Get active dataset
     active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset")
-
-    # Extract module name from pattern
     module_name = parts[0]
 
-    # Extract keys from updated_values_dict
-    # For depth 4: {identifier: {data}}
-    # For depth 3: {owner: {identifier: {data}}}
-
-    if len(parts) == 5:  # Depth 4: module/elements/dataset/owner/identifier
+    # Depth 4: {identifier: {data}}
+    if len(parts) == 5:
         identifier = list(updated_values_dict.keys())[0]
         element_dict = updated_values_dict[identifier]
         owner = element_dict.get("owner")
 
-        # Get from DOM
-        return (
-            self.dom.data
-            .get(module_name, {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get(owner, {})
-            .get(identifier, {})
-        )
+        return self.get_element_from_dom(module_name, active_dataset, owner, identifier)
 
-    elif len(parts) == 4:  # Depth 3: module/elements/dataset/owner
+    # Depth 3: {owner: {...}}
+    elif len(parts) == 4:
         owner = list(updated_values_dict.keys())[0]
-
-        # Return all elements for this owner
-        return (
-            self.dom.data
-            .get(module_name, {})
-            .get("elements", {})
-            .get(active_dataset, {})
-            .get(owner, {})
-        )
+        return self.get_element_from_dom(module_name, active_dataset, owner)
 
     return {}
 ```
 
-## Step 2: Update All Handlers
+## Step 2: Update All Actions
 
-**Pattern to find handlers:**
+**Find all actions:**
 ```bash
-grep -r "def.*\*args.*\*\*kwargs" bot/modules/*/widgets/*.py
+grep -r "module.dom.data.upsert" bot/modules/*/actions/*.py
 ```
 
-**For each handler, replace:**
-
+**Pattern - OLD:**
 ```python
-# OLD:
+module.dom.data.upsert({
+    "module_locations": {
+        "elements": {
+            location_origin: {
+                location_owner: {
+                    location_identifier: {
+                        "is_enabled": element_is_enabled
+                    }
+                }
+            }
+        }
+    }
+}, dispatchers_steamid=dispatchers_steamid, min_callback_level=4)
+```
+
+**Pattern - NEW:**
+```python
+active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset")
+
+module.update_element(
+    "module_locations",
+    active_dataset,
+    location_owner,
+    location_identifier,
+    {"is_enabled": element_is_enabled},
+    dispatchers_steamid=dispatchers_steamid
+)
+```
+
+**Actions checklist:**
+- [ ] `locations/actions/toggle_enabled_flag.py`
+- [ ] `locations/actions/edit_location.py` (keep as-is, already writes full element)
+- [ ] `players/actions/update_player_permission_level.py`
+- [ ] `players/actions/toggle_player_mute.py`
+- [ ] `dom_management/actions/select.py`
+- [ ] All other actions with partial upserts
+
+## Step 3: Update All Handlers
+
+**Find all handlers:**
+```bash
+python3 scripts/analyze_callback_usage.py
+```
+
+**Pattern - OLD:**
+```python
 def handler(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
     for identifier, data in updated_values_dict.items():
         owner = data.get("owner")
-        # ... complex DOM lookups ...
+        # Complex DOM lookups...
+        full_element = module.dom.data.get(...)...
 ```
 
+**Pattern - NEW:**
 ```python
-# NEW:
 def handler(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
@@ -99,93 +184,91 @@ def handler(*args, **kwargs):
             matched_path
         )
 
-        # Use element directly
+        # Use directly
         owner = element.get("owner")
         name = element.get("name")
-        # etc.
+        # ...
 ```
 
-## Step 3: Migration Checklist
-
-Run script to find all handlers:
-```bash
-python3 scripts/analyze_callback_usage.py
-```
-
-Update each file in `CALLBACK_DICT_INVENTORY.md`:
-
-**Locations module:**
-- [ ] `manage_locations_widget.py::table_row`
-- [ ] `manage_locations_widget.py::update_location_on_map`
-- [ ] `manage_locations_widget.py::update_selection_status`
-- [ ] `manage_locations_widget.py::update_enabled_flag`
-- [ ] `manage_locations_widget.py::update_player_location`
-
-**Players module:**
-- [ ] `manage_players_widget.py::table_rows`
-- [ ] `manage_players_widget.py::update_widget`
-- [ ] `manage_players_widget.py::update_selection_status`
-- [ ] `manage_players_widget.py::update_actions_status`
-
-**Game environment:**
-- [ ] `gameserver_status_widget.py::update_widget`
-- [ ] `gettime_widget.py::update_widget`
-- [ ] `manage_entities_widget.py::*` (check all handlers)
-
-**Test handlers:**
-- [ ] `location_change_announcer_widget.py::announce_location_change`
+**Handlers checklist:**
+- [ ] `locations/widgets/manage_locations_widget.py::table_row`
+- [ ] `locations/widgets/manage_locations_widget.py::update_location_on_map`
+- [ ] `locations/widgets/manage_locations_widget.py::update_selection_status`
+- [ ] `locations/widgets/manage_locations_widget.py::update_enabled_flag`
+- [ ] `players/widgets/manage_players_widget.py::table_rows`
+- [ ] `players/widgets/manage_players_widget.py::update_widget`
+- [ ] `game_environment/widgets/location_change_announcer_widget.py::announce_location_change`
 
 ## Step 4: Testing
 
-For each updated handler:
+**For each file:**
+1. Update code
+2. Restart bot
+3. Trigger action/handler
+4. Check logs for errors
+5. Verify UI updates
 
+**Automated check:**
 ```bash
-# Start bot
-# Trigger handler (edit location, toggle enabled, etc.)
-# Check logs for errors
-# Verify UI updates correctly
+# No more complex upserts:
+grep -r "\"elements\":" bot/modules/*/actions/*.py | wc -l
+# Should be 0 or very few (only edit_location type actions)
+
+# No more DOM fallback in handlers:
+grep -r "\.get.*\.get.*\.get.*\.get" bot/modules/*/widgets/*.py | wc -l
+# Should be much lower
 ```
 
-## Step 5: Documentation
+## Step 5: Example for Future
 
-Create `HANDLER_PATTERN.md`:
-
-```markdown
-# Handler Pattern
-
-All handlers use this pattern:
+**New trigger - warn player on low health:**
 
 ```python
-def my_handler(*args, **kwargs):
+def low_health_warning(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
     matched_path = kwargs.get("matched_path", "")
 
-    for key, data in updated_values_dict.items():
-        # Get full element from DOM
-        element = module.get_element_from_callback(
-            {key: data},
+    # Get full player element
+    for steamid, data in updated_values_dict.items():
+        player = module.get_element_from_callback(
+            {steamid: data},
             matched_path
         )
 
-        # Use element data
-        # ...
+        # Check health
+        if player.get("health", 100) < 60:
+            module.trigger_action_hook(module, event_data=[
+                'say_to_player',
+                {'steamid': steamid, 'message': 'Low health!'}
+            ])
+
+# Register:
+widget_meta = {
+    "handlers": {
+        "module_players/elements/%dataset%/%steamid%": low_health_warning
+    }
+}
 ```
 
-That's it.
+**New action - set player flag:**
+
+```python
+def main_function(module, event_data, dispatchers_steamid):
+    steamid = event_data[1].get("steamid")
+    flag_value = event_data[1].get("flag_value")
+
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset")
+
+    # Update element
+    module.update_element(
+        "module_players",
+        active_dataset,
+        steamid,
+        None,  # player has no sub-identifier
+        {"custom_flag": flag_value},
+        dispatchers_steamid=dispatchers_steamid
+    )
 ```
-```
 
-## Automated Validation
-
-```bash
-# Check all handlers use the pattern:
-grep -A 10 "def.*handler.*args.*kwargs" bot/modules/*/widgets/*.py | \
-  grep -L "get_element_from_callback"
-# Should return empty
-```
-
-## Done
-
-All handlers now consistently get full elements from DOM.
-No more guessing what's in `updated_values_dict`.
+Done. Clear pattern for everything.
