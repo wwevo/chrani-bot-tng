@@ -1,0 +1,68 @@
+<script>
+// Helper function to create player popup content
+function createPlayerPopup(steamid, player) {
+    const healthMax = 150;
+    const healthPercent = Math.round((player.health / healthMax) * 100);
+
+    // Status badge
+    let statusBadge = '🟢 Online';
+    let statusColor = '#66ff66';
+    if (player.in_limbo) {
+        statusBadge = '💀 Dead';
+        statusColor = '#ff6666';
+    } else if (!player.is_initialized) {
+        statusBadge = '🔄 Spawning';
+        statusColor = '#ffaa66';
+    }
+
+    // Permission level badge
+    let permissionBadge = '';
+    if (player.permission_level) {
+        const level = parseInt(player.permission_level);
+        if (level === 0) permissionBadge = '<span style="color: #ff3333;">👑 Admin</span>';
+        else permissionBadge = '<span style="color: #ffaa33;">🛡️ Mod (L' + level + ')</span>';
+    }
+
+    return '<div style="min-width: 280px; font-family: monospace;">' +
+        '<b style="font-size: 1.1em;">' + player.name + '</b>' +
+        (permissionBadge ? '<br>' + permissionBadge : '') +
+        '<br><span style="font-size: 0.9em; color: ' + statusColor + ';">' + statusBadge + '</span>' +
+        '<br><hr style="margin: 5px 0; border-color: #333;">' +
+        '<b>❤️ Health:</b> ' + player.health + '/' + healthMax + ' (' + healthPercent + '%)' +
+        '<br><b>⭐ Level:</b> ' + player.level + ' | <b>🎯 Score:</b> ' + player.score +
+        '<br><b>📍 Position:</b> ' + player.pos.x.toFixed(0) + ', ' + player.pos.y.toFixed(0) + ', ' + player.pos.z.toFixed(0) +
+        '<br><b>🧟 Zombies:</b> ' + player.zombies + ' | <b>💀 Deaths:</b> ' + player.deaths +
+        '<br><b>👥 PvP Kills:</b> ' + player.players + ' | <b>📶 Ping:</b> ' + player.ping + 'ms' +
+        '<br><hr style="margin: 8px 0; border-color: #333;">' +
+        '<div style="display: flex; gap: 5px; margin-bottom: 5px;">' +
+            '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1; white-space: nowrap;">' +
+                '<input type="checkbox" ' +
+                'id="mute_' + steamid + '" ' +
+                (player.is_muted ? 'checked ' : '') +
+                'onchange="togglePlayerMuteFromMap(\'' + steamid + '\', \'' + player.dataset + '\', this.checked)" ' +
+                'style="cursor: pointer; width: 16px; height: 16px;" /> ' +
+                '<span style="font-size: 0.85em; font-weight: bold;">🔇 Muted</span>' +
+            '</label>' +
+            '<label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1; white-space: nowrap;">' +
+                '<input type="checkbox" ' +
+                'id="auth_' + steamid + '" ' +
+                (player.is_authenticated ? 'checked ' : '') +
+                'onchange="togglePlayerAuthFromMap(\'' + steamid + '\', \'' + player.dataset + '\', this.checked)" ' +
+                'style="cursor: pointer; width: 16px; height: 16px;" /> ' +
+                '<span style="font-size: 0.85em; font-weight: bold;">🔑 Auth</span>' +
+            '</label>' +
+        '</div>' +
+        '<div style="display: flex; gap: 5px; margin-bottom: 5px;">' +
+            '<button onclick="messagePlayerFromMap(\'' + steamid + '\', \'' + player.name.replace(/'/g, "\\'") + '\')" ' +
+            'style="flex: 1; padding: 6px 10px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
+            '💬 Message</button>' +
+            '<button onclick="kickPlayerFromMap(\'' + steamid + '\', \'' + player.name.replace(/'/g, "\\'") + '\')" ' +
+            'style="flex: 1; padding: 6px 10px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">' +
+            '👢 Kick</button>' +
+        '</div>' +
+        '<button onclick="teleportPlayerFromMap(\'' + steamid + '\', \'' + player.name.replace(/'/g, "\\'") + '\')" ' +
+        'style="width: 100%; padding: 8px 10px; background: var(--lcars-golden-tanoi); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95em;">' +
+        '🎯 Teleport Player - Click Map</button>' +
+        '</div>';
+}
+</script>

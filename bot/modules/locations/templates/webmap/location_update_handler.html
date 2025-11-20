@@ -1,0 +1,50 @@
+<script>
+// Location Update Handler - Real-time location updates
+(function setupLocationUpdateHandler() {
+    // This handler updates location shapes when changes occur
+    const originalHandler = window.mapDataHandler;
+
+    window.mapDataHandler = function(data) {
+        // Call original handler first (for player updates, etc.)
+        if (originalHandler) {
+            originalHandler(data);
+        }
+
+        // Listen for location updates/additions
+        if (data.data_type === 'location_update' && data.payload && data.payload.location) {
+            const locationId = data.payload.location_id;
+            const loc = data.payload.location;
+
+            // Update locations dictionary with new data
+            locations[locationId] = loc;
+
+            // Remove old shape if exists
+            if (locationShapes[locationId]) {
+                map.removeLayer(locationShapes[locationId]);
+                delete locationShapes[locationId];
+            }
+
+            // Create new shape
+            try {
+                const shape = createLocationShape(locationId, loc);
+                locationShapes[locationId] = shape;
+            } catch (error) {
+                console.error('[MAP] Error updating location shape:', error);
+            }
+        }
+
+        // Listen for location removals
+        if (data.data_type === 'location_remove' && data.payload && data.payload.location_id) {
+            const locationId = data.payload.location_id;
+
+            if (locationShapes[locationId]) {
+                map.removeLayer(locationShapes[locationId]);
+                delete locationShapes[locationId];
+            }
+        }
+    };
+
+    // Register the handler
+    window.socket.on('data', window.mapDataHandler);
+})();
+</script>

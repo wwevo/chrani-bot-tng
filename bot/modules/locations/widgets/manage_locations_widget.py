@@ -378,6 +378,31 @@ def map_view(*args, **kwargs):
             .get("gameprefs", {})
         )
 
+    # Load webmap templates from players and locations modules
+    webmap_templates = {}
+
+    # Load player webmap templates
+    if players_module:
+        try:
+            webmap_templates['player_popup'] = players_module.templates.get_template('webmap/player_popup.html').render()
+            webmap_templates['player_markers'] = players_module.templates.get_template('webmap/player_markers.html').render(
+                players_json=json.dumps(players_for_map)
+            )
+            webmap_templates['player_update_handler'] = players_module.templates.get_template('webmap/player_update_handler.html').render()
+            webmap_templates['player_actions'] = players_module.templates.get_template('webmap/player_actions.html').render()
+        except Exception as e:
+            module.logger.error(f"Error loading player webmap templates: {e}")
+
+    # Load location webmap templates
+    try:
+        webmap_templates['location_shapes'] = module.templates.get_template('webmap/location_shapes.html').render(
+            locations_json=json.dumps(locations_for_map)
+        )
+        webmap_templates['location_update_handler'] = module.templates.get_template('webmap/location_update_handler.html').render()
+        webmap_templates['location_actions'] = module.templates.get_template('webmap/location_actions.html').render()
+    except Exception as e:
+        module.logger.error(f"Error loading location webmap templates: {e}")
+
     # Render navigation menu using view registry
     control_switch_view = module.template_render_hook(
         module,
@@ -401,7 +426,8 @@ def map_view(*args, **kwargs):
         locations_json=json.dumps(locations_for_map),
         players_json=json.dumps(players_for_map),
         gameprefs_json=json.dumps(gameprefs),
-        active_dataset=active_dataset or "Unknown"
+        active_dataset=active_dataset or "Unknown",
+        webmap_templates=webmap_templates
     )
 
     module.webserver.send_data_to_client_hook(

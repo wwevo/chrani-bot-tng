@@ -1,0 +1,170 @@
+<script>
+// ========================================
+// Player Popup Actions
+// ========================================
+
+// Kick player from map popup
+window.kickPlayerFromMap = function(steamid, playerName) {
+    const reason = prompt('Kick reason for ' + playerName + ':', 'Admin action');
+    if (reason === null) {
+        return; // User cancelled
+    }
+
+    window.socket.emit(
+        'widget_event',
+        ['players',
+         ['kick_player', {
+             'action': 'kick_player',
+             'steamid': steamid,
+             'reason': reason || 'No reason provided',
+             'confirmed': 'True'
+         }]]
+    );
+    console.log('[MAP] Kicking player:', steamid, 'Reason:', reason);
+};
+
+// Send message to player from map popup
+window.messagePlayerFromMap = function(steamid, playerName) {
+    const message = prompt('Message to ' + playerName + ':', '');
+    if (!message) {
+        return; // User cancelled or empty message
+    }
+
+    window.socket.emit(
+        'widget_event',
+        ['players',
+         ['say_to_player', {
+             'steamid': steamid,
+             'message': message
+         }]]
+    );
+    console.log('[MAP] Sending message to player:', steamid, 'Message:', message);
+};
+
+// Toggle player mute status from map popup
+window.togglePlayerMuteFromMap = function(steamid, dataset, isMuted) {
+    window.socket.emit(
+        'widget_event',
+        ['players',
+         ['toggle_player_mute', {
+             'steamid': steamid,
+             'dataset': dataset,
+             'mute_status': isMuted
+         }]]
+    );
+    console.log('[MAP] Toggling player mute status:', steamid, 'to', isMuted);
+};
+
+// Toggle player authentication status from map popup
+window.togglePlayerAuthFromMap = function(steamid, dataset, isAuth) {
+    window.socket.emit(
+        'widget_event',
+        ['players',
+         ['toggle_player_authentication', {
+             'steamid': steamid,
+             'dataset': dataset,
+             'auth_status': isAuth
+         }]]
+    );
+    console.log('[MAP] Toggling player auth status:', steamid, 'to', isAuth);
+};
+
+// Teleport player from map popup - click to select destination
+window.teleportPlayerFromMap = function(steamid, playerName) {
+    // Close any open popups
+    map.closePopup();
+
+    // Create info message
+    const infoDiv = L.DomUtil.create('div', 'coordinates-display');
+    infoDiv.style.bottom = '50px';
+    infoDiv.style.background = 'rgba(255, 204, 0, 0.95)';
+    infoDiv.style.borderColor = 'var(--lcars-golden-tanoi)';
+    infoDiv.style.color = '#000';
+    infoDiv.style.fontWeight = 'bold';
+    infoDiv.innerHTML = '🎯 Click destination for ' + playerName + ' (Locations will use their TP entry)';
+    document.getElementById('map').appendChild(infoDiv);
+
+    // Change cursor
+    map.getContainer().style.cursor = 'crosshair';
+
+    // Wait for click
+    map.once('click', function(e) {
+        const clickCoords = e.latlng;
+        let targetX = Math.round(clickCoords.lat);
+        let targetY = 0; // Default Y, will be adjusted
+        let targetZ = Math.round(clickCoords.lng);
+
+        // Check if click is inside any location with teleport_entry
+        let foundLocationTeleport = false;
+        for (const locationId in locations) {
+            const loc = locations[locationId];
+            const teleportEntry = loc.teleport_entry || {};
+            const hasTeleport = teleportEntry.x !== undefined &&
+                               teleportEntry.y !== undefined &&
+                               teleportEntry.z !== undefined;
+
+            if (hasTeleport) {
+                // Check if click is inside this location's bounds
+                if (isInsideLocation(clickCoords.lat, clickCoords.lng, loc)) {
+                    // Use location's teleport entry
+                    targetX = Math.round(parseFloat(teleportEntry.x));
+                    targetY = Math.round(parseFloat(teleportEntry.y));
+                    targetZ = Math.round(parseFloat(teleportEntry.z));
+                    foundLocationTeleport = true;
+                    console.log('[MAP] Using location teleport entry:', loc.name, 'at', targetX, targetY, targetZ);
+                    break;
+                }
+            }
+        }
+
+        // If no location teleport found, use default Y (ground level)
+        if (!foundLocationTeleport) {
+            targetY = -1; // Standard ground level
+        }
+
+        // Call teleport_player action
+        window.socket.emit(
+            'widget_event',
+            ['players',
+             ['teleport_player', {
+                 'steamid': steamid,
+                 'coordinates': {
+                     'x': targetX.toString(),
+                     'y': targetY.toString(),
+                     'z': targetZ.toString()
+                 }
+             }]]
+        );
+
+        console.log('[MAP] Teleporting player:', steamid, 'to', targetX, targetY, targetZ);
+
+        // Cleanup
+        map.getContainer().style.cursor = '';
+        document.getElementById('map').removeChild(infoDiv);
+    });
+};
+
+// Helper function to check if coordinates are inside a location
+function isInsideLocation(x, z, loc) {
+    const coords = loc.coordinates;
+    const dims = loc.dimensions;
+    const shape = loc.shape;
+
+    if (shape === 'circle' || shape === 'spherical') {
+        const radius = parseFloat(dims.radius || 0);
+        const distance = Math.sqrt(
+            Math.pow(x - coords.x, 2) +
+            Math.pow(z - coords.z, 2)
+        );
+        return distance <= radius;
+    } else if (shape === 'rectangle' || shape === 'box') {
+        const width = parseFloat(dims.width || 0);
+        const length = parseFloat(dims.length || 0);
+        return (
+            x >= coords.x - width && x <= coords.x + width &&
+            z >= coords.z - length && z <= coords.z + length
+        );
+    }
+    return false;
+}
+</script>
