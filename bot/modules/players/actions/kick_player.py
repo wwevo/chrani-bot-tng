@@ -23,7 +23,22 @@ def main_function(module, event_data, dispatchers_steamid):
 
             reason = event_data[1].get("reason")
 
-            command = "kick {} \"{}\"".format(player_to_be_kicked, reason)
+            # Get player entity ID - game requires entity ID instead of steamid
+            dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+            player_dict = (
+                module.dom.data
+                .get("module_players", {})
+                .get("elements", {})
+                .get(dataset, {})
+                .get(player_to_be_kicked, {})
+            )
+            player_entity_id = player_dict.get("id")
+
+            if not player_entity_id:
+                module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+                return
+
+            command = "kick {} \"{}\"".format(player_entity_id, reason)
             """
             i was trying re.escape, string replacements... the only thing that seems to work is all of them together
             Had some big trouble filtering out stuff like ^ and " and whatnot

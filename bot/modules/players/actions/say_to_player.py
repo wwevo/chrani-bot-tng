@@ -15,7 +15,22 @@ def main_function(module, event_data, dispatchers_steamid=None):
     target_player_steamid = event_data[1].get("steamid", None)
     message = event_data[1].get("message", None)
 
-    command = "sayplayer {} \"{}\"".format(target_player_steamid, message)
+    # Get player entity ID - game requires entity ID instead of steamid
+    dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    player_dict = (
+        module.dom.data
+        .get("module_players", {})
+        .get("elements", {})
+        .get(dataset, {})
+        .get(target_player_steamid, {})
+    )
+    player_entity_id = player_dict.get("id")
+
+    if not player_entity_id:
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
+    command = "sayplayer {} \"{}\"".format(player_entity_id, message)
     if not module.telnet.add_telnet_command_to_queue(command):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
