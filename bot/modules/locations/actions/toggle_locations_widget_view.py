@@ -12,6 +12,11 @@ def main_function(module, event_data, dispatchers_steamid):
     location_identifier = event_data[1].get("dom_element_identifier", None)
     location_origin = event_data[1].get("dom_element_origin", None)
 
+    # Support for prefilled coordinates from map
+    prefill_x = event_data[1].get("prefill_x", None)
+    prefill_y = event_data[1].get("prefill_y", None)
+    prefill_z = event_data[1].get("prefill_z", None)
+
     if action == "show_options":
         current_view = "options"
     elif action == "show_frontend":
@@ -28,12 +33,22 @@ def main_function(module, event_data, dispatchers_steamid):
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    module.set_current_view(dispatchers_steamid, {
+    view_data = {
         "current_view": current_view,
         "location_owner": location_owner,
         "location_identifier": location_identifier,
         "location_origin": location_origin
-    })
+    }
+
+    # Add prefill data if creating new location
+    if current_view == "create_new" and any([prefill_x, prefill_y, prefill_z]):
+        view_data["prefill_coordinates"] = {
+            "x": prefill_x,
+            "y": prefill_y,
+            "z": prefill_z
+        }
+
+    module.set_current_view(dispatchers_steamid, view_data)
     module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 

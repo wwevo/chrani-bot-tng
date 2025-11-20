@@ -355,6 +355,16 @@ def map_view(*args, **kwargs):
                         }
                     }
 
+    # Get gameprefs for map legend
+    gameprefs = {}
+    if active_dataset:
+        gameprefs = (
+            module.dom.data
+            .get("module_game_environment", {})
+            .get(active_dataset, {})
+            .get("gameprefs", {})
+        )
+
     # Render navigation menu using view registry
     control_switch_view = module.template_render_hook(
         module,
@@ -376,7 +386,9 @@ def map_view(*args, **kwargs):
         template=template_map,
         control_switch_view=control_switch_view,
         locations_json=json.dumps(locations_for_map),
-        players_json=json.dumps(players_for_map)
+        players_json=json.dumps(players_for_map),
+        gameprefs_json=json.dumps(gameprefs),
+        active_dataset=active_dataset or "Unknown"
     )
 
     module.webserver.send_data_to_client_hook(
@@ -504,6 +516,22 @@ def edit_view(*args, **kwargs):
             "owner": str(dispatchers_steamid),
             "is_enabled": False
         }
+
+        # Check for prefilled coordinates from map
+        prefill_coords = (
+            module.dom.data
+            .get(module.get_module_identifier(), {})
+            .get("visibility", {})
+            .get(dispatchers_steamid, {})
+            .get("prefill_coordinates", None)
+        )
+
+        if prefill_coords:
+            location_to_edit_dict["coordinates"] = {
+                "x": float(prefill_coords.get("x", 0)),
+                "y": float(prefill_coords.get("y", 0)),
+                "z": float(prefill_coords.get("z", 0))
+            }
 
     # Load templates
     template_frontend = module.templates.get_template('manage_locations_widget/view_create_new.html')

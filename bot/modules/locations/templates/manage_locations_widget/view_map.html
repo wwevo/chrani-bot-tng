@@ -40,6 +40,90 @@
         background: rgba(0, 0, 0, 0.3);
         border-radius: 4px;
     }
+
+    /* Custom Legend Styling */
+    .map-legend {
+        background: rgba(26, 26, 26, 0.95);
+        border: 2px solid var(--lcars-hopbush);
+        border-radius: 8px;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--lcars-golden-tanoi);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+        min-width: 200px;
+    }
+    .map-legend h4 {
+        margin: 0 0 8px 0;
+        color: var(--lcars-hopbush);
+        font-size: 14px;
+        font-weight: bold;
+        border-bottom: 1px solid var(--lcars-hopbush);
+        padding-bottom: 4px;
+    }
+    .map-legend .legend-item {
+        margin: 4px 0;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .map-legend .legend-label {
+        color: var(--lcars-anakiwa);
+        font-weight: bold;
+    }
+    .map-legend .legend-value {
+        color: var(--lcars-golden-tanoi);
+        text-align: right;
+    }
+
+    /* Coordinates Display */
+    .coordinates-display {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(26, 26, 26, 0.95);
+        border: 2px solid var(--lcars-anakiwa);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-family: monospace;
+        font-size: 13px;
+        color: var(--lcars-anakiwa);
+        z-index: 1000;
+        pointer-events: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .coordinates-display .coord-label {
+        font-weight: bold;
+        color: var(--lcars-hopbush);
+    }
+
+    /* Create Location Button */
+    .create-location-btn {
+        background: var(--lcars-hopbush);
+        border: 2px solid var(--lcars-hopbush);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+    .create-location-btn:hover {
+        background: var(--lcars-golden-tanoi);
+        border-color: var(--lcars-golden-tanoi);
+        color: #000;
+    }
+    .create-location-btn.active {
+        background: var(--lcars-tanoi);
+        border-color: var(--lcars-tanoi);
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <header>
@@ -335,6 +419,192 @@
     setTimeout(function() {
         map.invalidateSize();
     }, 250);
+
+    // ========================================
+    // FEATURE 1: Map Legend with Metadata
+    // ========================================
+    const gameprefs = {{ gameprefs_json|safe }};
+    const activeDataset = "{{ active_dataset }}";
+
+    // Create custom legend control
+    const legend = L.control({position: 'topleft'});
+
+    legend.onAdd = function (map) {
+        const div = L.DomUtil.create('div', 'map-legend');
+
+        // Extract relevant gameprefs
+        const gameName = gameprefs['GameName'] || activeDataset;
+        const gameWorld = gameprefs['GameWorld'] || 'N/A';
+        const worldGenSeed = gameprefs['WorldGenSeed'] || 'N/A';
+        const worldGenSize = gameprefs['WorldGenSize'] || 'N/A';
+
+        // Build legend content
+        div.innerHTML = '<h4>🗺️ Map Info</h4>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">World:</span>' +
+                '<span class="legend-value">' + gameName + '</span>' +
+            '</div>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">Type:</span>' +
+                '<span class="legend-value">' + gameWorld + '</span>' +
+            '</div>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">Size:</span>' +
+                '<span class="legend-value">' + worldGenSize + '</span>' +
+            '</div>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">Seed:</span>' +
+                '<span class="legend-value">' + worldGenSeed + '</span>' +
+            '</div>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">Locations:</span>' +
+                '<span class="legend-value">' + Object.keys(locations).length + '</span>' +
+            '</div>' +
+            '<div class="legend-item">' +
+                '<span class="legend-label">Players:</span>' +
+                '<span class="legend-value">' + Object.keys(players).length + '</span>' +
+            '</div>';
+
+        return div;
+    };
+
+    legend.addTo(map);
+
+    // ========================================
+    // FEATURE 2: Coordinates Under Mouse Cursor
+    // ========================================
+
+    // Create coordinates display element
+    const coordsDiv = L.DomUtil.create('div', 'coordinates-display');
+    coordsDiv.innerHTML = '<span class="coord-label">X:</span> <span id="coord-x">0</span> | ' +
+                         '<span class="coord-label">Z:</span> <span id="coord-z">0</span>';
+    document.getElementById('map').appendChild(coordsDiv);
+
+    // Update coordinates on mouse move
+    map.on('mousemove', function(e) {
+        const coords = e.latlng;
+        // In 7D2D, lat corresponds to X and lng to Z
+        document.getElementById('coord-x').textContent = Math.round(coords.lat);
+        document.getElementById('coord-z').textContent = Math.round(coords.lng);
+    });
+
+    // ========================================
+    // FEATURE 3: Create Location UI
+    // ========================================
+
+    // Store tempMarker globally so it can be accessed by confirm/cancel functions
+    let tempMarker = null;
+
+    // Create custom control for location creation
+    const createLocationControl = L.control({position: 'topright'});
+
+    createLocationControl.onAdd = function (mapInstance) {
+        const btn = L.DomUtil.create('button', 'create-location-btn');
+        btn.innerHTML = '📍 Create Location';
+        btn.title = 'Click to enable location creation mode';
+
+        // Prevent map interactions when clicking the button
+        L.DomEvent.disableClickPropagation(btn);
+
+        let creationMode = false;
+
+        btn.onclick = function() {
+            creationMode = !creationMode;
+
+            if (creationMode) {
+                btn.classList.add('active');
+                btn.innerHTML = '✖️ Cancel';
+                map.getContainer().style.cursor = 'crosshair';
+
+                // Add click handler for location creation
+                map.once('click', function(e) {
+                    const coords = e.latlng;
+                    const x = Math.round(coords.lat);
+                    const z = Math.round(coords.lng);
+
+                    // Create temporary marker
+                    tempMarker = L.circleMarker([coords.lat, coords.lng], {
+                        radius: 8,
+                        fillColor: '#ff00ff',
+                        color: '#ff00ff',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.6
+                    }).addTo(map);
+
+                    tempMarker.bindPopup(
+                        '<div style="text-align: center;">' +
+                        '<b>New Location</b><br>' +
+                        'X: ' + x + ', Z: ' + z + '<br>' +
+                        '<button onclick="confirmLocation(' + x + ', ' + z + ')" ' +
+                        'style="margin: 5px; padding: 5px 10px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer;">' +
+                        'Create Here</button>' +
+                        '<button onclick="cancelLocation()" ' +
+                        'style="margin: 5px; padding: 5px 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">' +
+                        'Cancel</button>' +
+                        '</div>'
+                    ).openPopup();
+
+                    // Reset button state
+                    btn.classList.remove('active');
+                    btn.innerHTML = '📍 Create Location';
+                    map.getContainer().style.cursor = '';
+                    creationMode = false;
+                });
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '📍 Create Location';
+                map.getContainer().style.cursor = '';
+
+                // Remove temp marker if exists
+                if (tempMarker) {
+                    map.removeLayer(tempMarker);
+                    tempMarker = null;
+                }
+            }
+        };
+
+        return btn;
+    };
+
+    createLocationControl.addTo(map);
+
+    // Global functions for location creation confirmation
+    window.confirmLocation = function(x, z) {
+        // Navigate to create_new view with pre-filled coordinates
+        const formData = new FormData();
+        formData.append('action', 'show_create_new');
+        formData.append('target_module', 'module_locations');
+        formData.append('prefill_x', x);
+        formData.append('prefill_z', z);
+        formData.append('prefill_y', 0); // Default Y coordinate
+
+        fetch('/dispatch_action', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (response.ok) {
+                console.log('[MAP] Navigating to create location form with coordinates:', x, z);
+            }
+        }).catch(error => {
+            console.error('[MAP] Error navigating to create form:', error);
+        });
+
+        // Remove temp marker
+        if (tempMarker) {
+            map.removeLayer(tempMarker);
+            tempMarker = null;
+        }
+    };
+
+    window.cancelLocation = function() {
+        // Remove temp marker
+        if (tempMarker) {
+            map.removeLayer(tempMarker);
+            tempMarker = null;
+        }
+    };
+
 })();
 </script>
 </main>
