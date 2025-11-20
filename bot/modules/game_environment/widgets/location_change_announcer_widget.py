@@ -1,5 +1,8 @@
 from bot import loaded_modules_dict
 from os import path, pardir
+from bot.logger import get_logger
+
+logger = get_logger(__name__)
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
@@ -14,6 +17,14 @@ def announce_location_change(*args, **kwargs):
     module = args[0]
     method = kwargs.get("method", None)
     updated_values_dict = kwargs.get("updated_values_dict", {})
+
+    # DEBUG: Log what we received
+    logger.info(
+        "location_change_debug",
+        method=method,
+        updated_values_dict_type=type(updated_values_dict).__name__,
+        updated_values_dict_repr=repr(updated_values_dict)[:200]
+    )
 
     # Only announce on update, not insert or remove
     if method != "update":
