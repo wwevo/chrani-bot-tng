@@ -33,8 +33,19 @@ def send_player_update_to_map(*args, **kwargs):
         return
 
     # Check which clients are viewing the map
+    locations_module = loaded_modules_dict.get("module_locations")
+    if not locations_module:
+        return
+
     for clientid in module.webserver.connected_clients.keys():
-        current_view = module.get_current_view(clientid)
+        # Check if client is viewing the map in the locations widget
+        current_view = (
+            locations_module.dom.data
+            .get("module_locations", {})
+            .get("visibility", {})
+            .get(clientid, {})
+            .get("current_view", None)
+        )
         if current_view != "map":
             continue
 
