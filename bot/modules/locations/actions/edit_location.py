@@ -54,7 +54,7 @@ def main_function(module, event_data, dispatchers_steamid):
                     }
                 }
             }
-        }, dispatchers_steamid=dispatchers_steamid, max_callback_level=3)
+        }, dispatchers_steamid=dispatchers_steamid, max_callback_level=4)
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
 

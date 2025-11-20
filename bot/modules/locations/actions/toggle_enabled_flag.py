@@ -30,7 +30,7 @@ def main_function(module, event_data, dispatchers_steamid):
                         }
                     }
                 }
-            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=5)
+            }, dispatchers_steamid=dispatchers_steamid, min_callback_level=4)
 
             module.callback_success(callback_success, module, event_data, dispatchers_steamid)
             return
