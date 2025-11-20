@@ -203,24 +203,14 @@
     const locationShapes = {};
     const playerMarkers = {};
 
-    // Data variables for locations and players
-    const locations = {{ locations_json|safe }};
-    const players = {{ players_json|safe }};
-
-    // ========================================
-    // Location Shape Creation & Initial Load
-    // ========================================
-    {{ webmap_templates.location_shapes|safe }}
+    // Data variables for locations and players (initially empty, loaded via socket.io)
+    const locations = {};
+    const players = {};
 
     // ========================================
     // Player Popup Creation
     // ========================================
     {{ webmap_templates.player_popup|safe }}
-
-    // ========================================
-    // Player Markers Initial Load
-    // ========================================
-    {{ webmap_templates.player_markers|safe }}
 
     // ========================================
     // Real-time Update Handlers

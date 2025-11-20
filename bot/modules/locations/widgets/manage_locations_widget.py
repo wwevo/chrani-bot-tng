@@ -419,8 +419,6 @@ def map_view(*args, **kwargs):
         module,
         template=template_map,
         control_switch_view=control_switch_view,
-        locations_json=json.dumps(locations_for_map),
-        players_json=json.dumps(players_for_map),
         gameprefs_json=json.dumps(gameprefs),
         active_dataset=active_dataset or "Unknown",
         webmap_templates=webmap_templates
@@ -437,6 +435,49 @@ def map_view(*args, **kwargs):
             "selector": "body > main > div"
         }
     )
+
+    # Send initial player data via Socket.IO
+    for steamid, player_data in players_for_map.items():
+        player_update_data = {
+            "steamid": steamid,
+            "name": player_data.get("name", "Player"),
+            "level": player_data.get("level", 0),
+            "health": player_data.get("health", 0),
+            "zombies": player_data.get("zombies", 0),
+            "deaths": player_data.get("deaths", 0),
+            "players": player_data.get("players", 0),
+            "score": player_data.get("score", 0),
+            "ping": player_data.get("ping", 0),
+            "is_muted": player_data.get("is_muted", False),
+            "is_authenticated": player_data.get("is_authenticated", False),
+            "in_limbo": player_data.get("in_limbo", False),
+            "is_initialized": player_data.get("is_initialized", False),
+            "permission_level": player_data.get("permission_level", None),
+            "dataset": player_data.get("dataset", ""),
+            "position": {
+                "x": float(player_data.get("pos", {}).get("x", 0)),
+                "y": float(player_data.get("pos", {}).get("y", 0)),
+                "z": float(player_data.get("pos", {}).get("z", 0))
+            }
+        }
+        module.webserver.send_data_to_client_hook(
+            module,
+            payload=player_update_data,
+            data_type="player_position_update",
+            clients=[dispatchers_steamid]
+        )
+
+    # Send initial location data via Socket.IO
+    for location_id, location_data in locations_for_map.items():
+        module.webserver.send_data_to_client_hook(
+            module,
+            payload={
+                "location_id": location_id,
+                "location": location_data
+            },
+            data_type="location_update",
+            clients=[dispatchers_steamid]
+        )
 
 
 def options_view(*args, **kwargs):

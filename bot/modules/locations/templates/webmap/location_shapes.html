@@ -136,13 +136,6 @@ function createLocationShape(locationId, loc) {
     return leafletShape;
 }
 
-// Add location shapes - Initial Load
-Object.keys(locations).forEach(function(locationId) {
-    const loc = locations[locationId];
-    try {
-        const shape = createLocationShape(locationId, loc);
-        locationShapes[locationId] = shape;
-    } catch (error) {
-        console.error('[MAP] Error creating shape for location ' + locationId + ':', error);
-    }
-});
+// Location shapes are now loaded dynamically via Socket.IO
+// Initial loading is handled by location_update events
+// See location_update_handler.html for shape creation logic
