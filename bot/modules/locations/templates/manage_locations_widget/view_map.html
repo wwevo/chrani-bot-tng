@@ -298,7 +298,7 @@
         const teleportEntry = loc.teleport_entry || {};
         const hasTeleport = teleportEntry.x !== undefined && teleportEntry.y !== undefined && teleportEntry.z !== undefined;
         const teleportText = hasTeleport
-            ? 'TP: ' + (teleportEntry.x || 0).toFixed(0) + ', ' + (teleportEntry.y || 0).toFixed(0) + ', ' + (teleportEntry.z || 0).toFixed(0)
+            ? 'TP: ' + parseFloat(teleportEntry.x || 0).toFixed(0) + ', ' + parseFloat(teleportEntry.y || 0).toFixed(0) + ', ' + parseFloat(teleportEntry.z || 0).toFixed(0)
             : 'TP: Not set';
 
         const popupContent = '<div style="min-width: 250px; font-family: monospace;">' +
