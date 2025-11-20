@@ -479,7 +479,7 @@ class Webserver(Module):
         # region Websocket handling
         @self.websocket.on('connect')
         @self.authenticated_only
-        def connect_handler():
+        def connect_handler(auth=None):
             if not hasattr(request, 'sid'):
                 return False  # not allowed here
             else:

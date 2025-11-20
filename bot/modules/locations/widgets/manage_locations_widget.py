@@ -372,7 +372,9 @@ def map_view(*args, **kwargs):
     gameprefs = {}
     if active_dataset:
         env_data = module.dom.data.get("module_game_environment", {}).get(active_dataset, {})
-        gameprefs = env_data.get("gameprefs") if env_data.get("gameprefs") is not None else {}
+        gameprefs_raw = env_data.get("gameprefs", {})
+        # Ensure it's always a dict, never None or other type
+        gameprefs = gameprefs_raw if isinstance(gameprefs_raw, dict) else {}
 
     # Load webmap templates from players and locations modules
     webmap_templates = {}
