@@ -14,46 +14,64 @@ def announce_location_change(*args, **kwargs):
     module = args[0]
     method = kwargs.get("method", None)
     updated_values_dict = kwargs.get("updated_values_dict", {})
-    matched_path = kwargs.get("matched_path", "")
 
     # Only announce on update, not insert or remove
     if method != "update":
         return
 
-    # Extract information from the matched path
-    # Pattern: module_locations/elements/%map_identifier%/%owner_steamid%/%element_identifier%
-    path_parts = matched_path.split("/")
-    if len(path_parts) < 5:
+    if not isinstance(updated_values_dict, dict):
         return
 
-    map_identifier = path_parts[2]
-    owner_steamid = path_parts[3]
-    location_identifier = path_parts[4]
+    # Get active dataset (map identifier)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
+        return
 
-    # Get player name from DOM
-    player_name = (
-        module.dom.data
-        .get("module_players", {})
-        .get("elements", {})
-        .get(map_identifier, {})
-        .get(owner_steamid, {})
-        .get("name", "Unknown Player")
-    )
+    # updated_values_dict structure at this depth:
+    # {owner_steamid: {location_identifier: {location_data}}}
+    for owner_steamid, locations in updated_values_dict.items():
+        if not isinstance(locations, dict):
+            continue
 
-    # Get location name from the updated values if available
-    location_name = updated_values_dict.get("name", location_identifier)
+        for location_identifier, location_dict in locations.items():
+            if not isinstance(location_dict, dict):
+                continue
 
-    # Send chat message via say_to_all
-    event_data = ['say_to_all', {
-        'message': (
-            '[FFAA00]Location Update:[-] {player} edited location [00FFFF]{location}[-]'
-            .format(
-                player=player_name,
-                location=location_name
+            # Get player name from DOM
+            player_name = (
+                module.dom.data
+                .get("module_players", {})
+                .get("elements", {})
+                .get(active_dataset, {})
+                .get(owner_steamid, {})
+                .get("name", "Unknown Player")
             )
-        )
-    }]
-    module.trigger_action_hook(module, event_data=event_data)
+
+            # Get location name - might not be in updated_values if only is_enabled changed
+            # So fall back to reading from DOM
+            location_name = location_dict.get("name", None)
+            if location_name is None:
+                location_name = (
+                    module.dom.data
+                    .get("module_locations", {})
+                    .get("elements", {})
+                    .get(active_dataset, {})
+                    .get(owner_steamid, {})
+                    .get(location_identifier, {})
+                    .get("name", location_identifier)
+                )
+
+            # Send chat message via say_to_all
+            event_data = ['say_to_all', {
+                'message': (
+                    '[FFAA00]Location Update:[-] {player} edited location [00FFFF]{location}[-]'
+                    .format(
+                        player=player_name,
+                        location=location_name
+                    )
+                )
+            }]
+            module.trigger_action_hook(module, event_data=event_data)
 
 
 widget_meta = {
