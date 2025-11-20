@@ -234,6 +234,8 @@
     // Create NEW handler function that captures current local scope
     // This must be recreated each time to access current locationShapes/playerMarkers
     window.mapDataHandler = function(data) {
+        console.log('[MAP] Received socket.io data:', data.data_type, data);
+
         // Player position updates
         {{ webmap_templates.player_update_handler|safe }}
 
