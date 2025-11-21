@@ -2,47 +2,117 @@
 <link rel="stylesheet" href="/static/leaflet.css"/>
 
 <style>
-    #map {
-        width: 100%;
+    /* LCARS Grid Layout */
+    main {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        grid-template-rows: 50px 1fr 120px;
+        grid-template-areas:
+            "topbar topbar"
+            "map sidebar"
+            "bottombar bottombar";
+        gap: 8px;
         height: 100%;
-        min-height: 400px;
+        min-height: 0;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+
+    /* Top Bar */
+    .lcars-topbar {
+        grid-area: topbar;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(26, 26, 26, 0.95);
+        border: 2px solid var(--lcars-hopbush);
+        border-radius: 25px;
+        padding: 0 20px;
+        gap: 20px;
+    }
+
+    .lcars-topbar-left {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .lcars-topbar-right {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-family: monospace;
+        font-size: 14px;
+        color: var(--lcars-anakiwa);
+    }
+
+    .coord-label {
+        font-weight: bold;
+        color: var(--lcars-hopbush);
+    }
+
+    /* Map Container */
+    .lcars-map-container {
+        grid-area: map;
         background: #1a1a1a;
         border: 2px solid var(--lcars-hopbush);
         border-radius: 8px;
-        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
     }
-    main {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-height: 0;
+
+    #map {
+        width: 100%;
+        height: 100%;
+        background: #1a1a1a;
     }
+
     .leaflet-container {
         background: #1a1a1a;
     }
-    .location-marker {
-        background-color: var(--lcars-golden-tanoi);
-        border: 2px solid var(--lcars-tanoi);
-        border-radius: 50%;
-        width: 12px;
-        height: 12px;
-    }
-    .player-marker {
-        background-color: var(--lcars-anakiwa);
-        border: 2px solid var(--lcars-mariner);
-        border-radius: 50%;
-        width: 10px;
-        height: 10px;
-    }
-    .map-controls {
-        margin-bottom: 10px;
-        padding: 10px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 4px;
+
+    /* Disable default Leaflet popups */
+    .leaflet-popup {
+        display: none !important;
     }
 
-    /* Custom Legend Styling */
-    .map-legend {
+    /* Right Sidebar */
+    .lcars-sidebar {
+        grid-area: sidebar;
+        background: rgba(26, 26, 26, 0.95);
+        border: 2px solid var(--lcars-anakiwa);
+        border-radius: 8px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    .lcars-sidebar h3 {
+        margin: 0 0 12px 0;
+        color: var(--lcars-anakiwa);
+        font-size: 16px;
+        border-bottom: 2px solid var(--lcars-anakiwa);
+        padding-bottom: 6px;
+    }
+
+    .lcars-sidebar-empty {
+        color: #666;
+        text-align: center;
+        padding: 40px 20px;
+        font-size: 13px;
+    }
+
+    /* Bottom Bar */
+    .lcars-bottombar {
+        grid-area: bottombar;
+        display: flex;
+        gap: 8px;
+    }
+
+    .lcars-legend {
+        flex: 0 0 300px;
         background: rgba(26, 26, 26, 0.95);
         border: 2px solid var(--lcars-hopbush);
         border-radius: 8px;
@@ -51,10 +121,9 @@
         font-size: 12px;
         line-height: 1.6;
         color: var(--lcars-golden-tanoi);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-        min-width: 200px;
     }
-    .map-legend h4 {
+
+    .lcars-legend h4 {
         margin: 0 0 8px 0;
         color: var(--lcars-hopbush);
         font-size: 14px;
@@ -62,40 +131,34 @@
         border-bottom: 1px solid var(--lcars-hopbush);
         padding-bottom: 4px;
     }
-    .map-legend .legend-item {
-        margin: 4px 0;
+
+    .legend-item {
+        margin: 2px 0;
         display: flex;
         justify-content: space-between;
         gap: 10px;
+        font-size: 11px;
     }
-    .map-legend .legend-label {
+
+    .legend-label {
         color: var(--lcars-anakiwa);
         font-weight: bold;
     }
-    .map-legend .legend-value {
+
+    .legend-value {
         color: var(--lcars-golden-tanoi);
         text-align: right;
     }
 
-    /* Coordinates Display */
-    .coordinates-display {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
+    .lcars-other {
+        flex: 1;
         background: rgba(26, 26, 26, 0.95);
-        border: 2px solid var(--lcars-anakiwa);
-        border-radius: 6px;
-        padding: 8px 12px;
+        border: 2px solid var(--lcars-golden-tanoi);
+        border-radius: 8px;
+        padding: 12px;
+        color: var(--lcars-golden-tanoi);
         font-family: monospace;
-        font-size: 13px;
-        color: var(--lcars-anakiwa);
-        z-index: 1000;
-        pointer-events: none;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
-    .coordinates-display .coord-label {
-        font-weight: bold;
-        color: var(--lcars-hopbush);
+        font-size: 11px;
     }
 
     /* Create Location Button */
@@ -104,11 +167,12 @@
         border: 2px solid var(--lcars-hopbush);
         color: white;
         padding: 8px 16px;
-        border-radius: 6px;
+        border-radius: 20px;
         cursor: pointer;
         font-weight: bold;
         font-size: 13px;
         transition: all 0.3s ease;
+        white-space: nowrap;
     }
     .create-location-btn:hover {
         background: var(--lcars-golden-tanoi);
@@ -124,6 +188,22 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
     }
+
+    /* Marker styles */
+    .location-marker {
+        background-color: var(--lcars-golden-tanoi);
+        border: 2px solid var(--lcars-tanoi);
+        border-radius: 50%;
+        width: 12px;
+        height: 12px;
+    }
+    .player-marker {
+        background-color: var(--lcars-anakiwa);
+        border: 2px solid var(--lcars-mariner);
+        border-radius: 50%;
+        width: 10px;
+        height: 10px;
+    }
 </style>
 
 <header>
@@ -135,7 +215,44 @@
 {{ control_switch_view }}
 </aside>
 <main>
-<div id="map"></div>
+    <!-- Top Bar: Controls & Coordinates -->
+    <div class="lcars-topbar">
+        <div class="lcars-topbar-left">
+            <button class="create-location-btn" id="create-location-btn">📍 Create Location</button>
+        </div>
+        <div class="lcars-topbar-right">
+            <span class="coord-label">X:</span> <span id="coord-x">0</span>
+            <span style="margin: 0 4px;">|</span>
+            <span class="coord-label">Z:</span> <span id="coord-z">0</span>
+        </div>
+    </div>
+
+    <!-- Map Container -->
+    <div class="lcars-map-container">
+        <div id="map"></div>
+    </div>
+
+    <!-- Right Sidebar: Details Panel -->
+    <div class="lcars-sidebar" id="details-panel">
+        <div class="lcars-sidebar-empty">
+            Click on a player or location<br>to view details
+        </div>
+    </div>
+
+    <!-- Bottom Bar: Legend & Other -->
+    <div class="lcars-bottombar">
+        <div class="lcars-legend" id="map-legend">
+            <h4>🗺️ Map Info</h4>
+            <div class="legend-item">
+                <span class="legend-label">Loading...</span>
+            </div>
+        </div>
+        <div class="lcars-other">
+            <b>System Status:</b> Active<br>
+            <b>Socket.IO:</b> Connected<br>
+            <b>Updates:</b> Real-time
+        </div>
+    </div>
 
 <!-- Leaflet JS -->
 <script src="/static/leaflet.js"></script>
@@ -221,9 +338,19 @@
     {{ webmap_templates.location_shapes|safe }}
 
     // ========================================
-    // Player Popup Creation
+    // Location Sidebar Display
+    // ========================================
+    {{ webmap_templates.location_sidebar|safe }}
+
+    // ========================================
+    // Player Popup Creation (for legacy compatibility)
     // ========================================
     {{ webmap_templates.player_popup|safe }}
+
+    // ========================================
+    // Player Sidebar Display
+    // ========================================
+    {{ webmap_templates.player_sidebar|safe }}
 
     // ========================================
     // Real-time Update Handlers
@@ -276,25 +403,16 @@
     }, 250);
 
     // ========================================
-    // FEATURE 1: Map Legend with Metadata (loaded via Socket.IO)
+    // Map Legend in Bottom Bar (LCARS Fixed Position)
     // ========================================
 
     // Map metadata variables (loaded via socket.io)
     let gameprefs = {};
     let activeDataset = 'Loading...';
 
-    // Create custom legend control
-    const legend = L.control({position: 'topleft'});
-    let legendDiv = null;
-
-    legend.onAdd = function (mapInstance) {
-        legendDiv = L.DomUtil.create('div', 'map-legend');
-        updateLegend();
-        return legendDiv;
-    };
-
-    // Function to update legend content
+    // Function to update legend content in bottom bar
     function updateLegend() {
+        const legendDiv = document.getElementById('map-legend');
         if (!legendDiv) return;
 
         const gameName = gameprefs['GameName'] || activeDataset;
@@ -324,26 +442,21 @@
             </div>
             <div class="legend-item">
                 <span class="legend-label">Locations:</span>
-                <span class="legend-value" id="legend-location-count">${locationCount}</span>
+                <span class="legend-value">${locationCount}</span>
             </div>
             <div class="legend-item">
                 <span class="legend-label">Players:</span>
-                <span class="legend-value" id="legend-player-count">${playerCount}</span>
+                <span class="legend-value">${playerCount}</span>
             </div>
         `;
     }
 
-    legend.addTo(map);
+    // Initial legend update
+    updateLegend();
 
     // ========================================
-    // FEATURE 2: Coordinates Under Mouse Cursor
+    // Coordinates in Top Bar (LCARS Fixed Position)
     // ========================================
-
-    // Create coordinates display element
-    const coordsDiv = L.DomUtil.create('div', 'coordinates-display');
-    coordsDiv.innerHTML = '<span class="coord-label">X:</span> <span id="coord-x">0</span> | ' +
-                         '<span class="coord-label">Z:</span> <span id="coord-z">0</span>';
-    document.getElementById('map').appendChild(coordsDiv);
 
     // Update coordinates on mouse move
     map.on('mousemove', function(e) {
@@ -354,85 +467,80 @@
     });
 
     // ========================================
-    // FEATURE 3: Create Location UI
+    // Create Location Button in Top Bar (LCARS Fixed Position)
     // ========================================
 
     // Store tempMarker globally so it can be accessed by confirm/cancel functions
     let tempMarker = null;
 
-    // Create custom control for location creation
-    const createLocationControl = L.control({position: 'topright'});
+    // Hook up the create location button
+    const createBtn = document.getElementById('create-location-btn');
+    let creationMode = false;
 
-    createLocationControl.onAdd = function (mapInstance) {
-        const btn = L.DomUtil.create('button', 'create-location-btn');
-        btn.innerHTML = '📍 Create Location';
-        btn.title = 'Click to enable location creation mode';
+    createBtn.onclick = function() {
+        creationMode = !creationMode;
 
-        // Prevent map interactions when clicking the button
-        L.DomEvent.disableClickPropagation(btn);
+        if (creationMode) {
+            createBtn.classList.add('active');
+            createBtn.innerHTML = '✖️ Cancel';
+            map.getContainer().style.cursor = 'crosshair';
 
-        let creationMode = false;
+            // Add click handler for location creation
+            map.once('click', function(e) {
+                const coords = e.latlng;
+                const x = Math.round(coords.lat);
+                const z = Math.round(coords.lng);
 
-        btn.onclick = function() {
-            creationMode = !creationMode;
+                // Show in sidebar
+                showNewLocationConfirmation(x, z, coords);
 
-            if (creationMode) {
-                btn.classList.add('active');
-                btn.innerHTML = '✖️ Cancel';
-                map.getContainer().style.cursor = 'crosshair';
-
-                // Add click handler for location creation
-                map.once('click', function(e) {
-                    const coords = e.latlng;
-                    const x = Math.round(coords.lat);
-                    const z = Math.round(coords.lng);
-
-                    // Create temporary marker
-                    tempMarker = L.circleMarker([coords.lat, coords.lng], {
-                        radius: 8,
-                        fillColor: '#ff00ff',
-                        color: '#ff00ff',
-                        weight: 3,
-                        opacity: 1,
-                        fillOpacity: 0.6
-                    }).addTo(map);
-
-                    tempMarker.bindPopup(
-                        '<div style="text-align: center;">' +
-                        '<b>New Location</b><br>' +
-                        'X: ' + x + ', Z: ' + z + '<br>' +
-                        '<button onclick="confirmLocation(' + x + ', ' + z + ')" ' +
-                        'style="margin: 5px; padding: 5px 10px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer;">' +
-                        'Create Here</button>' +
-                        '<button onclick="cancelLocation()" ' +
-                        'style="margin: 5px; padding: 5px 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer;">' +
-                        'Cancel</button>' +
-                        '</div>'
-                    ).openPopup();
-
-                    // Reset button state
-                    btn.classList.remove('active');
-                    btn.innerHTML = '📍 Create Location';
-                    map.getContainer().style.cursor = '';
-                    creationMode = false;
-                });
-            } else {
-                btn.classList.remove('active');
-                btn.innerHTML = '📍 Create Location';
+                // Reset button state
+                createBtn.classList.remove('active');
+                createBtn.innerHTML = '📍 Create Location';
                 map.getContainer().style.cursor = '';
+                creationMode = false;
+            });
+        } else {
+            createBtn.classList.remove('active');
+            createBtn.innerHTML = '📍 Create Location';
+            map.getContainer().style.cursor = '';
 
-                // Remove temp marker if exists
-                if (tempMarker) {
-                    map.removeLayer(tempMarker);
-                    tempMarker = null;
-                }
+            // Remove temp marker if exists
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+                tempMarker = null;
             }
-        };
-
-        return btn;
+        }
     };
 
-    createLocationControl.addTo(map);
+    // Function to show new location confirmation in sidebar
+    function showNewLocationConfirmation(x, z, coords) {
+        // Create temporary marker
+        tempMarker = L.circleMarker([coords.lat, coords.lng], {
+            radius: 8,
+            fillColor: '#ff00ff',
+            color: '#ff00ff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.6
+        }).addTo(map);
+
+        const sidebar = document.getElementById('details-panel');
+        sidebar.innerHTML = `
+            <h3>📍 New Location</h3>
+            <div style="padding: 12px 0;">
+                <b style="color: var(--lcars-hopbush);">Position:</b><br>
+                X: ${x}, Z: ${z}
+                <br><br>
+                <button onclick="confirmLocation(${x}, ${z})"
+                    style="width: 100%; padding: 10px; margin-bottom: 8px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ✅ Create Here</button>
+                <button onclick="cancelLocation()"
+                    style="width: 100%; padding: 10px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ❌ Cancel</button>
+            </div>
+        `;
+    }
 
     // Global functions for location creation confirmation
     window.confirmLocation = function(x, z) {
@@ -465,6 +573,14 @@
             map.removeLayer(tempMarker);
             tempMarker = null;
         }
+
+        // Reset sidebar to empty state
+        const sidebar = document.getElementById('details-panel');
+        sidebar.innerHTML = `
+            <div class="lcars-sidebar-empty">
+                Click on a player or location<br>to view details
+            </div>
+        `;
     };
 
     // ========================================

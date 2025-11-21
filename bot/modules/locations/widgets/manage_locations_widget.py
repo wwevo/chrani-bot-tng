@@ -385,6 +385,7 @@ def map_view(*args, **kwargs):
     if players_module:
         try:
             webmap_templates['player_popup'] = players_module.templates.get_template('webmap/player_popup.html').render()
+            webmap_templates['player_sidebar'] = players_module.templates.get_template('webmap/player_sidebar.html').render()
             webmap_templates['player_markers'] = players_module.templates.get_template('webmap/player_markers.html').render()
             webmap_templates['player_update_handler'] = players_module.templates.get_template('webmap/player_update_handler.html').render()
             webmap_templates['player_actions'] = players_module.templates.get_template('webmap/player_actions.html').render()
@@ -394,6 +395,7 @@ def map_view(*args, **kwargs):
     # Load location webmap templates
     try:
         webmap_templates['location_shapes'] = module.templates.get_template('webmap/location_shapes.html').render()
+        webmap_templates['location_sidebar'] = module.templates.get_template('webmap/location_sidebar.html').render()
         webmap_templates['location_update_handler'] = module.templates.get_template('webmap/location_update_handler.html').render()
         webmap_templates['location_actions'] = module.templates.get_template('webmap/location_actions.html').render()
     except Exception as e:

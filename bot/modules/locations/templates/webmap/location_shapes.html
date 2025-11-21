@@ -137,7 +137,11 @@ function createLocationShape(locationId, loc) {
         </div>
     `;
 
-    leafletShape.bindPopup(popupContent);
+    // Add click handler to show location details in sidebar
+    leafletShape.on('click', function() {
+        showLocationInSidebar(locationId, loc);
+    });
+
     leafletShape.addTo(map);
 
     return leafletShape;

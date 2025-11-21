@@ -35,9 +35,8 @@ if (data.data_type === 'player_position_update' && data.payload) {
 
     // Update or create marker
     if (playerMarkers[steamid]) {
-        // Update existing marker position and popup
+        // Update existing marker position
         playerMarkers[steamid].setLatLng([pos.x, pos.z]);
-        playerMarkers[steamid].setPopupContent(createPlayerPopup(steamid, players[steamid]));
         console.log('[MAP] Updated player marker:', steamid);
     } else {
         // Create new marker
@@ -52,7 +51,11 @@ if (data.data_type === 'player_position_update' && data.payload) {
             pane: 'playerPane'
         }).addTo(map);
 
-        marker.bindPopup(createPlayerPopup(steamid, players[steamid]));
+        // Add click handler to show player details in sidebar
+        marker.on('click', function() {
+            showPlayerInSidebar(steamid, players[steamid]);
+        });
+
         playerMarkers[steamid] = marker;
         console.log('[MAP] Created new player marker:', steamid);
     }

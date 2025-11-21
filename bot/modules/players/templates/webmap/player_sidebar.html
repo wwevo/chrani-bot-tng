@@ -1,0 +1,72 @@
+// Function to show player details in sidebar
+function showPlayerInSidebar(steamid, player) {
+    const healthMax = 150;
+    const healthPercent = Math.round((player.health / healthMax) * 100);
+
+    // Status badge
+    let statusBadge = '🟢 Online';
+    let statusColor = '#66ff66';
+    if (player.in_limbo) {
+        statusBadge = '💀 Dead';
+        statusColor = '#ff6666';
+    } else if (!player.is_initialized) {
+        statusBadge = '🔄 Spawning';
+        statusColor = '#ffaa66';
+    }
+
+    // Permission badge
+    let permissionBadge = '';
+    if (player.permission_level === 0) {
+        permissionBadge = '<span style="background: #ff0000; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-top: 4px;">🛡️ ADMIN</span>';
+    }
+
+    // Coordinates (with fallback if position is missing)
+    const posX = player.pos ? Math.round(player.pos.x) : 0;
+    const posY = player.pos ? Math.round(player.pos.y) : 0;
+    const posZ = player.pos ? Math.round(player.pos.z) : 0;
+
+    const sidebar = document.getElementById('details-panel');
+    sidebar.innerHTML = `
+        <h3>👤 ${player.name}</h3>
+        ${permissionBadge}
+        <div style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; border-left: 3px solid ${statusColor};">
+            <b style="color: ${statusColor};">${statusBadge}</b>
+        </div>
+        <div style="margin-top: 12px; line-height: 1.8;">
+            <b style="color: var(--lcars-hopbush);">📍 Position:</b><br>
+            <span style="color: var(--lcars-golden-tanoi);">${posX}, ${posY}, ${posZ}</span>
+            <br><br>
+            <b style="color: var(--lcars-hopbush);">❤️ Health:</b> ${player.health}/${healthMax} (${healthPercent}%)
+            <br><b style="color: var(--lcars-hopbush);">⭐ Level:</b> ${player.level} | <b style="color: var(--lcars-hopbush);">🎯 Score:</b> ${player.score}
+            <br><b style="color: var(--lcars-hopbush);">🧟 Zombies:</b> ${player.zombies} | <b style="color: var(--lcars-hopbush);">💀 Deaths:</b> ${player.deaths}
+            <br><b style="color: var(--lcars-hopbush);">👥 Players:</b> ${player.players} | <b style="color: var(--lcars-hopbush);">📡 Ping:</b> ${player.ping}ms
+        </div>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--lcars-anakiwa);">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
+                    <input type="checkbox"
+                        ${player.is_muted ? 'checked' : ''}
+                        onchange="togglePlayerMuteFromMap('${steamid}', this.checked)"
+                        style="cursor: pointer; width: 16px; height: 16px;" />
+                    <span style="font-weight: bold; font-size: 0.9em;">🔇 Muted</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
+                    <input type="checkbox"
+                        ${player.is_authenticated ? 'checked' : ''}
+                        onchange="togglePlayerAuthFromMap('${steamid}', this.checked)"
+                        style="cursor: pointer; width: 16px; height: 16px;" />
+                    <span style="font-weight: bold; font-size: 0.9em;">✅ Auth</span>
+                </label>
+            </div>
+            <button onclick="messagePlayerFromMap('${steamid}', '${player.name.replace(/'/g, "\\'")}', event)"
+                style="width: 100%; padding: 8px; margin-bottom: 6px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95em;">
+                💬 Message</button>
+            <button onclick="kickPlayerFromMap('${steamid}', '${player.name.replace(/'/g, "\\'")}', event)"
+                style="width: 100%; padding: 8px; margin-bottom: 6px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95em;">
+                👢 Kick</button>
+            <button onclick="teleportPlayerFromMap('${steamid}', '${player.name.replace(/'/g, "\\'")}', event)"
+                style="width: 100%; padding: 8px; background: var(--lcars-golden-tanoi); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95em;">
+                🎯 Teleport - Click Map</button>
+        </div>
+    `;
+}
