@@ -1,0 +1,21 @@
+{%- comment -%}
+CRITICAL: This template demonstrates the component-based pattern
+
+Structure:
+<tr id="{unique_row_id}">
+  <td>
+    <span id="{unique_row_id}_control_select_link">{{ control_select_link }}</span>
+  </td>
+  <td>{{ data }}</td>
+  ...
+</tr>
+
+The span with id="{row_id}_control_select_link" is where the checkbox gets updated!
+{%- endcomment -%}
+<tr id="checkbox_table_row_{{ item.dataset }}_{{ item.id }}">
+    <td>
+        <span id="checkbox_table_row_{{ item.dataset }}_{{ item.id }}_control_select_link" class="select_button">{{ control_select_link }}</span>
+    </td>
+    <td id="checkbox_table_row_{{ item.dataset }}_{{ item.id }}_name" onclick="$(this).selectText();">{{ item.name }}</td>
+    <td id="checkbox_table_row_{{ item.dataset }}_{{ item.id }}_description" onclick="$(this).selectText();">{{ item.description }}</td>
+</tr>
