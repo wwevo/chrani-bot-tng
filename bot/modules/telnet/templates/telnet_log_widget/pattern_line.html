@@ -2,7 +2,7 @@
     <td class="pattern_select">
         <input type="checkbox"
                {% if is_selected %}checked{% endif %}
-               onchange="sendAction('toggle_pattern_selection', {pattern_id: '{{ pattern_id }}', is_selected: this.checked})"
+               onchange="window.socket.emit('widget_event', ['game_environment', ['toggle_pattern_selection', {pattern_id: '{{ pattern_id }}', is_selected: this.checked}]]); return false;"
                style="cursor: pointer; width: 18px; height: 18px;" />
     </td>
     <td class="pattern_text">{{ pattern }}</td>
