@@ -288,20 +288,21 @@ def add_new_pattern(*args, **kwargs):
 def update_pattern_selection(*args, **kwargs):
     """Update single pattern row when selection changes - granular update."""
     module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", None)
+    updated_values_dict = kwargs.get("updated_values_dict", {})
 
-    # Extract pattern_id from updated_values_dict path
-    # The path will be like: unmatched_patterns -> pattern_id -> is_selected
-    pattern_id = list(updated_values_dict.get("unmatched_patterns", {}).keys())[0] if updated_values_dict else None
+    # DOM system automatically provides pattern_id from %pattern_id% placeholder
+    pattern_id = updated_values_dict.get("pattern_id")
 
-    if pattern_id is None:
+    if not pattern_id:
         return
 
-    pattern_data = updated_values_dict["unmatched_patterns"][pattern_id]
     pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
 
     # Get full pattern data from DOM
     full_pattern_data = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {}).get(pattern_id, {})
+
+    if not full_pattern_data:
+        return
 
     for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
