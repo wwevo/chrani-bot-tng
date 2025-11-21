@@ -154,6 +154,7 @@ def options_view(*args, **kwargs):
 
 
 def test_view(*args, **kwargs):
+    """Initial view load - shows all existing patterns. Granular updates handled separately."""
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
@@ -164,27 +165,27 @@ def test_view(*args, **kwargs):
     if len(module.webserver.connected_clients) >= 1:
         unmatched_patterns = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {})
 
-        # Build pattern lines efficiently
+        # Build pattern lines from DOM structure {pattern_id: pattern_data}
         pattern_lines_list = []
         if len(unmatched_patterns) >= 1:
-            # Sort patterns by count (descending) to show most common patterns first
+            # Sort patterns by first_seen (newest first)
             sorted_patterns = sorted(
                 unmatched_patterns.items(),
-                key=lambda x: x[1]["count"],
+                key=lambda x: x[1].get("first_seen", 0),
                 reverse=True
             )
 
-            for pattern, pattern_data in sorted_patterns:
+            for pattern_id, pattern_data in sorted_patterns:
                 pattern_lines_list.append(module.template_render_hook(
                     module,
                     template=pattern_line,
-                    pattern_id=pattern_data.get("id", "unknown"),
-                    count=pattern_data["count"],
-                    pattern=pattern,
-                    example_line=pattern_data["example_line"]
+                    pattern_id=pattern_id,
+                    pattern=pattern_data.get("pattern", ""),
+                    example_line=pattern_data.get("example_line", ""),
+                    is_selected=pattern_data.get("is_selected", False)
                 ))
 
-        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="4">No unmatched patterns yet...</td></tr>'
+        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
 
         current_view = module.get_current_view(dispatchers_steamid)
         options_toggle = module.template_render_hook(
@@ -247,16 +248,85 @@ def update_widget(*args, **kwargs):
             )
 
 
-def update_widget_patterns(*args, **kwargs):
+def add_new_pattern(*args, **kwargs):
+    """Prepend new pattern to list - granular update, no full reload."""
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
-    # Iterate directly over connected clients
+    pattern_data = updated_values_dict.get("new_unmatched_pattern", None)
+    if pattern_data is None:
+        return
+
+    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+
     for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
         if current_view == "test":
-            # Refresh entire test view to show updated pattern counts
-            test_view(module, dispatchers_steamid=clientid)
+            data_to_emit = module.template_render_hook(
+                module,
+                template=pattern_line,
+                pattern_id=pattern_data.get("id", "unknown"),
+                pattern=pattern_data.get("pattern", ""),
+                example_line=pattern_data.get("example_line", ""),
+                is_selected=pattern_data.get("is_selected", False)
+            )
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                method="prepend",
+                data_type="widget_content",
+                payload=data_to_emit,
+                clients=[clientid],
+                target_element={
+                    "id": "telnet_log_widget",
+                    "type": "table",
+                    "selector": "body > main > div"
+                }
+            )
+
+
+def update_pattern_selection(*args, **kwargs):
+    """Update single pattern row when selection changes - granular update."""
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
+    # Extract pattern_id from updated_values_dict path
+    # The path will be like: unmatched_patterns -> pattern_id -> is_selected
+    pattern_id = list(updated_values_dict.get("unmatched_patterns", {}).keys())[0] if updated_values_dict else None
+
+    if pattern_id is None:
+        return
+
+    pattern_data = updated_values_dict["unmatched_patterns"][pattern_id]
+    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+
+    # Get full pattern data from DOM
+    full_pattern_data = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {}).get(pattern_id, {})
+
+    for clientid in module.webserver.connected_clients.keys():
+        current_view = module.get_current_view(clientid)
+        if current_view == "test":
+            data_to_emit = module.template_render_hook(
+                module,
+                template=pattern_line,
+                pattern_id=pattern_id,
+                pattern=full_pattern_data.get("pattern", ""),
+                example_line=full_pattern_data.get("example_line", ""),
+                is_selected=full_pattern_data.get("is_selected", False)
+            )
+
+            module.webserver.send_data_to_client_hook(
+                module,
+                method="update",
+                data_type="widget_content",
+                payload=data_to_emit,
+                clients=[clientid],
+                target_element={
+                    "id": "pattern_" + pattern_id,
+                    "type": "table_row",
+                    "selector": "body > main > div"
+                }
+            )
 
 
 widget_meta = {
@@ -265,7 +335,8 @@ widget_meta = {
     "handlers": {
         "module_telnet/visibility/%steamid%/current_view": select_view,
         "module_telnet/telnet_lines": update_widget,
-        "module_game_environment/unmatched_pattern_update": update_widget_patterns,
+        "module_game_environment/new_unmatched_pattern": add_new_pattern,
+        "module_game_environment/unmatched_patterns/%pattern_id%": update_pattern_selection,
     },
     "enabled": True
 }

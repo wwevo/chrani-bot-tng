@@ -95,40 +95,39 @@ class Trigger(object):
         return hashlib.md5(pattern.encode()).hexdigest()[:12]
 
     def _store_unmatched_telnet_line(self, telnet_line: str) -> None:
-        """Store unmatched telnet line with pattern-based deduplication."""
+        """Store unmatched telnet line - first occurrence only, no counting."""
         pattern = self._extract_line_pattern(telnet_line)
         pattern_id = self._generate_pattern_id(pattern)
-        current_time = time()
 
-        if pattern not in self.unmatched_patterns_dict:
-            self.unmatched_patterns_dict[pattern] = {
+        # Only store if this pattern is NEW (first occurrence)
+        if pattern_id not in self.unmatched_patterns_dict:
+            current_time = time()
+            pattern_data = {
                 "id": pattern_id,
-                "count": 0,
+                "pattern": pattern,
+                "example_line": telnet_line,
                 "first_seen": current_time,
-                "last_seen": None,
-                "example_line": telnet_line
+                "is_selected": False
             }
 
-        pattern_data = self.unmatched_patterns_dict[pattern]
-        pattern_data["count"] += 1
-        pattern_data["last_seen"] = current_time
+            # Store by pattern_id (not pattern string)
+            self.unmatched_patterns_dict[pattern_id] = pattern_data
 
-        # Update DOM for persistence/access by other modules
-        self.dom.data.upsert({
-            self.get_module_identifier(): {
-                "unmatched_patterns": self.unmatched_patterns_dict
-            }
-        })
-
-        # Emit pattern update for real-time widget updates
-        self.dom.data.append({
-            self.get_module_identifier(): {
-                "unmatched_pattern_update": {
-                    "pattern": pattern,
-                    "data": pattern_data
+            # Update DOM for persistence (upsert single pattern)
+            self.dom.data.upsert({
+                self.get_module_identifier(): {
+                    "unmatched_patterns": {
+                        pattern_id: pattern_data
+                    }
                 }
-            }
-        }, maxlen=1)
+            })
+
+            # Emit new pattern for real-time prepend to widget
+            self.dom.data.append({
+                self.get_module_identifier(): {
+                    "new_unmatched_pattern": pattern_data
+                }
+            }, maxlen=1)
 
     def execute_telnet_triggers(self):
         telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)

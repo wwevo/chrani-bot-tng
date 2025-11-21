@@ -1,13 +1,10 @@
-<tr class="pattern_line" data-pattern-id="{{ pattern_id }}">
+<tr class="pattern_line" id="pattern_{{ pattern_id }}" data-pattern-id="{{ pattern_id }}">
     <td class="pattern_select">
         <input type="checkbox"
-               id="pattern_{{ pattern_id }}"
-               data-pattern="{{ pattern }}"
-               data-example="{{ example_line }}"
-               onchange="window.telnetPatternSelector.togglePattern('{{ pattern_id }}', this.checked)"
+               {% if is_selected %}checked{% endif %}
+               onchange="sendAction('toggle_pattern_selection', {pattern_id: '{{ pattern_id }}', is_selected: this.checked})"
                style="cursor: pointer; width: 18px; height: 18px;" />
     </td>
-    <td class="pattern_count">{{ count }}</td>
     <td class="pattern_text">{{ pattern }}</td>
     <td class="pattern_example">{{ example_line }}</td>
 </tr>
