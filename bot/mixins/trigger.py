@@ -99,6 +99,9 @@ class Trigger(object):
         pattern = self._extract_line_pattern(telnet_line)
         pattern_id = self._generate_pattern_id(pattern)
 
+        # Get active map_identifier (dataset)
+        map_identifier = self.dom.data.get("module_game_environment", {}).get("active_dataset", "unknown")
+
         # Only store if this pattern is NEW (first occurrence)
         if pattern_id not in self.unmatched_patterns_dict:
             current_time = time()
@@ -107,28 +110,24 @@ class Trigger(object):
                 "pattern": pattern,
                 "example_line": telnet_line,
                 "first_seen": current_time,
-                "is_selected": False
+                "selected_by": [],
+                "dataset": map_identifier,
+                "owner": "telnet"
             }
 
             # Store by pattern_id (not pattern string)
             self.unmatched_patterns_dict[pattern_id] = pattern_data
 
-            # Update DOM for persistence (upsert single pattern)
-            # CLAUDE:
+            # Update DOM for persistence under module_telnet with map_identifier
             self.dom.data.upsert({
-                self.get_module_identifier(): {
+                "module_telnet": {
                     "unmatched_patterns": {
-                        pattern_id: pattern_data
+                        map_identifier: {
+                            pattern_id: pattern_data
+                        }
                     }
                 }
             })
-
-            # Emit new pattern for real-time prepend to widget
-            self.dom.data.append({
-                self.get_module_identifier(): {
-                    "new_unmatched_pattern": pattern_data
-                }
-            }, maxlen=1)
 
     def execute_telnet_triggers(self):
         telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)
