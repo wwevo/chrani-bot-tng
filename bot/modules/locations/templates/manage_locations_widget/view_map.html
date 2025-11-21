@@ -190,6 +190,14 @@
         attributionControl: false
     });
 
+    // Create custom panes for proper layering
+    // Locations should be below players so players are always clickable
+    map.createPane('locationPane');
+    map.getPane('locationPane').style.zIndex = 400; // Below default markerPane (600)
+
+    map.createPane('playerPane');
+    map.getPane('playerPane').style.zIndex = 650; // Above locationPane, below popups (700)
+
     // Create tile layer (Y-axis flipping handled by backend)
     const tileLayer = L.tileLayer('/map_tiles/{z}/{x}/{y}.png', {
         tileSize: 128,

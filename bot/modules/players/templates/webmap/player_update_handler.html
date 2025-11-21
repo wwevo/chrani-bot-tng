@@ -49,7 +49,7 @@ if (data.data_type === 'player_position_update' && data.payload) {
             opacity: 1,
             fillOpacity: 0.9,
             className: 'player-marker',
-            zIndexOffset: 1000
+            pane: 'playerPane'
         }).addTo(map);
 
         marker.bindPopup(createPlayerPopup(steamid, players[steamid]));

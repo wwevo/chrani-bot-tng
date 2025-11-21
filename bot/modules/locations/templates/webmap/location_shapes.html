@@ -23,7 +23,7 @@ function createLocationShape(locationId, loc) {
             weight: 2,
             opacity: 0.8,
             fillOpacity: fillOpacity,
-            zIndexOffset: 100
+            pane: 'locationPane'
         });
     } else if (shape === 'spherical') {
         const radius = parseFloat(dims.radius || 10);
@@ -35,7 +35,7 @@ function createLocationShape(locationId, loc) {
             opacity: 0.8,
             fillOpacity: fillOpacity,
             dashArray: '5, 5', // Dashed to indicate 3D
-            zIndexOffset: 100
+            pane: 'locationPane'
         });
     } else if (shape === 'rectangular') {
         const width = parseFloat(dims.width || 10);
@@ -51,7 +51,7 @@ function createLocationShape(locationId, loc) {
             weight: 2,
             opacity: 0.8,
             fillOpacity: fillOpacity,
-            zIndexOffset: 100
+            pane: 'locationPane'
         });
     } else if (shape === 'box') {
         const width = parseFloat(dims.width || 10);
@@ -67,7 +67,7 @@ function createLocationShape(locationId, loc) {
             opacity: 0.8,
             fillOpacity: fillOpacity,
             dashArray: '5, 5', // Dashed to indicate 3D
-            zIndexOffset: 100
+            pane: 'locationPane'
         });
     } else {
         // Fallback to circle
@@ -78,7 +78,7 @@ function createLocationShape(locationId, loc) {
             weight: 2,
             opacity: 0.8,
             fillOpacity: fillOpacity,
-            zIndexOffset: 100
+            pane: 'locationPane'
         });
     }
 
