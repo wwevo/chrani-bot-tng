@@ -46,6 +46,35 @@
         align-items: center;
     }
 
+    .zoom-controls {
+        display: flex;
+        gap: 4px;
+    }
+
+    .zoom-btn {
+        background: var(--lcars-anakiwa);
+        border: 2px solid var(--lcars-anakiwa);
+        color: #000;
+        padding: 6px 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        transition: all 0.2s ease;
+        min-width: 36px;
+        text-align: center;
+    }
+
+    .zoom-btn:hover {
+        background: var(--lcars-golden-tanoi);
+        border-color: var(--lcars-golden-tanoi);
+        transform: scale(1.05);
+    }
+
+    .zoom-btn:active {
+        transform: scale(0.95);
+    }
+
     .lcars-topbar-right {
         display: flex;
         gap: 12px;
@@ -320,6 +349,10 @@
         <div class="lcars-topbar">
             <div class="lcars-topbar-left">
                 <button class="create-location-btn" id="create-location-btn">📍 Create Location</button>
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-in" title="Zoom In">+</button>
+                    <button class="zoom-btn" id="zoom-out" title="Zoom Out">−</button>
+                </div>
             </div>
             <div class="lcars-topbar-right">
                 <span class="coord-label">X:</span> <span id="coord-x">0</span>
@@ -419,7 +452,8 @@
         zoom: 3,
         minZoom: -1,
         maxZoom: 7,
-        attributionControl: false
+        attributionControl: false,
+        zoomControl: false  // Disable default zoom controls
     });
 
     // Create custom panes for proper layering
@@ -649,6 +683,19 @@
 
     // Initial player list update
     updatePlayerList();
+
+    // ========================================
+    // Zoom Controls in Top Bar (LCARS Fixed Position)
+    // ========================================
+
+    // Hook up zoom buttons
+    document.getElementById('zoom-in').onclick = function() {
+        map.zoomIn();
+    };
+
+    document.getElementById('zoom-out').onclick = function() {
+        map.zoomOut();
+    };
 
     // ========================================
     // Coordinates in Top Bar (LCARS Fixed Position)
