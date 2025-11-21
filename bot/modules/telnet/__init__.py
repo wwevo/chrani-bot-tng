@@ -46,6 +46,7 @@ class Telnet(Module):
         })
         setattr(self, "required_modules", [
             "module_dom",
+            "module_dom_management",
             "module_webserver"
         ])
 
