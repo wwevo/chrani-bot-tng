@@ -91,6 +91,17 @@
         background: rgba(26, 26, 26, 0.95);
         border: 2px solid var(--lcars-anakiwa);
         border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0;
+    }
+
+    /* Player List Section (top of sidebar) */
+    .lcars-player-list {
+        flex: 0 0 240px;
+        border-bottom: 2px solid var(--lcars-anakiwa);
         overflow-y: auto;
         overflow-x: hidden;
         padding: 12px;
@@ -98,7 +109,87 @@
         font-size: 12px;
     }
 
-    .lcars-sidebar h3 {
+    .lcars-player-list h3 {
+        margin: 0 0 12px 0;
+        color: var(--lcars-anakiwa);
+        font-size: 14px;
+        border-bottom: 2px solid var(--lcars-anakiwa);
+        padding-bottom: 6px;
+        position: sticky;
+        top: 0;
+        background: rgba(26, 26, 26, 0.95);
+        z-index: 10;
+    }
+
+    .player-list-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        margin-bottom: 4px;
+        background: rgba(0, 0, 0, 0.3);
+        border-left: 3px solid var(--lcars-anakiwa);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .player-list-item:hover {
+        background: rgba(102, 204, 255, 0.2);
+        border-left-color: var(--lcars-golden-tanoi);
+        transform: translateX(2px);
+    }
+
+    .player-list-item.offline {
+        opacity: 0.5;
+        border-left-color: #666;
+    }
+
+    .player-list-item.offline:hover {
+        opacity: 0.7;
+    }
+
+    .player-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .player-status-dot.online {
+        background: #66ff66;
+        box-shadow: 0 0 4px #66ff66;
+    }
+
+    .player-status-dot.offline {
+        background: #666;
+    }
+
+    .player-list-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--lcars-anakiwa);
+        font-weight: bold;
+    }
+
+    .player-list-level {
+        color: var(--lcars-golden-tanoi);
+        font-size: 11px;
+    }
+
+    /* Details Section (bottom of sidebar) */
+    .lcars-details {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 12px;
+    }
+
+    .lcars-details h3 {
         margin: 0 0 12px 0;
         color: var(--lcars-anakiwa);
         font-size: 16px;
@@ -242,10 +333,23 @@
             <div id="map"></div>
         </div>
 
-        <!-- Right Sidebar: Details Panel -->
-        <div class="lcars-sidebar" id="details-panel">
-            <div class="lcars-sidebar-empty">
-                Click on a player or location<br>to view details
+        <!-- Right Sidebar: Player List + Details -->
+        <div class="lcars-sidebar">
+            <!-- Player List (top) -->
+            <div class="lcars-player-list" id="player-list">
+                <h3>👥 Players (<span id="player-count">0</span>)</h3>
+                <div id="player-list-items">
+                    <div class="lcars-sidebar-empty" style="padding: 20px 10px;">
+                        No players online
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Panel (bottom) -->
+            <div class="lcars-details" id="details-panel">
+                <div class="lcars-sidebar-empty">
+                    Click on a player or location<br>to view details
+                </div>
             </div>
         </div>
 
@@ -391,9 +495,14 @@
         // Location updates and removals
         {{ webmap_templates.location_update_handler|safe }}
 
-        // Update legend counts after any changes
+        // Update legend counts and player list after any changes
         if (data.data_type === 'player_position_update' || data.data_type === 'location_update' || data.data_type === 'location_remove') {
             updateLegend();
+        }
+
+        // Update player list after player updates
+        if (data.data_type === 'player_position_update') {
+            updatePlayerList();
         }
     };
 
@@ -464,6 +573,82 @@
 
     // Initial legend update
     updateLegend();
+
+    // ========================================
+    // Player List in Sidebar (LCARS Fixed Position)
+    // ========================================
+
+    // Function to update player list in sidebar
+    function updatePlayerList() {
+        const playerListItems = document.getElementById('player-list-items');
+        const playerCountSpan = document.getElementById('player-count');
+        if (!playerListItems || !playerCountSpan) return;
+
+        const playerArray = Object.entries(players).map(([steamid, player]) => ({
+            steamid,
+            ...player
+        }));
+
+        // Sort: online first, then by name
+        playerArray.sort((a, b) => {
+            const aOnline = a.pos && !a.in_limbo;
+            const bOnline = b.pos && !b.in_limbo;
+            if (aOnline !== bOnline) return bOnline ? 1 : -1;
+            return (a.name || '').localeCompare(b.name || '');
+        });
+
+        playerCountSpan.textContent = playerArray.length;
+
+        if (playerArray.length === 0) {
+            playerListItems.innerHTML = `
+                <div class="lcars-sidebar-empty" style="padding: 20px 10px;">
+                    No players online
+                </div>
+            `;
+            return;
+        }
+
+        playerListItems.innerHTML = playerArray.map(player => {
+            const isOnline = player.pos && !player.in_limbo;
+            const statusClass = isOnline ? 'online' : 'offline';
+            const itemClass = isOnline ? '' : ' offline';
+            return `
+                <div class="player-list-item${itemClass}" onclick="selectPlayer('${player.steamid}')">
+                    <div class="player-status-dot ${statusClass}"></div>
+                    <div class="player-list-name">${player.name || 'Unknown'}</div>
+                    <div class="player-list-level">Lv ${player.level || 0}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Function to select a player from the list (zoom to position and show details)
+    window.selectPlayer = function(steamid) {
+        const player = players[steamid];
+        if (!player) return;
+
+        // Show player details in sidebar
+        showPlayerInSidebar(steamid, player);
+
+        // If player has a position, zoom to it
+        if (player.pos && playerMarkers[steamid]) {
+            map.setView([player.pos.x, player.pos.z], 5, {
+                animate: true,
+                duration: 0.5
+            });
+
+            // Optional: Highlight the marker briefly
+            const marker = playerMarkers[steamid];
+            const originalRadius = marker.options.radius;
+            marker.setRadius(originalRadius * 2);
+            setTimeout(() => {
+                marker.setRadius(originalRadius);
+            }, 500);
+        }
+    };
+
+    // Initial player list update
+    updatePlayerList();
 
     // ========================================
     // Coordinates in Top Bar (LCARS Fixed Position)
