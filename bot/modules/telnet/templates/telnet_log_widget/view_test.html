@@ -1,21 +1,43 @@
 <header>
     <div>
-        <span>Telnet Log</span>
+        <span>Telnet Log - Pattern Extractor</span>
     </div>
 </header>
 <aside>
 {{ options_toggle }}
 </aside>
 <main>
+    <div style="margin-bottom: 12px; padding: 10px; background: rgba(0,0,0,0.3); border-left: 3px solid var(--lcars-golden-tanoi);">
+        <button id="createRuleButton"
+                onclick="window.telnetPatternSelector.createRule()"
+                style="padding: 10px 20px; background: var(--lcars-anakiwa); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em; margin-right: 10px;">
+            🎯 Create Rule from Selected
+        </button>
+        <button onclick="window.telnetPatternSelector.clearSelection()"
+                style="padding: 10px 20px; background: var(--lcars-hopbush); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 1em;">
+            🗑️ Clear Selection
+        </button>
+        <span id="selectionCount" style="margin-left: 15px; font-weight: bold; color: var(--lcars-golden-tanoi);">0 selected</span>
+    </div>
+    <div id="generatedRegexContainer" style="display: none; margin-bottom: 12px; padding: 10px; background: rgba(0,100,0,0.2); border-left: 3px solid #00ff00;">
+        <div style="font-weight: bold; margin-bottom: 8px; color: #00ff00;">Generated Regex:</div>
+        <textarea id="generatedRegex" readonly
+                  style="width: 100%; min-height: 80px; font-family: monospace; font-size: 0.9em; background: #000; color: #00ff00; border: 1px solid #00ff00; padding: 8px; border-radius: 4px;"></textarea>
+        <button onclick="window.telnetPatternSelector.copyRegex()"
+                style="margin-top: 8px; padding: 8px 16px; background: var(--lcars-golden-tanoi); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            📋 Copy to Clipboard
+        </button>
+    </div>
     <table>
         <caption>
-            <span class="pattern_line">Unmatched telnet patterns (for trigger development)</span>
+            <span class="pattern_line">Select patterns and click "Create Rule" to generate regex</span>
         </caption>
         <thead>
             <tr>
-                <th>Count</th>
-                <th>Pattern</th>
-                <th>Example Line</th>
+                <th style="width: 40px;">Select</th>
+                <th style="width: 60px;">Count</th>
+                <th style="width: 40%;">Pattern</th>
+                <th style="width: calc(60% - 100px);">Example Line</th>
             </tr>
         </thead>
         <tbody>
@@ -23,3 +45,84 @@
         </tbody>
     </table>
 </main>
+<script>
+// Pattern selector singleton
+window.telnetPatternSelector = {
+    selectedPatterns: new Set(),
+
+    togglePattern: function(patternId, isChecked) {
+        if (isChecked) {
+            this.selectedPatterns.add(patternId);
+        } else {
+            this.selectedPatterns.delete(patternId);
+        }
+        this.updateUI();
+    },
+
+    updateUI: function() {
+        const count = this.selectedPatterns.size;
+        document.getElementById('selectionCount').textContent = count + ' selected';
+        document.getElementById('createRuleButton').disabled = (count === 0);
+    },
+
+    clearSelection: function() {
+        this.selectedPatterns.clear();
+        document.querySelectorAll('.pattern_line input[type="checkbox"]').forEach(cb => cb.checked = false);
+        this.updateUI();
+        document.getElementById('generatedRegexContainer').style.display = 'none';
+    },
+
+    createRule: function() {
+        if (this.selectedPatterns.size === 0) return;
+
+        const patterns = [];
+        this.selectedPatterns.forEach(patternId => {
+            const checkbox = document.getElementById('pattern_' + patternId);
+            if (checkbox) {
+                patterns.push({
+                    pattern: checkbox.dataset.pattern,
+                    example: checkbox.dataset.example
+                });
+            }
+        });
+
+        const regex = this.generateRegex(patterns);
+        document.getElementById('generatedRegex').value = regex;
+        document.getElementById('generatedRegexContainer').style.display = 'block';
+    },
+
+    generateRegex: function(patterns) {
+        if (patterns.length === 0) return '';
+
+        let regex = patterns[0].pattern;
+
+        // Convert placeholders to regex patterns
+        regex = regex.replace(/<TIMESTAMP>/g, '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}');
+        regex = regex.replace(/<TICK>/g, '\\d+\\.\\d{3}');
+        regex = regex.replace(/<NUM>/g, '\\d+');
+        regex = regex.replace(/<NAME>/g, '(?P<name>[A-Za-z0-9]+)');
+        regex = regex.replace(/id=<NUM>/g, 'id=(?P<id>\\d+)');
+        regex = regex.replace(/<COORD>/g, '\\((?P<x>-?\\d+\\.\\d+),\\s*(?P<y>-?\\d+\\.\\d+),\\s*(?P<z>-?\\d+\\.\\d+)\\)');
+        regex = regex.replace(/<CHUNK>/g, '(?P<chunk_x>-?\\d+),\\s*(?P<chunk_z>-?\\d+)');
+
+        // Escape special regex characters in the remaining text
+        regex = regex.replace(/([.+?^${}()|[\]\\])/g, '\\\\$1');
+
+        // Add example comment
+        const example = patterns[0].example;
+        return '# Example: ' + example + '\\n' +
+               '# Pattern matches ' + patterns.length + ' similar line(s)\\n' +
+               'r"' + regex + '"';
+    },
+
+    copyRegex: function() {
+        const textarea = document.getElementById('generatedRegex');
+        textarea.select();
+        document.execCommand('copy');
+        alert('Regex copied to clipboard!');
+    }
+};
+
+// Initialize
+window.telnetPatternSelector.updateUI();
+</script>

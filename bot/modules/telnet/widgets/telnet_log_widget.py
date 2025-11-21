@@ -178,12 +178,13 @@ def test_view(*args, **kwargs):
                 pattern_lines_list.append(module.template_render_hook(
                     module,
                     template=pattern_line,
+                    pattern_id=pattern_data.get("id", "unknown"),
                     count=pattern_data["count"],
                     pattern=pattern,
                     example_line=pattern_data["example_line"]
                 ))
 
-        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
+        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="4">No unmatched patterns yet...</td></tr>'
 
         current_view = module.get_current_view(dispatchers_steamid)
         options_toggle = module.template_render_hook(

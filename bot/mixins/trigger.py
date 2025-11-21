@@ -3,6 +3,7 @@ from os import path, listdir, pardir
 from importlib import import_module
 from time import time
 import re
+import hashlib
 
 
 class Trigger(object):
@@ -64,11 +65,15 @@ class Trigger(object):
         # Replace game tick numbers (e.g., "232945.436")
         pattern = re.sub(r'\s\d+\.\d{3}\s', ' <TICK> ', pattern)
 
+        # Replace entity names (e.g., "zombieFemaleFat", "zombieMoe", "animalChicken")
+        # This catches zombie*, animal*, vehicle*, player* followed by a capitalized name
+        pattern = re.sub(r'\b(zombie|animal|vehicle|player|entity)([A-Z][a-zA-Z0-9]*)\b', r'\1<NAME>', pattern)
+
         # Replace counter numbers (e.g., "#10", "#0")
         pattern = re.sub(r'#\d+', '#<NUM>', pattern)
 
-        # Replace IDs (e.g., "id 167772")
-        pattern = re.sub(r'\bid\s+\d+', 'id <NUM>', pattern)
+        # Replace IDs (e.g., "id 167772", "id=12345")
+        pattern = re.sub(r'\bid[=\s]+\d+', 'id=<NUM>', pattern)
 
         # Replace 3D coordinates (e.g., "(109.8, 42.8, 782.6)")
         pattern = re.sub(r'\(-?\d+\.\d+,\s*-?\d+\.\d+,\s*-?\d+\.\d+\)', '(<COORD>)', pattern)
@@ -84,13 +89,20 @@ class Trigger(object):
 
         return pattern
 
+    @staticmethod
+    def _generate_pattern_id(pattern: str) -> str:
+        """Generate a unique ID for a pattern using hash."""
+        return hashlib.md5(pattern.encode()).hexdigest()[:12]
+
     def _store_unmatched_telnet_line(self, telnet_line: str) -> None:
         """Store unmatched telnet line with pattern-based deduplication."""
         pattern = self._extract_line_pattern(telnet_line)
+        pattern_id = self._generate_pattern_id(pattern)
         current_time = time()
 
         if pattern not in self.unmatched_patterns_dict:
             self.unmatched_patterns_dict[pattern] = {
+                "id": pattern_id,
                 "count": 0,
                 "first_seen": current_time,
                 "last_seen": None,
