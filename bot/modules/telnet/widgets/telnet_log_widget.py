@@ -198,6 +198,7 @@ def unmatched_patterns_view(*args, **kwargs):
 
                 # Generate control_select_link FIRST with original pattern_data
                 logger.info(f"[DEBUG] Calling get_selection_dom_element for pattern {pattern_id}")
+                logger.info(f"[DEBUG] pattern_data for control: owner={pattern_data.get('owner')}, identifier={pattern_data.get('identifier')}, dataset={pattern_data.get('dataset')}")
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
                     target_module="module_telnet",
@@ -207,7 +208,7 @@ def unmatched_patterns_view(*args, **kwargs):
                     dom_action_inactive="select_dom_element",
                     dom_action_active="deselect_dom_element"
                 )
-                logger.info(f"[DEBUG] control_select_link length: {len(control_select_link) if control_select_link else 0}")
+                logger.info(f"[DEBUG] control_select_link HTML (first 200 chars): {control_select_link[:200] if control_select_link else 'NONE'}")
 
                 # THEN create template dict with sanitized dataset
                 pattern_dict_for_template = pattern_data.copy()
@@ -222,7 +223,7 @@ def unmatched_patterns_view(*args, **kwargs):
                     unmatched_pattern=pattern_dict_for_template,
                     control_select_link=control_select_link
                 )
-                logger.info(f"[DEBUG] Rendered row length: {len(rendered_row)}")
+                logger.info(f"[DEBUG] Rendered row HTML (first 300 chars): {rendered_row[:300]}")
                 table_rows_list.append(rendered_row)
 
     table_rows = ''.join(table_rows_list) if table_rows_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
@@ -325,6 +326,8 @@ def add_or_update_pattern_row(*args, **kwargs):
                         dom_action_active="deselect_dom_element"
                     )
 
+                    logger.info(f"[DEBUG] control_select_link HTML: {control_select_link[:200] if control_select_link else 'NONE'}")
+
                     # Prepare template dict with sanitized dataset
                     map_identifier = pattern_data.get("dataset", "unknown")
                     pattern_dict_for_template = pattern_data.copy()
@@ -333,12 +336,16 @@ def add_or_update_pattern_row(*args, **kwargs):
                     pattern_dict_for_template["name"] = pattern_data.get("pattern", "")
                     pattern_dict_for_template["type"] = pattern_data.get("example_line", "")
 
+                    logger.info(f"[DEBUG] pattern_dict_for_template: id={pattern_dict_for_template.get('id')}, dataset={pattern_dict_for_template.get('dataset')}, name length={len(pattern_dict_for_template.get('name', ''))}")
+
                     table_row = module.template_render_hook(
                         module,
                         template=template_table_row,
                         unmatched_pattern=pattern_dict_for_template,
                         control_select_link=control_select_link
                     )
+
+                    logger.info(f"[DEBUG] table_row HTML (first 300 chars): {table_row[:300]}")
 
                     sanitized_dataset = pattern_dict_for_template["dataset"]
                     table_row_id = "unmatched_pattern_table_row_{}_{}".format(
