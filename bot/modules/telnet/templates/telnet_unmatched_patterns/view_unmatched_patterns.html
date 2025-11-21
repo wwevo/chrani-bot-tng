@@ -1,0 +1,29 @@
+<header>
+    <div>
+        <span>Telnet Log - Unmatched Patterns</span>
+    </div>
+</header>
+<aside>
+{{ options_toggle }}
+</aside>
+<main>
+    <table class="data_table">
+        <caption>
+            <span>Whatever is clever</span>
+        </caption>
+        <thead>
+            {{ table_header }}
+        </thead>
+        <tbody id="unmatched_pattern_table">
+            {{ table_rows }}
+        </tbody>
+        <tfoot>
+            {{ table_footer }}
+        </tfoot>
+    </table>
+    <div class="dialog">
+        <div id="unmatched_pattern_table_modal" class="modal-content">
+            <p>this is the text inside the modal</p>
+        </div>
+    </div>
+</main>
