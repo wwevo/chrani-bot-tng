@@ -19,6 +19,9 @@ class Telnet(Module):
     telnet_lines_to_process = deque
     telnet_command_queue = deque
 
+    dom_element_root = list
+    dom_element_select_root = list
+
     def __init__(self):
         self.telnet_command_queue = deque()
         setattr(self, "default_options", {
@@ -42,7 +45,9 @@ class Telnet(Module):
                     r"\r\n$",
                     r"\sby\sTelnet\sfrom\s(.*)\:(\d.*)\s*$"
                 ]
-            }
+            },
+            "dom_element_root": ["%dom_element_identifier%"],
+            "dom_element_select_root": ["%dom_element_identifier%", "selected_by"]
         })
         setattr(self, "required_modules", [
             "module_dom",
@@ -79,6 +84,12 @@ class Telnet(Module):
         )
         self.max_command_queue_execution = self.options.get(
             "max_command_queue_execution", self.default_options.get("max_command_queue_execution", None)
+        )
+        self.dom_element_root = self.options.get(
+            "dom_element_root", self.default_options.get("dom_element_root", None)
+        )
+        self.dom_element_select_root = self.options.get(
+            "dom_element_select_root", self.default_options.get("dom_element_select_root", None)
         )
         self.telnet_buffer = ""
 

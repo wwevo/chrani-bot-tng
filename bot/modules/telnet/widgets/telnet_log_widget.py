@@ -54,6 +54,9 @@ def select_view(*args, **kwargs):
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "test":
         unmatched_patterns_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "delete-modal":
+        unmatched_patterns_view(module, dispatchers_steamid=dispatchers_steamid)
+        delete_modal_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
@@ -246,9 +249,21 @@ def unmatched_patterns_view(*args, **kwargs):
         template=template_table_header
     )
 
+    # Create delete button
+    action_delete_button = module.dom_management.get_delete_button_dom_element(
+        module,
+        count=all_selected_elements_count,
+        target_module="module_telnet",
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        dom_element_id="unmatched_patterns_table_widget_action_delete_button",
+        dom_action="delete_selected_dom_elements"
+    )
+
     table_footer = module.template_render_hook(
         module,
-        template=template_table_footer
+        template=template_table_footer,
+        action_delete_button=action_delete_button
     )
 
     # Render final view
@@ -277,6 +292,51 @@ def unmatched_patterns_view(*args, **kwargs):
     )
 
     logger.info(f"[DEBUG] unmatched_patterns_view complete")
+
+
+def delete_modal_view(*args, **kwargs):
+    """Display delete confirmation modal for selected patterns."""
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    # Count selected patterns for this user
+    all_unmatched_patterns = module.dom.data.get("module_telnet", {}).get("elements", {})
+    all_selected_elements_count = 0
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+
+    for map_identifier, patterns_dict in all_unmatched_patterns.items():
+        if active_dataset == map_identifier:
+            for pattern_id, pattern_data in patterns_dict.items():
+                pattern_is_selected_by = pattern_data.get("selected_by", [])
+                if dispatchers_steamid in pattern_is_selected_by:
+                    all_selected_elements_count += 1
+
+    # Generate delete confirmation modal
+    modal_confirm_delete = module.dom_management.get_delete_confirm_modal(
+        module,
+        count=all_selected_elements_count,
+        target_module="module_telnet",
+        dom_element_id="unmatched_patterns_table_modal_action_delete_button",
+        dom_action="delete_selected_dom_elements",
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        confirmed="True"
+    )
+
+    data_to_emit = modal_confirm_delete
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="modal_content",
+        clients=[dispatchers_steamid],
+        target_element={
+            "id": "unmatched_pattern_table_modal",
+            "type": "div",
+            "selector": "body > main > div#telnet_log_widget > main > div.dialog"
+        }
+    )
+
 
 def add_or_update_pattern_row(*args, **kwargs):
     """Handler for new/updated patterns - adds row to table."""
@@ -391,6 +451,26 @@ def update_unmatched_patterns_selection_status(*args, **kwargs):
             )
         }
     )
+
+    # Update delete button count when selection changes
+    update_delete_button_status(module, *args, **kwargs)
+
+
+def update_delete_button_status(*args, **kwargs):
+    """Update delete button status/count when selections change."""
+    module = args[0]
+
+    module.dom_management.update_delete_button_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        dom_action="delete_selected_dom_elements",
+        dom_element_id={
+            "id": "unmatched_patterns_control_action_delete_link"
+        }
+    )
+
 
 def update_telnet_log(*args, **kwargs):
     module = args[0]
