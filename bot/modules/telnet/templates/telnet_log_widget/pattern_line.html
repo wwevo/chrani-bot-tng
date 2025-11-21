@@ -1,10 +1,7 @@
-<tr class="pattern_line" id="pattern_{{ pattern_id }}" data-pattern-id="{{ pattern_id }}">
-    <td class="pattern_select">
-        <input type="checkbox"
-               {% if is_selected %}checked{% endif %}
-               onchange="window.socket.emit('widget_event', ['game_environment', ['toggle_pattern_selection', {pattern_id: '{{ pattern_id }}', is_selected: this.checked}]]); return false;"
-               style="cursor: pointer; width: 18px; height: 18px;" />
+<tr id="pattern_{{ pattern.id }}" class="pattern_line">
+    <td>
+        <span id="pattern_{{ pattern.id }}_control_select" class="select_button">{{ control_pattern_select }}</span>
     </td>
-    <td class="pattern_text">{{ pattern }}</td>
-    <td class="pattern_example">{{ example_line }}</td>
+    <td class="pattern_text">{{ pattern.pattern }}</td>
+    <td class="pattern_example">{{ pattern.example_line }}</td>
 </tr>

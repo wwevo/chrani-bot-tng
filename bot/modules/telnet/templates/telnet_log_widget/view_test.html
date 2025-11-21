@@ -9,17 +9,16 @@
 <main>
     <table>
         <caption>
-            <span class="pattern_line">Unmatched telnet patterns - select for future trigger development</span>
+            <span class="pattern_line">Unmatched telnet patterns - select for trigger development</span>
         </caption>
         <thead>
-            <tr>
-                <th style="width: 40px;">Select</th>
-                <th style="width: 40%;">Pattern</th>
-                <th style="width: calc(60% - 40px);">Example Line</th>
-            </tr>
+            {{ pattern_table_header }}
         </thead>
-        <tbody>
+        <tbody id="pattern_table">
             {{ pattern_lines }}
         </tbody>
+        <tfoot>
+            {{ table_footer }}
+        </tfoot>
     </table>
 </main>

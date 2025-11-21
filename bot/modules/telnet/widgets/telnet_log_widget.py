@@ -160,7 +160,10 @@ def test_view(*args, **kwargs):
 
     template_test = module.templates.get_template('telnet_log_widget/view_test.html')
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
-    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+    template_pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
+    template_pattern_table_header = module.templates.get_template('telnet_log_widget/pattern_table_header.html')
+    template_table_footer = module.templates.get_template('telnet_log_widget/table_footer.html')
 
     if len(module.webserver.connected_clients) >= 1:
         unmatched_patterns = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {})
@@ -176,13 +179,23 @@ def test_view(*args, **kwargs):
             )
 
             for pattern_id, pattern_data in sorted_patterns:
+                # Prepare pattern dict for templates
+                pattern_dict = pattern_data.copy()
+                pattern_dict["id"] = pattern_id
+
+                # Render control separately
+                control_pattern_select = module.template_render_hook(
+                    module,
+                    template=template_control_pattern_select,
+                    pattern=pattern_dict
+                )
+
+                # Render row with control
                 pattern_lines_list.append(module.template_render_hook(
                     module,
-                    template=pattern_line,
-                    pattern_id=pattern_id,
-                    pattern=pattern_data.get("pattern", ""),
-                    example_line=pattern_data.get("example_line", ""),
-                    is_selected=pattern_data.get("is_selected", False)
+                    template=template_pattern_line,
+                    pattern=pattern_dict,
+                    control_pattern_select=control_pattern_select
                 ))
 
         pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
@@ -196,11 +209,23 @@ def test_view(*args, **kwargs):
             steamid=dispatchers_steamid
         )
 
+        pattern_table_header = module.template_render_hook(
+            module,
+            template=template_pattern_table_header
+        )
+
+        table_footer = module.template_render_hook(
+            module,
+            template=template_table_footer
+        )
+
         data_to_emit = module.template_render_hook(
             module,
             template=template_test,
             options_toggle=options_toggle,
-            pattern_lines=pattern_lines
+            pattern_table_header=pattern_table_header,
+            pattern_lines=pattern_lines,
+            table_footer=table_footer
         )
 
         module.webserver.send_data_to_client_hook(
@@ -257,18 +282,25 @@ def add_new_pattern(*args, **kwargs):
     if pattern_data is None:
         return
 
-    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+    template_pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
 
     for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
         if current_view == "test":
+            # Render control separately
+            control_pattern_select = module.template_render_hook(
+                module,
+                template=template_control_pattern_select,
+                pattern=pattern_data
+            )
+
+            # Render row with control
             data_to_emit = module.template_render_hook(
                 module,
-                template=pattern_line,
-                pattern_id=pattern_data.get("id", "unknown"),
-                pattern=pattern_data.get("pattern", ""),
-                example_line=pattern_data.get("example_line", ""),
-                is_selected=pattern_data.get("is_selected", False)
+                template=template_pattern_line,
+                pattern=pattern_data,
+                control_pattern_select=control_pattern_select
             )
 
             module.webserver.send_data_to_client_hook(
@@ -286,7 +318,7 @@ def add_new_pattern(*args, **kwargs):
 
 
 def update_pattern_selection(*args, **kwargs):
-    """Update single pattern row when selection changes - granular update."""
+    """Update ONLY the control span when selection changes - ultra-granular update."""
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
@@ -296,7 +328,7 @@ def update_pattern_selection(*args, **kwargs):
     if not pattern_id:
         return
 
-    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
+    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
 
     # Get full pattern data from DOM
     full_pattern_data = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {}).get(pattern_id, {})
@@ -304,27 +336,29 @@ def update_pattern_selection(*args, **kwargs):
     if not full_pattern_data:
         return
 
+    # Prepare pattern dict for template
+    pattern_dict = full_pattern_data.copy()
+    pattern_dict["id"] = pattern_id
+
     for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
         if current_view == "test":
-            data_to_emit = module.template_render_hook(
+            # Render only the control
+            control_html = module.template_render_hook(
                 module,
-                template=pattern_line,
-                pattern_id=pattern_id,
-                pattern=full_pattern_data.get("pattern", ""),
-                example_line=full_pattern_data.get("example_line", ""),
-                is_selected=full_pattern_data.get("is_selected", False)
+                template=template_control_pattern_select,
+                pattern=pattern_dict
             )
 
             module.webserver.send_data_to_client_hook(
                 module,
                 method="update",
                 data_type="widget_content",
-                payload=data_to_emit,
+                payload=control_html,
                 clients=[clientid],
                 target_element={
-                    "id": "pattern_" + pattern_id,
-                    "type": "table_row",
+                    "id": "pattern_" + pattern_id + "_control_select",
+                    "type": "span",
                     "selector": "body > main > div"
                 }
             )
