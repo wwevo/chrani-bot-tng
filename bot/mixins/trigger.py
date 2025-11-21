@@ -124,12 +124,12 @@ class Trigger(object):
             # Store by pattern_id (not pattern string)
             self.unmatched_patterns_dict[pattern_id] = pattern_data
 
-            logger.info(f"[DEBUG] About to upsert to DOM at module_telnet/unmatched_patterns/{map_identifier}/{pattern_id}")
+            logger.info(f"[DEBUG] About to upsert to DOM at module_telnet/elements/{map_identifier}/{pattern_id}")
 
-            # Update DOM for persistence under module_telnet with map_identifier
+            # Update DOM for persistence under module_telnet/elements (required by select action)
             self.dom.data.upsert({
                 "module_telnet": {
-                    "unmatched_patterns": {
+                    "elements": {
                         map_identifier: {
                             pattern_id: pattern_data
                         }

@@ -172,7 +172,7 @@ def unmatched_patterns_view(*args, **kwargs):
 
     # Build table rows
     table_rows_list = []
-    all_unmatched_patterns = module.dom.data.get("module_telnet", {}).get("unmatched_patterns", {})
+    all_unmatched_patterns = module.dom.data.get("module_telnet", {}).get("elements", {})
     all_selected_elements_count = 0
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
@@ -305,7 +305,7 @@ def add_or_update_pattern_row(*args, **kwargs):
                     pattern_is_selected_by = (
                         module.dom.data
                         .get("module_telnet", {})
-                        .get("unmatched_patterns", {})
+                        .get("elements", {})
                         .get(active_dataset, {})
                         .get(pattern_id, {})
                         .get("selected_by", [])
@@ -428,9 +428,9 @@ widget_meta = {
     "handlers": {
         "module_telnet/visibility/%steamid%/current_view": select_view,
         "module_telnet/telnet_lines": update_telnet_log,
-        "module_telnet/unmatched_patterns/%map_identifier%/%element_identifier%":
+        "module_telnet/elements/%map_identifier%/%element_identifier%":
             add_or_update_pattern_row,
-        "module_telnet/unmatched_patterns/%map_identifier%/%element_identifier%/selected_by":
+        "module_telnet/elements/%map_identifier%/%element_identifier%/selected_by":
             update_unmatched_patterns_selection_status,
     },
     "enabled": True
