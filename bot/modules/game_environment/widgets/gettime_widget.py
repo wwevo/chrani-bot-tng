@@ -12,6 +12,12 @@ def main_widget(*args, **kwargs):
 
     template_frontend = module.templates.get_template('gametime_widget/view_frontend.html')
     gametime = module.game_environment.get_last_recorded_gametime_dict()
+
+    # Fix: gametime can be None if no data yet - trigger gettime action
+    if gametime is None:
+        module.trigger_action_hook(module, event_data=["gettime", {}])
+        gametime = {}  # Use empty dict as fallback
+
     gametime.update({
         "is_bloodmoon": "",
         "is_bloodday": ""
