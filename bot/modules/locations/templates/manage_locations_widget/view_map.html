@@ -2,8 +2,17 @@
 <link rel="stylesheet" href="/static/leaflet.css"/>
 
 <style>
-    /* LCARS Grid Layout */
+    /* Reset main to work with existing layout */
     main {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        padding: 0;
+    }
+
+    /* LCARS Grid Layout Container */
+    .map-grid-container {
         display: grid;
         grid-template-columns: 1fr 320px;
         grid-template-rows: 50px 1fr 120px;
@@ -215,42 +224,44 @@
 {{ control_switch_view }}
 </aside>
 <main>
-    <!-- Top Bar: Controls & Coordinates -->
-    <div class="lcars-topbar">
-        <div class="lcars-topbar-left">
-            <button class="create-location-btn" id="create-location-btn">📍 Create Location</button>
-        </div>
-        <div class="lcars-topbar-right">
-            <span class="coord-label">X:</span> <span id="coord-x">0</span>
-            <span style="margin: 0 4px;">|</span>
-            <span class="coord-label">Z:</span> <span id="coord-z">0</span>
-        </div>
-    </div>
-
-    <!-- Map Container -->
-    <div class="lcars-map-container">
-        <div id="map"></div>
-    </div>
-
-    <!-- Right Sidebar: Details Panel -->
-    <div class="lcars-sidebar" id="details-panel">
-        <div class="lcars-sidebar-empty">
-            Click on a player or location<br>to view details
-        </div>
-    </div>
-
-    <!-- Bottom Bar: Legend & Other -->
-    <div class="lcars-bottombar">
-        <div class="lcars-legend" id="map-legend">
-            <h4>🗺️ Map Info</h4>
-            <div class="legend-item">
-                <span class="legend-label">Loading...</span>
+    <div class="map-grid-container">
+        <!-- Top Bar: Controls & Coordinates -->
+        <div class="lcars-topbar">
+            <div class="lcars-topbar-left">
+                <button class="create-location-btn" id="create-location-btn">📍 Create Location</button>
+            </div>
+            <div class="lcars-topbar-right">
+                <span class="coord-label">X:</span> <span id="coord-x">0</span>
+                <span style="margin: 0 4px;">|</span>
+                <span class="coord-label">Z:</span> <span id="coord-z">0</span>
             </div>
         </div>
-        <div class="lcars-other">
-            <b>System Status:</b> Active<br>
-            <b>Socket.IO:</b> Connected<br>
-            <b>Updates:</b> Real-time
+
+        <!-- Map Container -->
+        <div class="lcars-map-container">
+            <div id="map"></div>
+        </div>
+
+        <!-- Right Sidebar: Details Panel -->
+        <div class="lcars-sidebar" id="details-panel">
+            <div class="lcars-sidebar-empty">
+                Click on a player or location<br>to view details
+            </div>
+        </div>
+
+        <!-- Bottom Bar: Legend & Other -->
+        <div class="lcars-bottombar">
+            <div class="lcars-legend" id="map-legend">
+                <h4>🗺️ Map Info</h4>
+                <div class="legend-item">
+                    <span class="legend-label">Loading...</span>
+                </div>
+            </div>
+            <div class="lcars-other">
+                <b>System Status:</b> Active<br>
+                <b>Socket.IO:</b> Connected<br>
+                <b>Updates:</b> Real-time
+            </div>
         </div>
     </div>
 
