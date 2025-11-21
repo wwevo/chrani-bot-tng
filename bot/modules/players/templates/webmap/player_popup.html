@@ -20,6 +20,11 @@ function createPlayerPopup(steamid, player) {
         permissionBadge = '<span style="background: #ff0000; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; font-weight: bold;">🛡️ ADMIN</span>';
     }
 
+    // Coordinates (with fallback if position is missing)
+    const posX = player.pos ? Math.round(player.pos.x) : 0;
+    const posY = player.pos ? Math.round(player.pos.y) : 0;
+    const posZ = player.pos ? Math.round(player.pos.z) : 0;
+
     // Use template literal for clean HTML
     return `
         <div style="min-width: 280px; font-family: monospace;">
@@ -27,7 +32,8 @@ function createPlayerPopup(steamid, player) {
             ${permissionBadge ? '<br>' + permissionBadge : ''}
             <br><span style="font-size: 0.9em; color: ${statusColor};">${statusBadge}</span>
             <br><hr style="margin: 5px 0; border-color: #333;">
-            <b>❤️ Health:</b> ${player.health}/${healthMax} (${healthPercent}%)
+            <b>📍 Position:</b> ${posX}, ${posY}, ${posZ}
+            <br><b>❤️ Health:</b> ${player.health}/${healthMax} (${healthPercent}%)
             <br><b>⭐ Level:</b> ${player.level} | <b>🎯 Score:</b> ${player.score}
             <br><b>🧟 Zombies:</b> ${player.zombies} | <b>💀 Deaths:</b> ${player.deaths}
             <br><b>👥 Players:</b> ${player.players} | <b>📡 Ping:</b> ${player.ping}ms
