@@ -21,7 +21,7 @@ VIEW_REGISTRY = {
     },
     'test': {
         'label_active': 'back',
-        'label_inactive': 'test',
+        'label_inactive': 'patterns',
         'action': 'show_test',
         'include_in_menu': True
     }
@@ -159,34 +159,60 @@ def test_view(*args, **kwargs):
 
     template_test = module.templates.get_template('telnet_log_widget/view_test.html')
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
+    pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
 
-    current_view = module.get_current_view(dispatchers_steamid)
-    options_toggle = module.template_render_hook(
-        module,
-        template=template_view_menu,
-        views=VIEW_REGISTRY,
-        current_view=current_view,
-        steamid=dispatchers_steamid
-    )
+    if len(module.webserver.connected_clients) >= 1:
+        unmatched_patterns = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {})
 
-    data_to_emit = module.template_render_hook(
-        module,
-        template=template_test,
-        options_toggle=options_toggle
-    )
+        # Build pattern lines efficiently
+        pattern_lines_list = []
+        if len(unmatched_patterns) >= 1:
+            # Sort patterns by count (descending) to show most common patterns first
+            sorted_patterns = sorted(
+                unmatched_patterns.items(),
+                key=lambda x: x[1]["count"],
+                reverse=True
+            )
 
-    module.webserver.send_data_to_client_hook(
-        module,
-        payload=data_to_emit,
-        data_type="widget_content",
-        clients=[dispatchers_steamid],
-        method="update",
-        target_element={
-            "id": "telnet_log_widget",
-            "type": "table",
-            "selector": "body > main > div"
-        }
-    )
+            for pattern, pattern_data in sorted_patterns:
+                pattern_lines_list.append(module.template_render_hook(
+                    module,
+                    template=pattern_line,
+                    count=pattern_data["count"],
+                    pattern=pattern,
+                    example_line=pattern_data["example_line"]
+                ))
+
+        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
+
+        current_view = module.get_current_view(dispatchers_steamid)
+        options_toggle = module.template_render_hook(
+            module,
+            template=template_view_menu,
+            views=VIEW_REGISTRY,
+            current_view=current_view,
+            steamid=dispatchers_steamid
+        )
+
+        data_to_emit = module.template_render_hook(
+            module,
+            template=template_test,
+            options_toggle=options_toggle,
+            pattern_lines=pattern_lines
+        )
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            payload=data_to_emit,
+            data_type="widget_content",
+            clients=[dispatchers_steamid],
+            method="update",
+            target_element={
+                "id": "telnet_log_widget",
+                "type": "table",
+                "selector": "body > main > div"
+            }
+        )
 
 
 def update_widget(*args, **kwargs):
@@ -220,12 +246,25 @@ def update_widget(*args, **kwargs):
             )
 
 
+def update_widget_patterns(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+
+    # Iterate directly over connected clients
+    for clientid in module.webserver.connected_clients.keys():
+        current_view = module.get_current_view(clientid)
+        if current_view == "test":
+            # Refresh entire test view to show updated pattern counts
+            test_view(module, dispatchers_steamid=clientid)
+
+
 widget_meta = {
     "description": "displays a bunch of telnet lines, updating in real time",
     "main_widget": select_view,
     "handlers": {
         "module_telnet/visibility/%steamid%/current_view": select_view,
         "module_telnet/telnet_lines": update_widget,
+        "module_game_environment/unmatched_pattern_update": update_widget_patterns,
     },
     "enabled": True
 }

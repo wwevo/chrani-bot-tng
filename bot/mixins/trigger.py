@@ -1,14 +1,17 @@
 from bot import loaded_modules_dict
 from os import path, listdir, pardir
 from importlib import import_module
+from time import time
 import re
 
 
 class Trigger(object):
     available_triggers_dict = dict
+    unmatched_patterns_dict = dict
 
     def __init__(self):
         self.available_triggers_dict = {}
+        self.unmatched_patterns_dict = {}
 
     def start(self):
         try:
@@ -45,10 +48,82 @@ class Trigger(object):
         except ModuleNotFoundError:
             pass
 
+    def _extract_line_pattern(self, telnet_line: str) -> str:
+        """
+        Extract normalized pattern from telnet line by replacing variable parts.
+
+        Example:
+            Input:  "2025-11-21T11:42:33 232945.436 INF ... VehicleManager write #10, id 167772, ..."
+            Output: "VehicleManager write #<NUM>, id <NUM>, <VEHICLE_TYPE>, (<COORD>), chunk <CHUNK>"
+        """
+        pattern = telnet_line
+
+        # Replace timestamps
+        pattern = re.sub(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}', '<TIMESTAMP>', pattern)
+
+        # Replace game tick numbers (e.g., "232945.436")
+        pattern = re.sub(r'\s\d+\.\d{3}\s', ' <TICK> ', pattern)
+
+        # Replace counter numbers (e.g., "#10", "#0")
+        pattern = re.sub(r'#\d+', '#<NUM>', pattern)
+
+        # Replace IDs (e.g., "id 167772")
+        pattern = re.sub(r'\bid\s+\d+', 'id <NUM>', pattern)
+
+        # Replace 3D coordinates (e.g., "(109.8, 42.8, 782.6)")
+        pattern = re.sub(r'\(-?\d+\.\d+,\s*-?\d+\.\d+,\s*-?\d+\.\d+\)', '(<COORD>)', pattern)
+
+        # Replace chunk coordinates (e.g., "chunk 6, 48")
+        pattern = re.sub(r'chunk\s+-?\d+,\s*-?\d+', 'chunk <CHUNK>', pattern)
+
+        # Replace entity IDs (e.g., "entityid=12345")
+        pattern = re.sub(r'entityid=\d+', 'entityid=<NUM>', pattern)
+
+        # Replace generic numbers in context (e.g., "killed 5 zombies" -> "killed <NUM> zombies")
+        pattern = re.sub(r'\b\d+\b', '<NUM>', pattern)
+
+        return pattern
+
+    def _store_unmatched_telnet_line(self, telnet_line: str) -> None:
+        """Store unmatched telnet line with pattern-based deduplication."""
+        pattern = self._extract_line_pattern(telnet_line)
+        current_time = time()
+
+        if pattern not in self.unmatched_patterns_dict:
+            self.unmatched_patterns_dict[pattern] = {
+                "count": 0,
+                "first_seen": current_time,
+                "last_seen": None,
+                "example_line": telnet_line
+            }
+
+        pattern_data = self.unmatched_patterns_dict[pattern]
+        pattern_data["count"] += 1
+        pattern_data["last_seen"] = current_time
+
+        # Update DOM for persistence/access by other modules
+        self.dom.data.upsert({
+            self.get_module_identifier(): {
+                "unmatched_patterns": self.unmatched_patterns_dict
+            }
+        })
+
+        # Emit pattern update for real-time widget updates
+        self.dom.data.append({
+            self.get_module_identifier(): {
+                "unmatched_pattern_update": {
+                    "pattern": pattern,
+                    "data": pattern_data
+                }
+            }
+        }, maxlen=1)
+
     def execute_telnet_triggers(self):
         telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)
 
         for telnet_line in telnet_lines_to_process:
+            line_matched = False
+
             for loaded_module in loaded_modules_dict.values():
                 for trigger_name, trigger_group in loaded_module.available_triggers_dict.items():
                     try:
@@ -56,7 +131,11 @@ class Trigger(object):
                             regex_results = re.search(trigger["regex"], telnet_line)
                             if regex_results:
                                 trigger["callback"](loaded_module, self, regex_results)
-                                # TODO: add method to append log, or create a new one
+                                line_matched = True
                                 # TODO: this needs to weed out triggers being called too often
                     except KeyError:
                         pass
+
+            # Store unmatched lines for trigger development
+            if not line_matched:
+                self._store_unmatched_telnet_line(telnet_line)
