@@ -114,6 +114,7 @@ class Trigger(object):
             self.unmatched_patterns_dict[pattern_id] = pattern_data
 
             # Update DOM for persistence (upsert single pattern)
+            # CLAUDE:
             self.dom.data.upsert({
                 self.get_module_identifier(): {
                     "unmatched_patterns": {

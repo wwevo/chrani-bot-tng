@@ -53,7 +53,7 @@ def select_view(*args, **kwargs):
     if current_view == "options":
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "test":
-        test_view(module, dispatchers_steamid=dispatchers_steamid)
+        unmatched_patterns_view(module, dispatchers_steamid=dispatchers_steamid)
     else:
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
 
@@ -62,9 +62,9 @@ def frontend_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
 
-    telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_frontend.html')
-    template_table_header = module.templates.get_template('telnet_log_widget/table_header.html')
-    log_line = module.templates.get_template('telnet_log_widget/log_line.html')
+    telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_telnet_log.html')
+    template_table_header = module.templates.get_template('telnet_log_widget/telnet_log_table_header.html')
+    log_line = module.templates.get_template('telnet_log_widget/telnet_log_line.html')
 
     # new view menu (pattern from locations module)
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
@@ -153,96 +153,57 @@ def options_view(*args, **kwargs):
     )
 
 
-def test_view(*args, **kwargs):
+def unmatched_patterns_view(*args, **kwargs):
     """Initial view load - shows all existing patterns. Granular updates handled separately."""
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    template_test = module.templates.get_template('telnet_log_widget/view_test.html')
+    template_test = module.templates.get_template('telnet_log_widget/view_unmatched_patterns.html')
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
-    template_pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
-    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
-    template_pattern_table_header = module.templates.get_template('telnet_log_widget/pattern_table_header.html')
-    template_table_footer = module.templates.get_template('telnet_log_widget/table_footer.html')
+    template_pattern_table_header = module.templates.get_template('telnet_log_widget/unmatched_pattern_table_header.html')
+    template_table_footer = module.templates.get_template('telnet_log_widget/unmatched_patterns_table_footer.html')
 
-    if len(module.webserver.connected_clients) >= 1:
-        unmatched_patterns = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {})
+def update_unmatched_patterns_selection_status(*args, **kwargs):
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    location_identifier = updated_values_dict["identifier"]
 
-        # Build pattern lines from DOM structure {pattern_id: pattern_data}
-        pattern_lines_list = []
-        if len(unmatched_patterns) >= 1:
-            # Sort patterns by first_seen (newest first)
-            sorted_patterns = sorted(
-                unmatched_patterns.items(),
-                key=lambda x: x[1].get("first_seen", 0),
-                reverse=True
+    # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
+
+    module.dom_management.update_selection_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=[location_identifier],
+        dom_element_select_root=[location_identifier, "selected_by"],
+        dom_action_active="deselect_dom_element",
+        dom_action_inactive="select_dom_element",
+        dom_element_id={
+            "id": "location_table_row_{}_{}_{}_control_select_link".format(
+                sanitized_dataset,
+                updated_values_dict["owner"],
+                updated_values_dict["identifier"]
             )
+        }
+    )
 
-            for pattern_id, pattern_data in sorted_patterns:
-                # Prepare pattern dict for templates
-                pattern_dict = pattern_data.copy()
-                pattern_dict["id"] = pattern_id
+    update_unmatched_patterns_delete_button_status(module, *args, **kwargs)
 
-                # Render control separately
-                control_pattern_select = module.template_render_hook(
-                    module,
-                    template=template_control_pattern_select,
-                    pattern=pattern_dict
-                )
+def update_unmatched_patterns_delete_button_status(*args, **kwargs):
+    module = args[0]
 
-                # Render row with control
-                pattern_lines_list.append(module.template_render_hook(
-                    module,
-                    template=template_pattern_line,
-                    pattern=pattern_dict,
-                    control_pattern_select=control_pattern_select
-                ))
+    module.dom_management.update_delete_button_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_element_root=module.dom_element_root,
+        dom_element_select_root=module.dom_element_select_root,
+        dom_action="delete_selected_dom_elements",
+        dom_element_id={
+            "id": "manage_locations_control_action_delete_link"
+        }
+    )
 
-        pattern_lines = ''.join(pattern_lines_list) if pattern_lines_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
-
-        current_view = module.get_current_view(dispatchers_steamid)
-        options_toggle = module.template_render_hook(
-            module,
-            template=template_view_menu,
-            views=VIEW_REGISTRY,
-            current_view=current_view,
-            steamid=dispatchers_steamid
-        )
-
-        pattern_table_header = module.template_render_hook(
-            module,
-            template=template_pattern_table_header
-        )
-
-        table_footer = module.template_render_hook(
-            module,
-            template=template_table_footer
-        )
-
-        data_to_emit = module.template_render_hook(
-            module,
-            template=template_test,
-            options_toggle=options_toggle,
-            pattern_table_header=pattern_table_header,
-            pattern_lines=pattern_lines,
-            table_footer=table_footer
-        )
-
-        module.webserver.send_data_to_client_hook(
-            module,
-            payload=data_to_emit,
-            data_type="widget_content",
-            clients=[dispatchers_steamid],
-            method="update",
-            target_element={
-                "id": "telnet_log_widget",
-                "type": "table",
-                "selector": "body > main > div"
-            }
-        )
-
-
-def update_widget(*args, **kwargs):
+def update_telnet_log(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
@@ -250,7 +211,7 @@ def update_widget(*args, **kwargs):
     for clientid in module.webserver.connected_clients.keys():
         current_view = module.get_current_view(clientid)
         if current_view == "frontend":
-            telnet_log_line = module.templates.get_template('telnet_log_widget/log_line.html')
+            telnet_log_line = module.templates.get_template('telnet_log_widget/telnet_log_line.html')
             css_class = get_log_line_css_class(updated_values_dict["telnet_lines"])
             data_to_emit = module.template_render_hook(
                 module,
@@ -272,106 +233,15 @@ def update_widget(*args, **kwargs):
                 }
             )
 
-
-def add_new_pattern(*args, **kwargs):
-    """Prepend new pattern to list - granular update, no full reload."""
-    module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", None)
-
-    pattern_data = updated_values_dict.get("new_unmatched_pattern", None)
-    if pattern_data is None:
-        return
-
-    template_pattern_line = module.templates.get_template('telnet_log_widget/pattern_line.html')
-    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
-
-    for clientid in module.webserver.connected_clients.keys():
-        current_view = module.get_current_view(clientid)
-        if current_view == "test":
-            # Render control separately
-            control_pattern_select = module.template_render_hook(
-                module,
-                template=template_control_pattern_select,
-                pattern=pattern_data
-            )
-
-            # Render row with control
-            data_to_emit = module.template_render_hook(
-                module,
-                template=template_pattern_line,
-                pattern=pattern_data,
-                control_pattern_select=control_pattern_select
-            )
-
-            module.webserver.send_data_to_client_hook(
-                module,
-                method="prepend",
-                data_type="widget_content",
-                payload=data_to_emit,
-                clients=[clientid],
-                target_element={
-                    "id": "telnet_log_widget",
-                    "type": "table",
-                    "selector": "body > main > div"
-                }
-            )
-
-
-def update_pattern_selection(*args, **kwargs):
-    """Update ONLY the control span when selection changes - ultra-granular update."""
-    module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", {})
-
-    # DOM system automatically provides pattern_id from %pattern_id% placeholder
-    pattern_id = updated_values_dict.get("pattern_id")
-
-    if not pattern_id:
-        return
-
-    template_control_pattern_select = module.templates.get_template('telnet_log_widget/control_pattern_select.html')
-
-    # Get full pattern data from DOM
-    full_pattern_data = module.dom.data.get("module_game_environment", {}).get("unmatched_patterns", {}).get(pattern_id, {})
-
-    if not full_pattern_data:
-        return
-
-    # Prepare pattern dict for template
-    pattern_dict = full_pattern_data.copy()
-    pattern_dict["id"] = pattern_id
-
-    for clientid in module.webserver.connected_clients.keys():
-        current_view = module.get_current_view(clientid)
-        if current_view == "test":
-            # Render only the control
-            control_html = module.template_render_hook(
-                module,
-                template=template_control_pattern_select,
-                pattern=pattern_dict
-            )
-
-            module.webserver.send_data_to_client_hook(
-                module,
-                method="update",
-                data_type="widget_content",
-                payload=control_html,
-                clients=[clientid],
-                target_element={
-                    "id": "pattern_" + pattern_id + "_control_select",
-                    "type": "span",
-                    "selector": "body > main > div"
-                }
-            )
-
-
 widget_meta = {
     "description": "displays a bunch of telnet lines, updating in real time",
     "main_widget": select_view,
     "handlers": {
         "module_telnet/visibility/%steamid%/current_view": select_view,
-        "module_telnet/telnet_lines": update_widget,
-        "module_game_environment/new_unmatched_pattern": add_new_pattern,
-        "module_game_environment/unmatched_patterns/%pattern_id%": update_pattern_selection,
+        "module_telnet/telnet_lines": update_telnet_log,
+
+        "module_telnet/unmatched_patterns/%map_identifier%/%element_identifier%/selected_by":
+            update_selection_status,
     },
     "enabled": True
 }
