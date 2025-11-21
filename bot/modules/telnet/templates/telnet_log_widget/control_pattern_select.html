@@ -1,12 +1,12 @@
 {%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
 {{ construct_toggle_link(
     pattern.is_selected,
-    "&#9745;", ['widget_event', ['game_environment', ['toggle_pattern_selection', {
-        "pattern_id": pattern.id,
-        "is_selected": false
-    }]]],
     "&#9744;", ['widget_event', ['game_environment', ['toggle_pattern_selection', {
-        "pattern_id": pattern.id,
-        "is_selected": true
+        'pattern_id': pattern.id,
+        'is_selected': False
+    }]]],
+    "&#9745;", ['widget_event', ['game_environment', ['toggle_pattern_selection', {
+        'pattern_id': pattern.id,
+        'is_selected': True
     }]]]
 ) }}
