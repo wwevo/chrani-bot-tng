@@ -253,7 +253,95 @@ def unmatched_patterns_view(*args, **kwargs):
         }
     )
 
+def add_or_update_pattern_row(*args, **kwargs):
+    """Handler for new/updated patterns - adds row to table."""
+    from bot.logger import get_logger
+    logger = get_logger("telnet_log_widget")
+
+    module = args[0]
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    method = kwargs.get("method", None)
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+
+    logger.info(f"[DEBUG] add_or_update_pattern_row called with method={method}, updated_values_dict keys={updated_values_dict.keys() if updated_values_dict else 'None'}")
+
+    if method in ["upsert", "edit", "insert"]:
+        template_table_row = module.templates.get_template('telnet_log_widget/unmatched_patterns_table_row.html')
+
+        for clientid in module.webserver.connected_clients.keys():
+            current_view = module.get_current_view(clientid)
+            logger.info(f"[DEBUG] Client {clientid} current_view: {current_view}")
+
+            if current_view == "test":  # Note: using "test" view for patterns
+                for pattern_id, pattern_data in updated_values_dict.items():
+                    logger.info(f"[DEBUG] Processing pattern {pattern_id} for client {clientid}")
+
+                    # Get selected_by from full DOM data
+                    pattern_is_selected_by = (
+                        module.dom.data
+                        .get("module_telnet", {})
+                        .get("unmatched_patterns", {})
+                        .get(active_dataset, {})
+                        .get(pattern_id, {})
+                        .get("selected_by", [])
+                    )
+
+                    pattern_entry_selected = False
+                    if clientid in pattern_is_selected_by:
+                        pattern_entry_selected = True
+
+                    # Generate control_select_link with original data
+                    control_select_link = module.dom_management.get_selection_dom_element(
+                        module,
+                        target_module="module_telnet",
+                        dom_element_select_root=["selected_by"],
+                        dom_element=pattern_data,
+                        dom_element_entry_selected=pattern_entry_selected,
+                        dom_action_inactive="select_dom_element",
+                        dom_action_active="deselect_dom_element"
+                    )
+
+                    # Prepare template dict with sanitized dataset
+                    map_identifier = pattern_data.get("dataset", "unknown")
+                    pattern_dict_for_template = pattern_data.copy()
+                    pattern_dict_for_template["dataset"] = module.dom_management.sanitize_for_html_id(map_identifier)
+                    pattern_dict_for_template["dataset_original"] = map_identifier
+                    pattern_dict_for_template["name"] = pattern_data.get("pattern", "")
+                    pattern_dict_for_template["type"] = pattern_data.get("example_line", "")
+
+                    table_row = module.template_render_hook(
+                        module,
+                        template=template_table_row,
+                        unmatched_pattern=pattern_dict_for_template,
+                        control_select_link=control_select_link
+                    )
+
+                    sanitized_dataset = pattern_dict_for_template["dataset"]
+                    table_row_id = "unmatched_pattern_table_row_{}_{}".format(
+                        sanitized_dataset,
+                        pattern_id
+                    )
+
+                    logger.info(f"[DEBUG] Sending table_row to client {clientid}, row_id={table_row_id}")
+
+                    module.webserver.send_data_to_client_hook(
+                        module,
+                        payload=table_row,
+                        data_type="table_row",
+                        clients=[clientid],
+                        target_element={
+                            "id": table_row_id,
+                            "type": "tr",
+                            "selector": "body > main > div > div#telnet_log_widget > main > table > tbody#unmatched_pattern_table"
+                        }
+                    )
+
+
 def update_unmatched_patterns_selection_status(*args, **kwargs):
+    from bot.logger import get_logger
+    logger = get_logger("telnet_log_widget")
+    logger.info(f"[DEBUG] update_unmatched_patterns_selection_status called with kwargs={kwargs}")
+
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
 
@@ -309,6 +397,8 @@ widget_meta = {
     "handlers": {
         "module_telnet/visibility/%steamid%/current_view": select_view,
         "module_telnet/telnet_lines": update_telnet_log,
+        "module_telnet/unmatched_patterns/%map_identifier%/%element_identifier%":
+            add_or_update_pattern_row,
         "module_telnet/unmatched_patterns/%map_identifier%/%element_identifier%/selected_by":
             update_unmatched_patterns_selection_status,
     },

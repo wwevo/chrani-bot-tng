@@ -104,6 +104,11 @@ class Trigger(object):
 
         # Only store if this pattern is NEW (first occurrence)
         if pattern_id not in self.unmatched_patterns_dict:
+            from bot.logger import get_logger
+            logger = get_logger("trigger")
+            logger.info(f"[DEBUG] Storing new unmatched pattern: {pattern_id} for map {map_identifier}")
+            logger.info(f"[DEBUG] Pattern: {pattern[:100]}")
+
             current_time = time()
             pattern_data = {
                 "id": pattern_id,
@@ -119,6 +124,8 @@ class Trigger(object):
             # Store by pattern_id (not pattern string)
             self.unmatched_patterns_dict[pattern_id] = pattern_data
 
+            logger.info(f"[DEBUG] About to upsert to DOM at module_telnet/unmatched_patterns/{map_identifier}/{pattern_id}")
+
             # Update DOM for persistence under module_telnet with map_identifier
             self.dom.data.upsert({
                 "module_telnet": {
@@ -129,6 +136,8 @@ class Trigger(object):
                     }
                 }
             })
+
+            logger.info(f"[DEBUG] DOM upsert complete for {pattern_id}")
 
     def execute_telnet_triggers(self):
         telnet_lines_to_process = self.telnet.get_a_bunch_of_lines_from_queue(25)
