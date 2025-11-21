@@ -164,7 +164,7 @@ def unmatched_patterns_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-    logger.info(f"[DEBUG] unmatched_patterns_view called for steamid={dispatchers_steamid}")
+
 
     # Load templates
     template_unmatched_patterns = module.templates.get_template('telnet_log_widget/view_unmatched_patterns.html')
@@ -179,18 +179,18 @@ def unmatched_patterns_view(*args, **kwargs):
     all_selected_elements_count = 0
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
-    logger.info(f"[DEBUG] active_dataset={active_dataset}")
-    logger.info(f"[DEBUG] all_unmatched_patterns keys={list(all_unmatched_patterns.keys())}")
-    logger.info(f"[DEBUG] Total patterns in all maps: {sum(len(v) for v in all_unmatched_patterns.values())}")
+
+
+
 
     # Iterate over map_identifier -> pattern_id -> pattern_data
     for map_identifier, patterns_dict in all_unmatched_patterns.items():
-        logger.info(f"[DEBUG] Checking map {map_identifier} (active={active_dataset}), has {len(patterns_dict)} patterns")
+
         if active_dataset == map_identifier:
-            logger.info(f"[DEBUG] Map matches! Processing {len(patterns_dict)} patterns")
+
             for pattern_id, pattern_data in patterns_dict.items():
-                logger.info(f"[DEBUG] Processing pattern {pattern_id}")
-                logger.info(f"[DEBUG] pattern_data keys: {pattern_data.keys()}")
+
+
 
                 pattern_is_selected_by = pattern_data.get("selected_by", [])
 
@@ -200,8 +200,8 @@ def unmatched_patterns_view(*args, **kwargs):
                     all_selected_elements_count += 1
 
                 # Generate control_select_link FIRST with original pattern_data
-                logger.info(f"[DEBUG] Calling get_selection_dom_element for pattern {pattern_id}")
-                logger.info(f"[DEBUG] pattern_data for control: owner={pattern_data.get('owner')}, identifier={pattern_data.get('identifier')}, dataset={pattern_data.get('dataset')}")
+
+
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
                     target_module="module_telnet",
@@ -211,7 +211,7 @@ def unmatched_patterns_view(*args, **kwargs):
                     dom_action_inactive="select_dom_element",
                     dom_action_active="deselect_dom_element"
                 )
-                logger.info(f"[DEBUG] control_select_link HTML (first 200 chars): {control_select_link[:200] if control_select_link else 'NONE'}")
+
 
                 # THEN create template dict with sanitized dataset
                 pattern_dict_for_template = pattern_data.copy()
@@ -226,12 +226,12 @@ def unmatched_patterns_view(*args, **kwargs):
                     unmatched_pattern=pattern_dict_for_template,
                     control_select_link=control_select_link
                 )
-                logger.info(f"[DEBUG] Rendered row HTML (first 300 chars): {rendered_row[:300]}")
+
                 table_rows_list.append(rendered_row)
 
     table_rows = ''.join(table_rows_list) if table_rows_list else '<tr><td colspan="3">No unmatched patterns yet...</td></tr>'
 
-    logger.info(f"[DEBUG] Built {len(table_rows_list)} table rows, total HTML length: {len(table_rows)}")
+
 
     # Render view menu
     current_view = module.get_current_view(dispatchers_steamid)
@@ -276,7 +276,7 @@ def unmatched_patterns_view(*args, **kwargs):
         table_footer=table_footer
     )
 
-    logger.info(f"[DEBUG] Final view HTML length: {len(data_to_emit)}, sending to client {dispatchers_steamid}")
+
 
     module.webserver.send_data_to_client_hook(
         module,
@@ -291,7 +291,7 @@ def unmatched_patterns_view(*args, **kwargs):
         }
     )
 
-    logger.info(f"[DEBUG] unmatched_patterns_view complete")
+
 
 
 def delete_modal_view(*args, **kwargs):
@@ -348,18 +348,18 @@ def add_or_update_pattern_row(*args, **kwargs):
     method = kwargs.get("method", None)
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
-    logger.info(f"[DEBUG] add_or_update_pattern_row called with method={method}, updated_values_dict keys={updated_values_dict.keys() if updated_values_dict else 'None'}")
+
 
     if method in ["upsert", "edit", "insert", "update"]:
         template_table_row = module.templates.get_template('telnet_log_widget/unmatched_patterns_table_row.html')
 
         for clientid in module.webserver.connected_clients.keys():
             current_view = module.get_current_view(clientid)
-            logger.info(f"[DEBUG] Client {clientid} current_view: {current_view}")
+
 
             if current_view == "test":  # Note: using "test" view for patterns
                 for pattern_id, pattern_data in updated_values_dict.items():
-                    logger.info(f"[DEBUG] Processing pattern {pattern_id} for client {clientid}")
+
 
                     # Get selected_by from full DOM data
                     pattern_is_selected_by = (
@@ -386,7 +386,7 @@ def add_or_update_pattern_row(*args, **kwargs):
                         dom_action_active="deselect_dom_element"
                     )
 
-                    logger.info(f"[DEBUG] control_select_link HTML: {control_select_link[:200] if control_select_link else 'NONE'}")
+
 
                     # Prepare template dict with sanitized dataset
                     map_identifier = pattern_data.get("dataset", "unknown")
@@ -396,7 +396,7 @@ def add_or_update_pattern_row(*args, **kwargs):
                     pattern_dict_for_template["name"] = pattern_data.get("pattern", "")
                     pattern_dict_for_template["type"] = pattern_data.get("example_line", "")
 
-                    logger.info(f"[DEBUG] pattern_dict_for_template: id={pattern_dict_for_template.get('id')}, dataset={pattern_dict_for_template.get('dataset')}, name length={len(pattern_dict_for_template.get('name', ''))}")
+
 
                     table_row = module.template_render_hook(
                         module,
@@ -405,7 +405,7 @@ def add_or_update_pattern_row(*args, **kwargs):
                         control_select_link=control_select_link
                     )
 
-                    logger.info(f"[DEBUG] table_row HTML (first 300 chars): {table_row[:300]}")
+
 
                     sanitized_dataset = pattern_dict_for_template["dataset"]
                     table_row_id = "unmatched_pattern_table_row_{}_{}".format(
@@ -413,7 +413,7 @@ def add_or_update_pattern_row(*args, **kwargs):
                         pattern_id
                     )
 
-                    logger.info(f"[DEBUG] Sending table_row to client {clientid}, row_id={table_row_id}")
+
 
                     module.webserver.send_data_to_client_hook(
                         module,
@@ -431,7 +431,7 @@ def add_or_update_pattern_row(*args, **kwargs):
 def update_unmatched_patterns_selection_status(*args, **kwargs):
     from bot.logger import get_logger
     logger = get_logger("telnet_log_widget")
-    logger.info(f"[DEBUG] update_unmatched_patterns_selection_status called with kwargs={kwargs}")
+
 
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)

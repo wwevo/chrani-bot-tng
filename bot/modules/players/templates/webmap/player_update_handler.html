@@ -4,10 +4,10 @@ if (data.data_type === 'player_position_update' && data.payload) {
     const steamid = playerData.steamid;
     const pos = playerData.position;
 
-    console.log('[MAP] Processing player update for:', steamid, pos);
+
 
     if (!steamid || !pos) {
-        console.warn('[MAP] Invalid player update data:', playerData);
+
         return;
     }
 
@@ -37,7 +37,7 @@ if (data.data_type === 'player_position_update' && data.payload) {
     if (playerMarkers[steamid]) {
         // Update existing marker position
         playerMarkers[steamid].setLatLng([pos.x, pos.z]);
-        console.log('[MAP] Updated player marker:', steamid);
+
     } else {
         // Create new marker
         const marker = L.circleMarker([pos.x, pos.z], {
@@ -57,6 +57,6 @@ if (data.data_type === 'player_position_update' && data.payload) {
         });
 
         playerMarkers[steamid] = marker;
-        console.log('[MAP] Created new player marker:', steamid);
+
     }
 }

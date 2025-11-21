@@ -19,7 +19,7 @@ window.kickPlayerFromMap = function(steamid, playerName) {
              'confirmed': 'True'
          }]]
     );
-    console.log('[MAP] Kicking player:', steamid, 'Reason:', reason);
+
 };
 
 // Send message to player from map popup
@@ -37,7 +37,7 @@ window.messagePlayerFromMap = function(steamid, playerName) {
              'message': message
          }]]
     );
-    console.log('[MAP] Sending message to player:', steamid, 'Message:', message);
+
 };
 
 // Toggle player mute status from map popup
@@ -51,7 +51,7 @@ window.togglePlayerMuteFromMap = function(steamid, dataset, isMuted) {
              'mute_status': isMuted
          }]]
     );
-    console.log('[MAP] Toggling player mute status:', steamid, 'to', isMuted);
+
 };
 
 // Toggle player authentication status from map popup
@@ -65,7 +65,7 @@ window.togglePlayerAuthFromMap = function(steamid, dataset, isAuth) {
              'auth_status': isAuth
          }]]
     );
-    console.log('[MAP] Toggling player auth status:', steamid, 'to', isAuth);
+
 };
 
 // Teleport player from map popup - click to select destination
@@ -110,7 +110,7 @@ window.teleportPlayerFromMap = function(steamid, playerName) {
                     targetY = Math.round(parseFloat(teleportEntry.y));
                     targetZ = Math.round(parseFloat(teleportEntry.z));
                     foundLocationTeleport = true;
-                    console.log('[MAP] Using location teleport entry:', loc.name, 'at', targetX, targetY, targetZ);
+
                     break;
                 }
             }
@@ -135,7 +135,7 @@ window.teleportPlayerFromMap = function(steamid, playerName) {
              }]]
         );
 
-        console.log('[MAP] Teleporting player:', steamid, 'to', targetX, targetY, targetZ);
+
 
         // Cleanup
         map.getContainer().style.cursor = '';

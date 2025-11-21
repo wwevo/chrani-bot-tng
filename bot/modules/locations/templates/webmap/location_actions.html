@@ -15,7 +15,7 @@ window.editLocationFromMap = function(dataset, owner, identifier) {
              'action': 'edit_location_entry'
          }]]
     );
-    console.log('[MAP] Opening edit view for location:', identifier);
+
 };
 
 // Toggle enabled status from map popup
@@ -33,7 +33,7 @@ window.toggleLocationEnabled = function(dataset, owner, identifier, isChecked) {
              'action': action
          }]]
     );
-    console.log('[MAP] Toggling location enabled status:', identifier, 'to', isChecked);
+
 };
 
 // Move location to new position (relative teleport)
@@ -101,7 +101,7 @@ window.moveLocationFromMap = function(locationId) {
              }]]
         );
 
-        console.log('[MAP] Moved location to:', newX, newZ, 'Offset:', offsetX, offsetZ);
+
 
         // Cleanup
         map.getContainer().style.cursor = '';
@@ -163,7 +163,7 @@ window.setTeleportFromMap = function(locationId) {
              }]]
         );
 
-        console.log('[MAP] Set teleport to:', tpX, tpY, tpZ);
+
 
         // Cleanup
         map.getContainer().style.cursor = '';

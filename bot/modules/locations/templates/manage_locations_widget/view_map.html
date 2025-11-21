@@ -513,14 +513,14 @@
     // Create NEW handler function that captures current local scope
     // This must be recreated each time to access current locationShapes/playerMarkers
     window.mapDataHandler = function(data) {
-        console.log('[MAP] Received socket.io data:', data.data_type, data);
+
 
         // Map metadata (gameprefs, dataset info)
         if (data.data_type === 'map_metadata' && data.payload) {
             gameprefs = data.payload.gameprefs || {};
             activeDataset = data.payload.active_dataset || 'Unknown';
             updateLegend();
-            console.log('[MAP] Updated map metadata:', gameprefs, activeDataset);
+
         }
 
         // Player position updates
@@ -801,7 +801,7 @@
               }]]
         );
 
-        console.log('[MAP] Navigating to create location form with coordinates:', x, z);
+
 
         // Remove temp marker
         if (tempMarker) {
