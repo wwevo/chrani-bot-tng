@@ -290,7 +290,7 @@ def add_or_update_pattern_row(*args, **kwargs):
 
     logger.info(f"[DEBUG] add_or_update_pattern_row called with method={method}, updated_values_dict keys={updated_values_dict.keys() if updated_values_dict else 'None'}")
 
-    if method in ["upsert", "edit", "insert"]:
+    if method in ["upsert", "edit", "insert", "update"]:
         template_table_row = module.templates.get_template('telnet_log_widget/unmatched_patterns_table_row.html')
 
         for clientid in module.webserver.connected_clients.keys():
