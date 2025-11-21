@@ -107,12 +107,13 @@ class Trigger(object):
             current_time = time()
             pattern_data = {
                 "id": pattern_id,
+                "owner": pattern_id,
+                "identifier": pattern_id,
                 "pattern": pattern,
                 "example_line": telnet_line,
                 "first_seen": current_time,
                 "selected_by": [],
-                "dataset": map_identifier,
-                "owner": "telnet"
+                "dataset": map_identifier
             }
 
             # Store by pattern_id (not pattern string)

@@ -182,23 +182,23 @@ def unmatched_patterns_view(*args, **kwargs):
                     pattern_entry_selected = True
                     all_selected_elements_count += 1
 
-                # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
-                pattern_dict_for_template = pattern_data.copy()
-                pattern_dict_for_template["dataset"] = module.dom_management.sanitize_for_html_id(map_identifier)
-                pattern_dict_for_template["dataset_original"] = map_identifier
-                pattern_dict_for_template["id"] = pattern_id
-                pattern_dict_for_template["name"] = pattern_data.get("pattern", "")
-                pattern_dict_for_template["type"] = pattern_data.get("example_line", "")
-
+                # Generate control_select_link FIRST with original pattern_data
                 control_select_link = module.dom_management.get_selection_dom_element(
                     module,
                     target_module="module_telnet",
-                    dom_element_select_root=["unmatched_patterns", map_identifier, pattern_id, "selected_by"],
-                    dom_element=pattern_dict_for_template,
+                    dom_element_select_root=["selected_by"],
+                    dom_element=pattern_data,
                     dom_element_entry_selected=pattern_entry_selected,
                     dom_action_inactive="select_dom_element",
                     dom_action_active="deselect_dom_element"
                 )
+
+                # THEN create template dict with sanitized dataset
+                pattern_dict_for_template = pattern_data.copy()
+                pattern_dict_for_template["dataset"] = module.dom_management.sanitize_for_html_id(map_identifier)
+                pattern_dict_for_template["dataset_original"] = map_identifier
+                pattern_dict_for_template["name"] = pattern_data.get("pattern", "")
+                pattern_dict_for_template["type"] = pattern_data.get("example_line", "")
 
                 table_rows_list.append(module.template_render_hook(
                     module,
@@ -256,24 +256,19 @@ def unmatched_patterns_view(*args, **kwargs):
 def update_unmatched_patterns_selection_status(*args, **kwargs):
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", None)
-    pattern_identifier = updated_values_dict["identifier"]
-    map_identifier = updated_values_dict["dataset"]
 
     # Sanitize dataset for HTML ID (replace spaces with underscores, lowercase)
-    sanitized_dataset = module.dom_management.sanitize_for_html_id(map_identifier)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
 
     module.dom_management.update_selection_status(
         *args, **kwargs,
         target_module=module,
-        dom_element_root=["unmatched_patterns", map_identifier, pattern_identifier],
-        dom_element_select_root=["unmatched_patterns", map_identifier, pattern_identifier, "selected_by"],
         dom_action_active="deselect_dom_element",
         dom_action_inactive="select_dom_element",
         dom_element_id={
-            "id": "unmatched_pattern_table_row_{}_{}_{}_control_select_link".format(
+            "id": "unmatched_pattern_table_row_{}_{}_control_select_link".format(
                 sanitized_dataset,
-                updated_values_dict["owner"],
-                pattern_identifier
+                updated_values_dict["identifier"]
             )
         }
     )
