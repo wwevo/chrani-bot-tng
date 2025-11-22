@@ -43,6 +43,10 @@ def main_function(origin_module, module, regex_result):
         module.trigger_action_hook(origin_module, event_data=event_data)
         return
 
+    # Log full stats to server logs
+    logger.info("profiling_report_requested", user=player_steamid)
+    logger.info("profiling_report_header", message="═══ Performance Profiling Report ═══")
+
     # Sort by average time (slowest first)
     sorted_metrics = sorted(
         all_stats.items(),
@@ -50,32 +54,26 @@ def main_function(origin_module, module, regex_result):
         reverse=True
     )
 
-    # Send header
+    # Log all metrics to console/logs
+    profiler.log_stats()
+
+    # Also print a summary to logs
+    logger.info("profiling_top_3_slowest", message="Top 3 Slowest Operations:")
+    for metric_name, stats in sorted_metrics[:3]:
+        if stats:
+            logger.info("profiling_metric_summary",
+                       metric=metric_name,
+                       avg_ms=round(stats['avg']*1000, 2),
+                       p95_ms=round(stats['p95']*1000, 2),
+                       max_ms=round(stats['max']*1000, 2),
+                       count=stats['count'])
+
+    # Send confirmation to player
     event_data = ['say_to_player', {
         'steamid': player_steamid,
-        'message': '[66FF66]═══ Performance Profiling Report ═══[-]'
+        'message': '[66FF66]Profiling stats written to server logs![-]'
     }]
     module.trigger_action_hook(origin_module, event_data=event_data)
-
-    # Send top 10 metrics
-    for metric_name, stats in sorted_metrics[:10]:
-        if stats:
-            message = (
-                f"[FFFFFF]{metric_name}:[-] "
-                f"[FFFF00]avg={stats['avg']*1000:.1f}ms[-] "
-                f"[AAFFAA]p95={stats['p95']*1000:.1f}ms[-] "
-                f"[FFAAAA]max={stats['max']*1000:.1f}ms[-] "
-                f"({stats['count']} calls)"
-            )
-            event_data = ['say_to_player', {
-                'steamid': player_steamid,
-                'message': message
-            }]
-            module.trigger_action_hook(origin_module, event_data=event_data)
-
-    # Log full stats to server logs
-    logger.info("profiling_report_requested", user=player_steamid)
-    profiler.log_stats()
 
 
 triggers = {
