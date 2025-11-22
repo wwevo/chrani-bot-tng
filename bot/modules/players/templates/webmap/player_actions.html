@@ -40,20 +40,6 @@ window.messagePlayerFromMap = function(steamid, playerName) {
 
 };
 
-// Toggle player mute status from map popup
-window.togglePlayerMuteFromMap = function(steamid, dataset, isMuted) {
-    window.socket.emit(
-        'widget_event',
-        ['players',
-         ['toggle_player_mute', {
-             'steamid': steamid,
-             'dataset': dataset,
-             'mute_status': isMuted
-         }]]
-    );
-
-};
-
 // Toggle player authentication status from map popup
 window.togglePlayerAuthFromMap = function(steamid, dataset, isAuth) {
     window.socket.emit(

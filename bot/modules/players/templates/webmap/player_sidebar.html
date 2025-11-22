@@ -42,20 +42,13 @@ function showPlayerInSidebar(steamid, player) {
             <br><b style="color: var(--lcars-hopbush);">👥 Players:</b> ${player.players} | <b style="color: var(--lcars-hopbush);">📡 Ping:</b> ${player.ping}ms
         </div>
         <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--lcars-anakiwa);">
-            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
-                    <input type="checkbox"
-                        ${player.is_muted ? 'checked' : ''}
-                        onchange="togglePlayerMuteFromMap('${steamid}', this.checked)"
-                        style="cursor: pointer; width: 16px; height: 16px;" />
-                    <span style="font-weight: bold; font-size: 0.9em;">🔇 Muted</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
+            <div style="margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
                     <input type="checkbox"
                         ${player.is_authenticated ? 'checked' : ''}
-                        onchange="togglePlayerAuthFromMap('${steamid}', this.checked)"
+                        onchange="togglePlayerAuthFromMap('${steamid}', '${player.dataset}', this.checked)"
                         style="cursor: pointer; width: 16px; height: 16px;" />
-                    <span style="font-weight: bold; font-size: 0.9em;">✅ Auth</span>
+                    <span style="font-weight: bold; font-size: 0.9em;">✅ Authenticated</span>
                 </label>
             </div>
             <button onclick="messagePlayerFromMap('${steamid}', '${player.name.replace(/'/g, "\\'")}', event)"
