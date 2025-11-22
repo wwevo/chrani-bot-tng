@@ -44,8 +44,8 @@ DEFAULT_OBSERVER_INTERVAL = 0.1     # Default module polling interval (seconds)
 # WebSocket Settings
 # =============================================================================
 
-WEBSOCKET_PING_TIMEOUT = 15         # WebSocket ping timeout (seconds)
-WEBSOCKET_PING_INTERVAL = 5         # WebSocket ping interval (seconds)
+WEBSOCKET_PING_TIMEOUT = 10         # WebSocket ping timeout (seconds)
+WEBSOCKET_PING_INTERVAL = 3         # WebSocket ping interval (seconds)
 
 # =============================================================================
 # Thread Pool Settings

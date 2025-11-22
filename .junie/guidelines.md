@@ -1,11 +1,11 @@
 # Project Guidelines
 
-* Antwort bitte maximal 3 Sätze, keine Nachfragen.
-* Keine Status‑Updates, nur direkte Antwort.
-* Nichts ausführen/keine Tools, nur [CHAT]-Antwort.
+* Keine übrerlangen Status‑Updates.
 * Keine Code‑Änderungen ohne meine explizite Freigabe.
 * Vor jeder längeren Antwort erst Rückfrage stellen.
+* Read-only Terminal Befehle darfst du immer ungefragt ausführen.
 * Jeden Plan bestätigen lassen.
+* Keine Zeitschätzungen.
 
 ## Projektüberblick (kurz)
 Folgende Dateien und Ordner gehören NICHT zum Projekt und werden niemals durchsucht: 

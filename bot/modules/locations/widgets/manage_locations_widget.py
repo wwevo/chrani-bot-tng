@@ -1,12 +1,9 @@
 from bot import loaded_modules_dict
 from os import path, pardir
-import json
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
-# View Registry - defines all available views and their navigation labels
-# This eliminates the need for separate template files for each button
 VIEW_REGISTRY = {
     'frontend': {
         'label_active': 'back',

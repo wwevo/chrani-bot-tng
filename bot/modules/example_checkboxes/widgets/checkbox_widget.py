@@ -39,9 +39,36 @@ from os import path, pardir
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
+VIEW_REGISTRY = {
+    'frontend': {
+        'label_active': 'back',
+        'label_inactive': 'main',
+        'action': 'show_frontend',
+        'include_in_menu': False
+    },
+    'options': {
+        'label_active': 'back',
+        'label_inactive': 'options',
+        'action': 'show_options',
+        'include_in_menu': True
+    }
+}
+
 
 def select_view(*args, **kwargs):
-    """Main entry point - shows the table"""
+    """Main entry point - router for different views"""
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+    
+    current_view = module.get_current_view(dispatchers_steamid)
+    if current_view == "options":
+        options_view(module, dispatchers_steamid=dispatchers_steamid)
+    else:
+        frontend_view(module, dispatchers_steamid=dispatchers_steamid)
+
+
+def frontend_view(*args, **kwargs):
+    """Shows the checkbox table"""
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
@@ -50,9 +77,13 @@ def select_view(*args, **kwargs):
     template_table_header = module.templates.get_template('checkbox_widget/table_header.html')
     template_table_row = module.templates.get_template('checkbox_widget/table_row.html')
     template_table_footer = module.templates.get_template('checkbox_widget/table_footer.html')
+    template_view_menu = module.templates.get_template('checkbox_widget/control_view_menu.html')
 
     # Get all elements from DOM
     all_elements = module.dom.data.get("module_example_checkboxes", {}).get("elements", {})
+    
+    # Get current view for view menu
+    current_view = module.get_current_view(dispatchers_steamid)
 
     # Build table rows
     table_rows_list = []
@@ -90,15 +121,68 @@ def select_view(*args, **kwargs):
 
     table_rows = ''.join(table_rows_list) if table_rows_list else '<tr><td colspan="3">No items yet</td></tr>'
 
+    # Render view menu
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid
+    )
+
     # Render complete view
     data_to_emit = module.template_render_hook(
         module,
         template=template_main,
+        options_toggle=options_toggle,
         table_header=module.template_render_hook(module, template=template_table_header),
         table_rows=table_rows,
         table_footer=module.template_render_hook(module, template=template_table_footer)
     )
 
+    # Send to client
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "checkbox_widget",
+            "type": "div",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def options_view(*args, **kwargs):
+    """Shows the options view"""
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+    
+    # Load templates
+    template_options = module.templates.get_template('checkbox_widget/view_options.html')
+    template_view_menu = module.templates.get_template('checkbox_widget/control_view_menu.html')
+    
+    # Get current view for view menu
+    current_view = module.get_current_view(dispatchers_steamid)
+    
+    # Render view menu
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_view_menu,
+        views=VIEW_REGISTRY,
+        current_view=current_view,
+        steamid=dispatchers_steamid
+    )
+    
+    # Render options view
+    data_to_emit = module.template_render_hook(
+        module,
+        template=template_options,
+        options_toggle=options_toggle
+    )
+    
     # Send to client
     module.webserver.send_data_to_client_hook(
         module,

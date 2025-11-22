@@ -1,7 +1,3 @@
-body > main > div > #manage_entities_widget > main > table > tbody > tr > td[id$='_name'] {
-    width: 100%;
-}
-
 body > main > div > #manage_entities_widget tbody#entity_table > tr:hover * {
     background-color: var(--lcars-tanoi);
     color: var(--background)

@@ -3,9 +3,11 @@
 @import url("413-main_widgets_manage_players_widget.css");
 @import url("414-main_widgets_manage_locations_widget.css");
 @import url("415-main_widgets_manage_entities_widget.css");
+@import url("416-main_widgets_example_checkboxes.css");
 
-body > main > div > .widget > main {
+body > main > div > .widget {
     position: relative;
+    width: 100%;
 }
 
 body > main > div > .widget main a {
@@ -422,45 +424,4 @@ body > main > div > .widget > main tr td[id$="_actions"] > span:last-child {
 /* making the standard order the middle instead of 0 */
 body > main > div > .widget {
     order: 500;
-}
-
-body > main > div > #manage_players_widget {
-    order: -4;
-    flex: 1 0 calc(
-        960px
-        - var(--main_table_gutter) * 2
-        - var(--main_bar_terminator_width)
-    );
-}
-
-body > main > div > #webserver_status_widget {
-    order: -3;
-    flex: 1 0 calc(
-        480px
-        - var(--main_table_gutter) * 2
-    );
-}
-
-body > main > div > #manage_locations_widget {
-    order: -2;
-    flex: 1 0 calc(
-        860px
-        - var(--main_table_gutter) * 2
-    );
-}
-
-body > main > div > #manage_entities_widget {
-    order: -1;
-    flex: 1 0 calc(
-        768px
-        - var(--main_table_gutter) * 2
-    );
-}
-
-body > main > div > #telnet_log_widget {
-    order: 999;
-    flex: 1 0 calc(
-        768px
-        - var(--main_table_gutter) * 2
-    );
 }

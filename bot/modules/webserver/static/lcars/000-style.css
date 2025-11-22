@@ -3,3 +3,4 @@
 @import url("300-header.css");
 @import url("400-main.css");
 @import url("500-footer.css");
+@import url("600-system.css"); /* system state styles for connection feedback */

@@ -1,6 +1,6 @@
 {% set teleport_entry = location_dict.teleport_entry|default({}) %}
 {% set pos_x = teleport_entry.x|default("0") %}
-{% set pos_y = teleport_entry.y|default("0") %}
+{% set pos_y = teleport_entry.y|default("-1") %}
 {% set pos_z = teleport_entry.z|default("0") %}
 <table class="box_input">
     <thead>

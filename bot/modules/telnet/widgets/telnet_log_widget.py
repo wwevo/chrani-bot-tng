@@ -4,8 +4,6 @@ from os import path, pardir
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
-
-# View Registry (mirrors locations menu pattern, but only one visible button here)
 VIEW_REGISTRY = {
     'frontend': {
         'label_active': 'back',
@@ -68,7 +66,6 @@ def frontend_view(*args, **kwargs):
     telnet_log_frontend = module.templates.get_template('telnet_log_widget/view_telnet_log.html')
     template_table_header = module.templates.get_template('telnet_log_widget/telnet_log_table_header.html')
     log_line = module.templates.get_template('telnet_log_widget/telnet_log_line.html')
-
     # new view menu (pattern from locations module)
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
 

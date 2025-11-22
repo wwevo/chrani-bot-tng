@@ -5,16 +5,52 @@
 {%- set inactive_text = inactive_text|default(none) -%}
 {%- set activate_event = activate_event|default(none) -%}
 {%- if bool == true -%}
-    {%- if deactivate_event != none and activate_event != none -%}
-    <span class="active"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
-    {%- elif deactivate_event != none and activate_event == none -%}
-    <span class="active"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
-    {%- endif -%}
-{%- else -%}
-    {%- if deactivate_event != none and activate_event != none -%}
-    <span class="inactive"><a href="#" onclick="window.socket.emit('{{ activate_event[0] }}', {{ activate_event[1] }}); return false;">{{ inactive_text }}</a></span>
-    {%- elif deactivate_event != none and activate_event == none -%}
-    <span class="inactive"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
-    {%- endif -%}
+{%- if deactivate_event != none and activate_event != none -%}
+<span class="active"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+{%- elif deactivate_event != none and activate_event == none -%}
+<span class="active"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
 {%- endif -%}
+{%- else -%}
+{%- if deactivate_event != none and activate_event != none -%}
+<span class="inactive"><a href="#" onclick="window.socket.emit('{{ activate_event[0] }}', {{ activate_event[1] }}); return false;">{{ inactive_text }}</a></span>
+{%- elif deactivate_event != none and activate_event == none -%}
+<span class="inactive"><a href="#" onclick="window.socket.emit('{{ deactivate_event[0] }}', {{ deactivate_event[1] }}); return false;">{{ active_text }}</a></span>
+{%- endif -%}
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro construct_view_menu(views, current_view, module_name, steamid, default_view='frontend') -%}
+{#
+Dynamically construct a navigation menu for widget views.
+
+Parameters:
+views: Dict of view configurations
+Example: {
+'frontend': {'label_active': 'back', 'label_inactive': 'main', 'action': 'show_frontend'},
+'options': {'label_active': 'back', 'label_inactive': 'options', 'action': 'show_options'}
+}
+current_view: Current active view name (string)
+module_name: Module name for socket.io event (e.g., 'locations')
+steamid: User's steamid for action parameters
+default_view: View to return to when deactivating (default: 'frontend')
+#}
+{%- for view_id, config in views.items() -%}
+{%- if config.get('include_in_menu', True) -%}
+{%- set is_active = (current_view == view_id) -%}
+{%- set label_active = config.get('label_active', config.get('label', 'back')) -%}
+{%- set label_inactive = config.get('label_inactive', config.get('label', view_id)) -%}
+{%- set action = config.get('action', 'show_' ~ view_id) -%}
+{%- set default_action = config.get('default_action', 'show_' ~ default_view) -%}
+
+<div>
+    {{ construct_toggle_link(
+    is_active,
+    label_active,
+    ['widget_event', [module_name, ['toggle_' ~ module_name ~ '_widget_view', {'steamid': steamid, 'action': default_action}]]],
+    label_inactive,
+    ['widget_event', [module_name, ['toggle_' ~ module_name ~ '_widget_view', {'steamid': steamid, 'action': action}]]]
+    )}}
+</div>
+{%- endif -%}
+{%- endfor -%}
 {%- endmacro -%}

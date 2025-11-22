@@ -270,35 +270,116 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }, 20)
     };
 
-    //connect to the socket server.
+    //connect to the socket server with improved configuration
     window.socket = io.connect(
         'http://' + document.domain + ':' + location.port, {
-            'sync disconnect on unload': true
+            // Connection behavior
+            reconnection: true,              // Enable auto-reconnection
+            reconnectionDelay: 1000,         // Start with 1s delay
+            reconnectionDelayMax: 5000,      // Max 5s between attempts
+            reconnectionAttempts: Infinity,   // Keep trying forever
+            
+            // Timeouts
+            timeout: 10000,                  // 10s connection timeout
+            
+            // Transport preferences
+            transports: ['websocket', 'polling'],  // Try websocket first, fallback to polling
+            upgrade: true,                   // Allow transport upgrades
+            
+            // Other settings
+            'sync disconnect on unload': true,
+            autoConnect: true,
+            forceNew: false                  // Reuse connection if possible
         }
     );
 
-    window.socket.on('connected', function() {
-        window.socket.emit('ding');
+    // Connection state management
+    let connectionState = {
+        connected: false,
+        reconnecting: false,
+        lastDisconnect: null
+    };
+
+    // Helper to show connection status
+    function showConnectionStatus(state, message) {
+        let statusElement = document.getElementById('connection-status');
+        if (!statusElement) {
+            statusElement = document.createElement('div');
+            statusElement.id = 'connection-status';
+            statusElement.style.cssText = 'position:fixed;top:10px;right:10px;padding:10px 20px;border-radius:5px;z-index:9999;font-weight:bold;';
+            document.body.appendChild(statusElement);
+        }
+        
+        const colors = {
+            connected: '#00ff00',
+            disconnected: '#ff6600',
+            reconnecting: '#ffcc00',
+            failed: '#ff0000'
+        };
+        
+        statusElement.style.backgroundColor = colors[state] || '#666';
+        statusElement.textContent = message;
+        
+        if (state === 'connected') {
+            setTimeout(() => statusElement.remove(), 3000);
+        }
+    }
+
+    // Connection established
+    window.socket.on('connect', function() {
+        console.log('[SOCKET] Connected, SID:', socket.id);
+        connectionState.connected = true;
+        connectionState.reconnecting = false;
+        
+        // Show connection restored indicator if this was a reconnection
+        if (connectionState.lastDisconnect) {
+            play_audio_file("computerbeep_11");
+            showConnectionStatus('connected', 'Verbindung wiederhergestellt');
+            
+            // Request full page refresh to resync state
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
     });
 
-    let start_time = (new Date).getTime();
-    const PING_TIMEOUT_THRESHOLD = 5000;  // Only log if ping takes >5 seconds
+    // Connection lost
+    window.socket.on('disconnect', function(reason) {
+        console.warn('[SOCKET] Disconnected. Reason:', reason);
+        connectionState.connected = false;
+        connectionState.lastDisconnect = new Date();
+        
+        play_audio_file("alarm03");
+        showConnectionStatus('disconnected', 'Verbindung verloren - Versuche Wiederverbindung...');
+        
+        // Disable all interactive elements
+        document.body.classList.add('connection-lost');
+    });
 
-    window.setInterval(function() {
-        start_time = (new Date).getTime();
-        socket.emit('ding');
-        play_audio_file("processing");
-        // No log for normal ping - would be spam (every 10 seconds)
-    }, 10000);
+    // Reconnection attempt
+    window.socket.on('reconnect_attempt', function(attemptNumber) {
+        console.log('[SOCKET] Reconnection attempt:', attemptNumber);
+        connectionState.reconnecting = true;
+        showConnectionStatus('reconnecting', 'Wiederverbindung... Versuch ' + attemptNumber);
+    });
 
+    // Reconnection failed
+    window.socket.on('reconnect_failed', function() {
+        console.error('[SOCKET] Reconnection failed permanently');
+        play_audio_file("computer_error");
+        showConnectionStatus('failed', 'Verbindung fehlgeschlagen. Bitte Seite neu laden.');
+    });
+
+    // Connection errors
+    window.socket.on('connect_error', function(error) {
+        console.error('[SOCKET] Connection error:', error);
+        play_audio_file("computer_error");
+    });
+
+    // Keep ding/dong handlers for backward compatibility, but removed the timer
+    // Socket.IO's built-in ping/pong handles connection health
     window.socket.on('dong', function() {
-        let latency = (new Date).getTime() - start_time;
         play_audio_file("keyok1");
-
-        // Only log slow pings
-        if (latency > PING_TIMEOUT_THRESHOLD) {
-            console.warn("[PING] Slow response: " + latency + "ms (threshold: " + PING_TIMEOUT_THRESHOLD + "ms)");
-        }
     });
 
     // Session conflict handling

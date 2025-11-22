@@ -499,12 +499,29 @@ class Webserver(Module):
                     emit('session_accepted', room=request.sid)
                     for module in loaded_modules_dict.values():
                         module.on_socket_connect(current_user.id)
+                    return None
 
         @self.websocket.on('disconnect')
         def disconnect_handler():
             # Remove this socket from the user's socket list
             if current_user.is_authenticated and current_user.id in self.connected_clients:
-                self.connected_clients[current_user.id].remove_socket(request.sid)
+                user = self.connected_clients[current_user.id]
+                user.remove_socket(request.sid)
+                
+                # If user has no more active sockets, notify modules and clean up
+                if len(user.socket_ids) == 0:
+                    logger.info("user_fully_disconnected", 
+                               user=current_user.id,
+                               sid=request.sid)
+                    
+                    # Notify all modules about disconnection
+                    for module in loaded_modules_dict.values():
+                        module.on_socket_disconnect(current_user.id)
+                else:
+                    logger.debug("socket_disconnected_but_user_has_other_sessions",
+                                user=current_user.id,
+                                sid=request.sid,
+                                remaining_sockets=len(user.socket_ids))
 
         @self.websocket.on('ding')
         def ding_dong():
@@ -564,8 +581,20 @@ class Webserver(Module):
 
         @self.websocket.on('widget_event')
         @self.authenticated_only
-        def widget_event(data):
-            self.dispatch_socket_event(data[0], data[1], current_user.id)
+        def widget_event(data, callback=None):
+            try:
+                self.dispatch_socket_event(data[0], data[1], current_user.id)
+                
+                # Acknowledge successful receipt
+                if callback:
+                    callback({'status': 'received'})
+            except Exception as error:
+                logger.error("widget_event_error", 
+                            user=current_user.id,
+                            error=str(error),
+                            error_type=type(error).__name__)
+                if callback:
+                    callback({'status': 'error', 'message': str(error)})
         # endregion
 
         # Check if we're running under a WSGI server (like gunicorn)
