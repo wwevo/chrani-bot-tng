@@ -1,0 +1,52 @@
+/* ========================================================================
+   SYSTEM STATE STYLES
+   ========================================================================
+   Visual feedback for connection states and system status
+   ======================================================================== */
+
+/* Connection lost state - disable interactions and show visual feedback */
+body.connection-lost {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+body.connection-lost::after {
+    content: "VERBINDUNG VERLOREN";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(204, 102, 102, 0.95);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 10000;
+    animation: pulse 1s infinite;
+    font-family: 'SWISS 911 Ultra Compressed BT', Arial, sans-serif;
+    letter-spacing: 2px;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.02);
+    }
+}
+
+/* Connection status indicator positioning and styling */
+#connection-status {
+    font-family: 'SWISS 911 Ultra Compressed BT', Arial, sans-serif;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+#connection-status:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
