@@ -24,6 +24,7 @@ import re
 from bot import loaded_modules_dict
 from bot.constants import CALLBACK_THREAD_POOL_SIZE
 from bot.logger import get_logger
+from bot.profiler import profiler
 
 logger = get_logger("telnet")
 class CallbackDict(dict):
@@ -241,33 +242,34 @@ class CallbackDict(dict):
             min_callback_level: Minimum depth level for callbacks
             max_callback_level: Maximum depth level for callbacks
         """
-        if not isinstance(updates, Mapping) or not updates:
-            return
+        with profiler.measure("dom_upsert_total"):
+            if not isinstance(updates, Mapping) or not updates:
+                return
 
-        # Make a snapshot of current state before any changes
-        original_state = deepcopy(dict(self))
+            # Make a snapshot of current state before any changes
+            original_state = deepcopy(dict(self))
 
-        # Determine max depth if not specified
-        if max_callback_level is None:
-            max_callback_level = self._calculate_depth(updates)
+            # Determine max depth if not specified
+            if max_callback_level is None:
+                max_callback_level = self._calculate_depth(updates)
 
-        # Collect all callbacks that will be triggered
-        all_callbacks = []
+            # Collect all callbacks that will be triggered
+            all_callbacks = []
 
-        # Process updates recursively
-        self._upsert_recursive(
-            current_dict=self,
-            updates=updates,
-            original_state=original_state,
-            path_components=[],
-            callbacks_accumulator=all_callbacks,
-            dispatchers_steamid=dispatchers_steamid,
-            min_depth=min_callback_level,
-            max_depth=max_callback_level
-        )
+            # Process updates recursively
+            self._upsert_recursive(
+                current_dict=self,
+                updates=updates,
+                original_state=original_state,
+                path_components=[],
+                callbacks_accumulator=all_callbacks,
+                dispatchers_steamid=dispatchers_steamid,
+                min_depth=min_callback_level,
+                max_depth=max_callback_level
+            )
 
-        # Execute all collected callbacks
-        self._execute_callbacks(all_callbacks)
+            # Execute all collected callbacks
+            self._execute_callbacks(all_callbacks)
 
     def _upsert_recursive(
         self,
