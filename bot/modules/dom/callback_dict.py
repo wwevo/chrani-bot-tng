@@ -247,8 +247,7 @@ class CallbackDict(dict):
                 return
 
             # Make a snapshot of current state before any changes
-            with profiler.measure("dom_deepcopy"):
-                original_state = deepcopy(dict(self))
+            original_state = deepcopy(dict(self))
 
             # Determine max depth if not specified
             if max_callback_level is None:
@@ -258,25 +257,19 @@ class CallbackDict(dict):
             all_callbacks = []
 
             # Process updates recursively
-            with profiler.measure("dom_collect_callbacks"):
-                self._upsert_recursive(
-                    current_dict=self,
-                    updates=updates,
-                    original_state=original_state,
-                    path_components=[],
-                    callbacks_accumulator=all_callbacks,
-                    dispatchers_steamid=dispatchers_steamid,
-                    min_depth=min_callback_level,
-                    max_depth=max_callback_level
-                )
+            self._upsert_recursive(
+                current_dict=self,
+                updates=updates,
+                original_state=original_state,
+                path_components=[],
+                callbacks_accumulator=all_callbacks,
+                dispatchers_steamid=dispatchers_steamid,
+                min_depth=min_callback_level,
+                max_depth=max_callback_level
+            )
 
             # Execute all collected callbacks
-            with profiler.measure("dom_submit_callbacks"):
-                self._execute_callbacks(all_callbacks)
-
-            # Log callback count for visibility
-            if all_callbacks:
-                logger.debug("dom_upsert_callbacks_submitted", count=len(all_callbacks))
+            self._execute_callbacks(all_callbacks)
 
     def _upsert_recursive(
         self,

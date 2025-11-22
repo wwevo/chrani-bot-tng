@@ -1,45 +1,51 @@
 """
-Performance Profiler for chrani-bot-tng
+Minimal performance profiler for chrani-bot-tng
 
-Instruments critical paths to measure timing and identify bottlenecks.
+Only active when PROFILING_ENABLED=true environment variable is set.
 """
 
-from time import time
+import os
+from time import time, sleep
 from collections import defaultdict, deque
-from threading import Lock
-from bot.logger import get_logger
-
-logger = get_logger("profiler")
+from threading import Lock, Thread
+from datetime import datetime
 
 
 class Profiler:
-    """
-    Lightweight profiler to track timing of critical operations.
-
-    Usage:
-        with profiler.measure("operation_name"):
-            # code to profile
-            pass
-    """
-
-    def __init__(self, max_samples_per_metric=100):
+    def __init__(self):
         self._metrics = defaultdict(lambda: {
             "count": 0,
             "total_time": 0,
             "min_time": float('inf'),
             "max_time": 0,
-            "samples": deque(maxlen=max_samples_per_metric)
+            "samples": deque(maxlen=100)
         })
         self._lock = Lock()
-        self._enabled = True
+        self._enabled = os.getenv('PROFILING_ENABLED', '').lower() == 'true'
+        self._log_file = None
+        self._writer_thread = None
 
-    def enable(self):
-        """Enable profiling."""
-        self._enabled = True
+        if self._enabled:
+            # Create log file with timestamp
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'diagnostic_logs')
+            os.makedirs(log_dir, exist_ok=True)
+            self._log_file = os.path.join(log_dir, f'profiling_{timestamp}.log')
 
-    def disable(self):
-        """Disable profiling (no overhead)."""
-        self._enabled = False
+            # Write header
+            with open(self._log_file, 'w') as f:
+                f.write(f"Profiling started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                f.write("=" * 80 + "\n\n")
+
+            # Start background writer thread
+            self._writer_thread = Thread(target=self._periodic_writer, daemon=True)
+            self._writer_thread.start()
+
+    def _periodic_writer(self):
+        """Background thread that writes stats every 30 seconds."""
+        while True:
+            sleep(30)
+            self.write_stats()
 
     def measure(self, metric_name):
         """Context manager for measuring execution time."""
@@ -67,59 +73,36 @@ class Profiler:
 
             avg = metric["total_time"] / metric["count"]
 
-            # Calculate median from samples
-            samples = sorted(metric["samples"])
-            if samples:
-                mid = len(samples) // 2
-                median = samples[mid] if len(samples) % 2 else (samples[mid-1] + samples[mid]) / 2
-            else:
-                median = 0
-
             # Calculate p95 (95th percentile)
+            samples = sorted(metric["samples"])
             p95_idx = int(len(samples) * 0.95)
             p95 = samples[p95_idx] if samples else 0
 
             return {
                 "count": metric["count"],
-                "total": metric["total_time"],
                 "avg": avg,
-                "min": metric["min_time"],
-                "max": metric["max_time"],
-                "median": median,
-                "p95": p95
+                "p95": p95,
+                "max": metric["max_time"]
             }
 
-    def get_all_stats(self):
-        """Get statistics for all metrics."""
+    def write_stats(self):
+        """Write current stats to log file."""
+        if not self._enabled or not self._log_file:
+            return
+
         with self._lock:
-            stats = {}
-            for name in self._metrics.keys():
-                stats[name] = self.get_stats(name)
-            return stats
-
-    def log_stats(self, metric_names=None):
-        """Log statistics to logger."""
-        if metric_names is None:
-            metric_names = list(self._metrics.keys())
-
-        for name in metric_names:
-            stats = self.get_stats(name)
-            if stats:
-                logger.info(
-                    "profiler_stats",
-                    metric=name,
-                    count=stats["count"],
-                    avg_ms=round(stats["avg"] * 1000, 2),
-                    median_ms=round(stats["median"] * 1000, 2),
-                    p95_ms=round(stats["p95"] * 1000, 2),
-                    min_ms=round(stats["min"] * 1000, 2),
-                    max_ms=round(stats["max"] * 1000, 2)
-                )
-
-    def reset(self):
-        """Reset all metrics."""
-        with self._lock:
-            self._metrics.clear()
+            timestamp = datetime.now().strftime('%H:%M:%S')
+            with open(self._log_file, 'a') as f:
+                for metric_name in self._metrics.keys():
+                    stats = self.get_stats(metric_name)
+                    if stats:
+                        f.write(
+                            f"[{timestamp}] {metric_name}: "
+                            f"count={stats['count']} "
+                            f"avg={stats['avg']*1000:.2f}ms "
+                            f"p95={stats['p95']*1000:.2f}ms "
+                            f"max={stats['max']*1000:.2f}ms\n"
+                        )
 
 
 class _ProfilerContext:
