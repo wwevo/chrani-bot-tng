@@ -474,6 +474,48 @@ class Webserver(Module):
                             error_type=type(e).__name__)
                 return Response(status=404)
 
+        @self.app.route('/profiling')
+        def profiling_stats():
+            """Display profiling statistics as plain text"""
+            from bot.profiler import profiler
+            from datetime import datetime
+
+            all_stats = profiler.get_all_stats()
+            sorted_metrics = sorted(
+                all_stats.items(),
+                key=lambda x: x[1]['avg'] if x[1] else 0,
+                reverse=True
+            )
+
+            lines = []
+            lines.append("=" * 80)
+            lines.append("Performance Profiling Statistics")
+            lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            lines.append("=" * 80)
+            lines.append("")
+
+            if sorted_metrics:
+                lines.append("TOP 3 SLOWEST:")
+                for i, (name, stats) in enumerate(sorted_metrics[:3]):
+                    if stats:
+                        lines.append(f"  {i+1}. {name}: avg={stats['avg']*1000:.2f}ms p95={stats['p95']*1000:.2f}ms")
+                lines.append("")
+
+            lines.append(f"{'Metric':<40} {'Count':>8} {'Avg':>10} {'P95':>10} {'Max':>10}")
+            lines.append("-" * 80)
+
+            for name, stats in sorted_metrics:
+                if stats:
+                    lines.append(
+                        f"{name:<40} {stats['count']:>8} "
+                        f"{stats['avg']*1000:>9.2f}ms {stats['p95']*1000:>9.2f}ms {stats['max']*1000:>9.2f}ms"
+                    )
+
+            if not sorted_metrics:
+                lines.append("No profiling data yet.")
+
+            return Response('\n'.join(lines), mimetype='text/plain')
+
         # endregion
 
         # region Websocket handling

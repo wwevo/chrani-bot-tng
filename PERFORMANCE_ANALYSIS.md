@@ -115,16 +115,13 @@ The new profiling system tracks:
 
 ### How To Use
 
-1. **In-game command** (admin only):
+1. **Web endpoint** (recommended):
    ```
-   /profiling
+   http://localhost:5000/profiling
    ```
-   Shows top 10 slowest operations with avg/p95/max times
+   Shows all profiling stats in plain text format, sorted by average time
 
-2. **Check server logs:**
-   All detailed profiling data is logged automatically
-
-3. **Programmatic access:**
+2. **Programmatic access:**
    ```python
    from bot.profiler import profiler
 
