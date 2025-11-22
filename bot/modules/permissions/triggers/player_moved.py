@@ -37,6 +37,11 @@ def main_function(*args, **kwargs):
         if on_the_move_player_dict.get("is_online", False) is False:
             return
 
+        # Prevent feedback loop: Don't teleport if already pending
+        player_steamid = on_the_move_player_dict.get("steamid")
+        if player_steamid in module.players.pending_teleports:
+            return
+
         pos_is_inside_coordinates = module.locations.position_is_inside_boundary(updated_values_dict, lobby_dict)
         if pos_is_inside_coordinates is True:
             # nothing to do, we are inside the lobby
@@ -50,7 +55,7 @@ def main_function(*args, **kwargs):
                 "y": lobby_dict["coordinates"]["y"],
                 "z": lobby_dict["coordinates"]["z"]
             },
-            'steamid': on_the_move_player_dict.get("steamid")
+            'steamid': player_steamid
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)
 

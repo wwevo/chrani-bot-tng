@@ -77,24 +77,24 @@ def main_function(origin_module, module, regex_result):
             module.trigger_action_hook(origin_module.players, event_data=event_data)
     elif command == "Teleport":
         update_player_pos = True
-        
+
         # Check if this teleport was pending (event-based completion)
         player_steamid = regex_result.group("player_steamid")
-        
+
         # Access players module (not origin_module which might be game_environment)
         players_module = loaded_modules_dict.get("module_players")
         if players_module is None:
             logger.error("teleport_callback_players_module_not_found", steamid=player_steamid)
             return
-        
+
         pending_teleport = players_module.pending_teleports.get(player_steamid)
-        
+
         if pending_teleport:
             # Teleport succeeded - trigger success callback
             callback_success = pending_teleport.get("callback_success")
             event_data = pending_teleport.get("event_data")
             dispatchers_steamid = pending_teleport.get("dispatchers_steamid")
-            
+
             if callback_success and event_data:
                 try:
                     # Pass the correct module (players_module) to callback
@@ -105,10 +105,6 @@ def main_function(origin_module, module, regex_result):
                                steamid=player_steamid,
                                error=str(e),
                                error_type=type(e).__name__)
-            
-            # Remove from pending registry
-            del players_module.pending_teleports[player_steamid]
-            logger.debug("teleport_completed_removed_from_pending", steamid=player_steamid)
 
     if update_player_pos:
         player_to_be_updated = regex_result.group("player_steamid")
@@ -120,6 +116,8 @@ def main_function(origin_module, module, regex_result):
             }
         }
         # update the players location data with the teleport ones
+        # IMPORTANT: Update position BEFORE removing from pending_teleports
+        # This prevents feedback loops in player_moved trigger
         module.dom.data.upsert({
             "module_players": {
                 "elements": {
@@ -129,6 +127,12 @@ def main_function(origin_module, module, regex_result):
                 }
             }
         })
+
+        # Remove from pending registry AFTER position update
+        # This ensures player_moved trigger sees teleport as still pending
+        if pending_teleport:
+            del players_module.pending_teleports[player_steamid]
+            logger.debug("teleport_completed_removed_from_pending", steamid=player_steamid)
 
 
 trigger_meta = {
