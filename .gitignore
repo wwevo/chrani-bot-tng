@@ -45,5 +45,6 @@ Thumbs.db
 *.log
 gunicorn.pid
 *.pid
+bot/diagnostic_logs/*.txt
 /bot/modules/storage/storage.json
 /TODO.md
