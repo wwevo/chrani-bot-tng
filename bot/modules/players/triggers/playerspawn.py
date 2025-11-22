@@ -1,10 +1,12 @@
 from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
+from bot.logger import get_logger
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("players.playerspawn")
 
 
 def main_function(origin_module, module, regex_result):
@@ -75,6 +77,38 @@ def main_function(origin_module, module, regex_result):
             module.trigger_action_hook(origin_module.players, event_data=event_data)
     elif command == "Teleport":
         update_player_pos = True
+        
+        # Check if this teleport was pending (event-based completion)
+        player_steamid = regex_result.group("player_steamid")
+        
+        # Access players module (not origin_module which might be game_environment)
+        players_module = loaded_modules_dict.get("module_players")
+        if players_module is None:
+            logger.error("teleport_callback_players_module_not_found", steamid=player_steamid)
+            return
+        
+        pending_teleport = players_module.pending_teleports.get(player_steamid)
+        
+        if pending_teleport:
+            # Teleport succeeded - trigger success callback
+            callback_success = pending_teleport.get("callback_success")
+            event_data = pending_teleport.get("event_data")
+            dispatchers_steamid = pending_teleport.get("dispatchers_steamid")
+            
+            if callback_success and event_data:
+                try:
+                    # Pass the correct module (players_module) to callback
+                    callback_success(players_module, event_data, dispatchers_steamid, regex_result)
+                    logger.debug("teleport_success_callback_triggered", steamid=player_steamid)
+                except Exception as e:
+                    logger.error("teleport_success_callback_failed",
+                               steamid=player_steamid,
+                               error=str(e),
+                               error_type=type(e).__name__)
+            
+            # Remove from pending registry
+            del players_module.pending_teleports[player_steamid]
+            logger.debug("teleport_completed_removed_from_pending", steamid=player_steamid)
 
     if update_player_pos:
         player_to_be_updated = regex_result.group("player_steamid")
@@ -110,9 +144,11 @@ trigger_meta = {
                 r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
                 r"\):\s"
                 r"EntityID=(?P<entity_id>.*),\s"
-                r"PlayerID='(?P<player_steamid>.*)',\s"
-                r"OwnerID='(?P<owner_steamid>.*)',\s"
-                r"PlayerName='(?P<player_name>.*)'"
+                r"PltfmId='Steam_(?P<player_steamid>.*)',\s"
+                r"CrossId='(?P<cross_id>[^']+)',\s"
+                r"OwnerID='(?P<owner_steamid>[^']+)',\s"
+                r"PlayerName='(?P<player_name>[^']+)',\s"
+                r"ClientNumber='(?P<client_number>[^']+)'"
             ),
             "callback": main_function
         }, {
@@ -120,9 +156,10 @@ trigger_meta = {
                 telnet_prefixes["telnet_log"]["timestamp"] +
                 r"Player (?P<command>.*): "
                 r"EntityID=(?P<entity_id>.*), "
-                r"PlayerID=\'(?P<player_steamid>.*)\', "
-                r"OwnerID=\'(?P<owner_id>.*)\', "
-                r"PlayerName='(?P<player_name>.*)\'$"
+                r"PltfmId='Steam_(?P<player_steamid>.*)', "
+                r"CrossId='(?P<cross_id>[^']+)', "
+                r"OwnerID='(?P<owner_id>[^']+)', "
+                r"PlayerName='(?P<player_name>[^']+)'$"
             ),
             "callback": main_function
         }, {

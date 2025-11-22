@@ -95,7 +95,7 @@ class Module(Thread, Action, Trigger, Template, Widget):
     def callback_fail(callback, module, event_data, dispatchers_steamid):
         event_data[1]["status"] = "fail"
         logger.error("action_failed",
-                    module=module.getName(),
+                    module=module.name,
                     action=event_data[0],
                     reason=event_data[1].get("fail_reason", "unknown"),
                     user=dispatchers_steamid)

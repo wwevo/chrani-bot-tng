@@ -68,7 +68,7 @@ trigger_meta = {
                 r"EntityID=(?P<entity_id>.*),\s"
                 r"PlayerID='(?P<player_steamid>\d{17})',\s"
                 r"OwnerID='(?P<owner_id>\d{17})',\s"
-                r"PlayerName='(?P<player_name>.*)'"
+                r"PlayerName='(?P<player_name>[^']+)'"
             ),
             "callback": main_function
         }

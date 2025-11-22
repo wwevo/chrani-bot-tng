@@ -26,8 +26,10 @@ Output format:
 """
 
 import sys
+import os
 from datetime import datetime
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Any, Dict, Optional, TextIO
 
 
 class Colors:
@@ -68,6 +70,11 @@ class LogConfig:
     timestamp_format = "%Y-%m-%d %H:%M:%S.%f"  # Includes microseconds
     use_colors = True  # Enable colored output
 
+    # File logging settings (diagnostic mode)
+    file_logging_enabled = False
+    log_directory: Optional[Path] = None
+    _log_files: Dict[str, TextIO] = {}  # Separate files per log type
+
     @classmethod
     def enable_debug(cls):
         """Enable debug logging (call this from config or command line)"""
@@ -82,6 +89,51 @@ class LogConfig:
     def disable_colors(cls):
         """Disable colored output (for log files or incompatible terminals)"""
         cls.use_colors = False
+
+    @classmethod
+    def enable_file_logging(cls, log_dir: str = "diagnostic_logs"):
+        """
+        Enable file logging for diagnostics
+        
+        Creates separate log files:
+        - all.log: All log messages
+        - errors.log: Only errors
+        - telnet_raw.log: Raw telnet data (if enabled)
+        - actions.log: Action execution logs (if enabled)
+        
+        Args:
+            log_dir: Directory for log files (relative to project root)
+        """
+        cls.file_logging_enabled = True
+        cls.log_directory = Path(log_dir)
+        
+        # Create log directory
+        cls.log_directory.mkdir(parents=True, exist_ok=True)
+        
+        # Open log files with timestamp in filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        log_files = {
+            "all": cls.log_directory / f"all_{timestamp}.log",
+            "errors": cls.log_directory / f"errors_{timestamp}.log",
+            "telnet_raw": cls.log_directory / f"telnet_raw_{timestamp}.log",
+            "actions": cls.log_directory / f"actions_{timestamp}.log",
+        }
+        
+        for log_type, filepath in log_files.items():
+            cls._log_files[log_type] = open(filepath, "a", encoding="utf-8", buffering=1)
+        
+        # Log that file logging is enabled
+        print(f"[INFO] File logging enabled: {cls.log_directory.absolute()}", file=sys.stderr)
+
+    @classmethod
+    def close_log_files(cls):
+        """Close all open log files"""
+        for log_file in cls._log_files.values():
+            if log_file and not log_file.closed:
+                log_file.close()
+        cls._log_files.clear()
+        cls.file_logging_enabled = False
 
 
 class ContextLogger:
@@ -131,8 +183,18 @@ class ContextLogger:
             elif isinstance(value, bool):
                 formatted_value = str(value).lower()
             elif isinstance(value, (list, dict)):
-                # Complex types: just show type and length
-                formatted_value = f"{type(value).__name__}[{len(value)}]"
+                # Complex types: show contents if small (≤3 elements), otherwise type[length]
+                if len(value) <= 3:
+                    # Small collections: show actual content (truncated if strings are long)
+                    if isinstance(value, list):
+                        items = [str(item)[:50] for item in value]  # Truncate long strings
+                        formatted_value = f"[{', '.join(items)}]"
+                    else:  # dict
+                        items = [f"{k}:{str(v)[:30]}" for k, v in list(value.items())[:3]]
+                        formatted_value = f"{{{', '.join(items)}}}"
+                else:
+                    # Large collections: just show type and length
+                    formatted_value = f"{type(value).__name__}[{len(value)}]"
             else:
                 formatted_value = str(value)
 
@@ -197,6 +259,27 @@ class ContextLogger:
 
         # Output to stderr (standard for logs, keeps stdout clean)
         print(message, file=sys.stderr, flush=True)
+
+        # Also write to log files if file logging is enabled
+        if LogConfig.file_logging_enabled and LogConfig._log_files:
+            # Build plain text version (no colors) for file output
+            timestamp_str = ""
+            if LogConfig.show_timestamps:
+                now = datetime.now()
+                timestamp_str = f"[{now.strftime(LogConfig.timestamp_format)[:-3]}] "
+            
+            if context_str:
+                plain_message = f"[{level:<5}] {timestamp_str}{event} | {context_str}\n"
+            else:
+                plain_message = f"[{level:<5}] {timestamp_str}{event}\n"
+            
+            # Write to "all" log
+            if "all" in LogConfig._log_files:
+                LogConfig._log_files["all"].write(plain_message)
+            
+            # Write to "errors" log if it's an error
+            if level == LogLevel.ERROR and "errors" in LogConfig._log_files:
+                LogConfig._log_files["errors"].write(plain_message)
 
     def error(self, event: str, **context):
         """
@@ -309,3 +392,58 @@ def log_info(module: str, event: str, **context):
 def log_debug(module: str, event: str, **context):
     """Quick debug logging without getting logger instance"""
     get_logger(module).debug(event, **context)
+
+
+# Diagnostic logging functions (only active when file logging is enabled)
+
+def log_telnet_raw(line: str, direction: str = "incoming"):
+    """
+    Log raw telnet data for diagnostics
+    
+    Only writes to file if file logging is enabled.
+    
+    Args:
+        line: Raw telnet line
+        direction: "incoming" or "outgoing"
+    """
+    if not LogConfig.file_logging_enabled or "telnet_raw" not in LogConfig._log_files:
+        return
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    log_entry = f"[{timestamp}] [{direction.upper()}] {line}\n"
+    LogConfig._log_files["telnet_raw"].write(log_entry)
+
+
+def log_action_execution(action_name: str, args: Dict[str, Any], result: Any = None, error: str = None):
+    """
+    Log action execution for diagnostics
+    
+    Only writes to file if file logging is enabled.
+    
+    Args:
+        action_name: Name of the executed action
+        args: Action arguments
+        result: Action result (optional)
+        error: Error message if action failed (optional)
+    """
+    if not LogConfig.file_logging_enabled or "actions" not in LogConfig._log_files:
+        return
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    
+    # Format arguments
+    args_str = ", ".join([f"{k}={v}" for k, v in args.items()])
+    
+    # Build log entry
+    status = "ERROR" if error else "OK"
+    log_entry = f"[{timestamp}] [{status}] {action_name}({args_str})"
+    
+    if result is not None:
+        log_entry += f" -> {result}"
+    
+    if error:
+        log_entry += f" | error={error}"
+    
+    log_entry += "\n"
+    
+    LogConfig._log_files["actions"].write(log_entry)

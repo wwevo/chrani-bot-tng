@@ -46,3 +46,4 @@ Thumbs.db
 gunicorn.pid
 *.pid
 /bot/modules/storage/storage.json
+/TODO.md

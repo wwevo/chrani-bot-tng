@@ -16,8 +16,21 @@ def main_function(*args, **kwargs):
             is_authenticated is not None,
             player_steamid is not None
         ]):
+            # Prevent race conditions: Don't execute mute actions on disconnecting players
+            dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+            player_dict = (
+                module.dom.data
+                .get("module_players", {})
+                .get("elements", {})
+                .get(dataset, {})
+                .get(player_steamid, {})
+            )
+            
+            if player_dict.get("is_online", False) is False:
+                return
+            
             event_data = ['set_player_mute', {
-                'dataset': module.dom.data.get("module_game_environment", {}).get("active_dataset", None),
+                'dataset': dataset,
                 'player_steamid': player_steamid
             }]
 

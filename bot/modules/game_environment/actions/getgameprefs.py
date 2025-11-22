@@ -32,8 +32,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
     poll_is_finished = False
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer, re.MULTILINE):
+        match = re.search(regex, module.telnet.telnet_buffer, re.MULTILINE)
+        if match:
             poll_is_finished = True
             match_found = True
 

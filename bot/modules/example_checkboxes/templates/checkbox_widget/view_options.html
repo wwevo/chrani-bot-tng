@@ -1,0 +1,27 @@
+<header>
+    <div>
+        <span>Checkbox</span>
+    </div>
+</header>
+<aside>
+    {{ options_toggle }}
+</aside>
+<main>
+    <table class="options_table">
+        <thead>
+        <tr>
+            <th colspan="2">Checkbox widget options</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th colspan="2"><span>checkbox-options</span></th>
+        </tr>
+        {% for key, value in widget_options.items() %}
+        <tr>
+            <td><span>{{key}}</span></td><td>{{value}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</main>

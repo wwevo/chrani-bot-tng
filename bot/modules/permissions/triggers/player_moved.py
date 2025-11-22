@@ -33,6 +33,10 @@ def main_function(*args, **kwargs):
             .get(updated_values_dict.get("steamid"), {})
         )
 
+        # Prevent race conditions: Don't teleport players who are disconnecting
+        if on_the_move_player_dict.get("is_online", False) is False:
+            return
+
         pos_is_inside_coordinates = module.locations.position_is_inside_boundary(updated_values_dict, lobby_dict)
         if pos_is_inside_coordinates is True:
             # nothing to do, we are inside the lobby

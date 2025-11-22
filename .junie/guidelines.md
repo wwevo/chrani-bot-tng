@@ -1,11 +1,13 @@
 # Project Guidelines
 
+* Kein wildes scannen von Dateien. Im scope bleiben. Wenn es Fragen gibt, mich fragen
 * Keine übrerlangen Status‑Updates.
 * Keine Code‑Änderungen ohne meine explizite Freigabe.
 * Vor jeder längeren Antwort erst Rückfrage stellen.
-* Read-only Terminal Befehle darfst du immer ungefragt ausführen.
+* Terminal Befehle die keine dateien verändern (ls, grep usw.) darfst du immer ungefragt ausführen.
 * Jeden Plan bestätigen lassen.
 * Keine Zeitschätzungen.
+* Keine Dokumentationsdateien (.md) anlegen, wenn nicht danach gefragt wurde. 
 
 ## Projektüberblick (kurz)
 Folgende Dateien und Ordner gehören NICHT zum Projekt und werden niemals durchsucht: 

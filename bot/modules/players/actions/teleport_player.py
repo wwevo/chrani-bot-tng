@@ -1,9 +1,7 @@
 from bot import loaded_modules_dict
-from bot import telnet_prefixes
 from bot.logger import get_logger
 from os import path, pardir
-from time import sleep, time
-import re
+from time import time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
@@ -11,8 +9,7 @@ logger = get_logger("players.teleport_player")
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = 6  # [seconds]
-    timeout_start = time()
+    timeout = 8  # [seconds] - increased for event-based handling
     event_data[1]["action_identifier"] = action_name
 
     target_coordinates = event_data[1].get("coordinates", None)
@@ -35,6 +32,12 @@ def main_function(module, event_data, dispatchers_steamid=None):
         # no sense in porting a player to a place they are already standing on ^^
         target_coordinates != player_coordinates
     ]):
+        # Check if player is online before attempting teleport
+        if player_to_be_teleported_dict.get("is_online", False) is False:
+            event_data[1]["fail_reason"] = "player is not online"
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
+
         # Use entity ID instead of steamid - game requires entity ID now
         player_entity_id = player_to_be_teleported_dict.get("id")
         if not player_entity_id:
@@ -42,12 +45,25 @@ def main_function(module, event_data, dispatchers_steamid=None):
             module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
             return
 
+        # Per-player lock: Check if teleport is already pending for this player
+        if player_to_be_teleported_steamid in module.pending_teleports:
+            event_data[1]["fail_reason"] = "teleport already pending for this player"
+            logger.warn("teleport_blocked_already_pending",
+                       steamid=player_to_be_teleported_steamid,
+                       user=dispatchers_steamid)
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
+
+        # Use -1 for Y coordinate if unclear/null (gameserver normalizes to ground level)
+        raw_y = int(float(target_coordinates["y"]))
+        pos_y = -1 if raw_y <= 0 else raw_y
+        
         command = (
             "teleportplayer {player_to_be_teleported} {pos_x} {pos_y} {pos_z}"
         ).format(
             player_to_be_teleported=player_entity_id,
             pos_x=int(float(target_coordinates["x"])),
-            pos_y=int(float(target_coordinates["y"])),
+            pos_y=pos_y,
             pos_z=int(float(target_coordinates["z"]))
         )
 
@@ -56,33 +72,29 @@ def main_function(module, event_data, dispatchers_steamid=None):
             module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
             return
 
-        poll_is_finished = False
-        regex = (
-            telnet_prefixes["telnet_log"]["timestamp"] +
-            r"PlayerSpawnedInWorld\s"
-            r"\("
-            r"reason: (?P<command>.+?),\s"
-            r"position: (?P<pos_x>.*),\s(?P<pos_y>.*),\s(?P<pos_z>.*)"
-            r"\):\s"
-            r"EntityID={entity_id},\s".format(entity_id=player_to_be_teleported_dict.get("id")) +
-            r"PlayerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_steamid) +
-            r"OwnerID='{player_to_be_teleported}',\s".format(player_to_be_teleported=player_to_be_teleported_steamid) +
-            r"PlayerName='(?P<player_name>.*)'"
-        )
-
-        while not poll_is_finished and (time() < timeout_start + timeout):
-            match = False
-            for match in re.finditer(regex, module.telnet.telnet_buffer, re.DOTALL):
-                poll_is_finished = True
-
-            if match:
-                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-                return
-
-            sleep(0.25)
-
-        event_data[1]["fail_reason"] = "action timed out"
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        # Event-based handling: Register pending teleport
+        # Completion will be handled by playerspawn trigger when PlayerSpawnedInWorld arrives
+        module.pending_teleports[player_to_be_teleported_steamid] = {
+            "entity_id": player_entity_id,
+            "target_pos": target_coordinates,
+            "timestamp": time(),
+            "timeout": timeout,
+            "callback_success": callback_success,
+            "callback_fail": callback_fail,
+            "event_data": event_data,
+            "dispatchers_steamid": dispatchers_steamid
+        }
+        
+        logger.debug("teleport_registered_pending",
+                    steamid=player_to_be_teleported_steamid,
+                    entity_id=player_entity_id,
+                    target_pos=target_coordinates,
+                    user=dispatchers_steamid)
+        
+        # Return immediately - no blocking!
+        # Success/failure will be handled by:
+        # - playerspawn trigger (on success)
+        # - timeout watcher in players module run loop (on timeout)
         return
 
     event_data[1]["fail_reason"] = "insufficient data for execution"

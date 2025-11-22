@@ -1,7 +1,7 @@
 import re
 from bot.module import Module
 from bot import loaded_modules_dict
-from bot.logger import get_logger
+from bot.logger import get_logger, log_telnet_raw
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_TIMEOUT_RECONNECT
 from time import time
 from collections import deque
@@ -454,6 +454,11 @@ class Telnet(Module):
             if can_attempt_connection:
                 try:
                     self.telnet_response = self.tn.read_very_eager().decode("utf-8")
+                    
+                    # Log raw telnet data for diagnostics (only if file logging is enabled)
+                    if len(self.telnet_response) > 0:
+                        log_telnet_raw(self.telnet_response, direction="incoming")
+                        
                 except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as error:
                     self._handle_connection_error(error)
                 except Exception as error:

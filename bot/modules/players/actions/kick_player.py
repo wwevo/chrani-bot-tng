@@ -32,9 +32,15 @@ def main_function(module, event_data, dispatchers_steamid):
                 .get(dataset, {})
                 .get(player_to_be_kicked, {})
             )
-            player_entity_id = player_dict.get("id")
+            # Check if player is online before attempting to kick
+            if player_dict.get("is_online", False) is False:
+                event_data[1]["fail_reason"] = "player is not online"
+                module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+                return
 
+            player_entity_id = player_dict.get("id")
             if not player_entity_id:
+                event_data[1]["fail_reason"] = "player entity ID not found"
                 module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
                 return
 
@@ -57,6 +63,7 @@ def main_function(module, event_data, dispatchers_steamid):
                         reason=reason)
 
             if not module.telnet.add_telnet_command_to_queue(command):
+                event_data[1]["fail_reason"] = "duplicate command"
                 module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
                 return
 
@@ -71,6 +78,11 @@ def main_function(module, event_data, dispatchers_steamid):
                     module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
                     return
 
+            # Timeout occurred
+            event_data[1]["fail_reason"] = "action timed out"
+            module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+            return
+
         else:
             module.set_current_view(dispatchers_steamid, {
                 "current_view": "kick-modal",
@@ -82,6 +94,7 @@ def main_function(module, event_data, dispatchers_steamid):
         module.callback_success(callback_success, module, event_data, dispatchers_steamid)
         return
 
+    event_data[1]["fail_reason"] = "invalid action"
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 

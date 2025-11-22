@@ -24,14 +24,21 @@ def main_function(module, event_data, dispatchers_steamid=None):
         .get(dataset, {})
         .get(target_player_steamid, {})
     )
-    player_entity_id = player_dict.get("id")
+    # Check if player is online before attempting to send message
+    if player_dict.get("is_online", False) is False:
+        event_data[1]["fail_reason"] = "player is not online"
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
 
+    player_entity_id = player_dict.get("id")
     if not player_entity_id:
+        event_data[1]["fail_reason"] = "player entity ID not found"
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
     command = "sayplayer {} \"{}\"".format(player_entity_id, message)
     if not module.telnet.add_telnet_command_to_queue(command):
+        event_data[1]["fail_reason"] = "duplicate command"
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
