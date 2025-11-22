@@ -39,19 +39,12 @@ function createPlayerPopup(steamid, player) {
             <br><b>👥 Players:</b> ${player.players} | <b>📡 Ping:</b> ${player.ping}ms
             <br><hr style="margin: 8px 0; border-color: #333;">
             <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
-                    <input type="checkbox"
-                        ${player.is_muted ? 'checked' : ''}
-                        onchange="togglePlayerMuteFromMap('${steamid}', this.checked)"
-                        style="cursor: pointer; width: 16px; height: 16px;" />
-                    <span style="font-weight: bold; font-size: 0.9em;">🔇 Muted</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; flex: 1;">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
                     <input type="checkbox"
                         ${player.is_authenticated ? 'checked' : ''}
-                        onchange="togglePlayerAuthFromMap('${steamid}', this.checked)"
+                        onchange="togglePlayerAuthFromMap('${steamid}', '${player.dataset}', this.checked)"
                         style="cursor: pointer; width: 16px; height: 16px;" />
-                    <span style="font-weight: bold; font-size: 0.9em;">✅ Auth</span>
+                    <span style="font-weight: bold; font-size: 0.9em;">✅ Authenticated</span>
                 </label>
             </div>
             <div style="display: flex; gap: 5px; margin-bottom: 5px;">

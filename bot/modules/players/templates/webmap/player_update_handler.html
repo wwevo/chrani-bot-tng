@@ -26,7 +26,6 @@ if (data.data_type === 'player_position_update' && data.payload) {
     players[steamid].players = playerData.players !== undefined ? playerData.players : (players[steamid].players || 0);
     players[steamid].score = playerData.score !== undefined ? playerData.score : (players[steamid].score || 0);
     players[steamid].ping = playerData.ping !== undefined ? playerData.ping : (players[steamid].ping || 0);
-    players[steamid].is_muted = playerData.is_muted !== undefined ? playerData.is_muted : (players[steamid].is_muted || false);
     players[steamid].is_authenticated = playerData.is_authenticated !== undefined ? playerData.is_authenticated : (players[steamid].is_authenticated || false);
     players[steamid].in_limbo = playerData.in_limbo !== undefined ? playerData.in_limbo : (players[steamid].in_limbo || false);
     players[steamid].is_initialized = playerData.is_initialized !== undefined ? playerData.is_initialized : (players[steamid].is_initialized || false);
