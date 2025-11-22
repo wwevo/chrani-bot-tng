@@ -49,12 +49,38 @@ def main_function(*args, **kwargs):
 
         # no early exits, seems like the player is outside an active lobby without any authentication!
         # seems like we should port ^^
-        event_data = ['teleport_to_coordinates', {
-            'location_coordinates': {
+
+        # Use teleport_entry if available, otherwise fall back to lobby coordinates
+        teleport_entry = lobby_dict.get("teleport_entry", {})
+        teleport_x = teleport_entry.get("x")
+        teleport_y = teleport_entry.get("y")
+        teleport_z = teleport_entry.get("z")
+
+        # If teleport_entry is not set or is (0,0,0), use lobby coordinates
+        if any([
+            teleport_x is None,
+            teleport_y is None,
+            teleport_z is None,
+            all([
+                int(float(teleport_x)) == 0,
+                int(float(teleport_y)) == 0,
+                int(float(teleport_z)) == 0,
+            ])
+        ]):
+            teleport_coords = {
                 "x": lobby_dict["coordinates"]["x"],
                 "y": lobby_dict["coordinates"]["y"],
                 "z": lobby_dict["coordinates"]["z"]
-            },
+            }
+        else:
+            teleport_coords = {
+                "x": teleport_x,
+                "y": teleport_y,
+                "z": teleport_z
+            }
+
+        event_data = ['teleport_to_coordinates', {
+            'location_coordinates': teleport_coords,
             'steamid': player_steamid
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)
