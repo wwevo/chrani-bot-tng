@@ -1,11 +1,36 @@
 from bot import loaded_modules_dict
+from bot.logger import get_logger
 from os import path, pardir
+from time import time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
+logger = get_logger("players.webmap_updates")
+
+# Track stats
+_last_log_time = 0
+_trigger_count = 0
+_websocket_send_count = 0
 
 
 def send_player_update_to_map(*args, **kwargs):
+    global _last_log_time, _trigger_count, _websocket_send_count
+    _trigger_count += 1
+
+    # Log stats every 10 seconds
+    current_time = time()
+    if current_time - _last_log_time >= 10:
+        elapsed = current_time - _last_log_time if _last_log_time > 0 else 10
+        logger.info("webmap_update_stats",
+                   trigger_count=_trigger_count,
+                   websocket_send_count=_websocket_send_count,
+                   triggers_per_sec=_trigger_count / elapsed,
+                   websocket_per_sec=_websocket_send_count / elapsed,
+                   elapsed_sec=elapsed)
+        _last_log_time = current_time
+        _trigger_count = 0
+        _websocket_send_count = 0
+
     """Send player updates to map view via socket.io"""
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
@@ -83,15 +108,25 @@ def send_player_update_to_map(*args, **kwargs):
             data_type="player_position_update",
             clients=[clientid]
         )
+        _websocket_send_count += 1
 
 
 trigger_meta = {
     "description": "sends player updates to webmap clients",
     "main_function": send_player_update_to_map,
     "handlers": {
-        # Only trigger on position updates - we fetch all other data from DOM anyway
-        # This reduces 11 separate WebSocket events per lp-poll down to 1 event
+        # Listen to all player field updates that are relevant for the map
         "module_players/elements/%map_identifier%/%steamid%/pos": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/health": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/level": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/zombies": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/deaths": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/players": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/score": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/ping": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/is_authenticated": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/in_limbo": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/is_initialized": send_player_update_to_map,
     }
 }
 
