@@ -217,14 +217,39 @@ class Telnet(Module):
         else:
             return []
 
-    def add_telnet_command_to_queue(self, command):
+    def add_telnet_command_to_queue(self, command, action_meta=None):
+        from bot.tracking import tracker
+
+        # Get tracking info from action_meta (passed through from trigger_action via event_data)
+        tracking_id = action_meta.get('tracking_id') if action_meta else None
+        debug_id = action_meta.get('debug_id') if action_meta else None
+
         if command not in self.telnet_command_queue:
             self.telnet_command_queue.appendleft(command)
-            return True
+            added = True
+        else:
+            added = False
 
-        return False
+        # Track if enabled
+        if added and tracker.should_track(debug_id):
+            # First command? Start tracking
+            if tracker._test_start is None:
+                tracker.start_tracking(debug_id)
+
+            # Register command → tracking_id mapping
+            tracker.register_command(command, tracking_id)
+
+            # Log event
+            tracker.log_event("QUEUED", tracking_id,
+                q_size=len(self.telnet_command_queue)
+            )
+            tracker.increment_stat('queued')
+
+        return added
 
     def execute_telnet_command_queue(self, this_many_lines):
+        from bot.tracking import tracker
+
         telnet_command_list = []
         current_queue_length = 0
         done = False
@@ -244,6 +269,12 @@ class Telnet(Module):
 
             try:
                 self.tn.write(command.encode('ascii'))
+
+                # Track if this command is being tracked
+                tracking_id = tracker.get_tracking_id(telnet_command)
+                if tracking_id:
+                    tracker.log_event("SENT_TO_SERVER", tracking_id)
+                    tracker.increment_stat('sent')
 
             except Exception as error:
                 logger.error("telnet_command_send_failed",

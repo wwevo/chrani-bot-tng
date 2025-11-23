@@ -73,6 +73,13 @@ class Action(object):
             if action_is_enabled:
                 event_data[1]["module"] = target_module.getName()
                 event_data[1]["uuid4"] = target_module.id_generator(22)
+
+                # Add tracking_id if debug_id is set
+                debug_id = active_action.get("debug_id")
+                if debug_id:
+                    event_data[1]["tracking_id"] = target_module.id_generator(8)
+                    event_data[1]["debug_id"] = debug_id
+
                 if server_is_online is True or action_requires_server_to_be_online is not True:
                     if any([
                         user_has_permission is None,

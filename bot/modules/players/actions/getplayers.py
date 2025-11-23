@@ -38,7 +38,12 @@ def main_function(module, event_data, dispatchers_steamid=None):
     event_data[1]["action_identifier"] = action_name
     event_data[1]["fail_reason"] = []
 
-    if module.telnet.add_telnet_command_to_queue("lp"):
+    # Get action_meta to pass tracking info
+    action_meta_dict = action_meta.copy()
+    action_meta_dict['tracking_id'] = event_data[1].get('tracking_id')
+    action_meta_dict['debug_id'] = event_data[1].get('debug_id')
+
+    if module.telnet.add_telnet_command_to_queue("lp", action_meta=action_meta_dict):
         poll_is_finished = False
         # Modern format - matches both empty and populated player lists
         regex = (
@@ -55,6 +60,17 @@ def main_function(module, event_data, dispatchers_steamid=None):
                 poll_is_finished = True
 
             if match:
+                from bot.tracking import tracker
+
+                tracking_id = event_data[1].get("tracking_id")
+                debug_id = event_data[1].get("debug_id")
+
+                if tracker.should_track(debug_id):
+                    tracker.log_event("RESPONSE_RECEIVED", tracking_id,
+                        player_count=int(match.group("player_count"))
+                    )
+                    tracker.increment_stat('matched')
+
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
                 return
 
@@ -240,7 +256,8 @@ action_meta = {
     "callback_fail": callback_fail,
     "skip_it": skip_it,
     "requires_telnet_connection": True,
-    "enabled": True
+    "enabled": True,
+    "debug_id": "lp"  # Enable tracking
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

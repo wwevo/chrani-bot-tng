@@ -37,6 +37,13 @@ if (data.data_type === 'player_position_update' && data.payload) {
         // Update existing marker position
         playerMarkers[steamid].setLatLng([pos.x, pos.z]);
 
+        // Track marker update
+        if (window.PROFILING_ENABLED) {
+            logTrackingEvent("MARKER_UPDATED", {
+                steamid: steamid
+            });
+        }
+
     } else {
         // Create new marker
         const marker = L.circleMarker([pos.x, pos.z], {

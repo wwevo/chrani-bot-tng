@@ -584,17 +584,38 @@ class Webserver(Module):
         def widget_event(data, callback=None):
             try:
                 self.dispatch_socket_event(data[0], data[1], current_user.id)
-                
+
                 # Acknowledge successful receipt
                 if callback:
                     callback({'status': 'received'})
             except Exception as error:
-                logger.error("widget_event_error", 
+                logger.error("widget_event_error",
                             user=current_user.id,
                             error=str(error),
                             error_type=type(error).__name__)
                 if callback:
                     callback({'status': 'error', 'message': str(error)})
+
+        @self.websocket.on('get_profiling_status')
+        def handle_profiling_status():
+            import os
+            emit('profiling_status', {
+                'enabled': os.getenv('PROFILING_ENABLED', '').lower() == 'true'
+            })
+
+        @self.websocket.on('tracking_results')
+        def handle_tracking_results(data):
+            from bot.tracking import tracker
+
+            if not tracker._enabled:
+                return
+
+            # Append browser events to timeline
+            for event in data.get('events', []):
+                tracker._events.append(event)
+
+            # Write final results
+            tracker.write_results()
         # endregion
 
         # Check if we're running under a WSGI server (like gunicorn)

@@ -330,18 +330,55 @@ document.addEventListener("DOMContentLoaded", function(event) {
         console.log('[SOCKET] Connected, SID:', socket.id);
         connectionState.connected = true;
         connectionState.reconnecting = false;
-        
+
         // Show connection restored indicator if this was a reconnection
         if (connectionState.lastDisconnect) {
             play_audio_file("computerbeep_11");
             showConnectionStatus('connected', 'Verbindung wiederhergestellt');
-            
+
             // Request full page refresh to resync state
             setTimeout(() => {
                 location.reload();
             }, 1500);
         }
+
+        // Check if profiling enabled
+        window.socket.emit('get_profiling_status');
     });
+
+    // Profiling status response
+    window.socket.on('profiling_status', function(data) {
+        window.PROFILING_ENABLED = data.enabled;
+        if (window.PROFILING_ENABLED) {
+            window.trackingEvents = [];
+            console.log('[TRACKING] Profiling enabled');
+        }
+    });
+
+    // Add tracking function
+    function logTrackingEvent(event_type, data) {
+        if (!window.PROFILING_ENABLED) return;
+
+        window.trackingEvents.push({
+            ts: new Date().toISOString(),
+            event: event_type,
+            ...data
+        });
+
+        // Send results after 10 MARKER_UPDATED events (approx 30 seconds of testing)
+        if (event_type === "MARKER_UPDATED") {
+            const markerUpdateCount = window.trackingEvents.filter(e => e.event === "MARKER_UPDATED").length;
+            if (markerUpdateCount >= 10) {
+                console.log('[TRACKING] Sending results after 10 marker updates');
+                window.socket.emit('tracking_results', {
+                    events: window.trackingEvents
+                });
+                // Clear events after sending
+                window.trackingEvents = [];
+                window.PROFILING_ENABLED = false;
+            }
+        }
+    }
 
     // Connection lost
     window.socket.on('disconnect', function(reason) {
@@ -429,6 +466,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
             // Log event for debugging (can be disabled in production)
             if (window.socketDebugMode) {
                 console.log('[SOCKET] Received event:', data.data_type, data);
+            }
+
+            // Log player position updates
+            if (data.data_type === 'player_position_update' && window.PROFILING_ENABLED) {
+                logTrackingEvent("BROWSER_RECEIVED", {
+                    steamid: data.payload?.steamid
+                });
             }
 
             if ([

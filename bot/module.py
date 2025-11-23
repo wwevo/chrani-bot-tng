@@ -83,7 +83,18 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
     @staticmethod
     def callback_success(callback, module, event_data, dispatchers_steamid, match=None):
+        from bot.tracking import tracker
+
         event_data[1]["status"] = "success"
+
+        tracking_id = event_data[1].get("tracking_id")
+        debug_id = event_data[1].get("debug_id")
+
+        if tracker.should_track(debug_id):
+            tracker.log_event("CALLBACK_SUCCESS", tracking_id,
+                action=event_data[1].get("action_identifier")
+            )
+
         action_identifier = event_data[1]["action_identifier"]
         if event_data[1].get("disable_after_success"):
             module.disable_action(action_identifier)
@@ -93,7 +104,18 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
     @staticmethod
     def callback_fail(callback, module, event_data, dispatchers_steamid):
+        from bot.tracking import tracker
+
         event_data[1]["status"] = "fail"
+
+        tracking_id = event_data[1].get("tracking_id")
+        debug_id = event_data[1].get("debug_id")
+
+        if tracker.should_track(debug_id):
+            tracker.log_event("CALLBACK_FAIL", tracking_id,
+                reason=event_data[1].get("fail_reason")
+            )
+
         logger.error("action_failed",
                     module=module.name,
                     action=event_data[0],

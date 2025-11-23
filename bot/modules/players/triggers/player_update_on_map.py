@@ -83,6 +83,14 @@ def send_player_update_to_map(*args, **kwargs):
             clients=[clientid]
         )
 
+        # Track websocket sends
+        from bot.tracking import tracker
+        if tracker.should_track("lp"):  # Hardcoded for now - could be improved
+            tracker.log_event("WEBSOCKET_SEND", None,  # No tracking_id at this point
+                steamid=steamid,
+                clients=len(module.webserver.connected_clients)
+            )
+
 
 trigger_meta = {
     "description": "sends player updates to webmap clients",
