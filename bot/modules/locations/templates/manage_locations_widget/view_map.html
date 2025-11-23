@@ -517,7 +517,7 @@
 
         // Log incoming player updates
         if (data.data_type === 'player_position_update') {
-            console.log(`[WEBSOCKET] player_position_update received at ${handlerStart.toFixed(2)}ms`);
+            console.log(`[PERF][WEBSOCKET] player_position_update received at ${handlerStart.toFixed(2)}ms`);
         }
 
         // Map metadata (gameprefs, dataset info)
@@ -547,7 +547,7 @@
         // Log total handler time for player updates
         if (data.data_type === 'player_position_update') {
             const handlerEnd = performance.now();
-            console.log(`[WEBSOCKET] Total handler time: ${(handlerEnd - handlerStart).toFixed(2)}ms`);
+            console.log(`[PERF][WEBSOCKET] Total handler time: ${(handlerEnd - handlerStart).toFixed(2)}ms`);
         }
     };
 
@@ -616,7 +616,7 @@
             </div>
         `;
         const end = performance.now();
-        console.log(`[LEGEND] updateLegend took ${(end - start).toFixed(2)}ms`);
+        console.log(`[PERF][LEGEND] updateLegend took ${(end - start).toFixed(2)}ms`);
     }
 
     // Initial legend update
@@ -670,7 +670,7 @@
             `;
         }).join('');
         const end = performance.now();
-        console.log(`[PLAYERLIST] updatePlayerList took ${(end - start).toFixed(2)}ms`);
+        console.log(`[PERF][PLAYERLIST] updatePlayerList took ${(end - start).toFixed(2)}ms`);
     }
 
     // Function to select a player from the list (zoom to position and show details)
