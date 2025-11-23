@@ -1,5 +1,7 @@
 from bot import loaded_modules_dict
+from bot.profiler import profiler
 from os import path, pardir
+from time import time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
@@ -7,10 +9,13 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def send_player_update_to_map(*args, **kwargs):
     """Send player updates to map view via socket.io"""
+    start_time = time()
+
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
 
     if updated_values_dict is None:
+        profiler.record("webmap_player_update", time() - start_time)
         return
 
     # Get steamid and dataset
@@ -18,6 +23,7 @@ def send_player_update_to_map(*args, **kwargs):
     dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
     if not all([dataset, steamid]):
+        profiler.record("webmap_player_update", time() - start_time)
         return
 
     # Get full player data from DOM
@@ -30,11 +36,13 @@ def send_player_update_to_map(*args, **kwargs):
     )
 
     if not player_dict:
+        profiler.record("webmap_player_update", time() - start_time)
         return
 
     # Check which clients are viewing the map
     locations_module = loaded_modules_dict.get("module_locations")
     if not locations_module:
+        profiler.record("webmap_player_update", time() - start_time)
         return
 
     for clientid in module.webserver.connected_clients.keys():
@@ -76,12 +84,16 @@ def send_player_update_to_map(*args, **kwargs):
             }
         }
 
+        websocket_start = time()
         module.webserver.send_data_to_client_hook(
             module,
             payload=player_update_data,
             data_type="player_position_update",
             clients=[clientid]
         )
+        profiler.record("webmap_websocket_send", time() - websocket_start)
+
+    profiler.record("webmap_player_update", time() - start_time)
 
 
 trigger_meta = {

@@ -193,76 +193,88 @@ class Webserver(Module):
                         error_type=type(e).__name__)
 
     def send_data_to_client(self, *args, payload=None, **kwargs):
-        data_type = kwargs.get("data_type", "widget_content")
-        target_element = kwargs.get("target_element", None)
-        clients = kwargs.get("clients", None)
+        from bot.profiler import profiler
+        from time import time
 
-        if all([
-            clients is not None,
-            not isinstance(clients, KeysView),
-            not isinstance(clients, list)
-        ]):
-            if re.match(r"^(\d{17})$", clients):
-                clients = [clients]
+        with profiler.measure("webserver_send_data_to_client"):
+            data_type = kwargs.get("data_type", "widget_content")
+            target_element = kwargs.get("target_element", None)
+            clients = kwargs.get("clients", None)
 
-        method = kwargs.get("method", "update")
-        status = kwargs.get("status", "")
+            if all([
+                clients is not None,
+                not isinstance(clients, KeysView),
+                not isinstance(clients, list)
+            ]):
+                if re.match(r"^(\d{17})$", clients):
+                    clients = [clients]
 
-        if clients is None:
-            clients = "all"
+            method = kwargs.get("method", "update")
+            status = kwargs.get("status", "")
 
-        with self.app.app_context():
-            data_packages_to_send = []
-            widget_options = {
-                "method": method,
-                "status": status,
-                "payload": payload,
-                "data_type": data_type,
-                "target_element": target_element,
-            }
+            if clients is None:
+                clients = "all"
 
-            # Determine which clients to send to
-            if clients == "all":
-                # Send to all connected clients individually
-                # Note: broadcast=True doesn't work with self.websocket.emit() in gevent mode
-                clients = list(self.connected_clients.keys())
+            with self.app.app_context():
+                data_packages_to_send = []
+                widget_options = {
+                    "method": method,
+                    "status": status,
+                    "payload": payload,
+                    "data_type": data_type,
+                    "target_element": target_element,
+                }
 
-            if clients is not None and isinstance(clients, list):
-                for steamid in clients:
+                # Determine which clients to send to
+                if clients == "all":
+                    # Send to all connected clients individually
+                    # Note: broadcast=True doesn't work with self.websocket.emit() in gevent mode
+                    clients = list(self.connected_clients.keys())
+
+                if clients is not None and isinstance(clients, list):
+                    for steamid in clients:
+                        try:
+                            # Send to ALL socket connections for this user (multiple browsers)
+                            user = self.connected_clients[steamid]
+                            for socket_id in user.socket_ids:
+                                emit_options = {
+                                    "room": socket_id
+                                }
+                                data_packages_to_send.append([widget_options, emit_options])
+                        except (AttributeError, KeyError) as error:
+                            # User connection state is inconsistent - log and skip this client
+                            logger.debug(
+                                "socket_send_failed_no_client",
+                                steamid=steamid,
+                                data_type=data_type,
+                                error_type=type(error).__name__,
+                                has_client=steamid in self.connected_clients,
+                                has_sockets=len(self.connected_clients.get(steamid, type('obj', (), {'socket_ids': []})).socket_ids) > 0
+                            )
+
+                emit_count = 0
+                for data_package in data_packages_to_send:
                     try:
-                        # Send to ALL socket connections for this user (multiple browsers)
-                        user = self.connected_clients[steamid]
-                        for socket_id in user.socket_ids:
-                            emit_options = {
-                                "room": socket_id
-                            }
-                            data_packages_to_send.append([widget_options, emit_options])
-                    except (AttributeError, KeyError) as error:
-                        # User connection state is inconsistent - log and skip this client
-                        logger.debug(
-                            "socket_send_failed_no_client",
-                            steamid=steamid,
+                        emit_start = time()
+                        self.websocket.emit(
+                            'data',
+                            data_package[0],
+                            **data_package[1]
+                        )
+                        profiler.record("webserver_socketio_emit", time() - emit_start)
+                        emit_count += 1
+                    except Exception as error:
+                        # Socket emit failed - log the error
+                        logger.error(
+                            "socket_emit_failed",
                             data_type=data_type,
-                            error_type=type(error).__name__,
-                            has_client=steamid in self.connected_clients,
-                            has_sockets=len(self.connected_clients.get(steamid, type('obj', (), {'socket_ids': []})).socket_ids) > 0
+                            error=str(error),
+                            error_type=type(error).__name__
                         )
 
-            for data_package in data_packages_to_send:
-                try:
-                    self.websocket.emit(
-                        'data',
-                        data_package[0],
-                        **data_package[1]
-                    )
-                except Exception as error:
-                    # Socket emit failed - log the error
-                    logger.error(
-                        "socket_emit_failed",
-                        data_type=data_type,
-                        error=str(error),
-                        error_type=type(error).__name__
-                    )
+                # Track how many emits happened
+                if emit_count > 0:
+                    profiler.record("webserver_emit_count", emit_count)
 
     def emit_event_status(self, module, event_data, recipient_steamid, status=None):
         clients = recipient_steamid
