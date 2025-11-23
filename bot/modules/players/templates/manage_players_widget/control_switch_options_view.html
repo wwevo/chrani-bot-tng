@@ -1,14 +1,3 @@
-{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-<div>
-    {{ construct_toggle_link(
-        options_view_toggle,
-        "options", ['widget_event', ['players', ['toggle_players_widget_view', {'steamid': steamid, "action": "show_options"}]]],
-        "back", ['widget_event', ['players', ['toggle_players_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
-    )}}
-</div>
-<div>
-    <a onclick="window.socket.emit('widget_event', ['players', ['toggle_players_widget_view', {'steamid': '{{ steamid }}', 'action': 'show_profiling'}]]);">
-        profiling
-    </a>
-</div>
+{%- from 'jinja2_macros.html' import construct_view_menu with context -%}
+{{ construct_view_menu(views, current_view, 'players', steamid, 'frontend') }}
 

@@ -6,6 +6,37 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# VIEW REGISTRY - Defines all available views for this widget
+# ═══════════════════════════════════════════════════════════════════════════
+VIEW_REGISTRY = {
+    'frontend': {
+        'label_active': 'back',
+        'label_inactive': 'main',
+        'action': 'show_frontend',
+        'include_in_menu': False  # Default view
+    },
+    'options': {
+        'label_active': 'back',
+        'label_inactive': 'options',
+        'action': 'show_options',
+        'include_in_menu': True
+    },
+    'profiling': {
+        'label_active': 'back',
+        'label_inactive': 'profiling',
+        'action': 'show_profiling',
+        'include_in_menu': True
+    },
+    'info': {
+        'label_active': 'back',
+        'label_inactive': 'info',
+        'action': 'show_info_view',
+        'include_in_menu': False  # Shown contextually (per player)
+    }
+}
+
+
 def get_player_table_row_css_class(player_dict):
     css_classes = []
 
@@ -211,7 +242,8 @@ def frontend_view(*args, **kwargs):
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=(current_view in ["frontend", "delete-modal"]),
+            views=VIEW_REGISTRY,
+            current_view=current_view,
             steamid=dispatchers_steamid
         )
     )
@@ -264,13 +296,16 @@ def options_view(*args, **kwargs):
     template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
     template_options_toggle_view = module.templates.get_template('manage_players_widget/control_switch_options_view.html')
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
     options_toggle = module.template_render_hook(
         module,
         template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=False,
+            views=VIEW_REGISTRY,
+            current_view=current_view,
             steamid=dispatchers_steamid
         )
     )
@@ -314,13 +349,16 @@ def show_info_view(*args, **kwargs):
         .get("current_view_steamid", "frontend")
     )
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
     options_toggle = module.template_render_hook(
         module,
         template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=False,
+            views=VIEW_REGISTRY,
+            current_view=current_view,
             steamid=dispatchers_steamid
         )
     )
@@ -366,13 +404,16 @@ def profiling_view(*args, **kwargs):
         'manage_players_widget/control_switch_options_view.html'
     )
 
+    current_view = module.get_current_view(dispatchers_steamid)
+
     options_toggle = module.template_render_hook(
         module,
         template=template_options_toggle,
         control_switch_options_view=module.template_render_hook(
             module,
             template=template_options_toggle_view,
-            options_view_toggle=False,
+            views=VIEW_REGISTRY,
+            current_view=current_view,
             steamid=dispatchers_steamid
         )
     )
