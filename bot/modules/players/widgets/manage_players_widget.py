@@ -36,6 +36,8 @@ def select_view(*args, **kwargs):
         options_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "info":
         show_info_view(module, dispatchers_steamid=dispatchers_steamid)
+    elif current_view == "profiling":
+        profiling_view(module, dispatchers_steamid=dispatchers_steamid)
     elif current_view == "delete-modal":
         frontend_view(module, dispatchers_steamid=dispatchers_steamid)
         delete_modal_view(module, dispatchers_steamid=dispatchers_steamid)
@@ -337,6 +339,59 @@ def show_info_view(*args, **kwargs):
         template=template_frontend,
         options_toggle=options_toggle,
         player=player_dict
+    )
+
+    module.webserver.send_data_to_client_hook(
+        module,
+        payload=data_to_emit,
+        data_type="widget_content",
+        clients=[dispatchers_steamid],
+        method="update",
+        target_element={
+            "id": "manage_players_widget",
+            "type": "table",
+            "selector": "body > main > div"
+        }
+    )
+
+
+def profiling_view(*args, **kwargs):
+    """Performance profiling view with button to start tracking test."""
+    module = args[0]
+    dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
+
+    template_frontend = module.templates.get_template('manage_players_widget/view_profiling.html')
+    template_options_toggle = module.templates.get_template('manage_players_widget/control_switch_view.html')
+    template_options_toggle_view = module.templates.get_template(
+        'manage_players_widget/control_switch_options_view.html'
+    )
+
+    options_toggle = module.template_render_hook(
+        module,
+        template=template_options_toggle,
+        control_switch_options_view=module.template_render_hook(
+            module,
+            template=template_options_toggle_view,
+            options_view_toggle=False,
+            steamid=dispatchers_steamid
+        )
+    )
+
+    # Check if profiling is enabled
+    import os
+    profiling_enabled = os.getenv('PROFILING_ENABLED', '').lower() == 'true'
+
+    # Check tracking status
+    from bot.tracking import tracker
+    tracking_active = tracker._test_start is not None
+
+    data_to_emit = module.template_render_hook(
+        module,
+        template=template_frontend,
+        options_toggle=options_toggle,
+        profiling_enabled=profiling_enabled,
+        tracking_active=tracking_active,
+        steamid=dispatchers_steamid
     )
 
     module.webserver.send_data_to_client_hook(

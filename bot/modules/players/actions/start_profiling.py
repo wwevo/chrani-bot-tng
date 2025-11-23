@@ -6,35 +6,33 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, event_data, dispatchers_steamid):
-    action = event_data[1].get("action", None)
     event_data[1]["action_identifier"] = action_name
-    player_steamid = event_data[1].get("steamid", None)
 
-    if action == "show_options":
-        current_view = "options"
-        current_view_steamid = None
-    elif action == "show_frontend":
-        current_view = "frontend"
-        current_view_steamid = None
-    elif action == "show_info_view":
-        current_view = "info"
-        current_view_steamid = player_steamid
-    elif action == "show_profiling":
-        current_view = "profiling"
-        current_view_steamid = None
-    else:
+    # Start tracking manually
+    from bot.tracking import tracker
+
+    if not tracker._enabled:
+        event_data[1]["fail_reason"] = ["PROFILING_ENABLED is not set"]
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    module.set_current_view(dispatchers_steamid, {
-        "current_view": current_view,
-        "current_view_steamid": current_view_steamid
-    })
+    if tracker._test_start is not None:
+        event_data[1]["fail_reason"] = ["Tracking already active"]
+        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        return
+
+    # Manually activate tracking for 'lp' command
+    tracker.start_tracking("lp")
+
     module.callback_success(callback_success, module, event_data, dispatchers_steamid)
 
 
 def callback_success(module, event_data, dispatchers_steamid, match=None):
-    pass
+    # Refresh the profiling view to show updated status
+    module.set_current_view(dispatchers_steamid, {
+        "current_view": "profiling",
+        "current_view_steamid": None
+    })
 
 
 def callback_fail(module, event_data, dispatchers_steamid):
@@ -42,7 +40,7 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
 
 action_meta = {
-    "description": "manages player entries",
+    "description": "starts performance profiling test for LP commands",
     "main_function": main_function,
     "callback_success": callback_success,
     "callback_fail": callback_fail,

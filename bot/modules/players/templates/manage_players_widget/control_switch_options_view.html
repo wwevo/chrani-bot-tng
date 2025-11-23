@@ -6,4 +6,9 @@
         "back", ['widget_event', ['players', ['toggle_players_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
     )}}
 </div>
+<div>
+    <a onclick="window.socket.emit('widget_event', ['players', ['toggle_players_widget_view', {'steamid': '{{ steamid }}', 'action': 'show_profiling'}]]);">
+        profiling
+    </a>
+</div>
 

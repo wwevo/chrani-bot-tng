@@ -230,12 +230,8 @@ class Telnet(Module):
         else:
             added = False
 
-        # Track if enabled
+        # Track if enabled AND tracking was manually started
         if added and tracker.should_track(debug_id):
-            # First command? Start tracking
-            if tracker._test_start is None:
-                tracker.start_tracking(debug_id)
-
             # Register command → tracking_id mapping
             tracker.register_command(command, tracking_id)
 
