@@ -252,17 +252,13 @@ class Webserver(Module):
                                 has_sockets=len(self.connected_clients.get(steamid, type('obj', (), {'socket_ids': []})).socket_ids) > 0
                             )
 
-                emit_count = 0
                 for data_package in data_packages_to_send:
                     try:
-                        emit_start = time()
                         self.websocket.emit(
                             'data',
                             data_package[0],
                             **data_package[1]
                         )
-                        profiler.record("webserver_socketio_emit", time() - emit_start)
-                        emit_count += 1
                     except Exception as error:
                         # Socket emit failed - log the error
                         logger.error(
@@ -271,10 +267,6 @@ class Webserver(Module):
                             error=str(error),
                             error_type=type(error).__name__
                         )
-
-                # Track how many emits happened
-                if emit_count > 0:
-                    profiler.record("webserver_emit_count", emit_count)
 
     def emit_event_status(self, module, event_data, recipient_steamid, status=None):
         clients = recipient_steamid

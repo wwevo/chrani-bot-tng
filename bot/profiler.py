@@ -22,7 +22,7 @@ class Profiler:
         self._enabled = os.getenv('PROFILING_ENABLED', '').lower() == 'true'
         self._log_file = None
         self._write_counter = 0
-        self._write_interval = 100  # Write stats every 100 measurements
+        self._write_interval = 1000  # Write stats every 1000 measurements
 
         if self._enabled:
             # Create log file with timestamp
