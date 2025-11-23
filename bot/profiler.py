@@ -45,53 +45,56 @@ class Profiler:
         if not self._enabled:
             return
 
-        with self._lock:
-            metric = self._metrics[metric_name]
-            metric["count"] += 1
-            metric["total_time"] += duration
-            metric["min_time"] = min(metric["min_time"], duration)
-            metric["max_time"] = max(metric["max_time"], duration)
-            metric["samples"].append(duration)
+        metric = self._metrics[metric_name]
+        metric["count"] += 1
+        metric["total_time"] += duration
+        metric["min_time"] = min(metric["min_time"], duration)
+        metric["max_time"] = max(metric["max_time"], duration)
+        metric["samples"].append(duration)
+
+        # Write stats every N measurements
+        self._write_counter += 1
+        if self._write_counter >= self._write_interval:
+            self._write_counter = 0
+            self.write_stats()
 
     def get_stats(self, metric_name):
         """Get statistics for a metric."""
-        with self._lock:
-            metric = self._metrics[metric_name]
-            if metric["count"] == 0:
-                return None
+        metric = self._metrics[metric_name]
+        if metric["count"] == 0:
+            return None
 
-            avg = metric["total_time"] / metric["count"]
+        avg = metric["total_time"] / metric["count"]
 
-            # Calculate p95 (95th percentile)
-            samples = sorted(metric["samples"])
-            p95_idx = int(len(samples) * 0.95)
-            p95 = samples[p95_idx] if samples else 0
+        # Calculate p95 (95th percentile)
+        samples = sorted(metric["samples"])
+        p95_idx = int(len(samples) * 0.95)
+        p95 = samples[p95_idx] if samples else 0
 
-            return {
-                "count": metric["count"],
-                "avg": avg,
-                "p95": p95,
-                "max": metric["max_time"]
-            }
+        return {
+            "count": metric["count"],
+            "avg": avg,
+            "p95": p95,
+            "max": metric["max_time"]
+        }
 
     def write_stats(self):
         """Write current stats to log file."""
         if not self._enabled or not self._log_file:
             return
 
-        with self._lock:
-            timestamp = datetime.now().strftime('%H:%M:%S')
-            with open(self._log_file, 'a') as f:
-                for metric_name in self._metrics.keys():
-                    stats = self.get_stats(metric_name)
-                    if stats:
-                        f.write(
-                            f"[{timestamp}] {metric_name}: "
-                            f"count={stats['count']} "
-                            f"avg={stats['avg']*1000:.2f}ms "
-                            f"p95={stats['p95']*1000:.2f}ms "
-                            f"max={stats['max']*1000:.2f}ms\n"
-                        )
+        timestamp = datetime.now().strftime('%H:%M:%S')
+        with open(self._log_file, 'a') as f:
+            for metric_name in self._metrics.keys():
+                stats = self.get_stats(metric_name)
+                if stats:
+                    f.write(
+                        f"[{timestamp}] {metric_name}: "
+                        f"count={stats['count']} "
+                        f"avg={stats['avg']*1000:.2f}ms "
+                        f"p95={stats['p95']*1000:.2f}ms "
+                        f"max={stats['max']*1000:.2f}ms\n"
+                    )
 
 
 class _ProfilerContext:
