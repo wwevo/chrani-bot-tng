@@ -10,6 +10,124 @@ import telnetlib
 logger = get_logger("telnet")
 
 
+class PriorityCommandQueue:
+    """
+    Priority-based command queue with rate limiting.
+
+    Supports three priority levels:
+    - high: Critical commands (teleportplayer, kick) - execute immediately
+    - normal: Regular polling commands (lp, gettime)
+    - low: Non-critical commands (listthreads, stats)
+    """
+
+    def __init__(self):
+        self.queues = {
+            'high': deque(),
+            'normal': deque(),
+            'low': deque()
+        }
+        # Rate limits: (max_commands, time_window_seconds)
+        self.rate_limits = {
+            'high': (10, 1.0),    # max 10 high-priority commands per second
+            'normal': (6, 1.0),   # max 6 normal-priority commands per second
+            'low': (3, 1.0)       # max 3 low-priority commands per second
+        }
+        # Track when commands were sent for rate limiting
+        self.last_sent = {
+            'high': deque(maxlen=10),
+            'normal': deque(maxlen=6),
+            'low': deque(maxlen=3)
+        }
+
+    def add_command(self, command, priority='normal'):
+        """
+        Add command to queue with specified priority.
+
+        Args:
+            command: The telnet command string
+            priority: 'high', 'normal', or 'low'
+
+        Returns:
+            True if added, False if duplicate
+        """
+        if priority not in self.queues:
+            priority = 'normal'
+
+        queue = self.queues[priority]
+
+        # Prevent duplicates
+        if command not in queue:
+            queue.appendleft(command)
+            return True
+        return False
+
+    def get_next_batch(self, max_total=6):
+        """
+        Get next batch of commands respecting priorities and rate limits.
+
+        Args:
+            max_total: Maximum total commands to return
+
+        Returns:
+            List of (command, priority) tuples
+        """
+        current_time = time()
+        batch = []
+
+        # Try high priority first (up to 50% of batch)
+        high_batch = self._get_from_queue('high', current_time, max_total // 2)
+        batch.extend([(cmd, 'high') for cmd in high_batch])
+
+        # Fill rest with normal priority
+        remaining = max_total - len(batch)
+        if remaining > 0:
+            normal_batch = self._get_from_queue('normal', current_time, remaining)
+            batch.extend([(cmd, 'normal') for cmd in normal_batch])
+
+        # Low priority only if nothing else
+        if not batch:
+            low_batch = self._get_from_queue('low', current_time, max_total)
+            batch.extend([(cmd, 'low') for cmd in low_batch])
+
+        return batch
+
+    def _get_from_queue(self, priority, current_time, max_count):
+        """
+        Get commands from specific priority queue with rate limiting.
+
+        Args:
+            priority: Priority level
+            current_time: Current timestamp
+            max_count: Maximum commands to retrieve
+
+        Returns:
+            List of command strings
+        """
+        max_rate, time_window = self.rate_limits[priority]
+
+        # Clean old timestamps outside time window
+        cutoff = current_time - time_window
+        sent_times = self.last_sent[priority]
+        while sent_times and sent_times[0] < cutoff:
+            sent_times.popleft()
+
+        # Check how many slots available
+        available_slots = max_rate - len(sent_times)
+        count = min(max_count, available_slots, len(self.queues[priority]))
+
+        commands = []
+        queue = self.queues[priority]
+        for _ in range(count):
+            try:
+                cmd = queue.popleft()
+                commands.append(cmd)
+                sent_times.append(current_time)
+            except IndexError:
+                break
+
+        return commands
+
+
 class Telnet(Module):
     tn = object
 
@@ -17,13 +135,13 @@ class Telnet(Module):
     valid_telnet_lines = deque
 
     telnet_lines_to_process = deque
-    telnet_command_queue = deque
+    telnet_command_queue = object  # PriorityCommandQueue instance
 
     dom_element_root = list
     dom_element_select_root = list
 
     def __init__(self):
-        self.telnet_command_queue = deque()
+        self.telnet_command_queue = PriorityCommandQueue()
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
@@ -217,32 +335,40 @@ class Telnet(Module):
         else:
             return []
 
-    def add_telnet_command_to_queue(self, command):
-        if command not in self.telnet_command_queue:
-            self.telnet_command_queue.appendleft(command)
-            return True
+    def add_telnet_command_to_queue(self, command, action_meta=None, priority='normal'):
+        """
+        Add command to queue with priority from action_meta or explicit value.
 
-        return False
+        Args:
+            command: The telnet command string
+            action_meta: Optional action metadata dict containing 'command_priority'
+            priority: Explicit priority if action_meta not provided
+
+        Returns:
+            True if added, False if duplicate
+        """
+        # Extract priority from action_meta if provided
+        if action_meta and 'command_priority' in action_meta:
+            priority = action_meta['command_priority']
+
+        added = self.telnet_command_queue.add_command(command, priority)
+
+        # High-priority commands execute immediately (rate-limited)
+        if added and priority == 'high':
+            self._execute_high_priority_batch()
+
+        return added
 
     def execute_telnet_command_queue(self, this_many_lines):
+        """Execute commands from priority queue respecting rate limits."""
         from bot.profiler import profiler
 
         with profiler.measure("telnet_execute_queue"):
-            telnet_command_list = []
-            current_queue_length = 0
-            done = False
-            initial_queue_length = len(self.telnet_command_queue)
-            while (current_queue_length < this_many_lines) and not done:
-                try:
-                    telnet_command_list.append(self.telnet_command_queue.popleft())
-                    current_queue_length += 1
-                except IndexError:
-                    done = True
+            # Get next batch respecting priorities and rate limits
+            batch = self.telnet_command_queue.get_next_batch(max_total=this_many_lines)
 
-            remaining_queue_length = len(self.telnet_command_queue)
-            # print(initial_queue_length, ":", remaining_queue_length)
-
-            for telnet_command in reversed(telnet_command_list):
+            # Send each command
+            for telnet_command, priority in batch:
                 command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
                 try:
@@ -251,9 +377,39 @@ class Telnet(Module):
                 except Exception as error:
                     logger.error("telnet_command_send_failed",
                                 command=telnet_command,
+                                priority=priority,
                                 error=str(error),
-                                error_type=type(error).__name__,
-                                queue_size=remaining_queue_length)
+                                error_type=type(error).__name__)
+
+    def _execute_high_priority_batch(self):
+        """Execute high-priority commands immediately (rate-limited)."""
+        if not hasattr(self, 'tn') or not self.tn:
+            return
+
+        # Check if server is online
+        server_online = self.dom.data.get(self.get_module_identifier(), {}).get("server_is_online")
+        if not server_online:
+            return
+
+        # Get small batch of high-priority commands (max 3)
+        batch = self.telnet_command_queue.get_next_batch(max_total=3)
+
+        # Only execute if there are high-priority commands
+        high_priority_batch = [(cmd, prio) for cmd, prio in batch if prio == 'high']
+
+        for telnet_command, priority in high_priority_batch:
+            command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
+
+            try:
+                self.tn.write(command.encode('ascii'))
+                logger.debug("high_priority_command_executed",
+                            command=telnet_command[:50])  # Truncate for logging
+
+            except Exception as error:
+                logger.error("high_priority_command_failed",
+                            command=telnet_command,
+                            error=str(error),
+                            error_type=type(error).__name__)
     # endregion
 
     # ==================== Line Processing Helper Methods ====================
