@@ -1,11 +1,15 @@
 from bot import loaded_modules_dict
+from bot.profiler import profiler
 from os import path, pardir
+from time import time
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(*args, **kwargs):
+    start_time = time()
+
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
@@ -17,6 +21,7 @@ def main_function(*args, **kwargs):
         found_lobby = True
 
     if found_lobby is False:
+        profiler.record("player_moved_callback", time() - start_time)
         return
 
     # only dive into this when not authenticated
@@ -35,16 +40,19 @@ def main_function(*args, **kwargs):
 
         # Prevent race conditions: Don't teleport players who are disconnecting
         if on_the_move_player_dict.get("is_online", False) is False:
+            profiler.record("player_moved_callback", time() - start_time)
             return
 
         # Prevent feedback loop: Don't teleport if already pending
         player_steamid = on_the_move_player_dict.get("steamid")
         if player_steamid in module.players.pending_teleports:
+            profiler.record("player_moved_callback", time() - start_time)
             return
 
         pos_is_inside_coordinates = module.locations.position_is_inside_boundary(updated_values_dict, lobby_dict)
         if pos_is_inside_coordinates is True:
             # nothing to do, we are inside the lobby
+            profiler.record("player_moved_callback", time() - start_time)
             return
 
         # no early exits, seems like the player is outside an active lobby without any authentication!
@@ -84,6 +92,9 @@ def main_function(*args, **kwargs):
             'steamid': player_steamid
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)
+        profiler.record("player_moved_callback", time() - start_time)
+    else:
+        profiler.record("player_moved_callback", time() - start_time)
 
 
 trigger_meta = {
