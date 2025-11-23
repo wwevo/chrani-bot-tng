@@ -62,13 +62,16 @@ class CommandTracker:
 
         test_duration = (datetime.now() - self._test_start).total_seconds()
 
+        # Sort timeline chronologically by timestamp
+        sorted_timeline = sorted(self._events, key=lambda x: x.get('ts', ''))
+
         output = {
             "command": self._debug_id,
             "test_duration": test_duration,
             "commands_queued": self._stats['queued'],
             "commands_sent": self._stats['sent'],
             "command_results_matched": self._stats['matched'],
-            "timeline": self._events
+            "timeline": sorted_timeline
         }
 
         with open(self._log_file, 'w') as f:
