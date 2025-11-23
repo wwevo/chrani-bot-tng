@@ -67,7 +67,7 @@ def main_function(module, event_data, dispatchers_steamid=None):
             pos_z=int(float(target_coordinates["z"]))
         )
 
-        if not module.telnet.add_telnet_command_to_queue(command):
+        if not module.telnet.add_telnet_command_to_queue(command, action_meta=action_meta):
             event_data[1]["fail_reason"] = "duplicate command"
             module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
             return
@@ -120,6 +120,7 @@ action_meta = {
     "callback_success": callback_success,
     "callback_fail": callback_fail,
     "requires_telnet_connection": True,
+    "command_priority": "high",  # Execute immediately - security critical
     "enabled": True
 }
 
