@@ -5,9 +5,8 @@ Only active when PROFILING_ENABLED=true environment variable is set.
 """
 
 import os
-from time import time, sleep
+from time import time
 from collections import defaultdict, deque
-from threading import Lock, Thread
 from datetime import datetime
 
 
@@ -20,10 +19,10 @@ class Profiler:
             "max_time": 0,
             "samples": deque(maxlen=100)
         })
-        self._lock = Lock()
         self._enabled = os.getenv('PROFILING_ENABLED', '').lower() == 'true'
         self._log_file = None
-        self._writer_thread = None
+        self._write_counter = 0
+        self._write_interval = 100  # Write stats every 100 measurements
 
         if self._enabled:
             # Create log file with timestamp
@@ -36,16 +35,6 @@ class Profiler:
             with open(self._log_file, 'w') as f:
                 f.write(f"Profiling started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 f.write("=" * 80 + "\n\n")
-
-            # Start background writer thread
-            self._writer_thread = Thread(target=self._periodic_writer, daemon=True)
-            self._writer_thread.start()
-
-    def _periodic_writer(self):
-        """Background thread that writes stats every 30 seconds."""
-        while True:
-            sleep(30)
-            self.write_stats()
 
     def measure(self, metric_name):
         """Context manager for measuring execution time."""
