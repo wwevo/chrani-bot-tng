@@ -513,12 +513,7 @@
     // Create NEW handler function that captures current local scope
     // This must be recreated each time to access current locationShapes/playerMarkers
     window.mapDataHandler = function(data) {
-        const handlerStart = performance.now();
 
-        // Log incoming player updates
-        if (data.data_type === 'player_position_update') {
-            console.log(`[PERF][WEBSOCKET] player_position_update received at ${handlerStart.toFixed(2)}ms`);
-        }
 
         // Map metadata (gameprefs, dataset info)
         if (data.data_type === 'map_metadata' && data.payload) {
@@ -542,12 +537,6 @@
         // Update player list after player updates
         if (data.data_type === 'player_position_update') {
             updatePlayerList();
-        }
-
-        // Log total handler time for player updates
-        if (data.data_type === 'player_position_update') {
-            const handlerEnd = performance.now();
-            console.log(`[PERF][WEBSOCKET] Total handler time: ${(handlerEnd - handlerStart).toFixed(2)}ms`);
         }
     };
 
@@ -577,7 +566,6 @@
 
     // Function to update legend content in bottom bar
     function updateLegend() {
-        const start = performance.now();
         const legendDiv = document.getElementById('map-legend');
         if (!legendDiv) return;
 
@@ -615,8 +603,6 @@
                 <span class="legend-value">${playerCount}</span>
             </div>
         `;
-        const end = performance.now();
-        console.log(`[PERF][LEGEND] updateLegend took ${(end - start).toFixed(2)}ms`);
     }
 
     // Initial legend update
@@ -628,7 +614,6 @@
 
     // Function to update player list in sidebar
     function updatePlayerList() {
-        const start = performance.now();
         const playerListItems = document.getElementById('player-list-items');
         const playerCountSpan = document.getElementById('player-count');
         if (!playerListItems || !playerCountSpan) return;
@@ -669,8 +654,6 @@
                 </div>
             `;
         }).join('');
-        const end = performance.now();
-        console.log(`[PERF][PLAYERLIST] updatePlayerList took ${(end - start).toFixed(2)}ms`);
     }
 
     // Function to select a player from the list (zoom to position and show details)
