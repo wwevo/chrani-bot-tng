@@ -21,8 +21,8 @@ class Profiler:
         })
         self._enabled = os.getenv('PROFILING_ENABLED', '').lower() == 'true'
         self._log_file = None
-        self._write_counter = 0
-        self._write_interval = 1000  # Write stats every 1000 measurements
+        self._last_write_time = 0
+        self._write_interval_seconds = 10  # Write stats every 10 seconds
 
         if self._enabled:
             # Create log file with timestamp
@@ -52,10 +52,10 @@ class Profiler:
         metric["max_time"] = max(metric["max_time"], duration)
         metric["samples"].append(duration)
 
-        # Write stats every N measurements
-        self._write_counter += 1
-        if self._write_counter >= self._write_interval:
-            self._write_counter = 0
+        # Write stats every N seconds
+        current_time = time()
+        if current_time - self._last_write_time >= self._write_interval_seconds:
+            self._last_write_time = current_time
             self.write_stats()
 
     def get_stats(self, metric_name):
