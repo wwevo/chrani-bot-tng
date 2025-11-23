@@ -89,9 +89,18 @@ trigger_meta = {
     "description": "sends player updates to webmap clients",
     "main_function": send_player_update_to_map,
     "handlers": {
-        # Only trigger on position updates - we fetch all other data from DOM anyway
-        # This reduces 11 separate WebSocket events per lp-poll down to 1 event
+        # Listen to all player field updates that are relevant for the map
         "module_players/elements/%map_identifier%/%steamid%/pos": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/health": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/level": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/zombies": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/deaths": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/players": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/score": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/ping": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/is_authenticated": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/in_limbo": send_player_update_to_map,
+        "module_players/elements/%map_identifier%/%steamid%/is_initialized": send_player_update_to_map,
     }
 }
 
