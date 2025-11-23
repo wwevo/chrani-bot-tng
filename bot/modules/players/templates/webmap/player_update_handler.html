@@ -1,5 +1,6 @@
 // Handle player position updates
 if (data.data_type === 'player_position_update' && data.payload) {
+    const markerStart = performance.now();
     const playerData = data.payload;
     const steamid = playerData.steamid;
     const pos = playerData.position;
@@ -58,4 +59,6 @@ if (data.data_type === 'player_position_update' && data.payload) {
         playerMarkers[steamid] = marker;
 
     }
+    const markerEnd = performance.now();
+    console.log(`[PERF][MARKER] Player marker update took ${(markerEnd - markerStart).toFixed(2)}ms`);
 }
