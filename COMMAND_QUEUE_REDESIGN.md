@@ -160,18 +160,71 @@ def _execute_high_priority_batch(self):
 
 ### 4. Usage Changes
 
-**Before:**
+**Priority Definition in Meta:**
+
+Priorities are defined in action/trigger metadata, not hardcoded:
+
 ```python
 # In teleport_player.py
-if not module.telnet.add_telnet_command_to_queue(command):
-    # ...
+action_meta = {
+    "description": "teleports a player",
+    "main_function": main_function,
+    "callback_success": callback_success,
+    "callback_fail": callback_fail,
+    "requires_telnet_connection": True,
+    "command_priority": "high",  # ← Priority defined here!
+    "enabled": True
+}
 ```
 
-**After:**
+**Telnet Module Integration:**
+
+The telnet module automatically extracts priority from the calling context:
+
 ```python
-# In teleport_player.py
-if not module.telnet.add_telnet_command_to_queue(command, priority='high'):
+# Option 1: Explicit priority from action_meta
+def add_telnet_command_to_queue(self, command, action_meta=None, priority='normal'):
+    """Add command with priority from action metadata or explicit value."""
+    if action_meta and 'command_priority' in action_meta:
+        priority = action_meta['command_priority']
+
+    return self.command_queue.add_command(command, priority)
+
+# Usage in action:
+module.telnet.add_telnet_command_to_queue(command, action_meta=action_meta)
+```
+
+```python
+# Option 2: Helper method that bundles command + meta
+def queue_action_command(self, command, action_meta):
+    """Queue a command with priority from action metadata."""
+    priority = action_meta.get('command_priority', 'normal')
+    return self.add_telnet_command_to_queue(command, priority=priority)
+
+# Usage in action:
+module.telnet.queue_action_command(command, action_meta)
+```
+
+**Examples:**
+
+```python
+# High priority: teleport_player.py
+action_meta = {
+    "command_priority": "high",
     # ...
+}
+
+# Normal priority: get_players.py
+action_meta = {
+    "command_priority": "normal",  # or omit (defaults to normal)
+    # ...
+}
+
+# Low priority: list_threads.py
+action_meta = {
+    "command_priority": "low",
+    # ...
+}
 ```
 
 ### 5. Benefits
@@ -223,3 +276,54 @@ if not module.telnet.add_telnet_command_to_queue(command, priority='high'):
 - Reason: Immediate execution + rate limit buffer
 
 **CPU Impact:** Minimal - same number of commands, just better scheduled
+
+## Future Enhancements (Post 1.0)
+
+### Web Interface for Priority Management
+
+Allow admins to adjust command priorities via webinterface:
+
+**Features:**
+- View all actions/commands with current priorities
+- Adjust priority (high/normal/low) per action
+- Adjust rate limits per priority tier
+- Monitor command queue stats in real-time
+- History of priority changes (audit log)
+
+**UI Mockup:**
+```
+┌─────────────────────────────────────────────────────┐
+│ Command Priority Management                         │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│ Action               Current    New      [Save]     │
+│ ─────────────────────────────────────────────────   │
+│ teleportplayer       HIGH       [▼]                 │
+│ getplayers           NORMAL     [▼]                 │
+│ kick                 HIGH       [▼]                 │
+│ listthreads          LOW        [▼]                 │
+│                                                      │
+│ Rate Limits:                                        │
+│ ─────────────────────────────────────────────────   │
+│ High:   [10] commands per [1.0] seconds            │
+│ Normal: [ 6] commands per [1.0] seconds            │
+│ Low:    [ 3] commands per [1.0] seconds            │
+│                                                      │
+│ Queue Stats (last 60s):                             │
+│ ─────────────────────────────────────────────────   │
+│ High:   245 commands, avg wait: 23ms                │
+│ Normal: 180 commands, avg wait: 156ms               │
+│ Low:    12 commands, avg wait: 2.3s                 │
+└─────────────────────────────────────────────────────┘
+```
+
+**Implementation:**
+- Store priority overrides in database
+- Merge with default action_meta values
+- Reload on-the-fly without restart
+- Validate rate limits to prevent telnet overload
+
+**Benefits:**
+- Fine-tune performance without code changes
+- Adapt to server load dynamically
+- Debug priority issues quickly
