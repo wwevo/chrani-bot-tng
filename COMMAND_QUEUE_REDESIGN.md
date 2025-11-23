@@ -279,6 +279,10 @@ action_meta = {
 
 ## Future Enhancements (Post 1.0)
 
+### TODO 1.0a - Medium Priority
+- Consider distinguishing between game-commands (telnet) and bot-commands (internal) in action_meta
+- Needs more planning
+
 ### Web Interface for Priority Management
 
 Allow admins to adjust command priorities via webinterface:
