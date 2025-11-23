@@ -225,32 +225,35 @@ class Telnet(Module):
         return False
 
     def execute_telnet_command_queue(self, this_many_lines):
-        telnet_command_list = []
-        current_queue_length = 0
-        done = False
-        initial_queue_length = len(self.telnet_command_queue)
-        while (current_queue_length < this_many_lines) and not done:
-            try:
-                telnet_command_list.append(self.telnet_command_queue.popleft())
-                current_queue_length += 1
-            except IndexError:
-                done = True
+        from bot.profiler import profiler
 
-        remaining_queue_length = len(self.telnet_command_queue)
-        # print(initial_queue_length, ":", remaining_queue_length)
+        with profiler.measure("telnet_execute_queue"):
+            telnet_command_list = []
+            current_queue_length = 0
+            done = False
+            initial_queue_length = len(self.telnet_command_queue)
+            while (current_queue_length < this_many_lines) and not done:
+                try:
+                    telnet_command_list.append(self.telnet_command_queue.popleft())
+                    current_queue_length += 1
+                except IndexError:
+                    done = True
 
-        for telnet_command in reversed(telnet_command_list):
-            command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
+            remaining_queue_length = len(self.telnet_command_queue)
+            # print(initial_queue_length, ":", remaining_queue_length)
 
-            try:
-                self.tn.write(command.encode('ascii'))
+            for telnet_command in reversed(telnet_command_list):
+                command = "{command}{line_end}".format(command=telnet_command, line_end="\r\n")
 
-            except Exception as error:
-                logger.error("telnet_command_send_failed",
-                            command=telnet_command,
-                            error=str(error),
-                            error_type=type(error).__name__,
-                            queue_size=remaining_queue_length)
+                try:
+                    self.tn.write(command.encode('ascii'))
+
+                except Exception as error:
+                    logger.error("telnet_command_send_failed",
+                                command=telnet_command,
+                                error=str(error),
+                                error_type=type(error).__name__,
+                                queue_size=remaining_queue_length)
     # endregion
 
     # ==================== Line Processing Helper Methods ====================
@@ -442,42 +445,45 @@ class Telnet(Module):
     # ==================== Main Run Loop ====================
 
     def run(self):
+        from bot.profiler import profiler
+
         while not self.stopped.wait(self.next_cycle):
-            profile_start = time()
+            with profiler.measure("telnet_run_cycle"):
+                profile_start = time()
 
-            # Throttle connection attempts: only try if connected or timeout passed since last failure
-            can_attempt_connection = (
-                self.last_connection_loss is None or
-                profile_start > self.last_connection_loss + TELNET_TIMEOUT_RECONNECT
-            )
+                # Throttle connection attempts: only try if connected or timeout passed since last failure
+                can_attempt_connection = (
+                    self.last_connection_loss is None or
+                    profile_start > self.last_connection_loss + TELNET_TIMEOUT_RECONNECT
+                )
 
-            if can_attempt_connection:
-                try:
-                    self.telnet_response = self.tn.read_very_eager().decode("utf-8")
-                    
-                    # Log raw telnet data for diagnostics (only if file logging is enabled)
-                    if len(self.telnet_response) > 0:
-                        log_telnet_raw(self.telnet_response, direction="incoming")
-                        
-                except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as error:
-                    self._handle_connection_error(error)
-                except Exception as error:
-                    logger.error("telnet_unforeseen_error",
-                                error=str(error),
-                                error_type=type(error).__name__,
-                                host=self.options.get("host"),
-                                port=self.options.get("port"))
+                if can_attempt_connection:
+                    try:
+                        self.telnet_response = self.tn.read_very_eager().decode("utf-8")
 
-            # Process any telnet response data
-            if len(self.telnet_response) > 0:
-                self._update_telnet_buffer()
-                self._process_telnet_response_lines()
+                        # Log raw telnet data for diagnostics (only if file logging is enabled)
+                        if len(self.telnet_response) > 0:
+                            log_telnet_raw(self.telnet_response, direction="incoming")
 
-            if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
-                self.execute_telnet_command_queue(self.max_command_queue_execution)
+                    except (AttributeError, EOFError, ConnectionAbortedError, ConnectionResetError) as error:
+                        self._handle_connection_error(error)
+                    except Exception as error:
+                        logger.error("telnet_unforeseen_error",
+                                    error=str(error),
+                                    error_type=type(error).__name__,
+                                    host=self.options.get("host"),
+                                    port=self.options.get("port"))
 
-            self.last_execution_time = time() - profile_start
-            self.next_cycle = self.run_observer_interval - self.last_execution_time
+                # Process any telnet response data
+                if len(self.telnet_response) > 0:
+                    self._update_telnet_buffer()
+                    self._process_telnet_response_lines()
+
+                if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
+                    self.execute_telnet_command_queue(self.max_command_queue_execution)
+
+                self.last_execution_time = time() - profile_start
+                self.next_cycle = self.run_observer_interval - self.last_execution_time
 
 
 loaded_modules_dict[Telnet().get_module_identifier()] = Telnet()

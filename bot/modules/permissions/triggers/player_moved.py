@@ -9,6 +9,7 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 def main_function(*args, **kwargs):
     start_time = time()
+
     module = args[0]
     original_values_dict = kwargs.get("original_values_dict", {})
     updated_values_dict = kwargs.get("updated_values_dict", {})
@@ -20,6 +21,7 @@ def main_function(*args, **kwargs):
         found_lobby = True
 
     if found_lobby is False:
+        profiler.record("player_moved_callback", time() - start_time)
         return
 
     # only dive into this when not authenticated
@@ -90,6 +92,8 @@ def main_function(*args, **kwargs):
             'steamid': player_steamid
         }]
         module.trigger_action_hook(module.locations, event_data=event_data)
+        profiler.record("player_moved_callback", time() - start_time)
+    else:
         profiler.record("player_moved_callback", time() - start_time)
 
 
