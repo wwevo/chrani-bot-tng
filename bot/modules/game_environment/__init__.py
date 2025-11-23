@@ -22,7 +22,6 @@ class Environment(Module):
         ])
 
         self.next_cycle = 0
-        self.getgameprefs_executed = False  # Flag to prevent duplicate execution
         Module.__init__(self)
 
     @staticmethod
@@ -80,11 +79,9 @@ class Environment(Module):
         while not self.stopped.wait(self.next_cycle):
             profile_start = time()
 
-            if not self.getgameprefs_executed and self.available_actions_dict.get("getgameprefs", {}).get("enabled", False):
-                self.getgameprefs_executed = True  # Set immediately to prevent race condition
-                self.trigger_action_hook(self, event_data=["getgameprefs", {
-                    "disable_after_success": True
-                }])
+            self.trigger_action_hook(self, event_data=["getgameprefs", {
+                "disable_after_success": True
+            }])
 
             # requires getgameprefs to be successful
             self.trigger_action_hook(self, event_data=["getgamestats", {
