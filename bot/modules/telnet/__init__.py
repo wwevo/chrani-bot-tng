@@ -35,10 +35,10 @@ class Telnet(Module):
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
             "max_telnet_buffer": 16384,
-            "max_command_queue_execution": 6,
+            "max_command_queue_execution": 15,
             "match_types_generic": {
                 'log_start': [
-                    r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\sINF .*",
+                    r"\A(?P<datetime>\d{4}.+?)\s(?P<gametime_in_seconds>.+?)\s(INF|WRN) .*",
                     r"\ATime:\s(?P<servertime_in_minutes>.*)m\s",
                 ],
                 'log_end': [
