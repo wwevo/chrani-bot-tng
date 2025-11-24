@@ -40,7 +40,6 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     if module.telnet.add_telnet_command_to_queue("lp"):
         poll_is_finished = False
-        # Modern format - matches both empty and populated player lists
         regex = (
             r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
             r"(?P<called_by>.*?)\r?\n"

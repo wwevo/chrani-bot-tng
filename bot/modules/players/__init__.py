@@ -107,7 +107,7 @@ class Players(Module):
             self.trigger_action_hook(self, event_data=["getadmins", {
                 "disable_after_success": True
             }])
-            self.trigger_action_hook(self, event_data=["getplayers", {}])
+            self.trigger_action_hook(self, event_data=["lp", {}])
 
             self.last_execution_time = time() - profile_start
             self.next_cycle = self.run_observer_interval - self.last_execution_time
