@@ -14,35 +14,27 @@ def main_function(module, event_data, dispatchers_steamid=None):
     if active_dataset is None:
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
-    timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
+    event_data[1]["fail_reason"] = []
 
-    if not module.telnet.add_telnet_command_to_queue("getgamestat"):
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
-        return
+    if module.telnet.add_telnet_command_to_queue("getgamestat"):
+        regex = (
+            r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
+            r"INF Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+            r"(?P<raw_gamestats>(?:GameStat\..*?\r?\n)+)"
+        )
+        poll_is_finished = False
 
-    # Modern format: timestamps ARE present in "Executing command" lines
-    # Format: 2025-11-18T20:21:02 4854.528 INF Executing command 'getgamestat'...
-    regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'getgamestat\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
-        r"(?P<raw_gamestats>(?:GameStat\..*?\r?\n)+)"
-    )
+        while not poll_is_finished and (time() < timeout_start + TELNET_TIMEOUT_NORMAL):
+            sleep(0.25)  # give the telnet a little time to respond so we have a chance to get the data at first try
+            for match in re.finditer(regex, module.telnet.telnet_buffer, re.MULTILINE):
+                poll_is_finished = True
+                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
 
-    match = None
-    match_found = False
-    poll_is_finished = False
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)  # give the telnet a little time to respond so we have a chance to get the data at first try
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer, re.MULTILINE):
-            poll_is_finished = True
-            match_found = True
-
-    if match_found:
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-        return
+        event_data[1]["fail_reason"].append("timed out waiting for response")
+    else:
+        event_data[1]["fail_reason"].append("action already queued up")
 
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 

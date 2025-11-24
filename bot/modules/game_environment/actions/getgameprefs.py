@@ -14,34 +14,30 @@ def main_function(module, event_data, dispatchers_steamid=None):
     timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
+    event_data[1]["fail_reason"] = []
 
-    if not module.telnet.add_telnet_command_to_queue("getgamepref"):
+    if module.telnet.add_telnet_command_to_queue("getgamepref"):
+        poll_is_finished = False
+        regex = (
+            r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
+            r"INF Executing\scommand\s\'getgamepref\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+            r"(?P<raw_gameprefs>(?:GamePref\..*?\r?\n)+)"
+        )
+
+        while not poll_is_finished and (time() < timeout_start + timeout):
+            sleep(0.25)
+            match = False
+
+            match = re.search(regex, module.telnet.telnet_buffer, re.MULTILINE)
+            if match:
+                poll_is_finished = True
+                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
+
+        event_data[1]["fail_reason"].append("timed out waiting for response")
+    else:
+        event_data[1]["fail_reason"].append("action already queued up")
+
         module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
-        return
-
-    # Modern format: timestamps ARE present in "Executing command" lines
-    # Format: 2025-11-18T20:21:02 4854.528 INF Executing command 'getgamepref'...
-    regex = (
-        r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s"
-        r"INF Executing\scommand\s\'getgamepref\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
-        r"(?P<raw_gameprefs>(?:GamePref\..*?\r?\n)+)"
-    )
-
-    match = None
-    match_found = False
-    poll_is_finished = False
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)
-        match = re.search(regex, module.telnet.telnet_buffer, re.MULTILINE)
-        if match:
-            poll_is_finished = True
-            match_found = True
-
-    if match_found:
-        module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-        return
-
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
 def validate_settings(regex, raw_gameprefs):
