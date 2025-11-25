@@ -1,4 +1,3 @@
-from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
 from os import path, pardir
@@ -29,18 +28,6 @@ def main_function(origin_module, module, regex_result):
             "is_online": False,
             "is_initialized": False
         })
-
-        player_name = player_dict.get("name", regex_result.group("player_name"))
-        last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
-        payload = '{} left {} at {}'.format(player_name, active_dataset, last_seen_gametime_string)
-
-        discord_payload_url = origin_module.options.get("discord_webhook", None)
-        if discord_payload_url is not None:
-            webhook = DiscordWebhook(
-                url=discord_payload_url,
-                content=payload
-            )
-            webhook.execute()
 
         executed_trigger = True
 

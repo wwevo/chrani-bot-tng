@@ -1,7 +1,8 @@
-from bot import loaded_modules_dict
+import re
 from os import path, pardir
 from time import sleep, time
-import re
+
+from bot import loaded_modules_dict
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
@@ -15,9 +16,10 @@ def main_function(module, event_data, dispatchers_steamid):
         return
 
     poll_is_finished = False
-    # Modern format - no datetime/stardate prefix, just look for "Disconnect"
-    regex = r"Disconnect.*"
-
+    regex = (
+        r"(?P<datetime>.+?)\s(?P<stardate>[-+]?\d*\.\d+|\d+)\s.*\s"
+        r"INF Disconnect.*"
+    )
     timeout_start = time()
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.5)

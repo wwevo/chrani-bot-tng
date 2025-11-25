@@ -27,10 +27,10 @@ def main_function(origin_module, module, regex_result):
 trigger_meta = {
     "description": "DISABLED: Modern 7D2D (V 2.x+) no longer includes timestamps in telnet output",
     "main_function": main_function,
-    "triggers": [
-        # Disabled: Modern 7D2D servers no longer include datetime/stardate in telnet responses
-        # This trigger is obsolete for modern server versions
-    ]
+    "triggers": [{
+        "regex": telnet_prefixes["telnet_log"]["timestamp"],
+        "callback": main_function
+    }]
 }
 
 loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)

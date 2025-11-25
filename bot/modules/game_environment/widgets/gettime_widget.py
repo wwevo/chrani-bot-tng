@@ -42,7 +42,6 @@ def main_widget(*args, **kwargs):
         module,
         payload=data_to_emit,
         data_type="widget_content",
-        clients=[dispatchers_steamid],
         target_element={
             "id": "gametime_widget",
             "type": "div",
@@ -58,6 +57,7 @@ def update_widget(*args, **kwargs):
 
     gametime = updated_values_dict.get("last_recorded_gametime", None)
     old_gametime = original_values_dict.get("last_recorded_gametime", None)
+
     if gametime is None:
         module.trigger_action_hook(module, event_data=["gettime", {}])
         return False
@@ -87,7 +87,6 @@ def update_widget(*args, **kwargs):
         module,
         payload=data_to_emit,
         data_type="widget_content",
-        clients=module.webserver.connected_clients.keys(),
         target_element={
             "id": "gametime_widget",
             "type": "div",

@@ -1,4 +1,3 @@
-from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from bot import telnet_prefixes
 from bot.logger import get_logger
@@ -18,15 +17,6 @@ def main_function(origin_module, module, regex_result):
 
     if command == "joined the game":
         player_name = regex_result.group("player_name")
-        payload = '{} joined {} at {}'.format(player_name, active_dataset, last_recorded_gametime_string)
-
-        discord_payload_url = origin_module.options.get("discord_webhook", None)
-        if discord_payload_url is not None:
-            webhook = DiscordWebhook(
-                url=discord_payload_url,
-                content=payload
-            )
-            webhook.execute()
 
     elif any([
         command == "EnterMultiplayer",
@@ -107,7 +97,7 @@ def main_function(origin_module, module, regex_result):
                                error_type=type(e).__name__)
 
     if update_player_pos:
-        player_to_be_updated = regex_result.group("player_steamid")
+        player_steamid = regex_result.group("player_steamid")
         pos_after_teleport = {
             "pos": {
                 "x": regex_result.group("pos_x"),
@@ -122,12 +112,18 @@ def main_function(origin_module, module, regex_result):
             "module_players": {
                 "elements": {
                     active_dataset: {
-                        player_to_be_updated: pos_after_teleport
+                        player_steamid: pos_after_teleport
                     }
                 }
             }
         })
 
+        players_module = loaded_modules_dict.get("module_players")
+        if players_module is None:
+            logger.error("teleport_callback_players_module_not_found", steamid=player_steamid)
+            return
+
+        pending_teleport = players_module.pending_teleports.get(player_steamid)
         # Remove from pending registry AFTER position update
         # This ensures player_moved trigger sees teleport as still pending
         if pending_teleport:

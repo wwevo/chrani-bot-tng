@@ -1,4 +1,3 @@
-from .discord_webhook import DiscordWebhook
 from bot import loaded_modules_dict
 from os import path, pardir
 

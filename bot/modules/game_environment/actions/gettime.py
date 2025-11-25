@@ -1,7 +1,8 @@
-from bot import loaded_modules_dict
+from bot import loaded_modules_dict, telnet_prefixes
 from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
 from time import sleep, time
+from datetime import datetime, timezone
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -116,16 +117,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
                     "is_bloodday": is_bloodday
                 }
             }
-        }
-    })
-
-    # Update last_recorded_servertime for webserver status widget
-    # Since modern 7D2D servers don't include timestamps in telnet output,
-    # we use system time to track when data was last received
-    from datetime import datetime
-    module.dom.data.upsert({
-        "module_telnet": {
-            "last_recorded_servertime": datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         }
     })
 

@@ -161,8 +161,6 @@ def unmatched_patterns_view(*args, **kwargs):
     module = args[0]
     dispatchers_steamid = kwargs.get('dispatchers_steamid', None)
 
-
-
     # Load templates
     template_unmatched_patterns = module.templates.get_template('telnet_log_widget/view_unmatched_patterns.html')
     template_view_menu = module.templates.get_template('telnet_log_widget/control_view_menu.html')
@@ -176,19 +174,12 @@ def unmatched_patterns_view(*args, **kwargs):
     all_selected_elements_count = 0
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
 
-
-
-
-
     # Iterate over map_identifier -> pattern_id -> pattern_data
     for map_identifier, patterns_dict in all_unmatched_patterns.items():
 
         if active_dataset == map_identifier:
 
             for pattern_id, pattern_data in patterns_dict.items():
-
-
-
                 pattern_is_selected_by = pattern_data.get("selected_by", [])
 
                 pattern_entry_selected = False

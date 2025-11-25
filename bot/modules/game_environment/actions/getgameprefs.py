@@ -11,10 +11,8 @@ logger = get_logger("game_environment.getgameprefs")
 
 
 def main_function(module, event_data, dispatchers_steamid=None):
-    timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
-    event_data[1]["fail_reason"] = []
 
     if module.telnet.add_telnet_command_to_queue("getgamepref"):
         poll_is_finished = False
@@ -24,20 +22,23 @@ def main_function(module, event_data, dispatchers_steamid=None):
             r"(?P<raw_gameprefs>(?:GamePref\..*?\r?\n)+)"
         )
 
-        while not poll_is_finished and (time() < timeout_start + timeout):
+        timeout_end = timeout_start + TELNET_TIMEOUT_NORMAL
+        while not poll_is_finished and (time() < timeout_end):
             sleep(0.25)
-            match = False
 
             match = re.search(regex, module.telnet.telnet_buffer, re.MULTILINE)
             if match:
                 poll_is_finished = True
                 module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
 
-        event_data[1]["fail_reason"].append("timed out waiting for response")
+        if not poll_is_finished:
+            event_data[1]["fail_reason"] = []
+            event_data[1]["fail_reason"].append("timed out waiting for response")
     else:
+        event_data[1]["fail_reason"] = []
         event_data[1]["fail_reason"].append("action already queued up")
 
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
 def validate_settings(regex, raw_gameprefs):
