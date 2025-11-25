@@ -77,7 +77,7 @@ class DomManagement(Module):
             template=module.dom_management.templates.get_template('control_select_link.html'),
             dom_element_select_root=kwargs.get("dom_element_select_root"),
             target_module=kwargs.get("target_module"),
-            dom_element_entry_selected=kwargs.get("all_elements_selected"),
+            dom_element_entry_selected=kwargs.get("dom_element_entry_selected"),
             dom_element=kwargs.get("dom_element"),
             dom_action_inactive=kwargs.get("dom_action_inactive"),
             dom_action_active=kwargs.get("dom_action_active"),
@@ -157,7 +157,7 @@ class DomManagement(Module):
         control_select_link = module.dom_management.get_selection_dom_element(
             module,
             target_module=target_module.get_module_identifier(),
-            dom_element_select_root=dom_element_select_root,
+            dom_element_select_root=["selected_by"],
             dom_element=dom_element,
             dom_element_entry_selected=dom_element_entry_selected,
             dom_action_inactive=dom_action_inactive,
@@ -219,7 +219,53 @@ class DomManagement(Module):
                 target_element=dom_element_id
             )
 
-    # endregion
+    def update_select_all_checkbox_status(self, *args, **kwargs):
+        module = args[0]
 
+        dom_element_id = kwargs.get("dom_element_id", None)
+        active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+        all_available_entity_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
+        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
+
+        all_selected_elements_count = 0
+        total_elements_count = 0
+
+        for map_identifier, entity_dicts in all_available_entity_dicts.items():
+            if active_dataset == map_identifier:
+                for entity_id, entity_dict in entity_dicts.items():
+                    total_elements_count += 1
+                    entity_is_selected_by = entity_dict.get("selected_by", [])
+                    if dispatchers_steamid in entity_is_selected_by:
+                        all_selected_elements_count += 1
+
+        all_elements_selected = (all_selected_elements_count == total_elements_count and total_elements_count > 0)
+
+        select_all_checkbox_content = module.dom_management.get_select_all_checkbox_dom_element(
+            module,
+            target_module="module_game_environment",
+            dom_element_select_root=['selected_by'],
+            dom_element_entry_selected=all_elements_selected,
+            dom_element_root=kwargs.get("dom_element_root", []),
+            dom_element={
+                "owner": "select_all_control",
+                "identifier": dom_element_id,
+                "dataset": active_dataset,
+                "dataset_original": active_dataset
+            },
+            dom_action_inactive="select_all_dom_elements",
+            dom_action_active="deselect_all_dom_elements"
+        )
+
+        sanitized_dataset = module.dom_management.sanitize_for_html_id(active_dataset) if active_dataset else "none"
+        select_all_checkbox = '<span id="entity_table_{}_select_all_checkbox">{}</span>'.format(sanitized_dataset, select_all_checkbox_content)
+
+        module.webserver.send_data_to_client_hook(
+            module,
+            payload=select_all_checkbox,
+            data_type="element_content",
+            clients=[dispatchers_steamid],
+            method="replace",
+            target_element=dom_element_id
+        )
 
 loaded_modules_dict[DomManagement().get_module_identifier()] = DomManagement()

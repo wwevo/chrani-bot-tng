@@ -154,7 +154,7 @@ def frontend_view(*args, **kwargs):
         module,
         target_module="module_game_environment",
         dom_element_select_root=["selected_by"],
-        all_elements_selected=all_elements_selected,
+        dom_element_entry_selected=all_elements_selected,
         dom_element={
             "owner": "select_all_control",
             "identifier": "select_all_control",
@@ -166,7 +166,7 @@ def frontend_view(*args, **kwargs):
     )
 
     # Wrap checkbox in span with ID for targeted updates
-    select_all_checkbox = '<span id="entity_table_select_all_checkbox">{}</span>'.format(select_all_checkbox_content)
+    select_all_checkbox = '<span id="entity_table_{}_select_all_checkbox">{}</span>'.format(sanitized_dataset, select_all_checkbox_content)
 
     data_to_emit = module.template_render_hook(
         module,
@@ -417,55 +417,18 @@ def update_delete_button_status(*args, **kwargs):
 def update_select_all_checkbox_status(*args, **kwargs):
     module = args[0]
 
-    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    all_available_entity_dicts = module.dom.data.get(module.get_module_identifier(), {}).get("elements", {})
+    updated_values_dict = kwargs.get("updated_values_dict", None)
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(updated_values_dict["dataset"])
 
-    # Count selected and total elements for all connected clients
-    for clientid in module.webserver.connected_clients.keys():
-        all_selected_elements_count = 0
-        total_elements_count = 0
-
-        for map_identifier, entity_dicts in all_available_entity_dicts.items():
-            if active_dataset == map_identifier:
-                for entity_id, entity_dict in entity_dicts.items():
-                    total_elements_count += 1
-                    entity_is_selected_by = entity_dict.get("selected_by", [])
-                    if clientid in entity_is_selected_by:
-                        all_selected_elements_count += 1
-
-        # Calculate if all elements are selected for this client
-        all_elements_selected = (all_selected_elements_count == total_elements_count and total_elements_count > 0)
-
-        # Create updated checkbox
-        sanitized_dataset = module.dom_management.sanitize_for_html_id(active_dataset) if active_dataset else "none"
-        select_all_checkbox_content = module.dom_management.get_select_all_checkbox_dom_element(
-            module,
-            target_module="module_game_environment",
-            dom_element_select_root=["selected_by"],
-            all_elements_selected=all_elements_selected,
-            dom_element={
-                "owner": "select_all_control",
-                "identifier": "select_all_control",
-                "dataset": sanitized_dataset,
-                "dataset_original": active_dataset
-            },
-            dom_action_inactive="select_all_dom_elements",
-            dom_action_active="deselect_all_dom_elements"
-        )
-
-        # Send update to client
-        module.webserver.send_data_to_client_hook(
-            module,
-            payload=select_all_checkbox_content,
-            data_type="dom_element_update",
-            clients=[clientid],
-            target_element={
-                "id": "entity_table_select_all_checkbox",
-                "type": "span",
-                "selector": "body > main > div > div#manage_entities_widget"
-            }
-        )
-
+    module.dom_management.update_select_all_checkbox_status(
+        *args, **kwargs,
+        target_module=module,
+        dom_action_active="deselect_dom_element",
+        dom_action_inactive="select_dom_element",
+        dom_element_id={
+            "id": "entity_table_{}_select_all_checkbox".format(sanitized_dataset)
+        }
+    )
 
 widget_meta = {
     "description": "sends and updates a table of all currently known entities",
