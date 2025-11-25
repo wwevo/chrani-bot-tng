@@ -83,9 +83,11 @@ def frontend_view(*args, **kwargs):
 
     table_rows = ""
     all_selected_elements_count = 0
+    total_elements_count = 0
     for map_identifier, entity_dicts in all_available_entity_dicts.items():
         if active_dataset == map_identifier:
             for entity_id, entity_dict in entity_dicts.items():
+                total_elements_count += 1
                 entity_is_selected_by = entity_dict.get("selected_by", [])
 
                 entity_entry_selected = False
@@ -143,6 +145,26 @@ def frontend_view(*args, **kwargs):
         dom_element_select_root=module.dom_element_select_root
     )
 
+    # Calculate if all elements are selected
+    all_elements_selected = (all_selected_elements_count == total_elements_count and total_elements_count > 0)
+
+    # Create Select All checkbox
+    sanitized_dataset = module.dom_management.sanitize_for_html_id(active_dataset) if active_dataset else "none"
+    select_all_checkbox = module.dom_management.get_select_all_checkbox_dom_element(
+        module,
+        target_module="module_game_environment",
+        dom_element_select_root=["selected_by"],
+        all_elements_selected=all_elements_selected,
+        dom_element={
+            "owner": "select_all_control",
+            "identifier": "select_all_control",
+            "dataset": sanitized_dataset,
+            "dataset_original": active_dataset
+        },
+        dom_action_inactive="select_all_dom_elements",
+        dom_action_active="deselect_all_dom_elements"
+    )
+
     data_to_emit = module.template_render_hook(
         module,
         template=template_frontend,
@@ -155,7 +177,8 @@ def frontend_view(*args, **kwargs):
         table_footer=module.template_render_hook(
             module,
             template=template_table_footer,
-            action_delete_button=dom_element_delete_button
+            action_delete_button=dom_element_delete_button,
+            select_all_checkbox=select_all_checkbox
         )
     )
 

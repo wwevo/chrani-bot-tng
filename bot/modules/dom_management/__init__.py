@@ -70,6 +70,23 @@ class DomManagement(Module):
         )
 
     @staticmethod
+    def get_select_all_checkbox_dom_element(*args, **kwargs):
+        module = args[0]
+        return module.template_render_hook(
+            module,
+            template=module.dom_management.templates.get_template('control_select_link.html'),
+            dom_element_select_root=kwargs.get("dom_element_select_root"),
+            target_module=kwargs.get("target_module"),
+            dom_element_entry_selected=kwargs.get("all_elements_selected"),
+            dom_element=kwargs.get("dom_element"),
+            dom_action_inactive=kwargs.get("dom_action_inactive"),
+            dom_action_active=kwargs.get("dom_action_active"),
+            event_action=kwargs.get("event_action", "select_all"),
+            label_active=kwargs.get("label_active", "&#9745; all"),
+            label_inactive=kwargs.get("label_inactive", "&#9744; all")
+        )
+
+    @staticmethod
     def get_delete_button_dom_element(*args, **kwargs):
         module = args[0]
         return module.template_render_hook(

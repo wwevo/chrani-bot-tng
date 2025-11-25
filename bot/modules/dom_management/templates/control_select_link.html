@@ -3,9 +3,12 @@
 {% set identifier = dom_element.identifier|default("null") %}
 {% set dataset = dom_element.dataset|default("null") %}
 {% set dataset_original = dom_element.dataset_original|default(dataset) %}
+{% set event_action = event_action|default('select') %}
+{% set label_active = label_active|default("&#9745;") %}
+{% set label_inactive = label_inactive|default("&#9744;") %}
 {{ construct_toggle_link(
     dom_element_entry_selected,
-    "&#9745;", ['widget_event', ['dom_management', ['select', {
+    label_active, ['widget_event', ['dom_management', [event_action, {
         "dom_element_select_root": dom_element_select_root,
         "target_module": target_module,
         "dom_element_owner": owner,
@@ -13,7 +16,7 @@
         "dom_element_origin": dataset_original,
         'action': dom_action_active
     }]]],
-    "&#9744;", ['widget_event', ['dom_management', ['select', {
+    label_inactive, ['widget_event', ['dom_management', [event_action, {
         "dom_element_select_root": dom_element_select_root,
         "target_module": target_module,
         "dom_element_owner": owner,
