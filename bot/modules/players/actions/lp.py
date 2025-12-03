@@ -1,7 +1,6 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_SHORT, TELNET_PREFIXES
 from os import path, pardir
-from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -12,40 +11,22 @@ def main_function(module, action_meta, dispatchers_id=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
+        return
 
-    return
+    # NEW: Send command with ticket-based system
+    regex = action_meta.get("regex")[0]
+    ticket = module.telnet.send_command("lp", regex, timeout=TELNET_TIMEOUT_SHORT)
+    result = ticket.wait()
 
-    timeout = TELNET_TIMEOUT_SHORT
-    timeout_start = time()
-    event_data[1]["action_identifier"] = action_name
-    event_data[1]["fail_reason"] = []
-
-    if module.telnet.add_telnet_command_to_queue("lp"):
-        poll_is_finished = False
-        regex = action_meta.get("regex")[0]
-
-
-        while not poll_is_finished and (time() < timeout_start + timeout):
-            sleep(0.25)
-            match = False
-            for match in re.finditer(regex, module.telnet.telnet_buffer):
-                poll_is_finished = True
-
-            if match:
-                module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-                return
-
-        event_data[1]["fail_reason"].append("timed out waiting for response")
+    if result['success']:
+        module.callback_success(callback_success, action_meta, dispatchers_id, result['match'])
     else:
-        event_data[1]["fail_reason"].append("action already queued up")
-
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        # Timeout - print debug buffer
+        print(f"[lp] Action timeout. Buffer received:\n{result['buffer']}")
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
 def callback_success(module, action_meta, dispatchers_id, match=None):
-    return
-
-    """ without a place to store this, why bother """
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_count = int(match.group("player_count"))
     if all([
@@ -107,7 +88,6 @@ def callback_success(module, action_meta, dispatchers_id, match=None):
     # set all players not currently online to offline
     online_players_list = list(players_to_update_dict.keys())
     for steamid, existing_player_dict in all_players_dict.items():
-        print(existing_player_dict)
         if existing_player_dict["is_initialized"] is False:
             continue
 
@@ -136,8 +116,6 @@ def callback_success(module, action_meta, dispatchers_id, match=None):
 
 
 def callback_skip(module, action_meta, dispatchers_id=None):
-    return
-
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         return
@@ -162,8 +140,6 @@ def callback_skip(module, action_meta, dispatchers_id=None):
 
 
 def callback_fail(module, action_meta, dispatchers_id=None):
-    return
-
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         return
