@@ -6,8 +6,9 @@ from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
 from bot.mixins.widget import Widget
+from bot.mixins.thread_manager import ThreadManager
 
-class Module(Thread, Action, Trigger, Template, Widget):
+class Module(Thread, Action, Trigger, Template, Widget, ThreadManager):
     options = dict
     stopped = object
 
@@ -101,6 +102,12 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
             # Call hook for module-specific iteration work
             loop_log = self.on_run_loop_iteration(loop_log, profile_start)
+
+            # Check for thread timeouts (only in one module to avoid redundancy)
+            if self.get_module_identifier() == "module_dom":
+                killed = ThreadManager.check_thread_timeouts()
+                if killed:
+                    loop_log += f"killed {len(killed)} timed out threads | "
 
             # Execute periodic actions
             for action_id, action_meta in self.available_actions_dict.items():

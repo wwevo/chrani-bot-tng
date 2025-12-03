@@ -1,6 +1,5 @@
 from importlib import import_module
 from os import path, listdir, pardir
-from threading import Thread
 
 from bot import loaded_modules_dict
 
@@ -19,11 +18,13 @@ class Widget(object):
             print("starting widgets {} for {}".format(self.get_module_identifier(), list(self.available_widgets_dict.keys())))
             for name, widget_meta in self.available_widgets_dict.items():
                 if widget_meta["main_widget"] is not None:
-                    Thread(
-                        target=widget_meta["main_widget"],
-                        args=(self, widget_meta),
-                        kwargs={'dispatchers_id': steamid}
-                    ).start()
+                    self.spawn_tracked(
+                        f"widget_{name}",
+                        widget_meta["main_widget"],
+                        self, widget_meta,
+                        dispatchers_id=steamid,
+                        timeout=30  # Widgets should complete within 30 seconds
+                    )
 
     @staticmethod
     def template_render(*args, **kwargs):

@@ -92,31 +92,26 @@ class Action(object):
                         user_has_permission is None,
                         user_has_permission is True
                     ]):
-                        Thread(
-                            target=action_meta.get("main_function"),
-                            args=(target_module, action_meta, dispatchers_id)
-                        ).start()
+                        target_module.spawn_tracked(
+                            f"action_{action_id}",
+                            action_meta.get("main_function"),
+                            target_module, action_meta, dispatchers_id,
+                            timeout=30  # Actions should complete within 30 seconds
+                        )
                     else:
-                        # in case we don't have permission, we call the fail callback. it then can determine what to do
-                        # next
+                        # in case we don't have permission, we call the skip callback
                         skip_callback = action_meta.get("callbacks").get("callback_skip")
-                        Thread(
-                            target=target_module.callback_skip(
-                                skip_callback,
-                                target_module,
-                                action_meta,
-                                dispatchers_id
-                            ),
-                            args=(target_module, action_meta, dispatchers_id)
-                        ).start()
+                        target_module.spawn_tracked(
+                            f"callback_skip_{action_id}",
+                            target_module.callback_skip,
+                            skip_callback, action_meta, dispatchers_id,
+                            timeout=5
+                        )
                 else:
                     skip_callback = action_meta.get("callbacks").get("callback_skip")
-                    Thread(
-                        target=target_module.callback_skip(
-                            skip_callback,
-                            target_module,
-                            action_meta,
-                            dispatchers_id
-                        ),
-                        args=(target_module, action_meta, dispatchers_id)
-                    ).start()
+                    target_module.spawn_tracked(
+                        f"callback_skip_{action_id}_offline",
+                        target_module.callback_skip,
+                        skip_callback, action_meta, dispatchers_id,
+                        timeout=5
+                    )

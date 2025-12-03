@@ -1,5 +1,4 @@
 from typing import List, Optional, Callable
-from threading import Thread
 from copy import deepcopy
 
 class CallbackDict(dict):
@@ -172,11 +171,13 @@ class CallbackDict(dict):
                     "updated_data": relevant_updated
                 }
 
-                Thread(
-                    target=callback["callback"],
-                    args=[callback["module"], callback_kwargs],
-                    kwargs={"dispatchers_id": dispatchers_steamid}
-                ).start()
+                callback["module"].spawn_tracked(
+                    f"callback_{callback['callback_path'].replace('/', '_')}",
+                    callback["callback"],
+                    callback["module"], callback_kwargs,
+                    dispatchers_id=dispatchers_steamid,
+                    timeout=10  # Callbacks should complete within 10 seconds
+                )
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
 
@@ -252,11 +253,13 @@ class CallbackDict(dict):
                     "dispatchers_steamid": dispatchers_steamid,
                 }
 
-                Thread(
-                    target=callback["callback"],
-                    args=[callback["module"]],
-                    kwargs=callback_kwargs
-                ).start()
+                callback["module"].spawn_tracked(
+                    f"callback_{callback['callback_path'].replace('/', '_')}",
+                    callback["callback"],
+                    callback["module"],
+                    timeout=10,  # Callbacks should complete within 10 seconds
+                    **callback_kwargs
+                )
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
 
@@ -304,10 +307,12 @@ class CallbackDict(dict):
                     "dispatchers_steamid": dispatchers_steamid,
                 }
 
-                Thread(
-                    target=callback["callback"],
-                    args=[callback["module"]],
-                    kwargs=callback_kwargs
-                ).start()
+                callback["module"].spawn_tracked(
+                    f"callback_{callback['callback_path'].replace('/', '_')}",
+                    callback["callback"],
+                    callback["module"],
+                    timeout=10,  # Callbacks should complete within 10 seconds
+                    **callback_kwargs
+                )
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
