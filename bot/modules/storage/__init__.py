@@ -1,4 +1,6 @@
 from os import path
+from queue import Queue, Empty
+from threading import Thread
 
 from bot import loaded_modules_dict
 from bot.module import Module
@@ -7,6 +9,8 @@ from .persistent_dict import PersistentDict
 
 class Storage(Module):
     root_dir = str
+    save_queue = object
+    writer_thread = object
 
     def __init__(self):
         setattr(self, "default_options", {
@@ -19,6 +23,8 @@ class Storage(Module):
         ])
 
         self.next_cycle = 0
+        self.save_queue = Queue()
+        self.writer_thread = None
         Module.__init__(self)
 
     @staticmethod
@@ -37,11 +43,25 @@ class Storage(Module):
             self.dom.data.update(storage)
 
     def save_dom_to_persistent_dict(self):
-        with PersistentDict(path.join(self.root_dir, "storage.pickle"), 'c', format="pickle") as storage:
-            storage.update(self.dom.data)
+        """Non-blocking save: puts data copy in queue for background writer"""
+        data_copy = self.dom.data.copy()
+        self.save_queue.put(data_copy)
+
+    def _writer_loop(self):
+        """Background thread that processes save queue"""
+        while not self.stopped.is_set():
+            try:
+                data = self.save_queue.get(timeout=1)
+                with PersistentDict(path.join(self.root_dir, "storage.pickle"), 'c', format="pickle") as storage:
+                    storage.update(data)
+            except Empty:
+                continue
 
     def on_start(self):
         self.load_persistent_dict_to_dom()
+        # Start background writer thread
+        self.writer_thread = Thread(target=self._writer_loop, daemon=True)
+        self.writer_thread.start()
 
     # run() is inherited from Module - periodic actions loop runs automatically!
 
