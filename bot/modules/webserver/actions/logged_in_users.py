@@ -10,26 +10,21 @@ def main_function(module, action_meta, dispatchers_id=None):
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
-    return
+    if module.connected_clients.keys():
+        module.callback_success(callback_success, action_meta, dispatchers_id)
+    else:
+        action_meta["fail_reason"] = ["[{}]: {}".format(action_name, "no clients found")]
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
-    try:
-        connected_clients = list(module.connected_clients.keys())
-    except AttributeError:
-        callback_fail(*args, **kwargs)
-        return
+
+def callback_success(module, action_meta, dispatchers_id=None):
+    connected_clients = list(module.connected_clients.keys())
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
             "webserver_logged_in_users": connected_clients
         }
     })
-
-
-def callback_success(module, action_meta, dispatchers_id=None, match=None):
-    return
-
-def callback_skip(module, action_meta, dispatchers_id=None):
-    return
 
 def callback_fail(module, action_meta, dispatchers_id=None):
     return

@@ -57,7 +57,10 @@ class Action(object):
             ))
             self.disable_action(action_meta.get("id"))
 
-        callback(self, action_meta, dispatchers_id, match)
+        if match:
+            callback(self, action_meta, dispatchers_id, match)
+        else:
+            callback(self, action_meta, dispatchers_id)
 
     def callback_skip(self, callback, action_meta, dispatchers_id):
         callback(self, action_meta, dispatchers_id)

@@ -1,7 +1,6 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
-from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -12,28 +11,18 @@ def main_function(module, action_meta, dispatchers_id=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
-
-    timeout = TELNET_TIMEOUT_NORMAL
-    timeout_start = time()
-
-    if not module.telnet.add_telnet_command_to_queue("gettime"):
-        module.callback_fail(callback_fail, action_meta, dispatchers_id)
         return
 
-    poll_is_finished = False
-
+    # NEW: Send command with ticket system
     regex = action_meta.get("regex")[0]
-    while not poll_is_finished and (time() < timeout_start + timeout):
-        sleep(0.25)
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer):
-            poll_is_finished = True
+    ticket = module.telnet.send_command("gettime", regex, timeout=TELNET_TIMEOUT_NORMAL)
+    result = ticket.wait()
 
-        if match:
-            module.callback_success(callback_success, action_meta, dispatchers_id, match)
-            return
-
-    module.callback_fail(callback_fail, action_meta, dispatchers_id)
+    if result['success']:
+        module.callback_success(callback_success, action_meta, dispatchers_id, result['match'])
+    else:
+        action_meta["fail_reason"] = ["[{}] action timeout. buffer received: {}".format(action_name, result['buffer'])]
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
 def callback_success(module, action_meta, dispatchers_id=None, match=None):

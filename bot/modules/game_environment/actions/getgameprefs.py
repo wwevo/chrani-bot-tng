@@ -1,7 +1,6 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_PREFIXES
 from os import path, pardir
-from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -9,32 +8,22 @@ action_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, action_meta, dispatchers_id=None):
-    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    if active_dataset is None:
-        module.callback_fail(callback_fail, action_meta, dispatchers_id)
+    # this one cannot wait for an active dataset, as it contains the active dataset to use in the first place.
+    # This command has to run successfully for the bot to work with a server.
+    #
+    # active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    # if active_dataset is None:
+    #     module.callback_fail(callback_fail, action_meta, dispatchers_id)
+    #     return
+    regex = action_meta.get("regex")[0]
+    ticket = module.telnet.send_command("getgamepref", regex, timeout=TELNET_TIMEOUT_NORMAL)
+    result = ticket.wait()
 
-    timeout_start = time()
-    if module.telnet.add_telnet_command_to_queue("getgamepref"):
-        poll_is_finished = False
-        regex = action_meta.get("regex")[0]
-
-        timeout_end = timeout_start + TELNET_TIMEOUT_NORMAL
-        while not poll_is_finished and (time() < timeout_end):
-            sleep(0.25)
-
-            match = re.search(regex, module.telnet.telnet_buffer, re.MULTILINE)
-            if match:
-                poll_is_finished = True
-                module.callback_success(callback_success, action_meta, dispatchers_id, match)
-
-        if not poll_is_finished:
-            action_meta["fail_reason"] = []
-            action_meta["fail_reason"].append("timed out waiting for response")
+    if result['success']:
+        module.callback_success(callback_success, action_meta, dispatchers_id, result['match'])
     else:
-        action_meta["fail_reason"] = []
-        action_meta["fail_reason"].append("action already queued up")
-
-    module.callback_fail(callback_fail, action_meta, dispatchers_id)
+        action_meta["fail_reason"] = ["[{}] action timeout. buffer received: {}".format(action_name, result['buffer'])]
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
 def validate_settings(regex, raw_gameprefs):

@@ -4,23 +4,76 @@ from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_TIMEOUT_RECONNECT, TELNET_LINES_MAX_HISTORY
 from time import time
 from collections import deque
+from queue import Queue, Empty
 import telnetlib
+
+
+class TelnetRequest:
+    """Represents a pending telnet command request with its own response buffer."""
+
+    def __init__(self, command, regex, timeout):
+        self.command = command
+        self.regex = regex
+        self.queued_at = time()
+        self.timeout = timeout
+        self.response_buffer = ""
+        self.is_active = False
+        self.result_queue = Queue(maxsize=1)
+        self.completed = False
+
+    def add_raw_data(self, raw_data):
+        """Add raw telnet data to buffer and check if regex matches."""
+        self.response_buffer += raw_data
+
+        # Try to match regex against accumulated buffer
+        match = re.search(self.regex, self.response_buffer, re.MULTILINE | re.DOTALL)
+        if match:
+            self.result_queue.put({
+                'success': True,
+                'buffer': self.response_buffer,
+                'match': match
+            })
+            self.completed = True
+            return True
+        return False
+
+    def timeout_expired(self):
+        """Called when timeout is reached - provides debug buffer."""
+        if not self.completed:
+            self.result_queue.put({
+                'success': False,
+                'buffer': self.response_buffer,
+                'match': None
+            })
+            self.completed = True
+
+    def wait(self):
+        """Block until result arrives (match or timeout)."""
+        try:
+            return self.result_queue.get(timeout=self.timeout + 1)
+        except Empty:
+            # Shouldn't happen as telnet loop handles timeouts, but safety
+            return {
+                'success': False,
+                'buffer': self.response_buffer,
+                'match': None
+            }
 
 
 class Telnet(Module):
     tn = object
 
-    telnet_buffer = str
     valid_telnet_lines = deque
-
     telnet_lines_to_process = deque
     telnet_command_queue = deque
+    pending_requests = list
 
     dom_element_root = list
     dom_element_select_root = list
 
     def __init__(self):
         self.telnet_command_queue = deque()
+        self.pending_requests = []
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
             "host": "127.0.0.1",
@@ -31,7 +84,6 @@ class Telnet(Module):
             "max_queue_length": 100,
             "run_observer_interval": 3,
             "run_observer_interval_idle": 10,
-            "max_telnet_buffer": 16384,
             "max_command_queue_execution": 15,
             "match_types_generic": {
                 'log_start': [
@@ -71,7 +123,6 @@ class Telnet(Module):
         self.max_command_queue_execution = self.options.get(
             "max_command_queue_execution", self.default_options.get("max_command_queue_execution", None)
         )
-        self.telnet_buffer = ""
 
         self.last_execution_time = 0.0
 
@@ -179,7 +230,25 @@ class Telnet(Module):
         else:
             return []
 
+    def send_command(self, command, regex, timeout=TELNET_TIMEOUT_NORMAL):
+        """
+        New ticket-based API: Send command and get ticket for waiting.
+
+        Args:
+            command: Command string to send (e.g., "lp", "sayplayer 171 'Hello'")
+            regex: Compiled or string regex to match response
+            timeout: Seconds to wait for response
+
+        Returns:
+            TelnetRequest ticket object with wait() method
+        """
+        ticket = TelnetRequest(command, regex, timeout)
+        self.pending_requests.append(ticket)
+        self.telnet_command_queue.appendleft(command)
+        return ticket
+
     def add_telnet_command_to_queue(self, command):
+        """Legacy API - kept for backward compatibility with old actions."""
         if command not in self.telnet_command_queue:
             self.telnet_command_queue.appendleft(command)
             return True
@@ -217,6 +286,7 @@ class Telnet(Module):
         return any(exclude in telnet_line for exclude in elements_excluded_from_logs)
 
     def _store_valid_line(self, valid_line: str) -> None:
+        """Store line for webinterface history."""
         if not self._should_exclude_from_logs(valid_line):
             self.dom.data.append({
                 self.get_module_identifier(): {
@@ -225,6 +295,54 @@ class Telnet(Module):
             }, maxlen=TELNET_LINES_MAX_HISTORY)
 
         self.valid_telnet_lines.append(valid_line)
+
+    def _extract_timestamp_from_line(self, line: str):
+        """Extract timestamp from telnet line for correlation."""
+        timestamp_match = re.match(r"(?P<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})", line)
+        if timestamp_match:
+            # Parse timestamp to float for comparison
+            # For now, just return time() as we queue commands with time()
+            # Server timestamp would need parsing, using queue time is safer
+            return None
+        return None
+
+    def _extract_command_from_line(self, line: str):
+        """Extract command from 'Executing command' line."""
+        match = re.search(r"Executing command '([^']+)'", line)
+        if match:
+            return match.group(1)
+        return None
+
+    def _route_raw_to_tickets(self, raw_data: str) -> None:
+        """Route raw telnet data to tickets - they accumulate everything until match or timeout."""
+
+        # Check if any command is starting in this raw data
+        if "Executing command" in raw_data:
+            for line in raw_data.split('\n'):
+                if "Executing command" in line:
+                    command = self._extract_command_from_line(line)
+                    if command:
+                        # Activate all tickets waiting for this command
+                        for ticket in self.pending_requests:
+                            if ticket.command == command and not ticket.is_active:
+                                ticket.is_active = True
+
+        # Send raw data to all active tickets
+        for ticket in self.pending_requests:
+            if ticket.is_active:
+                completed = ticket.add_raw_data(raw_data)
+                if completed:
+                    ticket.is_active = False
+
+    def _check_expired_tickets(self, current_time: float) -> None:
+        """Check for and handle expired ticket timeouts."""
+        for ticket in self.pending_requests[:]:  # Copy list for safe removal
+            if current_time - ticket.queued_at > ticket.timeout:
+                ticket.timeout_expired()
+                self.pending_requests.remove(ticket)
+
+        # Also remove completed tickets
+        self.pending_requests = [t for t in self.pending_requests if not t.completed]
 
     def _process_first_component(self, component: str) -> str:
         if self.recent_telnet_response is not None:
@@ -277,6 +395,7 @@ class Telnet(Module):
             return self._process_middle_component(component)
 
     def _process_telnet_response_lines(self) -> None:
+        """Process incoming telnet data - route to tickets and store for history."""
         telnet_response_components = self.extract_lines(self.telnet_response)
         total_components = len(telnet_response_components)
 
@@ -288,6 +407,7 @@ class Telnet(Module):
             )
 
             if valid_line is not None:
+                # Store for webinterface history only
                 self.telnet_lines_to_process.append(valid_line)
                 self._store_valid_line(valid_line)
 
@@ -305,25 +425,11 @@ class Telnet(Module):
                     "server_is_online": False
                 }
             })
-            self.telnet_buffer = ""
             self.telnet_response = ""
             if self.last_connection_loss is None:
                 print("telnet_server_unreachable will retry every 10 seconds")
 
             self.last_connection_loss = time()
-
-    def _update_telnet_buffer(self) -> None:
-        self.telnet_buffer += self.telnet_response.lstrip()
-        max_telnet_buffer = self.options.get(
-            "max_telnet_buffer",
-            self.default_options.get("max_telnet_buffer", 12288)
-        )
-        self.telnet_buffer = self.telnet_buffer[-max_telnet_buffer:]
-        self.dom.data.upsert({
-            self.get_module_identifier(): {
-                "telnet_buffer": self.telnet_buffer
-            }
-        })
 
     def on_run_loop_iteration(self, loop_log, profile_start):
         """
@@ -347,8 +453,14 @@ class Telnet(Module):
                 pass
 
         if len(self.telnet_response) > 0:
-            self._update_telnet_buffer()
+            # FIRST: Route raw data to tickets (ungefiltert!)
+            self._route_raw_to_tickets(self.telnet_response)
+
+            # THEN: Parse valid lines for webinterface logging
             self._process_telnet_response_lines()
+
+        # Check for expired tickets
+        self._check_expired_tickets(profile_start)
 
         if self.dom.data.get(self.get_module_identifier()).get("server_is_online") is True:
             self.execute_telnet_command_queue(self.max_command_queue_execution)

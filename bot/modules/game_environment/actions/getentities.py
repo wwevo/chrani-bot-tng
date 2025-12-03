@@ -1,50 +1,33 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_PREFIXES
 from os import path, pardir
-from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, event_data, dispatchers_id=None):
+def main_function(module, action_meta, dispatchers_id=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
-
-    return
-
-    timeout_start = time()
-    event_data[1]["action_identifier"] = action_name
-
-    if not module.telnet.add_telnet_command_to_queue("listents"):
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
         return
 
-    poll_is_finished = False
-    regex = event_data.get("regex")[0]
+    regex = action_meta.get("regex")[0]
+    ticket = module.telnet.send_command("listents", regex, timeout=TELNET_TIMEOUT_NORMAL)
+    result = ticket.wait()
+
+    if result['success']:
+        module.callback_success(callback_success, action_meta, dispatchers_id, result['match'])
+    else:
+        action_meta["fail_reason"] = ["[{}] action timeout. buffer received: {}".format(action_name, result['buffer'])]
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
-    while not poll_is_finished and (time() < timeout_start + TELNET_TIMEOUT_NORMAL):
-        sleep(0.25)
-        match = False
-        for match in re.finditer(regex, module.telnet.telnet_buffer):
-            poll_is_finished = True
-
-        if match:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
-            return
-
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
-
-
-def callback_success(module, action_meta, dispatchers_steamid, match=None):
-    return
-
+def callback_success(module, action_meta, dispatchers_id, match=None):
     raw_entity_data = match.group("raw_entity_data").lstrip()
     if len(raw_entity_data) >= 1:
-        regex = event_data.get("regex")[1]
+        regex = action_meta.get("regex")[1]
         entities_to_update_dict = {}
 
         active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)

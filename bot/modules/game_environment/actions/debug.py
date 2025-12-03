@@ -10,14 +10,17 @@ def main_function(module, action_meta, dispatchers_id=None):
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
-    module.callback_success(callback_success, action_meta, dispatchers_id)
+    module.callback_skip(callback_skip, action_meta, dispatchers_id)
     return
 
 def callback_success(module, action_meta, dispatchers_id=None, match=None):
-    return
+    print("callback_success for action {}".format(action_meta))
+
 
 def callback_skip(module, action_meta, dispatchers_id=None):
-    return
+    print("callback_skip for action {}".format(action_meta))
+    module.callback_success(callback_success, action_meta, dispatchers_id)
+
 
 def callback_fail(module, action_meta, dispatchers_id=None):
     return
