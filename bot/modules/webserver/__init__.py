@@ -37,7 +37,7 @@ class Webserver(Module, Authentication, SocketIOHandlers, GameServerProxy):
             "host": "0.0.0.0",
             "port": 5000,
             "Flask_secret_key": "thisissecret",
-            "SocketIO_asynch_mode": "threading",
+            "SocketIO_asynch_mode": "gevent",
             "SocketIO_use_reloader": False,
             "SocketIO_debug": False,
             "engineio_logger": False,
