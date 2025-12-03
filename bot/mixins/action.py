@@ -2,6 +2,7 @@ from os import path, listdir, pardir
 from importlib import import_module
 from threading import Thread
 from bot import loaded_modules_dict
+from bot.thread_tracker import thread_tracker
 import string
 import random
 
@@ -50,6 +51,11 @@ class Action(object):
             pass
 
     def callback_success(self, callback, action_meta, dispatchers_id, match=None):
+        # Mark thread as completed in tracker
+        tracking_id = action_meta.get("tracking_id")
+        if tracking_id:
+            thread_tracker.mark_completed(tracking_id, "callback_success")
+
         disable_after_success = action_meta.get("parameters").get("disable_after_success")
         if disable_after_success:
             print("disabled {} action {} after one successful run".format(
@@ -63,9 +69,19 @@ class Action(object):
             callback(self, action_meta, dispatchers_id)
 
     def callback_skip(self, callback, action_meta, dispatchers_id):
+        # Mark thread as completed in tracker
+        tracking_id = action_meta.get("tracking_id")
+        if tracking_id:
+            thread_tracker.mark_completed(tracking_id, "callback_skip")
+
         callback(self, action_meta, dispatchers_id)
 
     def callback_fail(self, callback, action_meta, dispatchers_id):
+        # Mark thread as completed in tracker
+        tracking_id = action_meta.get("tracking_id")
+        if tracking_id:
+            thread_tracker.mark_completed(tracking_id, "callback_fail")
+
         callback(self, action_meta, dispatchers_id)
 
 
@@ -95,31 +111,51 @@ class Action(object):
                         user_has_permission is None,
                         user_has_permission is True
                     ]):
+                        # Generate tracking ID and register thread
+                        tracking_id = thread_tracker.generate_tracking_id()
+                        action_meta["tracking_id"] = tracking_id
+                        thread_tracker.register_thread(
+                            tracking_id,
+                            action_id,
+                            target_module.get_module_identifier()
+                        )
+
                         Thread(
                             target=action_meta.get("main_function"),
                             args=(target_module, action_meta, dispatchers_id)
                         ).start()
                     else:
-                        # in case we don't have permission, we call the fail callback. it then can determine what to do
+                        # in case we don't have permission, we call the skip callback. it then can determine what to do
                         # next
                         skip_callback = action_meta.get("callbacks").get("callback_skip")
+
+                        # Generate tracking ID and register thread
+                        tracking_id = thread_tracker.generate_tracking_id()
+                        action_meta["tracking_id"] = tracking_id
+                        thread_tracker.register_thread(
+                            tracking_id,
+                            action_id,
+                            target_module.get_module_identifier()
+                        )
+
                         Thread(
-                            target=target_module.callback_skip(
-                                skip_callback,
-                                target_module,
-                                action_meta,
-                                dispatchers_id
-                            ),
-                            args=(target_module, action_meta, dispatchers_id)
+                            target=target_module.callback_skip,
+                            args=(skip_callback, action_meta, dispatchers_id)
                         ).start()
                 else:
+                    # Server is offline but action requires connection - skip
                     skip_callback = action_meta.get("callbacks").get("callback_skip")
+
+                    # Generate tracking ID and register thread
+                    tracking_id = thread_tracker.generate_tracking_id()
+                    action_meta["tracking_id"] = tracking_id
+                    thread_tracker.register_thread(
+                        tracking_id,
+                        action_id,
+                        target_module.get_module_identifier()
+                    )
+
                     Thread(
-                        target=target_module.callback_skip(
-                            skip_callback,
-                            target_module,
-                            action_meta,
-                            dispatchers_id
-                        ),
-                        args=(target_module, action_meta, dispatchers_id)
+                        target=target_module.callback_skip,
+                        args=(skip_callback, action_meta, dispatchers_id)
                     ).start()

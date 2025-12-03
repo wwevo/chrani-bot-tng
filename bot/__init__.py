@@ -73,3 +73,7 @@ def start_modules():
         started_modules_dict[module_to_start.get_module_identifier()] = module_to_start
     if len(loaded_modules_dict) == len(started_modules_dict):
         print("modules_started {}".format(list(started_modules_dict.keys())))
+
+        # Start thread tracker monitoring
+        from bot.thread_tracker import thread_tracker
+        thread_tracker.start()
