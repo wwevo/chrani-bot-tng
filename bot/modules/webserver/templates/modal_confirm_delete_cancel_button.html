@@ -1,0 +1,10 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+<div id="{{ dom_element_id }}_cancel" class="modal_cancel_button">
+{{ construct_toggle_link(
+    delete_selected_entries_active,
+    label|default("cancel"), ['widget_event', ['webserver', ['delete', {
+        "target_module": target_module,
+        'action': "cancel_delete_selected_dom_elements"
+    }]]]
+) }}
+</div>

@@ -1,7 +1,7 @@
 from os import path
-from time import time
-from bot.module import Module
+
 from bot import loaded_modules_dict
+from bot.module import Module
 from .persistent_dict import PersistentDict
 
 
@@ -10,7 +10,8 @@ class Storage(Module):
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "run_observer_interval": 10
         })
 
         setattr(self, "required_modules", [
@@ -18,43 +19,30 @@ class Storage(Module):
         ])
 
         self.next_cycle = 0
-        self.run_observer_interval = 15
         Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
         return "module_storage"
 
+    def setup(self, options=None):
+        Module.setup(self, options)
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
+        self.root_dir = path.dirname(path.abspath(__file__))
+
     def load_persistent_dict_to_dom(self):
-        with PersistentDict(path.join(self.root_dir, "storage.json"), 'c', format="json") as storage:
+        with PersistentDict(path.join(self.root_dir, "storage.pickle"), 'c', format="pickle") as storage:
             self.dom.data.update(storage)
-#        with PersistentDict(path.join(self.root_dir, "storage_pickle"), 'c', format="pickle") as storage:
-#            self.dom.data.update(storage)
 
     def save_dom_to_persistent_dict(self):
-        with PersistentDict(path.join(self.root_dir, "storage.json"), 'c', format="json") as storage:
+        with PersistentDict(path.join(self.root_dir, "storage.pickle"), 'c', format="pickle") as storage:
             storage.update(self.dom.data)
-#        with PersistentDict(path.join(self.root_dir, "storage_pickle"), 'c', format="pickle") as storage:
-#            storage.update(self.dom.data)
 
-    # region Standard module stuff
-    def setup(self, options=dict):
-        self.root_dir = path.dirname(path.abspath(__file__))
-        Module.setup(self, options)
-
-    def start(self):
-        Module.start(self)
+    def on_start(self):
         self.load_persistent_dict_to_dom()
-    # endregion
 
-    def run(self):
-        while not self.stopped.wait(self.next_cycle):
-            profile_start = time()
-
-            self.save_dom_to_persistent_dict()
-
-            self.last_execution_time = time() - profile_start
-            self.next_cycle = self.run_observer_interval - self.last_execution_time
-
+    # run() is inherited from Module - periodic actions loop runs automatically!
 
 loaded_modules_dict[Storage().get_module_identifier()] = Storage()

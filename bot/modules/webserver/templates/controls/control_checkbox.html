@@ -1,0 +1,22 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+{%- set owner = dom_element.owner|default("null") %}
+{%- set identifier = dom_element.identifier|default("null") %}
+{%- set dataset = dom_element.dataset|default("null") %}
+{%- set event_action = event_action|default('select') %}
+{%- set label_active = label_active|default("&#9745;") %}
+{%- set label_inactive = label_inactive|default("&#9744;") %}
+{{- construct_toggle_link(
+    dom_element_entry_selected,
+    label_active, ['widget_event', ['webserver', [event_action, {
+        "target_module": target_module,
+        "owner_id": owner,
+        "identifier": identifier,
+        'action': dom_action_active
+    }]]],
+    label_inactive, ['widget_event', ['webserver', [event_action, {
+        "target_module": target_module,
+        "owner_id": owner,
+        "identifier": identifier,
+        "action": dom_action_inactive
+    }]]]
+) }}

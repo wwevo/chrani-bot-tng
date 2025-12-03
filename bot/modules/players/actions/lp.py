@@ -1,5 +1,5 @@
 from bot import loaded_modules_dict
-from bot.constants import TELNET_TIMEOUT_SHORT
+from bot.constants import TELNET_TIMEOUT_SHORT, TELNET_PREFIXES
 from os import path, pardir
 from time import sleep, time
 import re
@@ -8,31 +8,13 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def _set_players_offline(players_dict):
-    """
-    Helper function to mark all players in a dictionary as offline.
+def main_function(module, action_meta, dispatchers_id=None):
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
-    Creates a new dictionary with all players set to is_online=False and
-    is_initialized=False. This is used when telnet commands fail or timeout.
+    return
 
-    Args:
-        players_dict: Dictionary of player data keyed by steam_id
-
-    Returns:
-        Dictionary with same players but marked as offline
-    """
-    modified_players = {}
-    for steam_id, player_data in players_dict.items():
-        # Create a copy of the player dict
-        updated_player = player_data.copy()
-        updated_player["is_online"] = False
-        updated_player["is_initialized"] = False
-        modified_players[steam_id] = updated_player
-
-    return modified_players
-
-
-def main_function(module, event_data, dispatchers_steamid=None):
     timeout = TELNET_TIMEOUT_SHORT
     timeout_start = time()
     event_data[1]["action_identifier"] = action_name
@@ -40,12 +22,8 @@ def main_function(module, event_data, dispatchers_steamid=None):
 
     if module.telnet.add_telnet_command_to_queue("lp"):
         poll_is_finished = False
-        regex = (
-            r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s"
-            r"(?P<called_by>.*?)\r?\n"
-            r"(?P<raw_playerdata>[\s\S]*?)"
-            r"Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
-        )
+        regex = action_meta.get("regex")[0]
+
 
         while not poll_is_finished and (time() < timeout_start + timeout):
             sleep(0.25)
@@ -64,7 +42,9 @@ def main_function(module, event_data, dispatchers_steamid=None):
     module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match=None):
+def callback_success(module, action_meta, dispatchers_id, match=None):
+    return
+
     """ without a place to store this, why bother """
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_count = int(match.group("player_count"))
@@ -74,37 +54,15 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     ]):
         return False
 
-    """ get some basic stuff needed later """
-    last_seen_gametime_string = module.game_environment.get_last_recorded_gametime_string()
-
     """ lets extract all data the game provides!! """
-    # Note: Modern regex doesn't capture datetime, using current time instead
-    from datetime import datetime
-    telnet_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     raw_playerdata = match.group("raw_playerdata").lstrip()
-    # Modern 7D2D format includes pltfmid (platform ID) and crossid (Epic cross-platform ID)
-    # Format: pltfmid=Steam_76561198040658370, crossid=EOS_..., ip=..., ping=...
-    regex = (
-        r"\d{1,2}\. id=(?P<id>\d+), (?P<name>[^,]+), "
-        r"pos=\((?P<pos_x>-?\d+\.\d+), (?P<pos_y>-?\d+\.\d+), (?P<pos_z>-?\d+\.\d+)\), "
-        r"rot=\((?P<rot_x>-?\d+\.\d+), (?P<rot_y>-?\d+\.\d+), (?P<rot_z>-?\d+\.\d+)\), "
-        r"remote=(?P<remote>\w+), "
-        r"health=(?P<health>\d+), "
-        r"deaths=(?P<deaths>\d+), "
-        r"zombies=(?P<zombies>\d+), "
-        r"players=(?P<players>\d+), "
-        r"score=(?P<score>\d+), "
-        r"level=(?P<level>\d+), "
-        r"pltfmid=Steam_(?P<steamid>\d+), crossid=(?P<crossid>[\w_]+), "
-        r"ip=(?P<ip>[^,]+), "
-        r"ping=(?P<ping>\d+)"
-        r"\r\n"
-    )
+    regex = action_meta.get("regex")[1]
+
 
     all_players_dict = (
         module.dom.data.get(module.get_module_identifier(), {})
-        .get("elements", {})
         .get(active_dataset, {})
+        .get("elements", {})
     )
 
     players_to_update_dict = {}
@@ -139,8 +97,6 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
             "in_limbo": in_limbo,
             "is_online": True,
             "is_initialized": True,
-            "last_updated_servertime": telnet_datetime,
-            "last_seen_gametime": last_seen_gametime_string,
             "owner": m.group("steamid")
         }
         players_to_update_dict[m.group("steamid")] = player_dict
@@ -151,6 +107,7 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     # set all players not currently online to offline
     online_players_list = list(players_to_update_dict.keys())
     for steamid, existing_player_dict in all_players_dict.items():
+        print(existing_player_dict)
         if existing_player_dict["is_initialized"] is False:
             continue
 
@@ -164,8 +121,8 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     if len(players_to_update_dict) >= 1:
         module.dom.data.upsert({
             module.get_module_identifier(): {
-                "elements": {
-                    active_dataset: players_to_update_dict
+                active_dataset: {
+                    "elements": players_to_update_dict
                 }
             }
         })
@@ -178,7 +135,9 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
         })
 
 
-def callback_fail(module, event_data, dispatchers_steamid):
+def callback_skip(module, action_meta, dispatchers_id=None):
+    return
+
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         return
@@ -186,8 +145,8 @@ def callback_fail(module, event_data, dispatchers_steamid):
     all_existing_players_dict = (
         module.dom.data
         .get(module.get_module_identifier(), {})
-        .get("elements", {})
         .get(active_dataset, {})
+        .get("elements", {})
     )
 
     # Mark all existing players as offline using helper function
@@ -195,8 +154,34 @@ def callback_fail(module, event_data, dispatchers_steamid):
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
-            "elements": {
-                active_dataset: all_modified_players_dict
+            active_dataset: {
+                "elements": all_modified_players_dict
+            }
+        }
+    })
+
+
+def callback_fail(module, action_meta, dispatchers_id=None):
+    return
+
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
+        return
+
+    all_existing_players_dict = (
+        module.dom.data
+        .get(module.get_module_identifier(), {})
+        .get(active_dataset, {})
+        .get("elements", {})
+    )
+
+    # Mark all existing players as offline using helper function
+    all_modified_players_dict = _set_players_offline(all_existing_players_dict)
+
+    module.dom.data.upsert({
+        module.get_module_identifier(): {
+            active_dataset: {
+                "elements": all_modified_players_dict
             }
         }
     })
@@ -207,39 +192,55 @@ def callback_fail(module, event_data, dispatchers_steamid):
         }
     })
 
+def _set_players_offline(players_dict):
+    modified_players = {}
+    for steam_id, player_data in players_dict.items():
+        # Create a copy of the player dict
+        updated_player = player_data.copy()
+        updated_player["is_online"] = False
+        updated_player["is_initialized"] = False
+        modified_players[steam_id] = updated_player
 
-def skip_it(module, event_data, dispatchers_steamid=None):
-    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    if active_dataset is None:
-        return
-
-    all_existing_players_dict = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("elements", {})
-        .get(active_dataset, {})
-    )
-
-    # Mark all existing players as offline using helper function
-    all_modified_players_dict = _set_players_offline(all_existing_players_dict)
-
-    module.dom.data.upsert({
-        module.get_module_identifier(): {
-            "elements": {
-                active_dataset: all_modified_players_dict
-            }
-        }
-    })
+    return modified_players
 
 
 action_meta = {
+    "id": action_name,
     "description": "gets a list of all currently logged in players and sets status-flags",
     "main_function": main_function,
-    "callback_success": callback_success,
-    "callback_fail": callback_fail,
-    "skip_it": skip_it,
-    "requires_telnet_connection": True,
-    "enabled": True
+    "callbacks": {
+        "callback_success": callback_success,
+        "callback_fail": callback_fail,
+        "callback_skip": callback_skip,
+    },
+    "parameters": {
+        "periodic": True,
+        "requires_telnet_connection": True,
+        "enabled": True
+    },
+    "regex": [
+        (
+            TELNET_PREFIXES["telnet_log"]["timestamp"] +
+            r"Executing\scommand\s\'lp\'\sby\sTelnet\sfrom\s(?P<called_by>.*?)\r?\n"
+            r"(?P<raw_playerdata>[\s\S]*?)Total\sof\s(?P<player_count>\d{1,2})\sin\sthe\sgame"
+        ),
+        (
+            r"\d{1,2}\. id=(?P<id>\d+), (?P<name>[^,]+), "
+            r"pos=\((?P<pos_x>-?\d+\.\d+), (?P<pos_y>-?\d+\.\d+), (?P<pos_z>-?\d+\.\d+)\), "
+            r"rot=\((?P<rot_x>-?\d+\.\d+), (?P<rot_y>-?\d+\.\d+), (?P<rot_z>-?\d+\.\d+)\), "
+            r"remote=(?P<remote>\w+), "
+            r"health=(?P<health>\d+), "
+            r"deaths=(?P<deaths>\d+), "
+            r"zombies=(?P<zombies>\d+), "
+            r"players=(?P<players>\d+), "
+            r"score=(?P<score>\d+), "
+            r"level=(?P<level>\d+), "
+            r"pltfmid=Steam_(?P<steamid>\d+), crossid=(?P<crossid>[\w_]+), "
+            r"ip=(?P<ip>[^,]+), "
+            r"ping=(?P<ping>\d+)"
+            r"\r\n"
+        )
+    ]
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

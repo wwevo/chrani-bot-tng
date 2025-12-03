@@ -1,5 +1,7 @@
-from os import path, listdir, pardir
 from importlib import import_module
+from os import path, listdir, pardir
+from threading import Thread
+
 from bot import loaded_modules_dict
 
 
@@ -12,19 +14,16 @@ class Widget(object):
         self.template_render_hook = self.template_render
 
     def on_socket_connect(self, steamid):
+        """ widgets need to know that they are now online!"""
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
-            for name, widget in self.available_widgets_dict.items():
-                if widget["main_widget"] is not None:
-                    widget["main_widget"](self, dispatchers_steamid=steamid)
-
-    def on_socket_disconnect(self, steamid):
-        if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
-            for name, widget in self.available_widgets_dict.items():
-                if widget["main_widget"] is not None:
-                    widget["main_widget"](self, dispatchers_steamid=steamid)
-
-    def on_socket_event(self, event_data, dispatchers_steamid):
-        pass
+            print("starting widgets {} for {}".format(self.get_module_identifier(), list(self.available_widgets_dict.keys())))
+            for name, widget_meta in self.available_widgets_dict.items():
+                if widget_meta["main_widget"] is not None:
+                    Thread(
+                        target=widget_meta["main_widget"],
+                        args=(self, widget_meta),
+                        kwargs={'dispatchers_id': steamid}
+                    ).start()
 
     @staticmethod
     def template_render(*args, **kwargs):
@@ -48,12 +47,12 @@ class Widget(object):
     def start(self):
         if isinstance(self.available_widgets_dict, dict) and len(self.available_widgets_dict) >= 1:
             for name, widget in self.available_widgets_dict.items():
-                for trigger, handler in widget["handlers"].items():
-                    self.dom.data.register_callback(self, trigger, handler)
+                for trigger, handler in widget.get("handlers").items():
+                    if widget.get("enabled", True):
+                        self.dom.data.register_callback(self, trigger, handler)
 
     def register_widget(self, identifier, widget_dict):
-        if widget_dict.get("enabled", True):
-            self.available_widgets_dict[identifier] = widget_dict
+        self.available_widgets_dict[identifier] = widget_dict
 
     def import_widgets(self):
         modules_root_dir = path.join(path.dirname(path.abspath(__file__)), pardir, "modules")
@@ -68,20 +67,32 @@ class Widget(object):
             # module does not have widgets
             pass
 
-    def get_current_view(self, dispatchers_steamid):
-        return (
+    def get_current_view(self, widget_name, dispatchers_steamid):
+        active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset")
+        current_view = (
             self.dom.data
             .get(self.get_module_identifier(), {})
+            .get(active_dataset, {})
             .get("visibility", {})
             .get(dispatchers_steamid, {})
-            .get("current_view", "frontend")
+            .get("{}_view".format(widget_name))
         )
+        if current_view is None:
+            self.set_current_view(dispatchers_steamid, {
+                '{}_view'.format(widget_name): "main_view"
+            })
+            return "main_view"
+
+        return current_view
 
     def set_current_view(self, dispatchers_steamid, options):
+        active_dataset = self.dom.data.get("module_game_environment", {}).get("active_dataset")
         self.dom.data.upsert({
             self.get_module_identifier(): {
-                "visibility": {
-                    dispatchers_steamid: options
+                active_dataset: {
+                    "visibility": {
+                        dispatchers_steamid: options
+                    }
                 }
             }
         }, dispatchers_steamid=dispatchers_steamid)

@@ -1,77 +1,28 @@
-from bot import loaded_modules_dict, telnet_prefixes
+from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
 from time import sleep, time
-from datetime import datetime, timezone
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def get_weekday_string(server_days_passed: int) -> str:
-    days_of_the_week = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday"
-    ]
-
-    current_day_index = int(float(server_days_passed) % 7)
-    if 0 <= current_day_index <= 6:
-        return days_of_the_week[current_day_index]
-    else:
-        return ""
-
-
-def is_currently_bloodmoon(module: object, day: int, hour: int = -1) -> bool:
+def main_function(module, action_meta, dispatchers_id=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    next_bloodmoon_date = int(
-        module.dom.data
-        .get("module_game_environment", {})
-        .get(active_dataset, {})
-        .get("gamestats", {})
-        .get("BloodMoonDay", None)
-    )
+    if active_dataset is None:
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
-    daylight_length = int(
-        module.dom.data
-        .get("module_game_environment", {})
-        .get(active_dataset, {})
-        .get("gamestats", {})
-        .get("DayLightLength", None)
-    )
-
-    night_length = (24 - daylight_length)
-    morning_length = (night_length - 2)
-
-    if hour >= 0:  # we want the exact bloodmoon
-        if next_bloodmoon_date == day and 23 >= hour >= 22:
-            return True
-        if (next_bloodmoon_date + 1) == day and 0 <= hour <= morning_length:
-            return True
-    else:  # we only want the day
-        if next_bloodmoon_date == day:
-            return True
-
-    return False
-
-
-def main_function(module, event_data, dispatchers_steamid=None):
     timeout = TELNET_TIMEOUT_NORMAL
     timeout_start = time()
-    event_data[1]["action_identifier"] = action_name
 
     if not module.telnet.add_telnet_command_to_queue("gettime"):
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
         return
 
     poll_is_finished = False
-    # Modern format: simple "Day 447, 00:44" response
-    regex = r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})"
+
+    regex = action_meta.get("regex")[0]
     while not poll_is_finished and (time() < timeout_start + timeout):
         sleep(0.25)
         match = False
@@ -79,22 +30,16 @@ def main_function(module, event_data, dispatchers_steamid=None):
             poll_is_finished = True
 
         if match:
-            module.callback_success(callback_success, module, event_data, dispatchers_steamid, match)
+            module.callback_success(callback_success, action_meta, dispatchers_id, match)
             return
 
-    module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+    module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
-def callback_success(module, event_data, dispatchers_steamid, match=None):
-    active_dataset = (
-        module.dom.data
-        .get(module.get_module_identifier(), {})
-        .get("active_dataset", None)
-    )
-
-    # we can't save the gametime without knowing the game-name, as each game can have different stats.
+def callback_success(module, action_meta, dispatchers_id=None, match=None):
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
-        module.callback_fail(callback_fail, module, event_data, dispatchers_steamid)
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
     matched_day = int(match.group("day"))
     matched_hour = match.group("hour")
@@ -121,22 +66,87 @@ def callback_success(module, event_data, dispatchers_steamid, match=None):
     })
 
 
-def callback_fail(module, event_data, dispatchers_steamid):
-    pass
+def callback_skip(module, action_meta, dispatchers_id=None):
+    print("skipped {}".format(action_meta.get("id")))
 
 
-def skip_it(module, event_data, dispatchers_steamid=None):
-    pass
+def callback_fail(module, action_meta, dispatchers_id=None):
+    if action_meta.get("fail_reason"):
+        print(action_meta.get("fail_reason"))
+
+def get_weekday_string(server_days_passed: int) -> str:
+    days_of_the_week = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ]
+
+    current_day_index = int(float(server_days_passed) % 7)
+    if 0 <= current_day_index <= 6:
+        return days_of_the_week[current_day_index]
+    else:
+        return ""
+
+
+def is_currently_bloodmoon(module: object, day: int, hour: int = -1) -> bool:
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
+        return
+
+    next_bloodmoon_date = int(
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("BloodMoonDay", 0)
+    )
+
+    daylight_length = int(
+        module.dom.data
+        .get("module_game_environment", {})
+        .get(active_dataset, {})
+        .get("gamestats", {})
+        .get("DayLightLength", 0)
+    )
+
+    night_length = (24 - daylight_length)
+    morning_length = (night_length - 2)
+
+    if hour >= 0:  # we want the exact bloodmoon
+        if next_bloodmoon_date == day and 23 >= hour >= 22:
+            return True
+        if (next_bloodmoon_date + 1) == day and 0 <= hour <= morning_length:
+            return True
+    else:  # we only want the day
+        if next_bloodmoon_date == day:
+            return True
+
+    return False
 
 
 action_meta = {
+    "id": action_name,
     "description": "gets the current gettime readout",
     "main_function": main_function,
-    "callback_success": callback_success,
-    "callback_fail": callback_fail,
-    "skip_it": skip_it,
-    "requires_telnet_connection": True,
-    "enabled": True
+    "callbacks": {
+        "callback_success": callback_success,
+        "callback_fail": callback_fail,
+        "callback_skip": callback_skip,
+    },
+    "parameters": {
+        "periodic": True,
+        "requires_telnet_connection": True,
+        "enabled": True
+    },
+    "regex": [
+        (
+            r"Day\s(?P<day>\d{1,5}),\s(?P<hour>\d{1,2}):(?P<minute>\d{1,2})"
+        )
+    ]
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

@@ -1,0 +1,12 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+{% set current_day = last_recorded_gametime["day"] %}
+{% set current_hour = last_recorded_gametime["hour"] %}
+{% set current_minute = last_recorded_gametime["minute"] %}
+{% set current_weekday = last_recorded_gametime["weekday"] %}
+<div>
+    <span>
+        Day <span class="day">{{ current_day }}</span>,
+        <span class="time">{{ current_hour }}:{{ current_minute }}</span>
+        ({{ current_weekday }})
+    </span>
+</div>

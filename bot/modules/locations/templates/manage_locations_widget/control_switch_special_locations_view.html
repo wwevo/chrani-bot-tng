@@ -1,9 +1,0 @@
-{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
-<div>
-    {{ construct_toggle_link(
-        special_locations_view_toggle,
-        "special locations", ['widget_event', ['locations', ['toggle_locations_widget_view', {'steamid': steamid, "action": "show_special_locations"}]]],
-        "back", ['widget_event', ['locations', ['toggle_locations_widget_view', {'steamid': steamid, "action": "show_frontend"}]]]
-    )}}
-</div>
-

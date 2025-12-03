@@ -1,8 +1,0 @@
-{%- from 'jinja2_macros.html' import construct_toggle_link with context  -%}
-<tr id="unmatched_pattern_table_row_{{ unmatched_pattern.dataset }}_{{ unmatched_pattern.id }}"{%- if css_class %} class="{{ css_class }}"{%- endif -%}>
-    <td>
-        <span id="unmatched_pattern_table_row_{{ unmatched_pattern.dataset }}_{{ unmatched_pattern.id }}_control_select_link" class="select_button">{{ control_select_link }}</span>
-    </td>
-    <td id="unmatched_pattern_table_row_{{ unmatched_pattern.dataset }}_{{ unmatched_pattern.id }}_name" onclick="$(this).selectText();">{{ unmatched_pattern.name }}</td>
-    <td id="unmatched_pattern_table_row_{{ unmatched_pattern.dataset }}_{{ unmatched_pattern.id }}_type" onclick="$(this).selectText();">{{ unmatched_pattern.type }}</td>
-</tr>

@@ -5,7 +5,11 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def send_player_update_to_map(*args, **kwargs):
+def main_function(*args, **kwargs):
+    print(trigger_name, ": ", args)
+    # print(kwargs)
+    return
+
     """Send player updates to map view via socket.io"""
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
@@ -24,8 +28,8 @@ def send_player_update_to_map(*args, **kwargs):
     player_dict = (
         module.dom.data
         .get("module_players", {})
-        .get("elements", {})
         .get(dataset, {})
+        .get("elements", {})
         .get(steamid, {})
     )
 
@@ -86,20 +90,20 @@ def send_player_update_to_map(*args, **kwargs):
 
 trigger_meta = {
     "description": "sends player updates to webmap clients",
-    "main_function": send_player_update_to_map,
+    "main_function": main_function,
     "handlers": {
         # Listen to all player field updates that are relevant for the map
-        "module_players/elements/%map_identifier%/%steamid%/pos": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/health": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/level": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/zombies": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/deaths": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/players": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/score": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/ping": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/is_authenticated": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/in_limbo": send_player_update_to_map,
-        "module_players/elements/%map_identifier%/%steamid%/is_initialized": send_player_update_to_map,
+        "module_players/%dataset%/elements/%steamid%/pos": main_function,
+        "module_players/%dataset%/elements/%steamid%/health": main_function,
+        "module_players/%dataset%/elements/%steamid%/level": main_function,
+        "module_players/%dataset%/elements/%steamid%/zombies": main_function,
+        "module_players/%dataset%/elements/%steamid%/deaths": main_function,
+        "module_players/%dataset%/elements/%steamid%/players": main_function,
+        "module_players/%dataset%/elements/%steamid%/score": main_function,
+        "module_players/%dataset%/elements/%steamid%/ping": main_function,
+        "module_players/%dataset%/elements/%steamid%/is_authenticated": main_function,
+        "module_players/%dataset%/elements/%steamid%/in_limbo": main_function,
+        "module_players/%dataset%/elements/%steamid%/is_initialized": main_function,
     }
 }
 

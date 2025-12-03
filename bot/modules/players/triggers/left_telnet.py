@@ -1,12 +1,16 @@
 from bot import loaded_modules_dict
-from bot import telnet_prefixes
+from bot.constants import TELNET_PREFIXES
 from os import path, pardir
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(origin_module, module, regex_result):
+def main_function(bot, source_module, regex_result):
+    print(trigger_name, ": ", regex_result)
+    # print(kwargs)
+    return
+
     command = regex_result.group("command")
     executed_trigger = False
 
@@ -18,8 +22,8 @@ def main_function(origin_module, module, regex_result):
         existing_player_dict = (
             module.dom.data
             .get("module_players", {})
-            .get("elements", {})
             .get(active_dataset, {})
+            .get("elements", {})
             .get(player_steamid, {})
         )
         player_dict = {}
@@ -34,8 +38,8 @@ def main_function(origin_module, module, regex_result):
     if executed_trigger is True:
         module.dom.data.upsert({
             "module_players": {
-                "elements": {
-                    active_dataset: {
+                active_dataset: {
+                    "elements": {
                         player_steamid: player_dict
                     }
                 }
@@ -49,7 +53,7 @@ trigger_meta = {
     "triggers": [
         {
             "regex": (
-                telnet_prefixes["telnet_log"]["timestamp"] +
+                TELNET_PREFIXES["telnet_log"]["timestamp"] +
                 r"Player\s"
                 r"(?P<command>.*):\s"
                 r"EntityID=(?P<entity_id>.*),\s"

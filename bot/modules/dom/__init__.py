@@ -1,31 +1,34 @@
 import json
-from bot.module import Module
-from bot import loaded_modules_dict
-from .callback_dict import CallbackDict
 
+from bot import loaded_modules_dict
+from bot.module import Module
+from .callback_dict import CallbackDict
 
 class Dom(Module):
     data = CallbackDict
 
     def __init__(self):
         setattr(self, "default_options", {
-            "module_name": self.get_module_identifier()[7:]
+            "module_name": self.get_module_identifier()[7:],
+            "run_observer_interval": 5
         })
 
         setattr(self, "required_modules", [])
 
         self.data = CallbackDict()
-        self.run_observer_interval = 5
+        self.next_cycle = 0
+
         Module.__init__(self)
 
     @staticmethod
     def get_module_identifier():
         return "module_dom"
 
-    # region Standard module stuff
-    def setup(self, options=dict):
+    def setup(self, options=None):
         Module.setup(self, options)
-    # endregion
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
 
     def get_updated_or_default_value(self, module_identifier, identifier, updated_values_dict, default_value):
         try:
@@ -37,7 +40,6 @@ class Dom(Module):
 
         return updated_or_default_value
 
-    """ method to retrieve any dom elements based on their name or key """
     def get_dom_element_by_query(
             self,
             dictionary=None,
@@ -46,11 +48,12 @@ class Dom(Module):
             current_layer=0,
             path=None
     ):
+        active_dataset = self.data.get("module_game_environment", {}).get("active_dataset", None)
         starting_layer = len(loaded_modules_dict[target_module].dom_element_root)
         if path is None:
             path = []
         if dictionary is None:
-            dictionary = self.data.get(target_module, {}).get("elements", {})
+            dictionary = self.data.get(target_module, {}).get(active_dataset, {}).get("elements", {})
 
         for key, value in dictionary.items():
             if type(value) is dict:
@@ -69,5 +72,6 @@ class Dom(Module):
     def pretty_print_dict(dict_to_print=dict):
         print(json.dumps(dict_to_print, sort_keys=True, indent=4))
 
+    # run() is inherited from Module - periodic actions loop runs automatically!
 
 loaded_modules_dict[Dom().get_module_identifier()] = Dom()

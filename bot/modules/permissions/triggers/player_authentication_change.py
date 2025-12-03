@@ -6,6 +6,10 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(*args, **kwargs):
+    print(trigger_name, ": ", args)
+    # print(kwargs)
+    return
+
     module = args[0]
     updated_values_dict = kwargs.get("updated_values_dict", {})
     player_steamid = kwargs.get("dispatchers_steamid", None)
@@ -21,8 +25,8 @@ def main_function(*args, **kwargs):
             player_dict = (
                 module.dom.data
                 .get("module_players", {})
-                .get("elements", {})
                 .get(dataset, {})
+                .get("elements", {})
                 .get(player_steamid, {})
             )
             
@@ -49,7 +53,7 @@ trigger_meta = {
     "description": "reacts to a players authentication change",
     "main_function": main_function,
     "handlers": {
-        "module_players/elements/%map_identifier%/%steamid%/is_authenticated": main_function,
+        "module_players/%dataset%/elements/%steamid%/is_authenticated": main_function,
     }
 }
 

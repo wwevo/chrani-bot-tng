@@ -1,0 +1,12 @@
+{%- from 'jinja2_macros.html' import construct_toggle_link with context -%}
+{% set count_string = count|string %}
+<div id="{{ dom_element_id }}" class="delete_button">
+{{ construct_toggle_link(
+    delete_selected_entries_active,
+    label|default("delete") + " (" + count_string + ")", ['widget_event', ['webserver', ['delete', {
+        "target_module": target_module,
+        'action': dom_action,
+        'confirmed': confirmed
+    }]]]
+) }}
+</div>

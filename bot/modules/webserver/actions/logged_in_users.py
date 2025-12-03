@@ -5,15 +5,18 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 action_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(*args, **kwargs):
-    module = args[0]
-    event_data = args[1]
-    event_data[1]["action_identifier"] = action_name
+def main_function(module, action_meta, dispatchers_id=None):
+    active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
+    if active_dataset is None:
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
+
+    return
 
     try:
         connected_clients = list(module.connected_clients.keys())
     except AttributeError:
         callback_fail(*args, **kwargs)
+        return
 
     module.dom.data.upsert({
         module.get_module_identifier(): {
@@ -22,21 +25,29 @@ def main_function(*args, **kwargs):
     })
 
 
-def callback_success(*args, **kwargs):
-    pass
+def callback_success(module, action_meta, dispatchers_id=None, match=None):
+    return
 
+def callback_skip(module, action_meta, dispatchers_id=None):
+    return
 
-def callback_fail(*args, **kwargs):
-    pass
+def callback_fail(module, action_meta, dispatchers_id=None):
+    return
 
 
 action_meta = {
+    "id": action_name,
     "description": "gets the current list of users currently logged into the webinterface",
     "main_function": main_function,
-    "callback_success": callback_success,
-    "callback_fail": callback_fail,
-    "requires_telnet_connection": False,
-    "enabled": True
+    "callbacks": {
+        "callback_success": callback_success,
+        "callback_fail": callback_fail
+    },
+    "parameters": {
+        "periodic": True,
+        "requires_telnet_connection": True,
+        "enabled": True
+    }
 }
 
 loaded_modules_dict["module_" + module_name].register_action(action_name, action_meta)

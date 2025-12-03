@@ -1,16 +1,13 @@
+from pprint import pp
 from threading import Thread, Event
+from time import time
 from bot import started_modules_dict
-from bot.logger import get_logger
 from bot.mixins.trigger import Trigger
 from bot.mixins.action import Action
 from bot.mixins.template import Template
 from bot.mixins.widget import Widget
 
-logger = get_logger("module")
-
-
 class Module(Thread, Action, Trigger, Template, Widget):
-    """ This class may ONLY be used to extend a module, it is not meant to be instantiated on it's own """
     options = dict
     stopped = object
 
@@ -30,74 +27,104 @@ class Module(Thread, Action, Trigger, Template, Widget):
         Widget.__init__(self)
         Thread.__init__(self)
 
-    def setup(self, provided_options=dict):
+    def setup(self, provided_options=None):
+        if provided_options is None:
+            provided_options = {}
+
         self.options = self.default_options
         options_filename = "module_" + self.options['module_name'] + ".json"
         if isinstance(provided_options, dict):
             self.options.update(provided_options)
-            logger.debug("module_options_loaded",
-                        module=self.options['module_name'],
-                        options_file=options_filename)
-        else:
-            logger.debug("module_options_defaults",
-                        module=self.default_options["module_name"],
-                        options_file=options_filename)
+            print("found config for module {} in ./bot/options/{}".format(self.options['module_name'], options_filename))
 
         self.import_triggers()
         self.import_actions()
         self.import_templates()
         self.import_widgets()
         self.name = self.options['module_name']
+
         return self
 
+    @property
     def start(self):
         for required_module in self.required_modules:
             setattr(self, required_module[7:], started_modules_dict[required_module])
+
         setattr(self, self.name, self)  # add self to dynamic module list to unify calls from actions
 
         self.setDaemon(daemonic=True)
+
+        # Call hook after daemon is set but BEFORE thread starts
+        # This allows subclasses to start additional threads that should complete
+        # before the main run() loop begins
+        self.on_start()
+
+        # Now start the thread (calls run() in new thread)
         Thread.start(self)
         Widget.start(self)
         Trigger.start(self)
 
         return self
 
-    def on_socket_connect(self, dispatchers_steamid):
-        Widget.on_socket_connect(self, dispatchers_steamid)
+    def on_start(self):
+        """
+        Hook called after dependencies are injected but before thread starts.
+        Override this in subclasses to perform initialization that needs to happen
+        before the run() loop begins (e.g., starting additional threads).
+        """
+        pass
 
-    def on_socket_disconnect(self, dispatchers_steamid):
-        Widget.on_socket_disconnect(self, dispatchers_steamid)
+    def on_run_loop_iteration(self, loop_log, profile_start):
+        """
+        Hook called at the beginning of each run loop iteration, before periodic actions.
+        Override this in subclasses to perform module-specific work on each iteration
+        (e.g., reading from a telnet connection, processing queues).
 
-    def on_socket_event(self, event_data, dispatchers_steamid):
-        self.trigger_action_hook(self, event_data=event_data, dispatchers_steamid=dispatchers_steamid)
-        self.emit_event_status(self, event_data, dispatchers_steamid)
+        Args:
+            loop_log: String for logging this iteration
+            profile_start: Timestamp when this iteration started
 
-        Widget.on_socket_event(self, event_data, dispatchers_steamid)
+        Returns:
+            Updated loop_log string
+        """
+        return loop_log
 
-    def emit_event_status(self, module, event_data, recipient_steamid, status=None):
-        # recipient_steamid can be None, "all" or [list_of_steamid's]
-        if recipient_steamid is not None and status is not None:
-            recipient_steamid = [recipient_steamid]
+    def run(self):
+        """
+        Default implementation of the periodic actions loop.
+        Most modules can use this as-is. Override only if you need completely
+        different behavior (which should be rare).
+        """
+        while not self.stopped.wait(self.next_cycle):
+            loop_log = "{} - loop started | ".format(self.get_module_identifier())
+            profile_start = time()
 
-            self.webserver.emit_event_status(module, event_data, recipient_steamid, status)
+            # Call hook for module-specific iteration work
+            loop_log = self.on_run_loop_iteration(loop_log, profile_start)
 
-    @staticmethod
-    def callback_success(callback, module, event_data, dispatchers_steamid, match=None):
-        event_data[1]["status"] = "success"
-        action_identifier = event_data[1]["action_identifier"]
-        if event_data[1].get("disable_after_success"):
-            module.disable_action(action_identifier)
+            # Execute periodic actions
+            for action_id, action_meta in self.available_actions_dict.items():
+                try:
+                    if action_meta.get("parameters").get("enabled") and action_meta.get("parameters").get("periodic"):
+                        self.trigger_action_hook(self, action_meta)
+                        loop_log += "triggered action hook for {} | ".format(action_id)
+                except:
+                    loop_log += "{} is not using new metadata | ".format(action_id)
 
-        module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
-        callback(module, event_data, dispatchers_steamid, match)
+            self.last_execution_time = time() - profile_start
+            self.next_cycle = int(self.run_observer_interval - self.last_execution_time)
+            loop_log += "{} - loop took {} | ".format(self.get_module_identifier(), int(self.last_execution_time))
+            # print(loop_log)
 
-    @staticmethod
-    def callback_fail(callback, module, event_data, dispatchers_steamid):
-        event_data[1]["status"] = "fail"
-        logger.error("action_failed",
-                    module=module.name,
-                    action=event_data[0],
-                    reason=event_data[1].get("fail_reason", "unknown"),
-                    user=dispatchers_steamid)
-        module.emit_event_status(module, event_data, dispatchers_steamid, event_data[1])
-        callback(module, event_data, dispatchers_steamid)
+    def on_browser_widget_action(self, module, action_data, dispatchers_id=None):
+        """ module-specific entry point for action events sent by the browser.
+        Is triggered by the webservers browser_widget_action socket.io event """
+        action_id = action_data.get("action")
+        action_meta = self.available_actions_dict.get(action_id)
+        action_meta["action_data"] = action_data
+
+        print("browser action {} for widget {} in module {}".format(
+            action_id, action_data.get("id"), action_data.get("widget_module")
+        ))
+
+        self.trigger_action_hook(module, action_meta, dispatchers_id=dispatchers_id)

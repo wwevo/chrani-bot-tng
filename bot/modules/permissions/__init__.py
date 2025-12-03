@@ -1,15 +1,11 @@
-from bot.module import Module
 from bot import loaded_modules_dict
-from bot.logger import get_logger
 from bot.constants import (
     PERMISSION_LEVEL_DEFAULT,
     PERMISSION_LEVEL_BUILDER,
     PERMISSION_LEVEL_PLAYER,
-    is_moderator_or_higher,
-    is_builder_or_higher
+    is_moderator_or_higher
 )
-
-logger = get_logger("permissions")
+from bot.module import Module
 
 
 class Permissions(Module):
@@ -17,18 +13,18 @@ class Permissions(Module):
     def __init__(self):
         setattr(self, "default_options", {
             "module_name": self.get_module_identifier()[7:],
-            "default_player_password": None
+            "default_player_password": None,
+            "run_observer_interval": 5
         })
 
         setattr(self, "required_modules", [
             'module_dom',
             'module_players',
-            'module_locations',
+            'module_telnet',
             'module_webserver'
         ])
 
         self.next_cycle = 0
-        self.run_observer_interval = 5
         self.all_available_actions_dict = {}
         self.all_available_widgets_dict = {}
         Module.__init__(self)
@@ -37,25 +33,50 @@ class Permissions(Module):
     def get_module_identifier():
         return "module_permissions"
 
-    # region Standard module stuff
-    def setup(self, options=dict):
+    def setup(self, options=None):
         Module.setup(self, options)
-    # endregion
+        self.run_observer_interval = self.options.get(
+            "run_observer_interval", self.default_options.get("run_observer_interval", None)
+        )
 
-    def start(self):
+    def on_start(self):
         """ all modules have been loaded and initialized by now. we can bend the rules here."""
         self.set_permission_hooks()
         self.all_available_actions_dict = self.get_all_available_actions_dict()
         self.all_available_widgets_dict = self.get_all_available_widgets_dict()
-        Module.start(self)
-    # endregion
 
-    # ==================== Permission Check Helpers ====================
+    def trigger_action_with_permission(self, module, action_meta, dispatchers_id=None):
+        action_id = action_meta.get("id")
+        action_meta = module.available_actions_dict[action_id]
+        if dispatchers_id is not None:
+            permission_level = int(
+                module.dom.data.get("module_players", {}).get("admins", {}).get(
+                    dispatchers_id, PERMISSION_LEVEL_DEFAULT
+                )
+            )
+            module_identifier = module.get_module_identifier()
+
+            permission_denied = (
+                    Permissions._check_toggle_flag_permission(permission_level, dispatchers_id, action_id) or
+                    Permissions._check_widget_options_permission(permission_level, action_id) or
+                    Permissions._check_dom_management_permission(permission_level, action_meta, dispatchers_id) or
+                    (module_identifier == "module_players" and
+                     Permissions._check_players_permission(permission_level, action_id)) or
+                    (module_identifier == "module_telnet" and
+                     Permissions._check_telnet_permission(permission_level, action_id))
+            )
+
+            if permission_denied:
+                print("permission_denied")
+
+            action_meta["has_permission"] = not permission_denied
+
+        return module.trigger_action(module, action_meta, dispatchers_id)
 
     @staticmethod
     def _is_owner(steamid: str, event_data: list) -> bool:
         """Check if user is the owner of the element being modified."""
-        return str(steamid) == event_data[1].get("dom_element_owner", "")
+        return str(steamid) == event_data[1].get("owner_id", "")
 
     @staticmethod
     def _check_toggle_flag_permission(permission_level: int, steamid: str, event_data: list) -> bool:
@@ -80,18 +101,21 @@ class Permissions(Module):
         return False
 
     @staticmethod
-    def _check_dom_management_permission(permission_level: int, steamid: str, event_data: list) -> bool:
-        """Check permissions for DOM management actions."""
-        action_name = event_data[0]
-        sub_action = event_data[1].get("action", "")
+    def _check_dom_management_permission(permission_level: int, action_meta, dispatchers_id=None) -> bool:
+        action_id = action_meta.get("id")
+        dom_action_id = action_meta.get("action_data").get("action")
+        if dom_action_id not in ["delete", "select"]:
+            return False
 
-        if action_name not in ["delete", "select"]:
+        try:
+            sub_action = action_id[1].get("action")
+        except AttributeError as error:
             return False
 
         # Select/deselect: builders and below can only modify their own elements
         if sub_action in ["select_dom_element", "deselect_dom_element"]:
             if permission_level >= PERMISSION_LEVEL_BUILDER:
-                return not Permissions._is_owner(steamid, event_data)
+                return not Permissions._is_owner(dispatchers_id, action_id)
             return False
 
         # Delete: only moderators and admins
@@ -137,57 +161,6 @@ class Permissions(Module):
             return permission_level >= PERMISSION_LEVEL_BUILDER
         return False
 
-    # ==================== Main Permission Check ====================
-
-    @staticmethod
-    def trigger_action_with_permission(*args, **kwargs):
-        """
-        Check permissions before triggering an action.
-
-        Permissions default to allowed if no specific rule matches.
-        Module-specific permission checks are delegated to helper methods.
-        """
-        module = args[0]
-        event_data = kwargs.get("event_data", [])
-        dispatchers_steamid = kwargs.get("dispatchers_steamid", None)
-
-        # Default to allowing action
-        permission_denied = False
-
-        if dispatchers_steamid is not None:
-            # Get user's permission level
-            permission_level = int(
-                module.dom.data.get("module_players", {}).get("admins", {}).get(
-                    dispatchers_steamid, PERMISSION_LEVEL_DEFAULT
-                )
-            )
-            module_identifier = module.get_module_identifier()
-
-            # Run permission checks based on action and module
-            permission_denied = (
-                Permissions._check_toggle_flag_permission(permission_level, dispatchers_steamid, event_data) or
-                Permissions._check_widget_options_permission(permission_level, event_data) or
-                (module_identifier == "module_dom_management" and
-                 Permissions._check_dom_management_permission(permission_level, dispatchers_steamid, event_data)) or
-                (module_identifier == "module_players" and
-                 Permissions._check_players_permission(permission_level, event_data)) or
-                (module_identifier == "module_locations" and
-                 Permissions._check_locations_permission(permission_level, dispatchers_steamid, event_data)) or
-                (module_identifier == "module_telnet" and
-                 Permissions._check_telnet_permission(permission_level, event_data))
-            )
-
-            if permission_denied:
-                logger.warn("permission_denied",
-                           action=event_data[0],
-                           user=dispatchers_steamid,
-                           permission_level=permission_level)
-
-            event_data[1]["has_permission"] = not permission_denied
-
-        # Execute the action
-        return module.trigger_action(module, event_data=event_data, dispatchers_steamid=dispatchers_steamid)
-
     @staticmethod
     def template_render_hook_with_permission(*args, **kwargs):
         module = args[0]
@@ -198,5 +171,6 @@ class Permissions(Module):
             module.trigger_action_hook = self.trigger_action_with_permission
             module.template_render_hook = self.template_render_hook_with_permission
 
+    # run() is inherited from Module - periodic actions loop runs automatically!
 
 loaded_modules_dict[Permissions().get_module_identifier()] = Permissions()

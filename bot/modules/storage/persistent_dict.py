@@ -1,12 +1,13 @@
-import pickle
-import json
-import csv
-import os
-import shutil
 import base64
-
+import csv
+import json
+import os
+import pickle
+import shutil
 
 """ found on https://stackoverflow.com/a/36252257/8967590 """
+
+
 class PythonObjectEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (list, dict, str, int, float, bool, type(None))):
@@ -35,9 +36,9 @@ class PersistentDict(dict):
     """
 
     def __init__(self, filename, flag='c', mode=None, format='pickle', *args, **kwargs):
-        self.flag = flag                    # r=readonly, c=create, or n=new
-        self.mode = mode                    # None or an octal triple like 0644
-        self.format = format                # 'csv', 'json', or 'pickle'
+        self.flag = flag  # r=readonly, c=create, or n=new
+        self.mode = mode  # None or an octal triple like 0644
+        self.format = format  # 'csv', 'json', or 'pickle'
         self.filename = filename
         if flag != 'n' and os.access(filename, os.R_OK):
             fileobj = open(filename, 'rb' if format == 'pickle' else 'r')
@@ -60,7 +61,7 @@ class PersistentDict(dict):
             raise
         finally:
             fileobj.close()
-        shutil.move(tempname, self.filename)    # atomic commit
+        shutil.move(tempname, self.filename)  # atomic commit
         if self.mode is not None:
             os.chmod(self.filename, self.mode)
 
@@ -92,11 +93,11 @@ class PersistentDict(dict):
         """
         # try formats from most restrictive to least restrictive
         for loader in (
-            (pickle.load, {}),
-            (json.load, {
-                "object_hook": as_python_object}
-             ),
-            (csv.reader, {})
+                (pickle.load, {}),
+                (json.load, {
+                    "object_hook": as_python_object}
+                 ),
+                (csv.reader, {})
         ):
             fileobj.seek(0)
             try:

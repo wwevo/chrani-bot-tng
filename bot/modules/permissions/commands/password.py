@@ -1,5 +1,4 @@
 from bot import loaded_modules_dict
-from bot import telnet_prefixes
 from os import path, pardir
 import re
 
@@ -32,26 +31,7 @@ triggers = {
 trigger_meta = {
     "description": "validates a players password",
     "main_function": main_function,
-    "triggers": [
-        {
-            "identifier": "password (Alloc)",
-            "regex": (
-                telnet_prefixes["telnet_log"]["timestamp"] +
-                telnet_prefixes["Allocs"]["chat"] +
-                triggers["password"]
-            ),
-            "callback": main_function
-        },
-        {
-            "identifier": "password (BCM)",
-            "regex": (
-                telnet_prefixes["telnet_log"]["timestamp"] +
-                telnet_prefixes["BCM"]["chat"] +
-                triggers["password"]
-            ),
-            "callback": main_function
-        }
-    ]
+    "triggers": []
 }
 
 loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)

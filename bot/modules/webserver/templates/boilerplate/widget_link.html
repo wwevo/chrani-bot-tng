@@ -1,0 +1,7 @@
+{%- set event_type = event.get("type") -%}
+{%- set event_data = event -%}
+<div>
+<span class="{{ 'active' if active else 'inactive' }}">
+    <a href="#" onclick="window.socket.emit('{{ event_type }}', {{ event_data }}); return false;">{{ text }}</a>
+</span>
+</div>
