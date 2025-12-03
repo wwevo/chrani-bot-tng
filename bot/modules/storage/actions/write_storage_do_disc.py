@@ -5,8 +5,9 @@ from os import path, pardir
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
 
-def main_function(module, event_data, dispatchers_steamid=None):
+def main_function(module, action_meta, dispatchers_id=None):
     module.save_dom_to_persistent_dict()
+    module.callback_success(callback_success, action_meta, dispatchers_id)
 
 
 def callback_success(module, action_meta, dispatchers_id=None, match=None):

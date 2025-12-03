@@ -1,5 +1,5 @@
 from bot import loaded_modules_dict
-from bot.constants import TELNET_TIMEOUT_VERY_SHORT, TELNET_PREFIXES
+from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_PREFIXES
 from os import path, pardir
 import re
 
@@ -13,9 +13,8 @@ def main_function(module, action_meta, dispatchers_id=None):
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
         return
 
-    # NEW: Send command with ticket system
     regex = action_meta.get("regex")[0]
-    ticket = module.telnet.send_command("admin list", regex, timeout=TELNET_TIMEOUT_VERY_SHORT)
+    ticket = module.telnet.send_command("admin list", regex, timeout=TELNET_TIMEOUT_NORMAL)
     result = ticket.wait()
 
     if result['success']:

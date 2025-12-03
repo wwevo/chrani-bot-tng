@@ -26,7 +26,7 @@ def main_function(module, action_meta, dispatchers_id=None):
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
-def callback_success(module, action_meta, dispatchers_id, match=None):
+def callback_success(module, action_meta, dispatchers_id=None, match=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     player_count = int(match.group("player_count"))
     if all([

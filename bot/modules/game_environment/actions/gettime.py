@@ -1,3 +1,5 @@
+from pprint import pp
+
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL
 from os import path, pardir
@@ -27,8 +29,6 @@ def main_function(module, action_meta, dispatchers_id=None):
 
 def callback_success(module, action_meta, dispatchers_id=None, match=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
-    if active_dataset is None:
-        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
     matched_day = int(match.group("day"))
     matched_hour = match.group("hour")

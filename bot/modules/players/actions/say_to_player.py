@@ -1,7 +1,6 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_PREFIXES
 from os import path, pardir
-import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 action_name = path.basename(path.abspath(__file__))[:-3]
@@ -13,7 +12,6 @@ def main_function(module, action_meta, dispatchers_id=None):
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
         return
 
-    # This action is disabled - early return
     return
 
     # NOTE: This action needs event_data from browser which isn't passed correctly yet

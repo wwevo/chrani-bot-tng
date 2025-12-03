@@ -1,0 +1,12 @@
+{% set active = thread_stats["active_threads"] %}
+{% set timed_out = thread_stats["timed_out_threads"] %}
+{% set total = thread_stats["total_threads"] %}
+<div>
+    <span title="Thread Tracker Statistics">
+        Threads: <span class="active-threads" style="color: #4CAF50;">{{ active }}</span>
+        {% if timed_out > 0 %}
+        | <span class="timed-out-threads" style="color: #ff5722;">⚠ {{ timed_out }} timeout</span>
+        {% endif %}
+        ({{ total }} total)
+    </span>
+</div>
