@@ -113,6 +113,11 @@ class Action(object):
         if not action_id:
             return
 
+        # Create a copy for this thread instance to avoid race conditions
+        # When multiple instances of the same action run concurrently, they share
+        # the same action_meta dict from available_actions_dict. Each needs its own copy.
+        action_meta = action_meta.copy()
+
         if action_meta.get("id") in target_module.available_actions_dict:
             action_is_enabled = action_meta.get("parameters").get("enabled", False)
             if action_is_enabled:
