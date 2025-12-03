@@ -3,12 +3,11 @@ from threading import Thread, Event
 from time import time
 from bot import started_modules_dict
 from bot.mixins.telnet_trigger import TelnetTrigger
-from bot.mixins.callback_handler import CallbackHandler
 from bot.mixins.widget_renderer import WidgetRenderer
 from bot.mixins.action import Action
 from bot.mixins.template import Template
 
-class Module(Thread, Action, TelnetTrigger, CallbackHandler, WidgetRenderer, Template):
+class Module(Thread, Action, TelnetTrigger, WidgetRenderer, Template):
     options = dict
     stopped = object
 
@@ -24,8 +23,7 @@ class Module(Thread, Action, TelnetTrigger, CallbackHandler, WidgetRenderer, Tem
         self.stopped = Event()
         Action.__init__(self)
         TelnetTrigger.__init__(self)
-        CallbackHandler.__init__(self)
-        WidgetRenderer.__init__(self)
+        WidgetRenderer.__init__(self)  # This calls CallbackHandler.__init__ via super()
         Template.__init__(self)
         Thread.__init__(self)
 
@@ -63,8 +61,7 @@ class Module(Thread, Action, TelnetTrigger, CallbackHandler, WidgetRenderer, Tem
 
         # Now start the thread (calls run() in new thread)
         Thread.start(self)
-        WidgetRenderer.start(self)
-        CallbackHandler.start(self)
+        WidgetRenderer.start(self)  # This also calls CallbackHandler.start() via inheritance
 
         return self
 
