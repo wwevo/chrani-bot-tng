@@ -15,6 +15,29 @@ class Action(object):
         self.available_actions_dict = {}
         self.trigger_action_hook = self.trigger_action
 
+    @staticmethod
+    def _create_tracked_wrapper(tracking_id, original_function, *args):
+        """
+        Creates a wrapper around the action's main function that automatically tracks progress.
+
+        This wrapper adds breadcrumbs at key points:
+        - When main_function starts
+        - When main_function returns normally
+        - When main_function raises an exception
+        """
+        def wrapper():
+            thread_tracker.update_progress(tracking_id, "main_function started")
+            try:
+                original_function(*args)
+                thread_tracker.update_progress(tracking_id, "main_function returned")
+            except Exception as e:
+                thread_tracker.update_progress(
+                    tracking_id,
+                    "Exception: {}: {}".format(type(e).__name__, str(e))
+                )
+                raise
+        return wrapper
+
     def register_action(self, identifier, action_dict):
         self.available_actions_dict[identifier] = action_dict
 
@@ -111,51 +134,72 @@ class Action(object):
                         user_has_permission is None,
                         user_has_permission is True
                     ]):
-                        # Generate tracking ID and register thread
+                        # Generate tracking ID and create tracked wrapper
                         tracking_id = thread_tracker.generate_tracking_id()
                         action_meta["tracking_id"] = tracking_id
+
+                        # Wrap main_function with automatic progress tracking
+                        wrapped_function = self._create_tracked_wrapper(
+                            tracking_id,
+                            action_meta.get("main_function"),
+                            target_module, action_meta, dispatchers_id
+                        )
+
+                        # Create thread and register it
+                        thread_obj = Thread(target=wrapped_function)
                         thread_tracker.register_thread(
                             tracking_id,
                             action_id,
-                            target_module.get_module_identifier()
+                            target_module.get_module_identifier(),
+                            thread_obj
                         )
-
-                        Thread(
-                            target=action_meta.get("main_function"),
-                            args=(target_module, action_meta, dispatchers_id)
-                        ).start()
+                        thread_obj.start()
                     else:
                         # in case we don't have permission, we call the skip callback. it then can determine what to do
                         # next
                         skip_callback = action_meta.get("callbacks").get("callback_skip")
 
-                        # Generate tracking ID and register thread
+                        # Generate tracking ID and create tracked wrapper
                         tracking_id = thread_tracker.generate_tracking_id()
                         action_meta["tracking_id"] = tracking_id
+
+                        # Wrap callback_skip with automatic progress tracking
+                        wrapped_function = self._create_tracked_wrapper(
+                            tracking_id,
+                            target_module.callback_skip,
+                            skip_callback, action_meta, dispatchers_id
+                        )
+
+                        # Create thread and register it
+                        thread_obj = Thread(target=wrapped_function)
                         thread_tracker.register_thread(
                             tracking_id,
                             action_id,
-                            target_module.get_module_identifier()
+                            target_module.get_module_identifier(),
+                            thread_obj
                         )
-
-                        Thread(
-                            target=target_module.callback_skip,
-                            args=(skip_callback, action_meta, dispatchers_id)
-                        ).start()
+                        thread_obj.start()
                 else:
                     # Server is offline but action requires connection - skip
                     skip_callback = action_meta.get("callbacks").get("callback_skip")
 
-                    # Generate tracking ID and register thread
+                    # Generate tracking ID and create tracked wrapper
                     tracking_id = thread_tracker.generate_tracking_id()
                     action_meta["tracking_id"] = tracking_id
+
+                    # Wrap callback_skip with automatic progress tracking
+                    wrapped_function = self._create_tracked_wrapper(
+                        tracking_id,
+                        target_module.callback_skip,
+                        skip_callback, action_meta, dispatchers_id
+                    )
+
+                    # Create thread and register it
+                    thread_obj = Thread(target=wrapped_function)
                     thread_tracker.register_thread(
                         tracking_id,
                         action_id,
-                        target_module.get_module_identifier()
+                        target_module.get_module_identifier(),
+                        thread_obj
                     )
-
-                    Thread(
-                        target=target_module.callback_skip,
-                        args=(skip_callback, action_meta, dispatchers_id)
-                    ).start()
+                    thread_obj.start()
