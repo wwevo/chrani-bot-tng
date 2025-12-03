@@ -169,13 +169,14 @@ class CallbackDict(dict):
                     "method": "upsert",
                     "matched_path": callback["callback_path"],
                     "original_data": relevant_original,
-                    "updated_data": relevant_updated
+                    "updated_data": relevant_updated,
+                    "dispatchers_id": dispatchers_steamid
                 }
 
                 Thread(
                     target=callback["callback"],
-                    args=[callback["module"], callback_kwargs],
-                    kwargs={"dispatchers_id": dispatchers_steamid}
+                    args=[callback["module"]],
+                    kwargs=callback_kwargs
                 ).start()
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")

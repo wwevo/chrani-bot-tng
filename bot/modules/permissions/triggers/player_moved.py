@@ -5,7 +5,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, widget=None, **kwargs):
+def main_function(module, **kwargs):
     print(trigger_name, ": ", module)
     print(kwargs)
 
