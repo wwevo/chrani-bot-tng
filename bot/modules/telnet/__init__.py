@@ -21,9 +21,9 @@ class TelnetRequest:
         self.result_queue = Queue(maxsize=1)
         self.completed = False
 
-    def add_line(self, line):
-        """Add line to buffer and check if regex matches."""
-        self.response_buffer += line + "\n"
+    def add_raw_data(self, raw_data):
+        """Add raw telnet data to buffer and check if regex matches."""
+        self.response_buffer += raw_data
 
         # Try to match regex against accumulated buffer
         match = re.search(self.regex, self.response_buffer, re.MULTILINE | re.DOTALL)
@@ -313,32 +313,26 @@ class Telnet(Module):
             return match.group(1)
         return None
 
-    def _route_line_to_tickets(self, line: str) -> None:
-        """Route incoming line to appropriate pending tickets."""
+    def _route_raw_to_tickets(self, raw_data: str) -> None:
+        """Route raw telnet data to tickets - they accumulate everything until match or timeout."""
 
-        # Check if this is an "Executing command" line
-        if "Executing command" in line:
-            command = self._extract_command_from_line(line)
-            line_timestamp = time()  # Use current time as proxy for server time
+        # Check if any command is starting in this raw data
+        if "Executing command" in raw_data:
+            for line in raw_data.split('\n'):
+                if "Executing command" in line:
+                    command = self._extract_command_from_line(line)
+                    if command:
+                        # Activate all tickets waiting for this command
+                        for ticket in self.pending_requests:
+                            if ticket.command == command and not ticket.is_active:
+                                ticket.is_active = True
 
-            if command:
-                # Activate all tickets waiting for this command
-                for ticket in self.pending_requests:
-                    if ticket.command == command:
-                        # Only activate if response is newer than request
-                        if line_timestamp >= ticket.queued_at:
-                            ticket.is_active = True
-                            ticket.add_line(line)
-                    else:
-                        # Different command started, deactivate this ticket
-                        ticket.is_active = False
-        else:
-            # Regular line - send to all active tickets
-            for ticket in self.pending_requests:
-                if ticket.is_active:
-                    completed = ticket.add_line(line)
-                    if completed:
-                        ticket.is_active = False
+        # Send raw data to all active tickets
+        for ticket in self.pending_requests:
+            if ticket.is_active:
+                completed = ticket.add_raw_data(raw_data)
+                if completed:
+                    ticket.is_active = False
 
     def _check_expired_tickets(self, current_time: float) -> None:
         """Check for and handle expired ticket timeouts."""
@@ -413,12 +407,9 @@ class Telnet(Module):
             )
 
             if valid_line is not None:
-                # Store for backward compatibility and webinterface
+                # Store for webinterface history only
                 self.telnet_lines_to_process.append(valid_line)
                 self._store_valid_line(valid_line)
-
-                # Route to pending tickets
-                self._route_line_to_tickets(valid_line)
 
     def _handle_connection_error(self, error) -> None:
         try:
@@ -462,6 +453,10 @@ class Telnet(Module):
                 pass
 
         if len(self.telnet_response) > 0:
+            # FIRST: Route raw data to tickets (ungefiltert!)
+            self._route_raw_to_tickets(self.telnet_response)
+
+            # THEN: Parse valid lines for webinterface logging
             self._process_telnet_response_lines()
 
         # Check for expired tickets
