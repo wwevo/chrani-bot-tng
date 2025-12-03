@@ -51,47 +51,39 @@ class ThreadManager:
             thread_id = current_thread().ident
             try:
                 result = target(*args, **kwargs)
-                self._mark_thread_completed(thread_id)
+                ThreadManager._mark_thread_completed(thread_id)
                 return result
             except Exception as e:
-                self._mark_thread_failed(thread_id, e)
+                ThreadManager._mark_thread_failed(thread_id, e)
                 print(f"[ThreadManager] Thread {name} failed with exception: {e}")
                 traceback.print_exc()
-            finally:
-                self._cleanup_thread(thread_id)
 
         thread = Thread(target=wrapped_target, name=name, daemon=True)
         thread.start()
 
         thread_context['thread_obj'] = thread
 
-        with self._registry_lock:
-            self._thread_registry[thread.ident] = thread_context
+        with ThreadManager._registry_lock:
+            ThreadManager._thread_registry[thread.ident] = thread_context
 
         return thread
 
-    def _mark_thread_completed(self, thread_id):
+    @staticmethod
+    def _mark_thread_completed(thread_id):
         """Mark thread as completed successfully."""
-        with self._registry_lock:
-            if thread_id in self._thread_registry:
-                self._thread_registry[thread_id]['status'] = 'completed'
-                self._thread_registry[thread_id]['completed_at'] = time()
+        with ThreadManager._registry_lock:
+            if thread_id in ThreadManager._thread_registry:
+                ThreadManager._thread_registry[thread_id]['status'] = 'completed'
+                ThreadManager._thread_registry[thread_id]['completed_at'] = time()
 
-    def _mark_thread_failed(self, thread_id, exception):
+    @staticmethod
+    def _mark_thread_failed(thread_id, exception):
         """Mark thread as failed with exception."""
-        with self._registry_lock:
-            if thread_id in self._thread_registry:
-                self._thread_registry[thread_id]['status'] = 'failed'
-                self._thread_registry[thread_id]['failed_at'] = time()
-                self._thread_registry[thread_id]['exception'] = str(exception)
-
-    def _cleanup_thread(self, thread_id):
-        """Remove thread from registry after completion."""
-        with self._registry_lock:
-            if thread_id in self._thread_registry:
-                # Keep completed/failed threads for a short time for debugging
-                # Actual removal happens in check_thread_timeouts
-                pass
+        with ThreadManager._registry_lock:
+            if thread_id in ThreadManager._thread_registry:
+                ThreadManager._thread_registry[thread_id]['status'] = 'failed'
+                ThreadManager._thread_registry[thread_id]['failed_at'] = time()
+                ThreadManager._thread_registry[thread_id]['exception'] = str(exception)
 
     def set_thread_debug_data(self, debug_data):
         """
@@ -101,9 +93,9 @@ class ThreadManager:
             debug_data: Dict with debug info (e.g., {'waiting_for': 'telnet response', 'buffer': '...'})
         """
         thread_id = current_thread().ident
-        with self._registry_lock:
-            if thread_id in self._thread_registry:
-                self._thread_registry[thread_id]['debug_data'] = debug_data
+        with ThreadManager._registry_lock:
+            if thread_id in ThreadManager._thread_registry:
+                ThreadManager._thread_registry[thread_id]['debug_data'] = debug_data
 
     @classmethod
     def check_thread_timeouts(cls):
