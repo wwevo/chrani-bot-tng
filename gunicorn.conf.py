@@ -13,11 +13,12 @@ bind = "0.0.0.0:5000"
 backlog = 2048
 
 # Worker Processes
-# For WebSocket support with gevent, use only 1 worker
+# Using threading mode for WebSocket support
 # Multiple workers don't work well with socket.io state
 workers = 1
-# Use gevent-websocket worker so Flask-SocketIO can upgrade to WebSocket under gunicorn
-worker_class = "geventwebsocket.gunicorn.workers.GeventWebSocketWorker"
+# Use threaded worker for Flask-SocketIO in threading mode
+worker_class = "gthread"
+threads = 4
 worker_connections = 1000
 max_requests = 0  # Disable automatic worker restart
 max_requests_jitter = 0
