@@ -1,7 +1,6 @@
 from bot import loaded_modules_dict
 from bot.constants import TELNET_TIMEOUT_NORMAL, TELNET_PREFIXES
 from os import path, pardir
-from time import sleep, time
 import re
 
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
@@ -13,29 +12,19 @@ def main_function(module, action_meta, dispatchers_id=None):
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if active_dataset is None:
         module.callback_fail(callback_fail, action_meta, dispatchers_id)
+        return
 
-    timeout_start = time()
+    # NEW: Send command with ticket system
+    regex = action_meta.get("regex")[0]
+    ticket = module.telnet.send_command("getgamestat", regex, timeout=TELNET_TIMEOUT_NORMAL)
+    result = ticket.wait()
 
-    if module.telnet.add_telnet_command_to_queue("getgamestat"):
-        regex = action_meta.get("regex")[0]
-
-        poll_is_finished = False
-
-        timeout_end = timeout_start + TELNET_TIMEOUT_NORMAL
-        while not poll_is_finished and (time() < timeout_end):
-            sleep(0.25)  # give the telnet a little time to respond so we have a chance to get the data at first try
-            for match in re.finditer(regex, module.telnet.telnet_buffer, re.MULTILINE):
-                poll_is_finished = True
-                module.callback_success(callback_success, action_meta, dispatchers_id, match)
-
-        if not poll_is_finished :
-            action_meta["fail_reason"] = []
-            action_meta["fail_reason"].append("timed out waiting for response")
+    if result['success']:
+        module.callback_success(callback_success, action_meta, dispatchers_id, result['match'])
     else:
-        action_meta["fail_reason"] = []
-        action_meta["fail_reason"].append("action already queued up")
-
-    module.callback_fail(callback_fail, action_meta, dispatchers_id)
+        print(f"[getgamestats] Action timeout. Buffer received:\n{result['buffer']}")
+        action_meta["fail_reason"] = ["timed out waiting for response"]
+        module.callback_fail(callback_fail, action_meta, dispatchers_id)
 
 
 def callback_success(module, action_meta, dispatchers_id=None, match=None):
