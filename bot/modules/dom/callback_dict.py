@@ -165,18 +165,16 @@ class CallbackDict(dict):
                 relevant_original = self._extract_relevant_data(original_state, callback["callback_path"], dict_to_upsert)
                 relevant_updated = self._extract_relevant_data(simulated_state, callback["callback_path"], dict_to_upsert)
 
-                callback_kwargs = {
+                callback_meta = {
                     "method": "upsert",
                     "matched_path": callback["callback_path"],
                     "original_data": relevant_original,
-                    "updated_data": relevant_updated,
-                    "dispatchers_id": dispatchers_steamid
+                    "updated_data": relevant_updated
                 }
 
                 Thread(
                     target=callback["callback"],
-                    args=[callback["module"]],
-                    kwargs=callback_kwargs
+                    args=[callback["module"], callback_meta, dispatchers_steamid]
                 ).start()
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
@@ -245,18 +243,16 @@ class CallbackDict(dict):
                 relevant_original = self._extract_relevant_data(original_state, callback["callback_path"], change_data_for_extract)
                 relevant_updated = self._extract_relevant_data(simulated_state, callback["callback_path"], change_data_for_extract)
 
-                callback_kwargs = {
+                callback_meta = {
                     "method": "delete",
                     "matched_path": callback["callback_path"],
                     "original_data": relevant_original,
-                    "updated_data": relevant_updated,
-                    "dispatchers_steamid": dispatchers_steamid,
+                    "updated_data": relevant_updated
                 }
 
                 Thread(
                     target=callback["callback"],
-                    args=[callback["module"]],
-                    kwargs=callback_kwargs
+                    args=[callback["module"], callback_meta, dispatchers_steamid]
                 ).start()
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
@@ -297,18 +293,16 @@ class CallbackDict(dict):
                 relevant_original = self._extract_relevant_data(original_state, callback["callback_path"], value_to_append)
                 relevant_updated = self._extract_relevant_data(simulated_state, callback["callback_path"], value_to_append)
 
-                callback_kwargs = {
+                callback_meta = {
                     "method": "append",
                     "matched_path": callback["callback_path"],
                     "original_data": relevant_original,
-                    "updated_data": relevant_updated,
-                    "dispatchers_steamid": dispatchers_steamid,
+                    "updated_data": relevant_updated
                 }
 
                 Thread(
                     target=callback["callback"],
-                    args=[callback["module"]],
-                    kwargs=callback_kwargs
+                    args=[callback["module"], callback_meta, dispatchers_steamid]
                 ).start()
             except Exception as e:
                 print(f"[ERROR] Callback {callback['callback_path']} failed: {e}")
