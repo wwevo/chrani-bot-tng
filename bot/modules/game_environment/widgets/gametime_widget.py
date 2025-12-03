@@ -6,7 +6,7 @@ from os import path, pardir
 module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pardir, pardir)))
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
-def main_widget(module, widget, dispatchers_id=None):
+def main_widget(module, callback_meta, dispatchers_id=None):
     if not module.webserver.connected_clients:
         return
 
@@ -33,7 +33,7 @@ def main_widget(module, widget, dispatchers_id=None):
     )
 
 
-def update_widget(module, widget, dispatchers_id=None):
+def update_widget(module, callback_meta, dispatchers_id=None):
     if not module.webserver.connected_clients:
         return
 
@@ -41,7 +41,7 @@ def update_widget(module, widget, dispatchers_id=None):
     if not active_dataset:
         return
 
-    updated_data = widget.get("updated_data")
+    updated_data = callback_meta.get("updated_data")
     last_recorded_gametime = updated_data.get("module_game_environment").get(active_dataset).get("last_recorded_gametime")
     if not last_recorded_gametime:
         return

@@ -5,7 +5,7 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_widget(module, widget, **kwargs):
+def main_widget(module, callback_meta, dispatchers_id=None):
     if not module.webserver.connected_clients:
         return
 
@@ -28,11 +28,11 @@ def main_widget(module, widget, **kwargs):
     )
 
 
-def update_widget(module, widget, dispatchers_id=None):
+def update_widget(module, callback_meta, dispatchers_id=None):
     if not module.webserver.connected_clients:
         return
 
-    updated_data = widget.get("updated_data")
+    updated_data = callback_meta.get("updated_data")
     thread_stats = updated_data.get("module_game_environment", {}).get("thread_stats")
     if not thread_stats:
         return

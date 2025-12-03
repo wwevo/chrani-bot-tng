@@ -2,12 +2,13 @@ from pprint import pp
 from threading import Thread, Event
 from time import time
 from bot import started_modules_dict
-from bot.mixins.trigger import Trigger
+from bot.mixins.telnet_trigger import TelnetTrigger
+from bot.mixins.callback_handler import CallbackHandler
+from bot.mixins.widget_renderer import WidgetRenderer
 from bot.mixins.action import Action
 from bot.mixins.template import Template
-from bot.mixins.widget import Widget
 
-class Module(Thread, Action, Trigger, Template, Widget):
+class Module(Thread, Action, TelnetTrigger, CallbackHandler, WidgetRenderer, Template):
     options = dict
     stopped = object
 
@@ -22,9 +23,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
         self.stopped = Event()
         Action.__init__(self)
-        Trigger.__init__(self)
+        TelnetTrigger.__init__(self)
+        CallbackHandler.__init__(self)
+        WidgetRenderer.__init__(self)
         Template.__init__(self)
-        Widget.__init__(self)
         Thread.__init__(self)
 
     def setup(self, provided_options=None):
@@ -37,10 +39,10 @@ class Module(Thread, Action, Trigger, Template, Widget):
             self.options.update(provided_options)
             print("found config for module {} in ./bot/options/{}".format(self.options['module_name'], options_filename))
 
-        self.import_triggers()
+        self.import_telnet_triggers()
+        self.import_callback_handlers()
         self.import_actions()
         self.import_templates()
-        self.import_widgets()
         self.name = self.options['module_name']
 
         return self
@@ -61,8 +63,8 @@ class Module(Thread, Action, Trigger, Template, Widget):
 
         # Now start the thread (calls run() in new thread)
         Thread.start(self)
-        Widget.start(self)
-        Trigger.start(self)
+        WidgetRenderer.start(self)
+        CallbackHandler.start(self)
 
         return self
 
