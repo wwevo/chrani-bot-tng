@@ -44,28 +44,6 @@ class TelnetTrigger(object):
         except (FileNotFoundError, ModuleNotFoundError):
             pass
 
-        # Legacy support: also check old directories (can be removed later)
-        # Check triggers/ directory
-        try:
-            triggers_dir = path.join(module_root_dir, "triggers")
-            for trigger_file in listdir(triggers_dir):
-                if trigger_file in ('common.py', '__init__.py') or not trigger_file.endswith('.py'):
-                    continue
-                # Only import if it has "triggers" key (regex-based, not callback-based)
-                import_module("bot.modules." + self.options['module_name'] + ".triggers." + trigger_file[:-3])
-        except (FileNotFoundError, ModuleNotFoundError):
-            pass
-
-        # Check commands/ directory
-        try:
-            commands_dir = path.join(module_root_dir, "commands")
-            for command_file in listdir(commands_dir):
-                if command_file in ('common.py', '__init__.py') or not command_file.endswith('.py'):
-                    continue
-                import_module("bot.modules." + self.options['module_name'] + ".commands." + command_file[:-3])
-        except (FileNotFoundError, ModuleNotFoundError):
-            pass
-
     def execute_telnet_triggers(self):
         """
         Process Telnet lines and execute matching triggers.
