@@ -6,9 +6,11 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(bot, source_module, regex_result):
+def main_function(module, trigger_meta, dispatchers_id=None):
+    regex_result = trigger_meta["regex_result"]
+    source_module = trigger_meta["source_module"]
+
     print(trigger_name, ": ", regex_result)
-    # print(kwargs)
     return
 
     command = regex_result.group("command")
@@ -69,4 +71,4 @@ trigger_meta = {
     ]
 }
 
-loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)
+loaded_modules_dict["module_" + module_name].register_telnet_trigger(trigger_name, trigger_meta)

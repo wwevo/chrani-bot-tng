@@ -7,10 +7,10 @@ trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
 def main_function(module, trigger_meta, dispatchers_id=None):
-    datetime = trigger_meta["trigger_meta["regex_result"]"].group("datetime")
+    datetime = trigger_meta["regex_result"].group("datetime")
 
     if datetime:
-        bot.dom.data.upsert({
+        module.dom.data.upsert({
             "module_telnet": {
                 "last_recorded_servertime": datetime
             }

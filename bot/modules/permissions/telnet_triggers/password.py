@@ -6,7 +6,10 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(origin_module, module, regex_result):
+def main_function(module, trigger_meta, dispatchers_id=None):
+    regex_result = trigger_meta["regex_result"]
+    source_module = trigger_meta["source_module"]
+
     command = regex_result.group("command")
     steamid = regex_result.group("player_steamid")
 
@@ -21,7 +24,7 @@ def main_function(origin_module, module, regex_result):
         'player_steamid': steamid,
         'entered_password': entered_password
     }]
-    module.trigger_action_hook(origin_module, event_data=event_data)
+    module.trigger_action_hook(source_module, event_data=event_data)
 
 
 triggers = {
@@ -34,4 +37,4 @@ trigger_meta = {
     "triggers": []
 }
 
-loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)
+loaded_modules_dict["module_" + module_name].register_telnet_trigger(trigger_name, trigger_meta)
