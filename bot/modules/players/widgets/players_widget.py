@@ -7,13 +7,10 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 widget_name = path.basename(path.abspath(__file__))[:-3]
 
 def select_widget_view(module, callback_meta, dispatchers_id=None):
-    dispatchers_id = callback_meta.get("dispatchers_id")
     current_view = module.get_current_view(widget_name, dispatchers_id)
     widget_meta.get("views").get(current_view)(module, callback_meta, dispatchers_id)
 
 def main_view(module, callback_meta, dispatchers_id=None):
-    dispatchers_id = callback_meta.get("dispatchers_id")
-
     widget = module.templates.get_template('players_widget/main/index.html')
     data_to_emit = module.template_render_hook(
         module,
@@ -37,8 +34,6 @@ def main_view(module, callback_meta, dispatchers_id=None):
     )
 
 def options_view(module, callback_meta, dispatchers_id=None):
-    dispatchers_id = callback_meta.get("dispatchers_id")
-
     widget = module.templates.get_template('players_widget/options/index.html')
     data_to_emit = module.template_render_hook(
         module,
