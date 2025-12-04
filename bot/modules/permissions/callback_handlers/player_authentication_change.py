@@ -5,15 +5,14 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(*args, **kwargs):
-    print(trigger_name, ": ", args)
-    # print(kwargs)
+def main_function(module, callback_meta, dispatchers_id=None):
+    print(trigger_name, ": ", module)
+    # print(callback_meta)
     return
 
-    module = args[0]
-    updated_values_dict = kwargs.get("updated_values_dict", {})
-    player_steamid = kwargs.get("dispatchers_steamid", None)
-    is_authenticated = updated_values_dict.get("is_authenticated", None)
+    updated_data = callback_meta.get("updated_data", {})
+    player_steamid = dispatchers_id
+    is_authenticated = updated_data.get("is_authenticated", None)
 
     try:
         if all([
@@ -57,4 +56,4 @@ trigger_meta = {
     }
 }
 
-loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)
+loaded_modules_dict["module_" + module_name].register_callback_handler(trigger_name, trigger_meta)

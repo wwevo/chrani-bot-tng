@@ -5,9 +5,9 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, **kwargs):
+def main_function(module, callback_meta, dispatchers_id=None):
     print(trigger_name, ": ", module)
-    print(kwargs)
+    print(callback_meta)
 
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if not active_dataset:
@@ -49,4 +49,4 @@ trigger_meta = {
     }
 }
 
-loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)
+loaded_modules_dict["module_" + module_name].register_callback_handler(trigger_name, trigger_meta)

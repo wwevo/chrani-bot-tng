@@ -5,17 +5,17 @@ module_name = path.basename(path.normpath(path.join(path.abspath(__file__), pard
 trigger_name = path.basename(path.abspath(__file__))[:-3]
 
 
-def main_function(module, **kwargs):
+def main_function(module, callback_meta, dispatchers_id=None):
     print(trigger_name, ": ", module)
-    print(kwargs)
+    print(callback_meta)
 
     active_dataset = module.dom.data.get("module_game_environment", {}).get("active_dataset", None)
     if not active_dataset:
         print("pass: no active dataset to work with")
         return
 
-    original_data = kwargs.get("original_data", {})
-    updated_data = kwargs.get("updated_data", {})
+    original_data = callback_meta.get("original_data", {})
+    updated_data = callback_meta.get("updated_data", {})
 
     # only dive into this when not authenticated
     if original_data.get("is_authenticated"):
@@ -101,4 +101,4 @@ trigger_meta = {
     }
 }
 
-loaded_modules_dict["module_" + module_name].register_trigger(trigger_name, trigger_meta)
+loaded_modules_dict["module_" + module_name].register_callback_handler(trigger_name, trigger_meta)
